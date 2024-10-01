@@ -1,0 +1,17 @@
+/* Hide scrollbar for Webkit browsers (Chrome, Safari) */
+::-webkit-scrollbar {
+    display: none; /* Hides the scrollbar */
+}
+
+/* Hide scrollbar for Firefox */
+.scrollbar {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer and Edge */
+}
+
+/* For any element you want to hide the scrollbar */
+.hide-scrollbar {
+    overflow: hidden; /* Optional: Prevents scrolling */
+    overflow-y: scroll; /* Keeps vertical scrolling */
+    height: 100%; /* Adjust as needed */
+}

@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "baseUrl": "src",
+    "paths": {
+      "@/*": ["*"] // This should work with baseUrl set to "src"
+    }
+  },
+  "include": ["src"]
+}
