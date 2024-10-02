@@ -1,32 +1,73 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
-  PaginationLink,
   PaginationNext,
   PaginationPrevious
 } from "@/components/ui/pagination";
 import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+import { useSearchParams } from "react-router-dom";
+import useUpdateParams from "@/lib/hooks/useUpdateParams";
+import { Skeleton } from "../ui/skeleton";
 
-const TablePagination = ({ totalPages=0, pageIndex=0 }) => {
+const TablePagination = ({ totalPages, isFinalPage }) => {
+  const [searchParams] = useSearchParams();
+
+  const currentPage = parseInt(searchParams.get("page")) || 1;
+
+  const [pageIndex, setPageIndex] = useState(currentPage);
+
+  const updateParams = useUpdateParams();
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      const newPage = currentPage - 1;
+      updateParams({page: newPage});
+      setPageIndex(newPage);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (!isFinalPage) {
+      const newPage = currentPage + 1;
+      updateParams({page: newPage});
+      setPageIndex(newPage);
+    }
+  };
+
+  useEffect(() => {
+    setPageIndex(currentPage);
+  }, [currentPage]);
   return (
-    <Pagination>
+    <Pagination className={"!bg-gray-200 py-1.5 rounded-b-md"}>
       <PaginationContent>
-        <PaginationItem className="cursor-pointer">
+        <PaginationItem className="cursor-pointer" onClick={handlePreviousPage}>
           <PaginationPrevious />
         </PaginationItem>
-        <PaginationItem className="flex justify-center items-center  h-10 ">
+        <PaginationItem className="flex justify-center items-center h-10 z-20">
           <Input
-            value={pageIndex+1}
-            className="w-10 !shadow-none !text-base border-none focus:!border-none focus:!ring-0 focus:!outline-none"
-          />{" "}
-          <span className="pr-2">to</span>
-          <span>{totalPages}</span>
+            value={pageIndex}
+            type="number"
+            onChange={(e) => setPageIndex(e.target.value)}
+            onBlur={() => {
+              let newPageIndex = Math.max(
+                1,
+                Math.min(pageIndex, totalPages)
+              );
+              updateParams({page: newPageIndex});
+              setPageIndex(newPageIndex);
+            }}
+            className="w-10 !shadow-none !text-sm font-medium remove-number-spinner"
+          />
+          <Button className="!bg-transparent pt-2.5 w-fit shadow-none border-none font-medium text-black">
+            out of
+          </Button>
+          <Button className="!bg-transparent w-4 pt-2.5 shadow-none border-none font-medium text-black">
+            <span>{totalPages?totalPages:<Skeleton className={"w-7 h-7 bg-gray-300"}/>}</span>
+          </Button>
         </PaginationItem>
-
-        <PaginationItem className="cursor-pointer">
+        <PaginationItem className="cursor-pointer" onClick={handleNextPage}>
           <PaginationNext />
         </PaginationItem>
       </PaginationContent>

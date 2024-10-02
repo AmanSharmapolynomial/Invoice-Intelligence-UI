@@ -36,7 +36,7 @@ export const invoiceTableHeaders = [
     key: "clickbacon_status"
   },
   {
-    label: "Failure Clause Code",
+    label: "Failure Cause Code",
     key: ""
   },
   {
@@ -57,3 +57,44 @@ export const invoiceTableHeaders = [
   },
   
 ];
+
+
+export const vendorCategories=[
+  {
+    label:'NA',
+    value:"NA"
+  },
+  {
+    label:'Normal Invoice',
+    value:"Normal Invoice"
+  },
+  {
+    label:'Liquor Invoice',
+    value:"Liquor Invoice"
+  },
+  {
+    label:'Summary Invoice',
+    value:"Summary Invoice"
+  },
+  {
+    label:'None',
+    value:"none"
+  },
+]
+
+
+export const humanVerifiedOptions=[
+  {
+    label:'Verified',
+    value:"Verified"
+  },
+  {
+    label:'Not Verified',
+    value:'Not Verified'
+  },
+  {
+    label:'Clear',
+    value:"none"
+  },
+  
+]

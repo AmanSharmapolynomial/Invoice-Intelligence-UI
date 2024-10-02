@@ -6,6 +6,6 @@ export const useListInvoices=(payload)=>{
 
     return useQuery({
         queryKey:['list-invoices',payload],
-        queryFn:listInvoices
+        queryFn:()=>listInvoices(payload)
     })
 }
