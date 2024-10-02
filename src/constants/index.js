@@ -54,47 +54,149 @@ export const invoiceTableHeaders = [
   {
     label: "Human Verification Date",
     key: "human_verified_date"
-  },
-  
+  }
 ];
 
+export const vendorCategories = [
+  {
+    label: "NA",
+    value: "NA"
+  },
+  {
+    label: "Normal Invoice",
+    value: "Normal Invoice"
+  },
+  {
+    label: "Liquor Invoice",
+    value: "Liquor Invoice"
+  },
+  {
+    label: "Summary Invoice",
+    value: "Summary Invoice"
+  },
+  {
+    label: "None",
+    value: "none"
+  }
+];
 
-export const vendorCategories=[
+export const humanVerifiedOptions = [
   {
-    label:'NA',
-    value:"NA"
+    label: "Verified",
+    value: "Verified"
   },
   {
-    label:'Normal Invoice',
-    value:"Normal Invoice"
+    label: "Not Verified",
+    value: "Not Verified"
   },
   {
-    label:'Liquor Invoice',
-    value:"Liquor Invoice"
-  },
-  {
-    label:'Summary Invoice',
-    value:"Summary Invoice"
-  },
-  {
-    label:'None',
-    value:"none"
-  },
-]
+    label: "Clear",
+    value: "none"
+  }
+];
 
+export const HumanVerificationFilterOptions = [
+  {
+    label: "All",
+    value: "all"
+  },
+  {
+    label: "Human Verification Required",
+    value: "Human Verification Required"
+  },
+  {
+    label: "Human Verification Not Required",
+    value: "Human Verification Not Required"
+  }
+];
+export const InvoiceTypeFilterOptions = [
+  {
+    label: "All",
+    value: "all"
+  },
+  {
+    label: "Normal Invoice",
+    value: "Normal Invoice"
+  },
+  {
+    label: "Liquor Invoice",
+    value: "Liquor Invoice"
+  },
+  {
+    label: "Summary Invoice",
+    value: "Summary Invoice"
+  }
+];
 
-export const humanVerifiedOptions=[
+export const InvoiceDetectionStatusFilterOptions = [
   {
-    label:'Verified',
-    value:"Verified"
+    label: "All",
+    value: "all"
   },
   {
-    label:'Not Verified',
-    value:'Not Verified'
+    label: "Detected",
+    value: "Detected"
   },
   {
-    label:'Clear',
-    value:"none"
+    label: "Not Detected",
+    value: "Not Detected"
+  }
+];
+export const InvoiceReRunStatusFilterOptions = [
+  {
+    label: "All",
+    value: "all"
   },
-  
-]
+  {
+    label: "Rerun",
+    value: "Rerun"
+  },
+  {
+    label: "Not Rerun",
+    value: "Not Rerun"
+  }
+];
+export const AutoAcceptedFilterFilterOptions = [
+  {
+    label: "Both",
+    value: "both"
+  },
+  {
+    label: "True",
+    value: true
+  },
+  {
+    label: "False",
+    value: false
+  }
+];
+export const clickBACONStatusFilterOptions = [
+  {
+    label: "All",
+    value: "all"
+  },
+  {
+    label: "Pending",
+    value: "pending"
+  },
+  {
+    label: "Approved",
+    value: "approved"
+  },
+  {
+    label: "Rejected",
+    value: "rejected"
+  },
+  {
+    label: "Synced",
+    value: "synced"
+  },
+  {
+    label: "Manually Synced",
+    value: "manually_synced"
+  },
+  {
+    label: "Rereview Requested",
+    value: "re_review_requested"
+  }
+];

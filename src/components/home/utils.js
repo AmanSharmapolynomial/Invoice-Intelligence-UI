@@ -22,3 +22,15 @@ export const listInvoices = async (payload) => {
   const response = await axiosInstance.get(apiUrl);
   return response;
 };
+
+
+export const listRestautants=async()=>{
+  const apiUrl=`/api/restaurant/`
+  const response = await axiosInstance.get(apiUrl);
+  return response;
+}
+export const listVendors=async()=>{
+  const apiUrl=`/api/vendor/`
+  const response = await axiosInstance.get(apiUrl);
+  return response;
+}

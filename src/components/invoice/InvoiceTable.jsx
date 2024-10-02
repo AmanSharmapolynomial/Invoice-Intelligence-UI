@@ -192,11 +192,11 @@ const InvoiceTable = ({ data, isLoading }) => {
                         </TableHead>
 
                         <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start pl-10 !font-semibold !text-gray-800 !min-w-40 border-b  ">
-                          {auto_accepted
+                          {auto_accepted===true
                             ? "Accepted"
-                            : rejected == true
+                            : rejected === true
                             ? "Rejected"
-                            : human_verified
+                            : human_verified==true
                             ? "Accepted"
                             : ""}
                         </TableHead>

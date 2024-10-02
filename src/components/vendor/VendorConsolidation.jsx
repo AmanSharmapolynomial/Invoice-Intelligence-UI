@@ -31,11 +31,10 @@ const VendorConsolidation = () => {
   const [searchParams] = useSearchParams();
   const updateParams = useUpdateParams();
   const page = searchParams.get("page") || 1;
-  const page_size = searchParams.get("page_size") || 10;
+  const page_size = searchParams.get("page_size") || 8;
   const verified_by = searchParams.get("verified_by") || "";
-  const human_verified = searchParams.get("human_verified") || "";
-  const vendor_category =
-    searchParams.get("vendor_category") ?? "";
+  const human_verified = searchParams.get("human_verified") || "all";
+  const vendor_category = searchParams.get("vendor_category") ?? "";
 
   const [addedVendor, setAddedVendor] = useState("");
   const { data: usersData, isLoading: usersListLoading } = useGetUsersList();
@@ -45,7 +44,7 @@ const VendorConsolidation = () => {
       page_size: page_size,
       verified_by: verified_by,
       human_verified: human_verified,
-      vendor_category:vendor_category
+      vendor_category: vendor_category
     }
   );
   const { mutate: createVendor, isPending: creatingVendor } =
@@ -64,18 +63,19 @@ const VendorConsolidation = () => {
           className="border mt-10 rounded-t-md !shadow-none bg-gray-200 relative "
         >
           <Progress
-            innerClassName="!bg-[#1b5e20]"
+            innerClassName="!bg-green-800"
             value={33}
             className="w-72 absolute right-4 h-4 bg-gray-300/90"
           />
         </Header>
+
         <div className="w-full border flex justify-between p-4 gap-x-4 overflow-auto">
           <div>
             <div className="flex w-full max-w-sm items-center space-x-2">
               <Input
                 type="email"
                 placeholder="Search vendor name"
-                className="min-w-72 max-w-96"
+                className="min-w-72 max-w-96 border border-gray-200  focus:!ring-0 focus:!outline-none"
               />
               <Button type="submit">
                 <Search />
@@ -90,12 +90,14 @@ const VendorConsolidation = () => {
               data={vendorCategories}
               onChange={(val) => {
                 if (val == "none") {
-                  updateParams({ vendor_category: "all" });
+                  updateParams({ vendor_category: undefined });
                 } else {
                   updateParams({ vendor_category: val });
                 }
               }}
-              placeholder={vendor_category?vendor_category:"Vendor Category"}
+              placeholder={
+                vendor_category !== "" ? vendor_category : "Vendor Category"
+              }
             />{" "}
             <CustomDropDown
               className="!bg-red-500"
@@ -103,13 +105,19 @@ const VendorConsolidation = () => {
               contentClassName={"bg-gray-100"}
               data={humanVerifiedOptions}
               onChange={(val) => {
-                if (val == "none") {
-                  updateParams({ human_verified: "all" });
+                if (val === "none") {
+                  updateParams({ human_verified: undefined });
                 } else {
                   updateParams({ human_verified: val });
                 }
               }}
-              placeholder={<span className="capitalize">{human_verified?human_verified:"Human Verified"}</span>}
+              placeholder={
+                <span className="capitalize">
+                  {human_verified === "all" || human_verified === "none"
+                    ? "Human Verified"
+                    : human_verified}
+                </span>
+              }
             />
             <CustomDropDown
               className="!bg-red-500"
@@ -118,21 +126,23 @@ const VendorConsolidation = () => {
               data={usersListLoading ? [] : formatData(usersData?.data)}
               onChange={(val) => {
                 if (val == "none") {
-                  updateParams({ verified_by: "" });
+                  updateParams({ verified_by: undefined });
                 } else {
                   updateParams({ verified_by: val });
                 }
               }}
               placeholder={
-                usersListLoading
-                  ? "Verified By "
-                  : usersData && getUserNameFromId(usersData?.data, verified_by)
+                <span className="capitalize">
+                  {verified_by == undefined
+                    ? "Verified By"
+                    : usersData&& getUserNameFromId(usersData?.data, verified_by)}
+                </span>
               }
             />
             <AlertDialog>
               <AlertDialogTrigger>
                 {" "}
-                <Button className="flex gap-x-1 bg-[#1b5e20] hover:bg-indigo-600">
+                <Button className="flex gap-x-1 bg-green-800 hover:bg-green-900">
                   <span>
                     <CirclePlus className="h-4" />
                   </span>
