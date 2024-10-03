@@ -1,5 +1,5 @@
 import {  QueryClient, useMutation, useQuery } from "@tanstack/react-query"
-import { createVendor, getVendorList } from "./utils"
+import { createVendor, getVendorList ,getVendorNamesList} from "./utils"
 import toast from "react-hot-toast"
 const queryClient=new QueryClient();
 export const useGetVendorList=(payload)=>{
@@ -22,5 +22,12 @@ export const createVendorMutation=()=>{
               
             toast.success(data?.message)
         }
+    })
+}
+
+export const useGetVendorNames=()=>{
+    return useQuery({
+        queryKey:['vendor-names-list'],
+        queryFn:getVendorNamesList
     })
 }

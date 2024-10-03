@@ -32,35 +32,76 @@ import { Button } from "../ui/button";
 import { Filter as FilterIcon, Search } from "lucide-react";
 import CustomDropDown from "../ui/CustomDropDown";
 import { vendorCategories } from "@/constants";
-import { formatRestaurantsList } from "@/lib/helpers";
+import {
+  formatRestaurantsList,
+  getValueFromLabel,
+  vendorNamesFormatter
+} from "@/lib/helpers";
 import InvoiceFilters from "../invoice/InvoiceFilters";
 import CustomDateRangePicker from "../ui/CustomDateRangePicker";
+import { useGetVendorNames } from "../vendor/api";
+import { useInvoiceStore } from "../invoice/store";
+import { useEffect } from "react";
 
 const Home = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   let page = searchParams.get("page") || 1;
   let page_size = searchParams.get("page_size") || 8;
   let invoice_type = searchParams.get("invoice_type") || "";
+  let human_verified = searchParams.get("human_verified") || "";
+  let detected = searchParams.get("detected") || "";
+  let rerun_status = searchParams.get("rerun_status") || "";
+  let auto_accepted = searchParams.get("auto_accepted") || "";
+  let start_date = searchParams.get("start_date") || "";
+  let end_date = searchParams.get("end_date") || "";
+  let clickbacon_status = searchParams.get("clickbacon_status") || "";
+  let restaurant = searchParams.get("restaurant") || "";
+  let vendor = searchParams.get("vendor") || "";
+
   const updateParams = useUpdateParams();
   const { data: restaurantsList, isLoading: restaurantsListLoading } =
     useListRestaurants();
   const { data: vendorsList, isLoading: vendorsListLoading } =
     useListInvoices();
+  const { data: vendorNamesList, isLoading: vendorNamesLoading } =
+    useGetVendorNames();
+  const {
+    setRestaurantFilter,
+    setVendorFilter,
+    vendorFilterValue,
+    restaurantFilterValue
+  } = useInvoiceStore();
   const { data, isLoading } = useListInvoices({
-    auto_accepted: "all",
-    end_date: null,
-    human_verification: "all",
-    human_verified: "all",
-    invoice_detection_status: "all",
+    auto_accepted: auto_accepted,
+    end_date: end_date,
+    human_verified: human_verified,
+    detected: detected,
     invoice_type: invoice_type,
-    rerun_status: "both",
-    restaurant: null,
-    start_date: null,
-    vendor: "all",
+    clickbacon_status: clickbacon_status,
+    rerun_status: rerun_status,
+    restaurant: restaurant,
+    start_date: start_date,
+
+    vendor: vendor,
     page_size: page_size,
     page: page
   });
-
+  useEffect(() => {
+    const resValue = formatRestaurantsList(
+      restaurantsList && restaurantsList?.data
+    )?.find((item) => item.value == restaurant)?.value;
+    const vendValue = vendorNamesFormatter(
+      vendorNamesList?.data && vendorNamesList?.data?.vendor_names
+    )?.find((item) => item.value == vendor)?.value;
+    console.log(resValue, vendValue);
+    setRestaurantFilter(resValue);
+    setVendorFilter(vendValue);
+  }, [
+    restaurantsList,
+    vendorNamesList,
+    vendorNamesLoading,
+    restaurantsListLoading
+  ]);
   return (
     <>
       <Navbar></Navbar>
@@ -85,75 +126,45 @@ const Home = () => {
               </Button>
             </div>
             <div className="flex items-center gap-x-2">
-              {/* <Select
-                className="!bg-[#FFFFFF]"
-                // placeholder={invoice_type ? invoice_type : "Invoice Type"}
-                onValueChange={handleValueChange}
-              >
-                <SelectTrigger className="w-[180px] focus:outline-none focus:ring-0 !bg-gray-100  font-medium">
-                  <SelectValue
-                    placeholder={
-                      <span className="capitalize ">
-                        {invoice_type ? invoice_type : "Invoice Type"}
-                      </span>
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="Summary Invoice">
-                    Summay Invoice
-                  </SelectItem>
-                  <SelectItem value="Liquor Invoice">Liquor Invoice</SelectItem>
-                  <SelectItem value="Normal Invoice">Normal Invoice</SelectItem>
-                </SelectContent>
-              </Select> */}
               <CustomDropDown
-                className="!bg-red-500"
                 triggerClassName={"bg-gray-100"}
                 contentClassName={"bg-gray-100"}
-                data={vendorCategories
-                  .filter((item) => item.label !== "NA")
-                  .map((item) => {
-                    if (item.label == "None") {
-                      item.label = "All";
-                      item.value = "none";
-                    }
-                    return item;
-                  })
-                  .reverse()}
-                onChange={(val) => {
-                  if (val == "none") {
-                    updateParams({ invoice_type: undefined });
-                  } else {
-                    updateParams({ invoice_type: val });
-                  }
-                }}
-                placeholder={
-                  <span className="capitalize">
-                    {(invoice_type =="all" || invoice_type == "none" || !invoice_type)
-                      ? "Invoice Type"
-                      : invoice_type}
-                  </span>
+                Value={ restaurantFilterValue
                 }
-              />{" "}
-              <CustomDropDown
-                className="!bg-red-500"
-                triggerClassName={"bg-gray-100"}
-                contentClassName={"bg-gray-100"}
+                placeholder="All Restaurants"
                 data={formatRestaurantsList(
                   restaurantsList && restaurantsList?.data
                 )}
-                onChange={(val) => {}}
-                placeholder={"All Restaurants"}
+                searchPlaceholder="Search Restaurant"
+                onChange={(val) => {
+                  if (val == "none") {
+                    updateParams({ restaurant: undefined });
+                    setRestaurantFilter("none");
+                  } else {
+                    setRestaurantFilter(val);
+                    updateParams({ restaurant: val });
+                  }
+                }}
               />{" "}
               <CustomDropDown
-                className="!bg-red-500"
+                Value={vendorFilterValue}
+                className="!min-w-56"
                 triggerClassName={"bg-gray-100"}
                 contentClassName={"bg-gray-100"}
-                data={vendorCategories}
-                onChange={(val) => {}}
-                placeholder={"All Vendors"}
+                data={vendorNamesFormatter(
+                  vendorNamesList?.data && vendorNamesList?.data?.vendor_names
+                )}
+                onChange={(val) => {
+                  if (val == "none") {
+                    setVendorFilter("none");
+                    updateParams({ vendor: undefined });
+                  } else {
+                    setVendorFilter(val);
+                    updateParams({ vendor: val });
+                  }
+                }}
+                placeholder="All Vendors"
+                searchPlaceholder="Search Vendor Name"
               />{" "}
               <Sheet className="!overflow-auto">
                 <SheetTrigger>
@@ -167,11 +178,8 @@ const Home = () => {
                     <SheetTitle>Filters</SheetTitle>
                   </SheetHeader>
                   <InvoiceFilters />
-                  <SheetFooter>
-                
-                </SheetFooter>
+                  <SheetFooter></SheetFooter>
                 </SheetContent>
-            
               </Sheet>
             </div>
             <CustomDateRangePicker />

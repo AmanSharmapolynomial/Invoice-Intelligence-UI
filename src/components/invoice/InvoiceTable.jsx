@@ -1,4 +1,15 @@
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from "@/components/ui/alert-dialog";
+import {
   Table,
   TableBody,
   TableHead,
@@ -10,7 +21,9 @@ import { Link } from "react-router-dom";
 import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
 
-const InvoiceTable = ({ data, isLoading }) => {
+// import Modal,{ ModalTrigger } from "../ui/Modal";
+
+const InvoiceTable = ({ data = [], isLoading }) => {
   return (
     <div className="w-full overflow-auto pb-4">
       <Table className="flex flex-col   box-border  scrollbar ">
@@ -56,7 +69,7 @@ const InvoiceTable = ({ data, isLoading }) => {
               Accepted/Rejected
             </TableHead>
 
-            <TableHead className="flex cursor-pointer !text-left items-center justify-start  !font-semibold !text-gray-800 !min-w-60 pl-6  border-b border-r  bg-gray-200 h-14">
+            <TableHead className="flex cursor-pointer !text-left items-center justify-center  !font-semibold !text-gray-800 !min-w-60  border-b border-r  bg-gray-200 h-14">
               Rejected Reasons
             </TableHead>
             <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start pl-4 !font-semibold !text-gray-800 !min-w-60 border-b  bg-gray-200 h-14">
@@ -103,7 +116,8 @@ const InvoiceTable = ({ data, isLoading }) => {
                     </TableRow>
                   );
                 })
-              : data?.map(
+              : data?.length > 0 &&
+                data?.map(
                   (
                     {
                       channel,
@@ -192,23 +206,44 @@ const InvoiceTable = ({ data, isLoading }) => {
                         </TableHead>
 
                         <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start pl-10 !font-semibold !text-gray-800 !min-w-40 border-b  ">
-                          {auto_accepted===true
+                          {auto_accepted === true
                             ? "Accepted"
                             : rejected === true
                             ? "Rejected"
-                            : human_verified==true
+                            : human_verified == true
                             ? "Accepted"
                             : ""}
                         </TableHead>
 
-                        <TableHead className="flex cursor-pointer !text-left items-center justify-start pl-6  !font-semibold !text-gray-800 !min-w-60  border-b border-r  ">
-                          {!rejection_reason ? "" : rejection_reason}
+                        <TableHead className="flex cursor-pointer !text-left items-center justify-center   !font-semibold !text-gray-800 !min-w-60  border-b border-r  ">
+                          {rejection_reason && (
+                            <AlertDialog>
+                              <AlertDialogTrigger>
+                                <Button className="text-xs h-8 py-1 w-fit px-3 bg-gray-800 hover:bg-gray-900">View Reason</Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>
+                                    Rejected Reasons
+                                  </AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    <p className="font-semibold text-sm mt-4 border-b">{rejection_reason}</p>
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Close</AlertDialogCancel>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          )}
                         </TableHead>
                         <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start pl-4 !font-semibold !text-gray-800 !min-w-60 border-b  ">
                           {invoice_type}
                         </TableHead>
-                        <TableHead className="flex cursor-pointer !text-left items-center justify-start pl-4  !font-semibold !text-gray-800 !min-w-60 border-b  ">
-                          {!human_verified_date ? "" : human_verified_date}
+                        <TableHead className="flex cursor-pointer !text-left items-center justify-center   !font-semibold !text-gray-800 !min-w-60 border-b  ">
+                          {!human_verified_date
+                            ? ""
+                            : human_verified_date?.split("T")?.[0]}
                         </TableHead>
                       </TableRow>
                     );

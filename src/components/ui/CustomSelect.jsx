@@ -7,20 +7,31 @@ import {
   SelectValue
 } from "./select";
 import { Label } from "./label";
+import { Input } from "./input";
 
 const CustomSelect = ({
-  data = [], 
-  placeholder="Select",
+  data = [],
+  placeholder = "Select",
   placeholderClassName,
   triggerClassName,
   optionClassName,
-  label=""
+  label = "",
+  onSelect,
+  value
 }) => {
-
   return (
-    <Select className="!bg-[#FFFFFF]" placeholder={placeholder}>
-        <Label>{label}</Label>
-      <SelectTrigger className={`${triggerClassName} w-[180px] focus:outline-none focus:ring-0 !bg-gray-100 font-medium`}>
+    <Select
+      className="!bg-[#FFFFFF]"
+      value={value}
+      placeholder={placeholder}
+      onValueChange={(val) => {
+        onSelect(val);
+      }}
+    >
+      <Label>{label}</Label>
+      <SelectTrigger
+        className={`${triggerClassName} w-[180px] focus:outline-none focus:ring-0 !bg-gray-100 font-medium`}
+      >
         <SelectValue
           placeholder={
             <span className={`${placeholderClassName} capitalize`}>
@@ -30,15 +41,17 @@ const CustomSelect = ({
         />
       </SelectTrigger>
       <SelectContent>
-        {data.length !== 0 ? data.map(({ label, value }) => (
-          <SelectItem
-            key={value}
-            value={value}
-            className={`${optionClassName} capitalize`}
-          >
-            {label}
-          </SelectItem>
-        )) : null}
+        {data.length !== 0
+          ? data.map(({ label, value }) => (
+              <SelectItem
+                key={value}
+                value={value}
+                className={`${optionClassName} capitalize`}
+              >
+                {label}
+              </SelectItem>
+            ))
+          : null}
       </SelectContent>
     </Select>
   );

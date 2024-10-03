@@ -138,8 +138,8 @@ export const InvoiceDetectionStatusFilterOptions = [
     value: "Detected"
   },
   {
-    label: "Not Detected",
-    value: "Not Detected"
+    label: "Undetected",
+    value: "Undetected"
   }
 ];
 export const InvoiceReRunStatusFilterOptions = [

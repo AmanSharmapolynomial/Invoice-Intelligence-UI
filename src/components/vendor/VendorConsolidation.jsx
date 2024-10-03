@@ -9,7 +9,7 @@ import { formatData, getUserNameFromId } from "@/lib/helpers";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { CirclePlus, Search } from "lucide-react";
-import { createVendorMutation, useGetVendorList } from "./api";
+import { createVendorMutation, useGetVendorList, useGetVendorNames } from "./api";
 import VendorConsolidationTable from "./VendorConsolidationTable";
 import {
   AlertDialog,
@@ -38,6 +38,7 @@ const VendorConsolidation = () => {
 
   const [addedVendor, setAddedVendor] = useState("");
   const { data: usersData, isLoading: usersListLoading } = useGetUsersList();
+  const { data: vendorNamesList, isLoading: vendorNamesLoading } = useGetVendorNames();
   const { data: vendorsData, isLoading: vendorsDataLoading } = useGetVendorList(
     {
       page: page,
