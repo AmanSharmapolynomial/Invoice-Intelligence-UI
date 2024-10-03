@@ -22,12 +22,12 @@ const Header = ({ title, children, className, showVC, showDeDuplication }) => {
       <div className="flex gap-x-2 absolute right-8 items-center">
         {showDeDuplication && (
           <Link to={""} className="flex justify-end">
-            <Button className=" bg-gray-800 hover:bg-gray-900">De Duplication</Button>
+            <Button className=" bg-[#FFFFFF] text-black hover:bg-white/95">De Duplication</Button>
           </Link>
         )}
         {showVC && (
           <Link to={"/vendor-consolidation"} className="flex justify-end">
-            <Button className=" bg-gray-800 hover:bg-gray-900">Vendor Consolidation</Button>
+            <Button className=" bg-[#FFFFFF] text-black hover:bg-white/95">Vendor Consolidation</Button>
           </Link>
         )}
       </div>

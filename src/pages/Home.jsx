@@ -1,19 +1,11 @@
 import "@/App.css";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select";
-import Header from "../common/Header";
-import Layout from "../common/Layout";
-import Navbar from "../common/Navbar";
-import InfoSection from "./InfoSection";
+import Header from "@/components/common/Header";
+import Layout from "@/components/common/Layout";
+import Navbar from "@/components/common/Navbar";
+import InfoSection from "@/components/home/InfoSection";
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetFooter,
   SheetHeader,
   SheetTitle,
@@ -21,27 +13,23 @@ import {
 } from "@/components/ui/sheet";
 
 import InvoiceTable from "@/components/invoice/InvoiceTable";
-import { useListInvoices, useListRestaurants } from "./api";
-import TablePagination from "../common/TablePagination";
-import { Table } from "../ui/table";
-import { useSearchParams } from "react-router-dom";
-import useUpdateParams from "@/lib/hooks/useUpdateParams";
-import { Label } from "../ui/label";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import { Filter as FilterIcon, Search } from "lucide-react";
-import CustomDropDown from "../ui/CustomDropDown";
-import { vendorCategories } from "@/constants";
 import {
   formatRestaurantsList,
-  getValueFromLabel,
   vendorNamesFormatter
 } from "@/lib/helpers";
-import InvoiceFilters from "../invoice/InvoiceFilters";
-import CustomDateRangePicker from "../ui/CustomDateRangePicker";
-import { useGetVendorNames } from "../vendor/api";
-import { useInvoiceStore } from "../invoice/store";
+import useUpdateParams from "@/lib/hooks/useUpdateParams";
+import { Filter as FilterIcon, Search } from "lucide-react";
 import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import TablePagination from "@/components/common/TablePagination";
+import { useListInvoices, useListRestaurants } from "@/components/home/api";
+import InvoiceFilters from "@/components/invoice/InvoiceFilters";
+import { useInvoiceStore } from "@/components/invoice/store";
+import { Button } from "@/components/ui/button";
+import CustomDateRangePicker from "@/components/ui/CustomDateRangePicker";
+import CustomDropDown from "@/components/ui/CustomDropDown";
+import { Input } from "@/components/ui/input";
+import { useGetVendorNames } from "@/components/vendor/api";
 
 const Home = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -93,7 +81,7 @@ const Home = () => {
     const vendValue = vendorNamesFormatter(
       vendorNamesList?.data && vendorNamesList?.data?.vendor_names
     )?.find((item) => item.value == vendor)?.value;
-    console.log(resValue, vendValue);
+
     setRestaurantFilter(resValue);
     setVendorFilter(vendValue);
   }, [
@@ -107,7 +95,7 @@ const Home = () => {
       <Navbar></Navbar>
       <Layout className={"mx-10 rounded-md  border mt-8 !shadow-none "}>
         <Header
-          className={"shadow-none bg-gray-200 relative"}
+          className={"shadow-none bg-primary rounded-t-md !text-[#FFFFFF] relative"}
           showVC={true}
           title={"Invoices"}
           showDeDuplication={true}

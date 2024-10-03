@@ -200,3 +200,89 @@ export const clickBACONStatusFilterOptions = [
     value: "re_review_requested"
   }
 ];
+
+export const vendorDetailsPageFirstColRowData = [
+  {
+    label: "Vendor Id",
+    value: "vendor_id"
+  },
+  {
+    label: "Vendor Name",
+    value: "vendor_name"
+  },
+  {
+    label: "Human Verified",
+    value: "human_verified"
+  },
+  {
+    label: "Auto Approve Invoices",
+    value: "auto_approve_invoices"
+  },
+  {
+    label: "Vendor Branches Count",
+    value: "vendor_id"
+  },
+  {
+    label: "Verified Branches Count",
+    value: "verified_branch_count"
+  },
+  {
+    label: "Total Items",
+    value: "items_count"
+  },
+  {
+    label: "Vendor Category",
+    value: ""
+  },
+  {
+    label: "Account Category",
+    value: ""
+  },
+  {
+    label: "Vendor Name Synonyms",
+    value: "vendor_name_synonyms"
+  },
+  {
+    label: "Vendor Document Type",
+    value: "vendor_document_type"
+  }
+];
+
+export const vendorBranchesHeaders = [
+  {
+    label: "Vendor Address",
+    value: "vendor_address"
+  },
+  {
+    label: "Document Count",
+    value: "document_count"
+  },
+  {
+    label: "Created Date",
+    value: "created_date"
+  },
+  {
+    label: "Select Master",
+    value: ""
+  },
+  {
+    label: "Select For Merge",
+    value: ""
+  },
+  {
+    label: "Migrate",
+    value: ""
+  },
+  {
+    label: "View Invoice",
+    value: ""
+  },
+  {
+    label: "Edit",
+    value: ""
+  },
+  {
+    label: "Delete",
+    value: ""
+  }
+];

@@ -1,11 +1,20 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { Button } from "../ui/button";
-import { LogOut } from "lucide-react";
+import { Home, HomeIcon, LogOut, LucideHome } from "lucide-react";
 
-const Navbar = ({ children,className }) => {
+const Navbar = ({ children, className }) => {
+  const { pathname } = useLocation();
+
   return (
-    <div className={`${className} w-full h-[8vh]  flex items-center px-8 shadow relative`}>
+    <div
+      className={`${className} w-full h-[8vh]  flex items-center px-8 shadow relative`}
+    >
+      {!["/home", "/"].includes(pathname) && (
+        <Link to={"/home"}>
+          <LucideHome className="mt-0.5" />
+        </Link>
+      )}
       <Link to={"/"} className="font-bold text-2xl pl-3">
         Invoice Intelligence Platform
       </Link>

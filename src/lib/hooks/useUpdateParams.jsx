@@ -2,9 +2,9 @@ import { useSearchParams } from "react-router-dom";
 
 const useUpdateParams = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-
   const updateParams = (params) => {
     const currentParams = Object.fromEntries(searchParams);
+   
 
     // Remove any parameters that are set to undefined
     Object.keys(params).forEach((key) => {

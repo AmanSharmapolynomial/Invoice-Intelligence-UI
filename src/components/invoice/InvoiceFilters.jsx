@@ -189,7 +189,7 @@ const InvoiceFilters = () => {
       <DateRangePicker ranges={[selectionRange]} onChange={handleSelect} />
       <div className="flex gap-x-2 w-full justify-end">
         <Button
-          className="bg-orange-600 hover:bg-orange-500"
+          className="bg-primary hover:bg-primary/95"
           onClick={handleReset}
         >
           Reset

@@ -4,13 +4,17 @@ import Navbar from "@/components/common/Navbar";
 import Header from "@/components/common/Header";
 import { Progress } from "@/components/ui/progress";
 import CustomDropDown from "@/components/ui/CustomDropDown";
-import { useGetUsersList } from "../user/api";
+import { useGetUsersList } from "../components/user/api";
 import { formatData, getUserNameFromId } from "@/lib/helpers";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { CirclePlus, Search } from "lucide-react";
-import { createVendorMutation, useGetVendorList, useGetVendorNames } from "./api";
-import VendorConsolidationTable from "./VendorConsolidationTable";
+import {
+  createVendorMutation,
+  useGetVendorList,
+  useGetVendorNames
+} from "@/components/vendor/api";
+import VendorConsolidationTable from "@/components/vendor/VendorConsolidationTable";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,7 +27,7 @@ import {
   AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
 import { humanVerifiedOptions, vendorCategories } from "@/constants";
-import TablePagination from "../common/TablePagination";
+import TablePagination from "@/components/common/TablePagination";
 import { useSearchParams } from "react-router-dom";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 
@@ -35,17 +39,21 @@ const VendorConsolidation = () => {
   const verified_by = searchParams.get("verified_by") || "";
   const human_verified = searchParams.get("human_verified") || "all";
   const vendor_category = searchParams.get("vendor_category") ?? "";
+  const vendor_name_search = searchParams.get("vendor_name_search") ?? "";
 
   const [addedVendor, setAddedVendor] = useState("");
+  const [searchTerm, setSearchTerm] = useState(vendor_name_search);
   const { data: usersData, isLoading: usersListLoading } = useGetUsersList();
-  const { data: vendorNamesList, isLoading: vendorNamesLoading } = useGetVendorNames();
+  const { data: vendorNamesList, isLoading: vendorNamesLoading } =
+    useGetVendorNames();
   const { data: vendorsData, isLoading: vendorsDataLoading } = useGetVendorList(
     {
       page: page,
       page_size: page_size,
       verified_by: verified_by,
       human_verified: human_verified,
-      vendor_category: vendor_category
+      vendor_category: vendor_category,
+      vendor_name_search: vendor_name_search
     }
   );
   const { mutate: createVendor, isPending: creatingVendor } =
@@ -61,12 +69,12 @@ const VendorConsolidation = () => {
       <Layout className={"mx-10 box-border"}>
         <Header
           title={"Vendor Consolidation"}
-          className="border mt-10 rounded-t-md !shadow-none bg-gray-200 relative "
+          className="border mt-10 rounded-t-md !shadow-none bg-primary !text-[#FFFFFF] relative "
         >
           <Progress
-            innerClassName="!bg-green-800"
+            innerClassName="border-primary  !bg-white/85 "
             value={33}
-            className="w-72 absolute right-4 h-4 bg-gray-300/90"
+            className="w-72 absolute right-4 h-4 bg-white/15 "
           />
         </Header>
 
@@ -74,11 +82,25 @@ const VendorConsolidation = () => {
           <div>
             <div className="flex w-full max-w-sm items-center space-x-2">
               <Input
-                type="email"
+                type="text"
+                value={searchTerm}
+                onChange={(e) => {
+                  if (e.target.value === "") {
+                    setSearchTerm("");
+                    updateParams({ vendor_name_search: undefined });
+                  } else {
+                    setSearchTerm(e.target.value);
+                  }
+                }}
                 placeholder="Search vendor name"
                 className="min-w-72 max-w-96 border border-gray-200  focus:!ring-0 focus:!outline-none"
               />
-              <Button type="submit">
+              <Button
+                type="submit"
+                onClick={() => {
+                  updateParams({ vendor_name_search: searchTerm });
+                }}
+              >
                 <Search />
               </Button>
             </div>
@@ -136,14 +158,15 @@ const VendorConsolidation = () => {
                 <span className="capitalize">
                   {verified_by == undefined
                     ? "Verified By"
-                    : usersData&& getUserNameFromId(usersData?.data, verified_by)}
+                    : usersData &&
+                      getUserNameFromId(usersData?.data, verified_by)}
                 </span>
               }
             />
             <AlertDialog>
               <AlertDialogTrigger>
                 {" "}
-                <Button className="flex gap-x-1 bg-green-800 hover:bg-green-900">
+                <Button className="flex gap-x-1 bg-primary hover:bg-primary/95">
                   <span>
                     <CirclePlus className="h-4" />
                   </span>

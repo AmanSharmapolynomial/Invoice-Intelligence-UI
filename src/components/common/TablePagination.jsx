@@ -40,10 +40,10 @@ const TablePagination = ({ totalPages, isFinalPage }) => {
     setPageIndex(currentPage);
   }, [currentPage]);
   return (
-    <Pagination className={"!bg-gray-200 py-1.5 rounded-b-md"}>
+    <Pagination className={"!bg-[#1E7944] py-1.5 rounded-b-md"}>
       <PaginationContent>
         <PaginationItem className="cursor-pointer" onClick={handlePreviousPage}>
-          <PaginationPrevious />
+          <PaginationPrevious className={"text-[#FFFFFF]"} />
         </PaginationItem>
         <PaginationItem className="flex justify-center items-center h-10 z-20">
           <Input
@@ -58,17 +58,17 @@ const TablePagination = ({ totalPages, isFinalPage }) => {
               updateParams({page: newPageIndex});
               setPageIndex(newPageIndex);
             }}
-            className="w-10 !shadow-none !text-sm font-medium remove-number-spinner"
+            className="w-10 !shadow-none !text-sm font-medium remove-number-spinner text-[#FFFFFF] border-none focus:!border-[#FFFFFF] focus:!outline-none focus:!ring-[#FFFFFF]"
           />
-          <Button className="!bg-transparent pt-2.5 w-fit shadow-none border-none font-medium text-black">
+          <Button className="!bg-transparent pt-2.5 w-fit shadow-none border-none font-medium text-[#FFFFFF]">
             out of
           </Button>
-          <Button className="!bg-transparent w-4 pt-2.5 shadow-none border-none font-medium text-black">
+          <Button className="!bg-transparent w-4 pt-2.5 shadow-none border-none font-medium text-[#FFFFFF]">
             <span>{totalPages?totalPages:<Skeleton className={"w-7 h-7 bg-gray-300"}/>}</span>
           </Button>
         </PaginationItem>
         <PaginationItem className="cursor-pointer" onClick={handleNextPage}>
-          <PaginationNext />
+          <PaginationNext className={"text-[#FFFFFF]"}/>
         </PaginationItem>
       </PaginationContent>
     </Pagination>

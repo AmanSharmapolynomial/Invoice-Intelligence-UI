@@ -26,4 +26,30 @@
     -webkit-appearance: none; /* Safari and Chrome */
     margin: 0; /* Remove default margin */
   }
-  
+  .rdrSelected, .rdrInRange, .rdrStartEdge, .rdrEndEdge{
+    background:#1E7944 !important;
+    border:1px solid #1E7944 !important
+  }
+  .rdrSelected:hover, .rdrInRange:hover, .rdrStartEdge:hover, .rdrEndEdge:hover{
+    border:1px solid #1E7944 !important
+  }
+
+  .rdrDayToday .rdrDayNumber span:after{
+    background:#1E7944 !important
+}
+
+.rdr,.rdrInRange,.rdrDateDisplayItem{
+    border:1px solid #1E7944 !important
+}
+
+.rdrDay:hover,.rdrDayNumber {
+    color: red !important;
+    /* border:1px solid #1E7944 !important */
+}
+::before, ::after{
+    background:red !important
+}
+
+.rdrDay:hover {
+   
+}
