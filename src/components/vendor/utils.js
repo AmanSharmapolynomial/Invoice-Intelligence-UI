@@ -20,3 +20,7 @@ export const createVendor = async (vendor_name) => {
     return response;
   }
 };
+export const getVendorNamesList=async()=>{
+const response=await axiosInstance.get('/api/vendor/names/')
+return response
+}

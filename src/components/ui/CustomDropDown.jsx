@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Command,
   CommandEmpty,
@@ -16,25 +16,29 @@ import { Button } from "@/components/ui/button";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getValueFromLabel } from "@/lib/helpers";
-import { useState } from "react";
 
 const CustomDropDown = ({
   data = [],
   onChange,
-  placeholder = "Select an option", // Default placeholder
+  placeholder = "Select an option",
   searchPlaceholder = "Search",
   className,
   triggerClassName,
+  Value,
   contentClassName
 }) => {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState(Value);
+
+  useEffect(() => {
+    setValue(Value); // Sync internal state with prop value
+  }, [Value]);
 
   const handleSelect = (currentValue) => {
     const newValue = currentValue === value ? "" : currentValue;
     setValue(newValue);
     setOpen(false);
-    onChange(getValueFromLabel(data, currentValue));
+    onChange(getValueFromLabel(data, newValue));
   };
 
   return (
@@ -44,19 +48,17 @@ const CustomDropDown = ({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between"
+          className="min-w-[200px] justify-between"
         >
-          {value && value.toLowerCase() !== "none" // Check for "none"
+          {value && value !== "none"
             ? data.find((item) => item.value === value)?.label
-            : placeholder}
+            :  placeholder}
+
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent
-        className="w-[200px] p-0"
-        contentClassName={contentClassName}
-      >
-        <Command>
+      <PopoverContent className="w-[200px] p-0" contentClassName={contentClassName}>
+        <Command className={className}>
           <CommandInput placeholder={searchPlaceholder} />
           <CommandList>
             <CommandEmpty>No data found.</CommandEmpty>
@@ -64,7 +66,7 @@ const CustomDropDown = ({
               {data.map((item) => (
                 <CommandItem
                   key={item.value}
-                  onSelect={() => handleSelect(item.value)} // Use value directly
+                  onSelect={() => handleSelect(item.value)}
                 >
                   <Check
                     className={cn(
