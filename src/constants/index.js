@@ -102,11 +102,11 @@ export const HumanVerificationFilterOptions = [
   },
   {
     label: "Human Verification Required",
-    value: "Human Verification Required"
+    value: true
   },
   {
     label: "Human Verification Not Required",
-    value: "Human Verification Not Required"
+    value: false
   }
 ];
 export const InvoiceTypeFilterOptions = [
@@ -149,11 +149,11 @@ export const InvoiceReRunStatusFilterOptions = [
   },
   {
     label: "Rerun",
-    value: "Rerun"
+    value: true
   },
   {
     label: "Not Rerun",
-    value: "Not Rerun"
+    value: false
   }
 ];
 export const AutoAcceptedFilterFilterOptions = [

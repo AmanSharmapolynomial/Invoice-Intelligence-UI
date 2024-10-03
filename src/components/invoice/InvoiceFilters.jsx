@@ -13,8 +13,6 @@ import { DateRangePicker } from "react-date-range";
 import { useState } from "react";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
-// import DateRangePicker from "../ui/DateRangePicker";
-// import { DatePickerWithRange } from "../ui/DateRangePicker";
 
 const InvoiceFilters = () => {
   const [selectionRange, setSelectionRange] = useState({
