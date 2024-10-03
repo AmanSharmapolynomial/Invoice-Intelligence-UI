@@ -13,10 +13,9 @@ import "react-date-range/dist/styles.css"; // main css file
 import "react-date-range/dist/theme/default.css"; // theme css file
 import { useSearchParams } from "react-router-dom";
 import { Button } from "../ui/button";
+import { useInvoiceStore } from "./store";
 import CustomSelect from "../ui/CustomSelect";
 import { Label } from "../ui/label";
-import { useGetVendorNames } from "../vendor/api";
-import { useInvoiceStore } from "./store";
 
 const InvoiceFilters = () => {
   const [searchParams] = useSearchParams();
@@ -99,8 +98,6 @@ const InvoiceFilters = () => {
     });
   };
 
-  const { data: vendorNamesList, isLoading: vendorNamesLoading } =
-    useGetVendorNames();
 
   return (
     <div className="mt-4 flex flex-col gap-y-4 !overflow-auto">

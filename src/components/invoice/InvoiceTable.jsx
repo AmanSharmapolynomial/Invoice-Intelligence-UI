@@ -190,7 +190,7 @@ const InvoiceTable = ({ data = [], isLoading }) => {
                         <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-center  !font-semibold !text-gray-800 !min-w-44 border-b  ">
                           <span
                             className={`h-5 w-5 rounded-full ${
-                              [0, 1, 2, 3, 4].includes(
+                              [0, 1, 2, 3, 4]?.includes(
                                 document_failed_cause_code
                               )
                                 ? "bg-red-500"
