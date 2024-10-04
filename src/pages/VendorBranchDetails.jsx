@@ -19,7 +19,7 @@ import { useParams } from "react-router-dom";
 
 const VendorBranchDetails = () => {
   const { branch_id } = useParams();
-  const queryClient=new QueryClient()
+  const queryClient = new QueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const { data, isLoading } = useGetVendorBranchDetails(branch_id);
   const [dropDownSearch, setDropDownSearch] = useState("");
@@ -74,8 +74,19 @@ const VendorBranchDetails = () => {
             </div>
           </div>
           <div className="flex gap-x-2">
-            <Button ><Save className="h-5 w-5"/></Button>
-            <Button className="bg-red-600 hover:bg-red-600/90"><Trash2 className="h-5 w-5"/></Button>
+            <Button>
+              <Save className="h-5 w-5" 
+              onClick={
+                () => {
+                 console.log("Save clicked")
+                 console.log("first, data", data)
+                }
+              }
+              />
+            </Button>
+            <Button className="bg-red-600 hover:bg-red-600/90">
+              <Trash2 className="h-5 w-5" />
+            </Button>
           </div>
         </div>
         <Table className="flex flex-col   box-border  scrollbar !w-full ">
@@ -101,11 +112,10 @@ const VendorBranchDetails = () => {
               </TableHead>
 
               <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-             <Input value=   {data?.data?.["vendor_address"]}
-             onChange={(e)=>{
-
-             }}
-             />
+                <Input
+                  value={data?.data?.["vendor_address"]}
+                  onChange={(e) => {}}
+                />
               </TableCell>
               <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14 ">
                 {data?.data?.created_date?.split("T")?.[0]}
@@ -115,13 +125,17 @@ const VendorBranchDetails = () => {
               </TableCell>
 
               <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                <Switch  value={data?.data?.["human_verified"]} onCheckedChange={(val)=>{
-                const copyObj=JSON.parse(JSON.stringify(data))
-                copyObj.data['human_verifed']=val;
-                queryClient.setQueryData(['vendor-branch-details'],copyObj)
-                  console.log(data)
-              
-                }} />
+                <Switch
+                  value={data?.data?.["human_verified"]}
+                  onCheckedChange={(val) => {
+                    const copyObj = {...data}
+                    copyObj.data["human_verified"] = val;
+                    queryClient.setQueryData(
+                      ["vendor-branch-details", branch_id],
+                      copyObj
+                    );
+                  }}
+                />
               </TableCell>
               <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
                 {data?.data?.["document_count"]}
@@ -170,12 +184,15 @@ const VendorBranchDetails = () => {
                     }}
                   />
                   <div className="py-1">
-                    {data && filteredDropDownItems?.length>0?
+                    {data && filteredDropDownItems?.length > 0 ? (
                       filteredDropDownItems?.map(({ label, value }) => (
                         <SelectItem key={value} value={value} className={``}>
                           {label}
                         </SelectItem>
-                      )):<p className="flex justify-center">No data found.</p>}
+                      ))
+                    ) : (
+                      <p className="flex justify-center">No data found.</p>
+                    )}
                   </div>
                 </CustomSelect>
               </TableCell>
