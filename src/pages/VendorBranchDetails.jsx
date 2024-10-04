@@ -14,18 +14,15 @@ import { Switch } from "@/components/ui/switch";
 import { vendorBranchDetailsPageFirstColRowData } from "@/constants";
 import { makeKeyValueFromKey } from "@/lib/helpers";
 import { QueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { queryClient } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const VendorBranchDetails = () => {
   const { branch_id } = useParams();
-  const queryClient=new QueryClient()
   const [searchTerm, setSearchTerm] = useState("");
   const { data, isLoading } = useGetVendorBranchDetails(branch_id);
-  const [dropDownSearch, setDropDownSearch] = useState("");
-  const [filteredDropDownItems, setFilteredDropDownItems] = useState(
-    makeKeyValueFromKey(data?.data?.["vendor_address_synonyms"])
-  );
 
   return (
     <>
@@ -35,7 +32,7 @@ const VendorBranchDetails = () => {
         <Header
           title={`Vendor Branch  ${
             data?.data?.vendor_name
-              ? "Deatils for" + data?.data?.vendor_name
+              ? " Details for " + data?.data?.vendor_name
               : ""
           }`}
           className="border mt-10 rounded-t-md !capitalize !shadow-none bg-primary !text-[#FFFFFF] relative "
@@ -74,8 +71,21 @@ const VendorBranchDetails = () => {
             </div>
           </div>
           <div className="flex gap-x-2">
-            <Button ><Save className="h-5 w-5"/></Button>
-            <Button className="bg-red-600 hover:bg-red-600/90"><Trash2 className="h-5 w-5"/></Button>
+            <Button>
+              <Save
+                className="h-5 w-5"
+                onClick={() => {
+                  const updatedData = queryClient.getQueryData([
+                    "vendor-branch-details",
+                    branch_id
+                  ]);
+                  console.log("Current saved data:", updatedData);
+                }}
+              />
+            </Button>
+            <Button className="bg-red-600 hover:bg-red-600/90">
+              <Trash2 className="h-5 w-5" />
+            </Button>
           </div>
         </div>
         <Table className="flex flex-col   box-border  scrollbar !w-full ">
@@ -99,92 +109,111 @@ const VendorBranchDetails = () => {
               <TableHead className="flex  border-r !text-left items-center justify-start pl-[5%] !font-semibold !text-gray-800  border-b  !min-h-14 bg-gray-200 h-14">
                 Field Value
               </TableHead>
+              {isLoading ? (
+                [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,12,13].map((_, index) => (
+                  <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
+                    <Skeleton className={"w-96 h-5"} />
+                  </TableCell>
+                ))
+              ) : (
+                <>
+                  <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
+                    <Input
+                      value={data?.data?.["vendor_address"]}
+                      onChange={(e) => {
+                        const newData = {
+                          ...data,
+                          data: {
+                            ...data.data,
+                            vendor_address: e.target.value
+                          }
+                        };
 
-              <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-             <Input value=   {data?.data?.["vendor_address"]}
-             onChange={(e)=>{
+                        // Update the query data
+                        queryClient.setQueryData(
+                          ["vendor-branch-details", branch_id],
+                          newData
+                        );
+                        const updatedData = queryClient.getQueryData([
+                          "vendor-branch-details",
+                          branch_id
+                        ]);
+                        console.log("Updated data:", updatedData);
+                        queryClient.setQueryData(
+                          ["vendor-branch-details", branch_id],
+                          updatedData
+                        );
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14 ">
+                    {data?.data?.created_date?.split("T")?.[0]}
+                  </TableCell>
+                  <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
+                    {data?.data?.["last_modified_date"]?.split("T")?.[0]}
+                  </TableCell>
 
-             }}
-             />
-              </TableCell>
-              <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14 ">
-                {data?.data?.created_date?.split("T")?.[0]}
-              </TableCell>
-              <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                {data?.data?.["last_modified_date"]?.split("T")?.[0]}
-              </TableCell>
-
-              <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                <Switch  value={data?.data?.["human_verified"]} onCheckedChange={(val)=>{
-                const copyObj=JSON.parse(JSON.stringify(data))
-                copyObj.data['human_verifed']=val;
-                queryClient.setQueryData(['vendor-branch-details'],copyObj)
-                  console.log(data)
-              
-                }} />
-              </TableCell>
-              <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                {data?.data?.["document_count"]}
-              </TableCell>
-              <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                {data?.data?.["vendor_city"]}
-              </TableCell>
-              <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                {data?.data?.["vendor_phone_number"]}
-              </TableCell>
-              <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                {data?.data?.["vendor_state"]}
-              </TableCell>
-              <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                {data?.data?.["vendor_street"]}
-              </TableCell>
-              <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                {data?.data?.["vendor_zip_code"]}
-              </TableCell>
-              <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                <CustomSelect
-                  showCustomContent={true}
-                  placeholder={
-                    makeKeyValueFromKey(
-                      data?.data?.["vendor_address_synonyms"]
-                    )?.[0]?.label
-                  }
-                  placeholderClassName={"font-normal"}
-                  onSelect={(val) => {}}
-                  data={makeKeyValueFromKey(
-                    data?.data?.["vendor_address_synonyms"]
-                  )}
-                  className={"!min-w-fit"}
-                >
-                  <Input
-                    placeholder="Search Vendor Address Synonym"
-                    value={dropDownSearch}
-                    onChange={(e) => {
-                      setDropDownSearch(e.target.value);
-                      let fil = makeKeyValueFromKey(
+                  <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
+                    <Switch
+                      value={data?.data?.["human_verified"]}
+                      onCheckedChange={(val) => {
+                        const newData = {
+                          ...data,
+                          data: {
+                            ...data.data,
+                            human_verified: val
+                          }
+                        };
+                        queryClient.setQueryData(
+                          ["vendor-branch-details", branch_id],
+                          newData
+                        );
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
+                    {data?.data?.["document_count"]}
+                  </TableCell>
+                  <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
+                    {data?.data?.["vendor_city"]}
+                  </TableCell>
+                  <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
+                    {data?.data?.["vendor_phone_number"]}
+                  </TableCell>
+                  <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
+                    {data?.data?.["vendor_state"]}
+                  </TableCell>
+                  <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
+                    {data?.data?.["vendor_street"]}
+                  </TableCell>
+                  <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
+                    {data?.data?.["vendor_zip_code"]}
+                  </TableCell>
+                  <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
+                    <CustomSelect
+                    searchPlaceHolder="Search Vendor Address Synonym"
+                      showCustomContent={true}
+                      placeholder={
+                        makeKeyValueFromKey(
+                          data?.data?.["vendor_address_synonyms"]
+                        )?.[0]?.label
+                      }
+                      placeholderClassName={"font-normal"}
+                      onSelect={(val) => {}}
+                      data={makeKeyValueFromKey(
                         data?.data?.["vendor_address_synonyms"]
-                      )?.filter((item) =>
-                        item?.label?.includes(e.target.value)
-                      );
-                      setFilteredDropDownItems(fil);
-                    }}
-                  />
-                  <div className="py-1">
-                    {data && filteredDropDownItems?.length>0?
-                      filteredDropDownItems?.map(({ label, value }) => (
-                        <SelectItem key={value} value={value} className={``}>
-                          {label}
-                        </SelectItem>
-                      )):<p className="flex justify-center">No data found.</p>}
-                  </div>
-                </CustomSelect>
-              </TableCell>
-              <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                {data?.data?.["vendor_id"]}
-              </TableCell>
-              <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                {data?.data?.["branch_id"]}
-              </TableCell>
+                      )}
+                      className={"!min-w-fit"}
+                    ></CustomSelect>
+                  </TableCell>
+                  <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
+                    {data?.data?.["vendor_id"]}
+                  </TableCell>
+                  <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
+                    {data?.data?.["branch_id"]}
+                  </TableCell>
+                </>
+              )}
             </div>
           </TableRow>
         </Table>

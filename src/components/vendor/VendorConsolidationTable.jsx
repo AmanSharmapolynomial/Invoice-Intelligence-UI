@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table";
-import { Eye, Trash, Verified } from "lucide-react";
+import { Eye, Trash, Trash2, Verified } from "lucide-react";
 import { Link } from "react-router-dom";
 const VendorConsolidationTable = ({ data, isLoading }) => {
   return (
@@ -52,13 +52,11 @@ const VendorConsolidationTable = ({ data, isLoading }) => {
               Verified By
             </TableHead>
 
-            <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center !font-semibold !text-gray-800 !min-w-36 border-b bg-gray-200 h-14 ">
-              View Invoice
+            <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center !font-semibold !text-gray-800 !min-w-44 border-b bg-gray-200 h-14 ">
+              Actions
             </TableHead>
 
-            <TableHead className="flex  !text-left items-center justify-center  !font-semibold !text-gray-800 !min-w-36  border-b border-r  bg-gray-200 h-14">
-              Delete
-            </TableHead>
+          
           </TableRow>
         </TableHeader>
         <div className="flex-1 ">
@@ -150,17 +148,13 @@ const VendorConsolidationTable = ({ data, isLoading }) => {
                         {verified_by}{" "}
                       </TableHead>
 
-                      <TableHead className="flex  !text-left items-center justify-center   !font-normal !text-gray-800 !min-w-36  border-b border-r  pb-4">
-                        <Button>
-                          <Eye className="h-4"/>
-                        </Button>
+                      <TableHead className="flex  !text-left items-center justify-center   !font-normal !text-gray-800 !min-w-44 gap-x-4 border-b border-r  pb-4">
+                        
+                          <Eye className="h-5  text-primary cursor-pointer"/>
+                        
+                          <Trash2 className="h-5 w-5 text-red-600 cursor-pointer  " />
                       </TableHead>
 
-                      <TableHead className="flex  !text-left items-center justify-center   !font-normal !text-gray-800 !min-w-36  border-b border-r  pb-4">
-                        <Button>
-                          <Trash className="h-4" />
-                        </Button>
-                      </TableHead>
                     </TableRow>
                   );
                 }

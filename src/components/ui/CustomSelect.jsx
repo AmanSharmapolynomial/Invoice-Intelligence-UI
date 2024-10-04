@@ -1,4 +1,6 @@
-import React from "react";
+import { useState } from "react";
+import { Input } from "./input";
+import { Label } from "./label";
 import {
   Select,
   SelectContent,
@@ -6,8 +8,6 @@ import {
   SelectTrigger,
   SelectValue
 } from "./select";
-import { Label } from "./label";
-import { Input } from "./input";
 
 const CustomSelect = ({
   data = [],
@@ -15,12 +15,16 @@ const CustomSelect = ({
   placeholderClassName,
   triggerClassName,
   optionClassName,
+  searchPlaceHolder="Search",
   label = "",
   onSelect,
   value,
-  showCustomContent=false,
+  showCustomContent = false,
   children
 }) => {
+  const [dropDownSearch, setDropDownSearch] = useState("");
+  const [filteredDropDownItems, setFilteredDropDownItems] = useState(data);
+
   return (
     <Select
       className="!bg-[#FFFFFF]"
@@ -43,8 +47,7 @@ const CustomSelect = ({
         />
       </SelectTrigger>
       <SelectContent>
-
-        {!showCustomContent &&  data.length !== 0
+        {/* {!showCustomContent && data.length !== 0
           ? data.map(({ label, value }) => (
               <SelectItem
                 key={value}
@@ -54,7 +57,29 @@ const CustomSelect = ({
                 {label}
               </SelectItem>
             ))
-          : children}
+          : children} */}
+        <Input
+          placeholder={searchPlaceHolder}
+          value={dropDownSearch}
+          onChange={(e) => {
+            setDropDownSearch(e.target.value);
+            let fil = data?.filter((item) =>
+              item?.label?.includes(e.target.value)
+            );
+            setFilteredDropDownItems(fil);
+          }}
+        />
+        <div className="py-1">
+          {data && filteredDropDownItems?.length > 0 ? (
+            filteredDropDownItems?.map(({ label, value }) => (
+              <SelectItem key={value} value={value} className={``}>
+                {label}
+              </SelectItem>
+            ))
+          ) : (
+            <p className="flex justify-center">No data found.</p>
+          )}
+        </div>
       </SelectContent>
     </Select>
   );

@@ -8,6 +8,7 @@ import {
 import { vendorDetailsPageFirstColRowData } from "@/constants";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { Skeleton } from "../ui/skeleton";
 
 const VendorDetailsTable = ({ data = [], isLoading = false }) => {
   return (
@@ -31,41 +32,50 @@ const VendorDetailsTable = ({ data = [], isLoading = false }) => {
             <TableHead className="flex  border-r !text-left items-center justify-start pl-[15%] !font-semibold !text-gray-800  border-b  !min-h-14 bg-gray-200 h-14">
               Field Value
             </TableHead>
+            {isLoading ? (
+              [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((_, index) => (
+                <TableCell
+                  key={index}
+                  className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14"
+                >
+                  <Skeleton className={"w-96 h-5"} />
+                </TableCell>
+              ))
+            ) : (
+              <>
+                {/* {['vendor_id','vendor_name','human_verified','auto_approve_invoices','branch_count','verified_branch_count','item_count'].map((item,index)=>(
+                 <TableCell key={index} className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
+                 {data?.[`${item}`]}
+               </TableCell>
+              ))} */}
+                <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
+                  {data?.["vendor_id"]}
+                </TableCell>
+                <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14 ">
+                  <Input value={data?.vendor_name} />
+                </TableCell>
+                <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
+                  <Switch value={data?.["human_verified"]} />
+                </TableCell>
 
-            <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-              {data?.["vendor_id"]}
-            </TableCell>
-            <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14 ">
-              <Input value={data?.vendor_name} />
-            </TableCell>
-            <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-              <Switch value={data?.["human_verified"]} />
-            </TableCell>
-
-            <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-              <Switch value={data?.["auto_approve_invoices"]} />
-            </TableCell>
-            <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-              {data?.["branch_count"]}
-            </TableCell>
-            <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-              {data?.["verified_branch_count"]}
-            </TableCell>
-            <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-              {data?.["item_count"]}
-            </TableCell>
-            <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-             
-            </TableCell>
-            <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-      
-            </TableCell>
-            <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-        
-            </TableCell>
-            <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-              
-            </TableCell>
+                <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
+                  <Switch value={data?.["auto_approve_invoices"]} />
+                </TableCell>
+                <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
+                  {data?.["branch_count"]}
+                </TableCell>
+                <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
+                  {data?.["verified_branch_count"]}
+                </TableCell>
+                <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
+                  {data?.["item_count"]}
+                </TableCell>
+                <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14"></TableCell>
+                <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14"></TableCell>
+                <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14"></TableCell>
+                <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14"></TableCell>
+              </>
+            )}
           </div>
         </TableRow>
 

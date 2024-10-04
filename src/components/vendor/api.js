@@ -8,7 +8,7 @@ import {
   getVendorNamesList
 } from "@/components/vendor/utils";
 import toast from "react-hot-toast";
-const queryClient = new QueryClient();
+import { queryClient } from "@/lib/utils";
 export const useGetVendorList = (payload) => {
   return useQuery({
     queryKey: ["vendor-list", payload],

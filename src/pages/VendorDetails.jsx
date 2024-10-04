@@ -34,7 +34,7 @@ const VendorDetails = () => {
       <Layout className={"mx-10 box-border overflow-auto"}>
         <Header
           title={`Vendor Details ${
-            data?.data?.vendor_name ? "for" + data?.data?.vendor_name : ""
+            data?.data?.vendor_name ? " for " + data?.data?.vendor_name : ""
           }`}
           className="border mt-10 rounded-t-md !shadow-none bg-primary !capitalize !text-[#FFFFFF] relative "
         >
