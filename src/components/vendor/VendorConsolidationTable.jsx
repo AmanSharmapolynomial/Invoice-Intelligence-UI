@@ -109,7 +109,7 @@ const VendorConsolidationTable = ({ data, isLoading }) => {
                       className="flex  text-base !items-center leading-5  !min-h-16  !border-none"
                       key={index}
                     >
-                      <TableHead className="flex  border-r !text-left justify-between items-center gap-x-4 pl-6  !font-normal !text-gray-800 !min-w-60 border-b pb-4  ">
+                      <TableHead className="flex  border-r !text-left justify-between items-center gap-x-4 pl-6  !font-normal !text-gray-800 !min-w-60 border-b pb-4 !capitalize  ">
                         <Link
                           to={`/vendor-details/${vendor_id}`}
                           className="underline underline-offset-2 "
@@ -119,7 +119,7 @@ const VendorConsolidationTable = ({ data, isLoading }) => {
                         <span>{human_verified && <Verified />}</span>
                       </TableHead>
 
-                      <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-start pl-4  !font-normal !text-gray-800 !min-w-60 border-b pb-4  ">
+                      <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-start pl-4  !font-normal !text-gray-800 !min-w-60 border-b pb-4  !capitalize ">
                         {vendor_category}{" "}
                       </TableHead>
 

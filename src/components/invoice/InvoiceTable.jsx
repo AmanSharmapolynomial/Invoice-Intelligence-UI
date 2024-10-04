@@ -159,7 +159,7 @@ const InvoiceTable = ({ data = [], isLoading }) => {
                         {restaurant_name}
                       </TableHead>
 
-                      <TableHead className="flex cursor-pointer border-r !min-h-10  !text-left items-center gap-x-4 justify-between pl-4 !font-normal !text-gray-800 !min-w-72 border-b  ">
+                      <TableHead className="flex cursor-pointer border-r !min-h-10  !text-left items-center gap-x-4 justify-between pl-4 !font-normal !text-gray-800 !min-w-72 border-b !capitalize  ">
                         <span> {vendor_name}</span>
                         <span>
                           {verified_vendor && (
