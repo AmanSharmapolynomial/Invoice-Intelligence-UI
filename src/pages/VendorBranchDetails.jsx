@@ -6,16 +6,16 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Table, TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { useGetVendorBranchDetails } from "@/components/vendor/api";
-import { Search } from "lucide-react";
+import { Save, Search, Trash2 } from "lucide-react";
 
 import CustomSelect from "@/components/ui/CustomSelect";
 import { SelectItem } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { vendorBranchDetailsPageFirstColRowData } from "@/constants";
 import { makeKeyValueFromKey } from "@/lib/helpers";
+import { QueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { QueryClient } from "@tanstack/react-query";
 
 const VendorBranchDetails = () => {
   const { branch_id } = useParams();
@@ -26,7 +26,7 @@ const VendorBranchDetails = () => {
   const [filteredDropDownItems, setFilteredDropDownItems] = useState(
     makeKeyValueFromKey(data?.data?.["vendor_address_synonyms"])
   );
-console.log(data)
+
   return (
     <>
       <Navbar className="" />
@@ -38,7 +38,7 @@ console.log(data)
               ? "Deatils for" + data?.data?.vendor_name
               : ""
           }`}
-          className="border mt-10 rounded-t-md !shadow-none bg-primary !text-[#FFFFFF] relative "
+          className="border mt-10 rounded-t-md !capitalize !shadow-none bg-primary !text-[#FFFFFF] relative "
         >
           <Progress
             innerClassName="border-primary  !bg-white/85 "
@@ -74,8 +74,8 @@ console.log(data)
             </div>
           </div>
           <div className="flex gap-x-2">
-            <Button>Save</Button>
-            <Button className="bg-red-600 hover:bg-red-600/90">Delete</Button>
+            <Button ><Save className="h-5 w-5"/></Button>
+            <Button className="bg-red-600 hover:bg-red-600/90"><Trash2 className="h-5 w-5"/></Button>
           </div>
         </div>
         <Table className="flex flex-col   box-border  scrollbar !w-full ">

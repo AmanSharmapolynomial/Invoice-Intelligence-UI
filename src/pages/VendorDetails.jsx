@@ -33,8 +33,10 @@ const VendorDetails = () => {
 
       <Layout className={"mx-10 box-border overflow-auto"}>
         <Header
-          title={`Vendor Details for ${data?.data?.vendor_name}`}
-          className="border mt-10 rounded-t-md !shadow-none bg-primary !text-[#FFFFFF] relative "
+          title={`Vendor Details ${
+            data?.data?.vendor_name ? "for" + data?.data?.vendor_name : ""
+          }`}
+          className="border mt-10 rounded-t-md !shadow-none bg-primary !capitalize !text-[#FFFFFF] relative "
         >
           <TooltipProvider>
             <Tooltip>
@@ -86,26 +88,32 @@ const VendorDetails = () => {
         </Accordion>
 
         <div className="w-full grid xl:grid-cols-4 sm:grid-cols-2 gap-x-4 gap-y-2 mt-4 mb-16">
-          <Button>Save</Button>
+          <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]">
+            Save
+          </Button>
 
-          <Button className="bg-blue-600 hover:bg-blue-600/95">
+          <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]">
             Find Similar Vendors
           </Button>
-          <Button className="bg-yellow-500 hover:bg-yellow-500/95">
+          <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]">
             View Invoices
           </Button>
-          <Button className="bg-red-700 hover:bg-red-700/90 w-full">Delete</Button>
-          <Button className="bg-red-700 hover:bg-red-700/90 w-full">
+          <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]">
+            Delete
+          </Button>
+          <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]">
             Disapprove All Items
           </Button>
 
-          <Link to={`/vendor-branches/${vendor_id}`} >
-            <Button className="bg-stone-700 hover:bg-stone-700/95 w-full">
+          <Link to={`/vendor-branches/${vendor_id}`}>
+            <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]">
               View Branches
             </Button>
           </Link>
-          <Button className="bg-emerald-700">Fast Item Verification</Button>
-          <Button className="bg-amber-600 hover:bg-amber-600/95 w-full">
+          <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]">
+            Fast Item Verification
+          </Button>
+          <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]">
             View Items
           </Button>
         </div>

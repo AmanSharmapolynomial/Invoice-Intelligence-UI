@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -12,10 +12,10 @@ import {
   PopoverContent,
   PopoverTrigger
 } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { Check, ChevronsUpDown, Verified } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { getValueFromLabel } from "@/lib/helpers";
+import { cn } from "@/lib/utils";
+import { Check, ChevronsUpDown, Verified } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const CustomDropDown = ({
   data = [],
@@ -29,7 +29,7 @@ const CustomDropDown = ({
   showCustomItems = false,
   children
 }) => {
-  console.log(data)
+
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(Value);
 
