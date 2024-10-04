@@ -1,17 +1,14 @@
-import React from "react";
+import no_data from "@/assets/image/no-data.svg";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
-  TableCaption,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow
 } from "@/components/ui/table";
-import { Skeleton } from "../ui/skeleton";
-import { Button } from "../ui/button";
-import { Trash, Verified } from "lucide-react";
-import no_data from "@/assets/image/no-data.svg";
+import { Eye, Trash, Verified } from "lucide-react";
 import { Link } from "react-router-dom";
 const VendorConsolidationTable = ({ data, isLoading }) => {
   return (
@@ -112,7 +109,7 @@ const VendorConsolidationTable = ({ data, isLoading }) => {
                       className="flex  text-base !items-center leading-5  !min-h-16  !border-none"
                       key={index}
                     >
-                      <TableHead className="flex  border-r !text-left justify-between items-center gap-x-4 pl-6  !font-semibold !text-gray-800 !min-w-60 border-b pb-4  ">
+                      <TableHead className="flex  border-r !text-left justify-between items-center gap-x-4 pl-6  !font-normal !text-gray-800 !min-w-60 border-b pb-4  ">
                         <Link
                           to={`/vendor-details/${vendor_id}`}
                           className="underline underline-offset-2 "
@@ -122,44 +119,46 @@ const VendorConsolidationTable = ({ data, isLoading }) => {
                         <span>{human_verified && <Verified />}</span>
                       </TableHead>
 
-                      <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-start pl-4  !font-semibold !text-gray-800 !min-w-60 border-b pb-4  ">
+                      <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-start pl-4  !font-normal !text-gray-800 !min-w-60 border-b pb-4  ">
                         {vendor_category}{" "}
                       </TableHead>
 
-                      <TableHead className="flex  border-r !min-h-10  gap-x-2 !text-left items-center justify-start pl-4 !font-semibold !text-gray-800 !min-w-36 border-b pb-4  ">
+                      <TableHead className="flex  border-r !min-h-10  gap-x-2 !text-left items-center justify-start pl-4 !font-normal !text-gray-800 !min-w-36 border-b pb-4  ">
                         {created_date?.split("T")[0]}{" "}
                       </TableHead>
 
-                      <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center !font-semibold !text-gray-800 !min-w-40 border-b  pb-4">
+                      <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center !font-normal !text-gray-800 !min-w-40 border-b  pb-4">
                         {document_count}{" "}
                       </TableHead>
 
-                      <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center  capitalize !font-semibold !text-gray-800 !min-w-40 border-b pb-4">
+                      <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center  capitalize !font-normal !text-gray-800 !min-w-40 border-b pb-4">
                         {branch_count}{" "}
                       </TableHead>
-                      <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center  capitalize pl-4 !font-semibold !text-gray-800 !min-w-48 border-b pb- pb-4">
+                      <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center  capitalize pl-4 !font-normal !text-gray-800 !min-w-48 border-b pb- pb-4">
                         {verified_branch_count}{" "}
                       </TableHead>
 
-                      <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center pl-4 !font-semibold !text-gray-800 !min-w-40 border-b  pb-4">
+                      <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center pl-4 !font-normal !text-gray-800 !min-w-40 border-b  pb-4">
                         {item_count}{" "}
                       </TableHead>
 
-                      <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center  !font-semibold !text-gray-800 !min-w-48 border-b  pb-4">
+                      <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center  !font-normal !text-gray-800 !min-w-48 border-b  pb-4">
                         {verified_item_count}{" "}
                       </TableHead>
 
-                      <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center !font-semibold !text-gray-800 !min-w-44 border-b  pb-4">
+                      <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center !font-normal !text-gray-800 !min-w-44 border-b  pb-4">
                         {verified_by}{" "}
                       </TableHead>
 
-                      <TableHead className="flex  !text-left items-center justify-center   !font-semibold !text-gray-800 !min-w-36  border-b border-r  pb-4">
-                        <Button>View</Button>
+                      <TableHead className="flex  !text-left items-center justify-center   !font-normal !text-gray-800 !min-w-36  border-b border-r  pb-4">
+                        <Button>
+                          <Eye className="h-4"/>
+                        </Button>
                       </TableHead>
 
-                      <TableHead className="flex  !text-left items-center justify-center   !font-semibold !text-gray-800 !min-w-36  border-b border-r  pb-4">
+                      <TableHead className="flex  !text-left items-center justify-center   !font-normal !text-gray-800 !min-w-36  border-b border-r  pb-4">
                         <Button>
-                          <Trash />
+                          <Trash className="h-4" />
                         </Button>
                       </TableHead>
                     </TableRow>
@@ -167,7 +166,7 @@ const VendorConsolidationTable = ({ data, isLoading }) => {
                 }
               )
             ) : (
-              <div className="flex justify-center items-center h-[60vh] !w-[90vw]">
+              <div className="flex justify-center items-center h-[50vh] !w-[95vw] !overflow-hidden">
                 <img src={no_data} alt="" className="flex-1 h-full" />
               </div>
             )}{" "}

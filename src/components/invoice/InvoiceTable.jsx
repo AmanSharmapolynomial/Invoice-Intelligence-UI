@@ -118,7 +118,7 @@ const InvoiceTable = ({ data = [], isLoading }) => {
                   </TableRow>
                 );
               })
-            ) : data?.length > 0 ? (
+            ) : data && Object?.keys(data)?.length > 0 ? (
               data?.map(
                 (
                   {
@@ -147,19 +147,19 @@ const InvoiceTable = ({ data = [], isLoading }) => {
                       className="flex  text-base items-center !min-h-14  !border-none"
                       key={index}
                     >
-                      <TableHead className="flex cursor-pointer border-r !text-left items-center justify-start pl-6  !font-semibold !text-gray-800 !min-w-32 border-b  ">
+                      <TableHead className="flex cursor-pointer border-r !text-left items-center justify-start pl-6  !font-normal !text-gray-800 !min-w-32 border-b  ">
                         {invoice_number}
                       </TableHead>
 
-                      <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start pl-6 !font-semibold !text-gray-800 !min-w-40 border-b  ">
+                      <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start pl-6 !font-normal !text-gray-800 !min-w-40 border-b  ">
                         {channel}
                       </TableHead>
 
-                      <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start pl-4  !font-semibold !text-gray-800 !min-w-44 border-b  ">
+                      <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start pl-4  !font-normal !text-gray-800 !min-w-44 border-b  ">
                         {restaurant_name}
                       </TableHead>
 
-                      <TableHead className="flex cursor-pointer border-r !min-h-10  !text-left items-center gap-x-4 justify-between pl-4 !font-semibold !text-gray-800 !min-w-72 border-b  ">
+                      <TableHead className="flex cursor-pointer border-r !min-h-10  !text-left items-center gap-x-4 justify-between pl-4 !font-normal !text-gray-800 !min-w-72 border-b  ">
                         <span> {vendor_name}</span>
                         <span>
                           {verified_vendor && (
@@ -168,14 +168,14 @@ const InvoiceTable = ({ data = [], isLoading }) => {
                         </span>
                       </TableHead>
 
-                      <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start pl-4 !font-semibold !text-gray-800 !min-w-40 border-b  ">
+                      <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start pl-4 !font-normal !text-gray-800 !min-w-40 border-b  ">
                         {date_uploaded?.split("T")[0]}
                       </TableHead>
 
-                      <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start  capitalize pl-4 !font-semibold !text-gray-800 !min-w-44 border-b pb- ">
+                      <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start  capitalize pl-4 !font-normal !text-gray-800 !min-w-44 border-b pb- ">
                         {balance_type}
                       </TableHead>
-                      <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-center  capitalize pl-4 !font-semibold !text-gray-800 !min-w-40 border-b pb- ">
+                      <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-center  capitalize pl-4 !font-normal !text-gray-800 !min-w-40 border-b pb- ">
                         {!["auto", "manual"].includes(
                           balance_type?.toLowerCase()
                         ) ? (
@@ -185,11 +185,11 @@ const InvoiceTable = ({ data = [], isLoading }) => {
                         )}
                       </TableHead>
 
-                      <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-center pl-4 !font-semibold !text-gray-800 !min-w-40 border-b  ">
+                      <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-center pl-4 !font-normal !text-gray-800 !min-w-40 border-b  ">
                         {clickbacon_status}
                       </TableHead>
 
-                      <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-center  !font-semibold !text-gray-800 !min-w-44 border-b  ">
+                      <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-center  !font-normal !text-gray-800 !min-w-44 border-b  ">
                         <span
                           className={`h-5 w-5 rounded-full ${
                             [0, 1, 2, 3, 4]?.includes(
@@ -207,7 +207,7 @@ const InvoiceTable = ({ data = [], isLoading }) => {
                         />
                       </TableHead>
 
-                      <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start pl-10 !font-semibold !text-gray-800 !min-w-40 border-b  ">
+                      <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start pl-10 !font-normal !text-gray-800 !min-w-40 border-b  ">
                         {auto_accepted === true
                           ? "Accepted"
                           : rejected === true
@@ -217,11 +217,11 @@ const InvoiceTable = ({ data = [], isLoading }) => {
                           : ""}
                       </TableHead>
 
-                      <TableHead className="flex cursor-pointer !text-left items-center justify-center   !font-semibold !text-gray-800 !min-w-60  border-b border-r  ">
+                      <TableHead className="flex cursor-pointer !text-left items-center justify-center   !font-normal !text-gray-800 !min-w-60  border-b border-r  ">
                         {rejection_reason && (
                           <AlertDialog>
                             <AlertDialogTrigger>
-                              <Button className="text-xs h-8 py-1 w-fit px-3 bg-primary hover:bg-primary/90">
+                              <Button className="text-xs h-8 py-1 w-fit px-3 bg-primary hover:bg-primary/90 !font-normal">
                                 View Reason
                               </Button>
                             </AlertDialogTrigger>
@@ -243,10 +243,10 @@ const InvoiceTable = ({ data = [], isLoading }) => {
                           </AlertDialog>
                         )}
                       </TableHead>
-                      <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start pl-4 !font-semibold !text-gray-800 !min-w-60 border-b  ">
+                      <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start pl-4 !font-normal !text-gray-800 !min-w-60 border-b  ">
                         {invoice_type}
                       </TableHead>
-                      <TableHead className="flex cursor-pointer !text-left items-center justify-center   !font-semibold !text-gray-800 !min-w-60 border-b  ">
+                      <TableHead className="flex cursor-pointer !text-left items-center justify-center   !font-normal !text-gray-800 !min-w-60 border-b  ">
                         {!human_verified_date
                           ? ""
                           : human_verified_date?.split("T")?.[0]}
@@ -256,17 +256,16 @@ const InvoiceTable = ({ data = [], isLoading }) => {
                 }
               )
             ) : (
-              <></>
+            
+              <div className="flex justify-center items-center h-[40vh] !w-[95vw] !overflow-hidden">
+              <img src={no_data} alt="" className="flex-1 h-full" />
+            </div>
             )}
           </TableBody>
         </div>
       </Table>
       <div className="w-full flex flex-col items-center justify-center mt-2">
-        {data && !data?.length > 0 ? (
-          <img src={no_data} alt="" className="h-96" />
-        ) : (
-          <></>
-        )}
+      
         <Link to={"/create-invoice"}>
           <Button className="flex gap-x-1 bg-primary hover:bg-primary/95">
             <span>

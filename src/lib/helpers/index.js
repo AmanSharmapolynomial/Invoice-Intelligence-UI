@@ -65,3 +65,16 @@ export const vendorNamesFormatter = (data = []) => {
   });
   return returnArray;
 };
+
+
+export const makeKeyValueFromKey=(data=[])=>{
+  let returnArray = [];
+
+  data?.forEach((item)=>{
+    returnArray.push({
+      label:item,
+      value:item
+    })
+  })
+  return returnArray
+}

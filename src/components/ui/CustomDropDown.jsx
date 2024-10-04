@@ -13,7 +13,7 @@ import {
   PopoverTrigger
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, Verified } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getValueFromLabel } from "@/lib/helpers";
 
@@ -25,8 +25,11 @@ const CustomDropDown = ({
   className,
   triggerClassName,
   Value,
-  contentClassName
+  contentClassName,
+  showCustomItems = false,
+  children
 }) => {
+  console.log(data)
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(Value);
 
@@ -52,31 +55,43 @@ const CustomDropDown = ({
         >
           {value && value !== "none"
             ? data.find((item) => item.value === value)?.label
-            :  placeholder}
+            : placeholder}
 
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0" contentClassName={contentClassName}>
+      <PopoverContent
+        className="w-[200px] p-0"
+        contentClassName={contentClassName}
+      >
         <Command className={className}>
           <CommandInput placeholder={searchPlaceholder} />
           <CommandList>
             <CommandEmpty>No data found.</CommandEmpty>
             <CommandGroup>
-              {data.map((item) => (
-                <CommandItem
-                  key={item.value}
-                  onSelect={() => handleSelect(item.value)}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === item.value ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  {item.label}
-                </CommandItem>
-              ))}
+              {showCustomItems
+                ? children // Render custom items if showCustomItems is true
+                : data.map((item) => (
+                    <CommandItem
+                      key={item.value}
+                      onSelect={() => handleSelect(item.value)}
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          value === item.value ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      <div>
+                        <span>
+                        {item.label}
+                        </span>
+                        <span>
+                        {item?.['human_verified'] && <Verified/>}
+                        </span>
+                      </div>
+                    </CommandItem>
+                  ))}
             </CommandGroup>
           </CommandList>
         </Command>
