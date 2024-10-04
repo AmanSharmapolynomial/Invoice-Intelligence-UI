@@ -8,6 +8,7 @@ import CreateInvoice from "@/components/invoice/CreateInvoice";
 import VendorDetails from "@/pages/VendorDetails";
 import VendorConsolidation from "@/pages/VendorConsolidation";
 import VendorBranches from "@/pages/VendorBranches";
+import VendorBranchDetails from "@/pages/VendorBranchDetails";
 
 const publicRoutes = [
   {
@@ -74,6 +75,14 @@ const protectedRoutes = [
     element: (
       <Protected>
         <VendorBranches/>
+      </Protected>
+    )
+  },
+  {
+    path: "/vendor-branch-details/:branch_id",
+    element: (
+      <Protected>
+        <VendorBranchDetails/>
       </Protected>
     )
   }

@@ -58,10 +58,7 @@ export const invoiceTableHeaders = [
 ];
 
 export const vendorCategories = [
-  {
-    label: "NA",
-    value: "NA"
-  },
+  
   {
     label: "Normal Invoice",
     value: "Normal Invoice"
@@ -284,5 +281,61 @@ export const vendorBranchesHeaders = [
   {
     label: "Delete",
     value: ""
+  }
+];
+
+
+export const vendorBranchDetailsPageFirstColRowData = [
+  {
+    label: "Vendor Address",
+    value: "vendor_address"
+  },
+  {
+    label: "Creation Date",
+    value: "created_date"
+  },
+  {
+    label: "Last Modified Date",
+    value: "last_modified_date"
+  },
+  {
+    label: "Human Verified",
+    value: "human_verified"
+  },
+  {
+    label: "Document Count",
+    value: "document_ount"
+  },
+  {
+    label: "Vendor City",
+    value: "vendor_city"
+  },
+  {
+    label: "Vendor Phone Number",
+    value: "vendor_phone_number"
+  },
+  {
+    label: "Vendor State",
+    value: "vendor_state"
+  },
+  {
+    label: "Vendor Street",
+    value: "vendor_street"
+  },
+  {
+    label: "Vendor Zip Code",
+    value: "vendor_zip_code"
+  },
+  {
+    label: "Vendor Name Synonyms",
+    value: "vendor_name_synonyms"
+  },
+  {
+    label: "Vendor Id",
+    value: "vendor_id"
+  },
+  {
+    label: "Branch Id",
+    value: "branch_id"
   }
 ];

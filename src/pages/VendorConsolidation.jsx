@@ -107,7 +107,7 @@ const VendorConsolidation = () => {
           </div>
           <div className="flex items-center gap-x-2">
             <CustomDropDown
-              className="!bg-red-500"
+
               triggerClassName={"bg-gray-100"}
               contentClassName={"bg-gray-100"}
               data={vendorCategories}
@@ -123,7 +123,7 @@ const VendorConsolidation = () => {
               }
             />{" "}
             <CustomDropDown
-              className="!bg-red-500"
+      
               triggerClassName={"bg-gray-100"}
               contentClassName={"bg-gray-100"}
               data={humanVerifiedOptions}
@@ -143,7 +143,7 @@ const VendorConsolidation = () => {
               }
             />
             <CustomDropDown
-              className="!bg-red-500"
+        
               triggerClassName={"bg-gray-100"}
               contentClassName={"bg-gray-100"}
               data={usersListLoading ? [] : formatData(usersData?.data)}
@@ -158,8 +158,8 @@ const VendorConsolidation = () => {
                 <span className="capitalize">
                   {verified_by == undefined
                     ? "Verified By"
-                    : usersData &&
-                      getUserNameFromId(usersData?.data, verified_by)}
+                    : usersData ?
+                      getUserNameFromId(usersData?.data, verified_by):"Verified By"}
                 </span>
               }
             />

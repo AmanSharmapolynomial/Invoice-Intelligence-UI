@@ -17,7 +17,9 @@ const CustomSelect = ({
   optionClassName,
   label = "",
   onSelect,
-  value
+  value,
+  showCustomContent=false,
+  children
 }) => {
   return (
     <Select
@@ -30,7 +32,7 @@ const CustomSelect = ({
     >
       <Label>{label}</Label>
       <SelectTrigger
-        className={`${triggerClassName} w-[180px] focus:outline-none focus:ring-0 !bg-gray-100 font-medium`}
+        className={`${triggerClassName} min-w-[180px] focus:outline-none focus:ring-0 !bg-gray-100 font-medium`}
       >
         <SelectValue
           placeholder={
@@ -41,7 +43,8 @@ const CustomSelect = ({
         />
       </SelectTrigger>
       <SelectContent>
-        {data.length !== 0
+
+        {!showCustomContent &&  data.length !== 0
           ? data.map(({ label, value }) => (
               <SelectItem
                 key={value}
@@ -51,7 +54,7 @@ const CustomSelect = ({
                 {label}
               </SelectItem>
             ))
-          : null}
+          : children}
       </SelectContent>
     </Select>
   );

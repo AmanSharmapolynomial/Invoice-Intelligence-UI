@@ -4,6 +4,7 @@ import {
   getVendorBranches,
   getVendorDetails,
   getVendorList,
+  getVendorBranchDetails,
   getVendorNamesList
 } from "@/components/vendor/utils";
 import toast from "react-hot-toast";
@@ -50,3 +51,11 @@ export const useGetVendorBranches = (vendor_id) => {
     queryFn: () => getVendorBranches(vendor_id)
   });
 };
+
+
+export const useGetVendorBranchDetails=(branch_id)=>{
+  return useQuery({
+    queryKey:['vendor-branch-details',branch_id],
+    queryFn:()=>getVendorBranchDetails(branch_id)
+  })
+}

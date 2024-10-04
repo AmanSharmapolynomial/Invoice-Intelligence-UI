@@ -31,13 +31,18 @@ export const getVendorNamesList = async () => {
   return response;
 };
 
-export const getVendorDetails=async(vendor_id)=>{
-  const apiUrl=`/api/vendor/${vendor_id}/details/`;
-  const response=await axiosInstance.get(apiUrl)
-  return response
-}
-export const getVendorBranches=async(vendor_id)=>{
-  const apirUrl=`/api/vendor-branch/${vendor_id}/`;
-  const response=await axiosInstance.get(apirUrl)
-  return response
-}
+export const getVendorDetails = async (vendor_id) => {
+  const apiUrl = `/api/vendor/${vendor_id}/details/`;
+  const response = await axiosInstance.get(apiUrl);
+  return response;
+};
+export const getVendorBranches = async (vendor_id) => {
+  const apirUrl = `/api/vendor-branch/${vendor_id}/`;
+  const response = await axiosInstance.get(apirUrl);
+  return response;
+};
+export const getVendorBranchDetails = async (branch_id) => {
+  const apirUrl = `/api/vendor-branch/${branch_id}/details/`;
+  const response = await axiosInstance.get(apirUrl);
+  return response;
+};

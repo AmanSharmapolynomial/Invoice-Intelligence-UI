@@ -91,6 +91,7 @@ const VendorBranchesTable = ({ data = [], isLoading }) => {
                 created_date,
                 human_verified,
                 document_count,
+                branch_id,
                 verified_by
               },
               index
@@ -100,13 +101,13 @@ const VendorBranchesTable = ({ data = [], isLoading }) => {
                   className="flex !w-[100%]  text-base !items-center leading-5  !min-h-16  !border-none"
                   key={index}
                 >
-                  <TableHead className="flex  border-r !text-left justify-between items-center gap-x-4 pl-6  !font-semibold !text-gray-800 !min-w-[20%]  border-b py-8 min-h-16 ">
+                  <TableHead className="flex  border-r !text-left justify-between items-center gap-x-4 pl-6  !font-normal !text-gray-800 !min-w-[20%]  border-b py-8 min-h-16 ">
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger className="flex items-center justify-between gap-x-2">
                           {" "}
                           <Link
-                            to={`/vendor-details/${""}`}
+                            to={`/vendor-branch-details/${branch_id}`}
                             className="underline underline-offset-2 "
                           >
                             {vendor_address?.length > 20
@@ -122,38 +123,38 @@ const VendorBranchesTable = ({ data = [], isLoading }) => {
                     </TooltipProvider>
                   </TableHead>
 
-                  <TableHead className="flex  border-r min-h-16 !text-left items-center justify-center   !font-semibold !text-gray-800 !min-w-[10%] border-b ">
+                  <TableHead className="flex  border-r min-h-16 !text-left items-center justify-center   !font-normal !text-gray-800 !min-w-[10%] border-b ">
                     {document_count}{" "}
                   </TableHead>
 
-                  <TableHead className="flex  border-r min-h-16  gap-x-2 !text-left items-center justify-center  !font-semibold !text-gray-800 !min-w-[10%] border-b  ">
+                  <TableHead className="flex  border-r min-h-16  gap-x-2 !text-left items-center justify-center  !font-normal !text-gray-800 !min-w-[10%] border-b  ">
                     {created_date?.split("T")[0]}{" "}
                   </TableHead>
 
-                  <TableHead className="flex  border-r min-h-16  !text-left items-center justify-center !font-semibold !text-gray-800 !min-w-[10%] border-b  ">
+                  <TableHead className="flex  border-r min-h-16  !text-left items-center justify-center !font-normal !text-gray-800 !min-w-[10%] border-b  ">
                     <Checkbox className="h-4 w-4" />
                   </TableHead>
 
-                  <TableHead className="flex  border-r min-h-16 !text-left items-center justify-center  capitalize !font-semibold !text-gray-800 !min-w-[10%] border-b ">
+                  <TableHead className="flex  border-r min-h-16 !text-left items-center justify-center  capitalize !font-normal !text-gray-800 !min-w-[10%] border-b ">
                     <Checkbox className="h-4 w-4" />
                   </TableHead>
-                  <TableHead className="flex  border-r min-h-16  !text-left items-center justify-center  capitalize !font-semibold !text-gray-800 !min-w-[10%] border-b ">
-                    <Button>Migrate</Button>
+                  <TableHead className="flex  border-r min-h-16  !text-left items-center justify-center  capitalize !font-normal !text-gray-800 !min-w-[10%] border-b ">
+                    <Button className="font-normal">Migrate</Button>
                   </TableHead>
 
-                  <TableHead className="flex  border-r min-h-16  !text-left items-center justify-center !font-semibold !text-gray-800 !min-w-[10%] border-b">
-                    <Button>View</Button>
+                  <TableHead className="flex  border-r min-h-16  !text-left items-center justify-center !font-normal !text-gray-800 !min-w-[10%] border-b">
+                    <Button className="font-normal">View</Button>
                   </TableHead>
 
-                  <TableHead className="flex  border-r min-h-16  !text-left items-center justify-center !font-semibold !text-gray-800 !min-w-[10%] border-b">
+                  <TableHead className="flex  border-r min-h-16  !text-left items-center justify-center !font-normal !text-gray-800 !min-w-[10%] border-b">
                     <Button>
-                      <Edit />
+                      <Edit className="h-4" />
                     </Button>
                   </TableHead>
 
-                  <TableHead className="flex  border-r min-h-16  !text-left items-center justify-center  !font-semibold !text-gray-800 !min-w-[10%] border-b  ">
+                  <TableHead className="flex  border-r min-h-16  !text-left items-center justify-center  !font-normal !text-gray-800 !min-w-[10%] border-b  ">
                     <Button>
-                      <Trash2 />
+                      <Trash2 className="h-4"/>
                     </Button>
                   </TableHead>
                 </TableRow>

@@ -1,6 +1,7 @@
 import Header from "@/components/common/Header";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
+import TablePagination from "@/components/common/TablePagination";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
@@ -31,6 +32,7 @@ const VendorBranches = () => {
           />
         </Header>
         <div className="w-full border flex justify-between p-4 gap-x-4 overflow-auto">
+       
           <div>
             <div className="flex w-full max-w-sm items-center space-x-2">
               <Input
@@ -57,8 +59,14 @@ const VendorBranches = () => {
               </Button>
             </div>
           </div>
+          <Button
+          disabled={true}
+          >
+            Combine Vendor Branches
+          </Button>
         </div>
         <VendorBranchesTable isLoading={isLoading} data={data?.data} />
+        <TablePagination isFinalPage={data?.is_final_page} totalPages={data?.total_pages}/>
       </Layout>
     </>
   );
