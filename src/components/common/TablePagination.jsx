@@ -60,10 +60,10 @@ const TablePagination = ({ totalPages, isFinalPage }) => {
             }}
             className="w-10 !shadow-none !text-sm font-medium remove-number-spinner text-[#FFFFFF] border-none focus:!border-[#FFFFFF] focus:!outline-none focus:!ring-[#FFFFFF]"
           />
-          <Button className="!bg-transparent pt-2.5 w-fit shadow-none border-none font-medium text-[#FFFFFF]">
+          <Button className="!bg-transparent pt-2.5 w-fit shadow-none border-none font-medium text-[#FFFFFF] cursor-default">
             out of
           </Button>
-          <Button className="!bg-transparent w-4 pt-2.5 shadow-none border-none font-medium text-[#FFFFFF]">
+          <Button className="!bg-transparent w-4 pt-2.5 shadow-none border-none font-medium text-[#FFFFFF] cursor-default">
             <span>{totalPages?totalPages:<Skeleton className={"w-7 h-7 bg-gray-300"}/>}</span>
           </Button>
         </PaginationItem>

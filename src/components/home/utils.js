@@ -16,7 +16,7 @@ export const listInvoices = async (payload) => {
     clickbacon_status
   } = payload;
 
-  const apiUrl = `/api/document/?page_size=${page_size}&page=${page}&invoice_type=${invoice_type}&end_date=${end_date}&start_date=${start_date}&auto_accepted=${auto_accepted}&human_verified=${human_verified}&detected=${detected}&rerun_status=${rerun_status}&clickbacon_status=${clickbacon_status}&restaurant=${restaurant}`;
+  const apiUrl = `/api/document/?page_size=${page_size}&page=${page}&invoice_type=${invoice_type}&end_date=${end_date}&start_date=${start_date}&auto_accepted=${auto_accepted}&human_verified=${human_verified}&detected=${detected}&rerun_status=${rerun_status}&clickbacon_status=${clickbacon_status}&restaurant=${restaurant}&vendor=${vendor}`;
 
   const response = await axiosInstance.get(apiUrl);
   return response;
@@ -29,6 +29,11 @@ export const listRestautants = async () => {
 };
 export const listVendors = async () => {
   const apiUrl = `/api/vendor/`;
+  const response = await axiosInstance.get(apiUrl);
+  return response;
+};
+export const searchInvoice = async (invoice_number) => {
+  const apiUrl = `/api/document/search/?invoice_number=${invoice_number}`;
   const response = await axiosInstance.get(apiUrl);
   return response;
 };

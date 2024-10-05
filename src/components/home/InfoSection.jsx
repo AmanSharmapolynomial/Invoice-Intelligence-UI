@@ -2,7 +2,7 @@ import React from "react";
 
 const InfoSection = () => {
   return (
-    <div className=" border-b flex justify-start px-10 gap-x-24 items-center ">
+    <div className=" border-b flex justify-start px-10 gap-x-24 items-center overflow-auto  w-full">
       <div className="flex gap-x-4 items-center py-4 ">
         <div className="h-5 w-5 rounded-full bg-red-500 " />
         <p className="font-medium text-sm">Failed</p>

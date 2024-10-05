@@ -1,64 +1,4 @@
-export const invoiceTableHeaders = [
-  {
-    label: "Invoice ID",
-    key: "invoice_number"
-  },
-  {
-    label: "Source/Channel",
-    key: "invoice_number"
-  },
-  {
-    label: "Restaurant",
-    key: "restaurant_name"
-  },
-  {
-    label: "Vendor",
-    key: "vendor_name"
-  },
-  {
-    label: "Upload Date",
-    key: "date_uploaded"
-  },
-  {
-    label: "Auto Balance Status",
-    key: ""
-  },
-  {
-    label: "Manual Balance Status",
-    key: ""
-  },
-  {
-    label: "Final Status",
-    key: ""
-  },
-  {
-    label: "clickBACON Status",
-    key: "clickbacon_status"
-  },
-  {
-    label: "Failure Cause Code",
-    key: ""
-  },
-  {
-    label: "Accepted/Rejected",
-    key: ""
-  },
-  {
-    label: "Rejected Reason",
-    key: "rejected_reason"
-  },
-  {
-    label: "Invoice Type",
-    key: "invoice_type"
-  },
-  {
-    label: "Human Verification Date",
-    key: "human_verified_date"
-  }
-];
-
 export const vendorCategories = [
-  
   {
     label: "Normal Invoice",
     value: "Normal Invoice"
@@ -284,7 +224,6 @@ export const vendorBranchesHeaders = [
   }
 ];
 
-
 export const vendorBranchDetailsPageFirstColRowData = [
   {
     label: "Vendor Address",
@@ -339,3 +278,222 @@ export const vendorBranchDetailsPageFirstColRowData = [
     value: "branch_id"
   }
 ];
+
+export const vendorConsolidationHeaders = [
+  {
+    label: "Vendor Name",
+    styling: "min-w-60 justify-start pl-6"
+  },
+  {
+    label: "Vendor Category",
+    styling: "min-w-60 justify-start pl-6"
+  },
+  {
+    label: "Creation Date",
+    styling: "min-w-36 pl-4"
+  },
+  {
+    label: "Document Count",
+    styling: "min-w-40 pl-4"
+  },
+  {
+    label: "Branch Count",
+    styling: "min-w-40 justify-center"
+  },
+  {
+    label: "Verified Branch Count",
+    styling: "min-w-48 justify-center"
+  },
+  {
+    label: "Item Count",
+    styling: "min-w-40  justify-center"
+  },
+  {
+    label: "Verified Item Count",
+    styling: "min-w-48 justify-center"
+  },
+  {
+    label: "Verified By",
+    styling: "min-w-44 justify-center"
+  },
+  {
+    label: "Actions",
+    styling: "min-w-44 justify-center "
+  },
+  
+];
+
+export const invoiceTableHeaders = [
+  {
+    label: "Invoice ID",
+    styling: "min-w-32"
+  },
+  {
+    label: "Source/Channnel",
+    styling: "min-w-40"
+  },
+  {
+    label: "Restaurant",
+    styling: "min-w-44"
+  },
+  {
+    label: "Vendor",
+    styling: "min-w-72"
+  },
+  {
+    label: "Upload Date",
+    styling: "min-w-40 justify-center"
+  },
+  {
+    label: "Balance Status",
+    styling: "min-w-44 justify-center"
+  },
+  {
+    label: "Final Status",
+    styling: "min-w-40 justify-center"
+  },
+  {
+    label: "clickBACON Status",
+    styling: "min-w-44"
+  },
+  {
+    label: "Failure Cause Code",
+    styling: "min-w-44"
+  },
+  {
+    label: "Accepted/Rejected",
+    styling: "min-w-40"
+  },
+  {
+    label: "Rejected Reasons",
+    styling: "min-w-60 justify-center"
+  },
+  {
+    label: "Invoice Type",
+    styling: "min-w-60 justify-center"
+  },
+  {
+    label: "Human Verification Date",
+    styling: "min-w-60 justify-center"
+  }
+];
+
+
+export const rawMetaDataHeaders=[
+  {
+    label:"Invoice Number",
+    value:"invoice_number"
+  },
+  {
+    label:"Invoice Type",
+    value:"invoice_type"
+  },
+  {
+    label:"Invoice Date",
+    value:"invoice_date"
+  },
+  {
+    label:"Due Date",
+    value:"invoice_due_date"
+  },
+  {
+    label:"Invoice Total",
+    value:"invoice_extracted_total"
+  },
+  {
+    label:"Invoice Balance Due",
+    value:"invoice_balance_due"
+  },
+  {
+    label:"Restaurant Name",
+    value:""
+  },
+  {
+    label:"Vendor Name",
+    value:""
+  },
+  {
+    label:"Restaurant Vendor Details",
+    value:""
+  },
+  {
+    label:"Vendor Address",
+    value:""
+  },
+  {
+    label:"Vendor Phone Number",
+    value:"vendor_phone_number"
+  },
+  {
+    label:"Document Type Prediction",
+    value:"document_type"
+  },
+  {
+    label:"Verdict",
+    value:""
+  },
+  {
+    label:"Concerns",
+    value:""
+  },
+  {
+    label:"Human Verification Required",
+    value:"human_verification_required"
+  },
+  {
+    label:"Quick Books Document TYpe",
+    value:"quick_book_document_type"
+  },
+  {
+    label:"Taxes Added",
+    value:"added_taxes"
+  },
+  {
+    label:"Fees Added",
+    value:"added_fees"
+  },
+  {
+    label:"Invoice Payment Terms",
+    value:"invoice_payment_terms"
+  },
+  {
+    label:"Credit Card Name",
+    value:"credit_card_name"
+  },
+  {
+    label:"Credit Card Number",
+    value:"credit_card_number"
+  },
+  {
+    label:"Invoice Ship To",
+    value:"invoice_ship_to"
+  },
+  {
+    label:"Invoice Bill To",
+    value:"invoice_bill_to"
+  },
+  {
+    label:"Invoice Sold To",
+    value:"invoice_sold_to"
+  },
+  {
+    label:"Total No. of Pages Received",
+    value:"total_number_of_pages_received"
+  },
+  {
+    label:"Invoice Total From Table",
+    value:"total_from_table"
+  },
+  {
+    label:"Invoice UUID",
+    value:"document_uuid"
+  },
+  {
+    label:"Version",
+    value:"version"
+  },
+  {
+    label:"Rerun Status",
+    value:"rerun_status"
+  },
+]

@@ -2,32 +2,18 @@ import Header from "@/components/common/Header";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
-import { Progress } from "@/components/ui/progress";
 import { Table, TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { useGetVendorBranchDetails } from "@/components/vendor/api";
-import { Save, Search, Trash2 } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select";
+import { Save, Trash2 } from "lucide-react";
 
-import CustomSelect from "@/components/ui/CustomSelect";
-import { SelectItem } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { vendorBranchDetailsPageFirstColRowData } from "@/constants";
-import { makeKeyValueFromKey } from "@/lib/helpers";
-import { QueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { queryClient } from "@/lib/utils";
-import { Skeleton } from "@/components/ui/skeleton";
 import CustomInput from "@/components/ui/CustomInput";
 import ScrollableDropDown from "@/components/ui/ScrollableDropDown";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
+import { vendorBranchDetailsPageFirstColRowData } from "@/constants";
+import { queryClient } from "@/lib/utils";
+import { useParams } from "react-router-dom";
 
 const VendorBranchDetails = () => {
   const { branch_id } = useParams();
@@ -115,7 +101,7 @@ const VendorBranchDetails = () => {
 
                   <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
                     <Switch
-                      value={data?.data?.["human_verified"]}
+                      checked={data?.data?.["human_verified"]}
                       onCheckedChange={(val) => {
                         let copyObj = { ...data };
                         copyObj.data["human_verified"] = val;
@@ -201,42 +187,21 @@ const VendorBranchDetails = () => {
                   </TableCell>
                   <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
                     <ScrollableDropDown
-                      placeholder={
-                        data?.data?.["vendor_address_synonyms"]?.[0]
-                          ? data?.data?.["vendor_address_synonyms"]?.[0]
-                          : "Vendor Address Synonyms"
-                      }
-                    >
-                      {data?.data?.["vendor_address_synonyms"]?.map(
-                        (item, index) => {
-                          return (
-                            <div
-                              key={index}
-                              className="bg-gray-100 p-2 px-2 flex justify-between items-center "
-                            >
-                              <p>{item}</p>
-                              <Button
-                                className={"h-8 font-normal"}
-                                onClick={() => {
-                                  let copyObj = { ...data };
-                                  copyObj["data"]["vendor_address_synonyms"] =
-                                    copyObj["data"][
-                                      "vendor_address_synonyms"
-                                    ].filter((it) => it !== item);
-                                    console.log(copyObj)
-                                  queryClient.setQueryData(
-                                    ["vendor-branch-details", branch_id],
-                                    copyObj
-                                  );
-                                }}
-                              >
-                                Remove
-                              </Button>
-                            </div>
-                          );
-                        }
-                      )}
-                    </ScrollableDropDown>
+                      placeholder={"Vendor Address Synonyms"}
+                      data={data?.data?.["vendor_address_synonyms"]}
+                      onButtonClick={(item) => {
+                        let copyObj = { ...data };
+                        copyObj["data"]["vendor_address_synonyms"] = copyObj[
+                          "data"
+                        ]["vendor_address_synonyms"]?.filter(
+                          (it) => it !== item.label
+                        );
+                        queryClient.setQueryData(
+                          ["vendor-branch-details", branch_id],
+                          copyObj
+                        );
+                      }}
+                    />
                   </TableCell>
                   <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
                     {data?.data?.["vendor_id"]}

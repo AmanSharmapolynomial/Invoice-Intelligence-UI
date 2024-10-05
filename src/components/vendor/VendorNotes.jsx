@@ -1,10 +1,11 @@
-import React, { memo, useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from "@/components/ui/tooltip";
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Sheet,
   SheetContent,
@@ -13,23 +14,21 @@ import {
   SheetTitle,
   SheetTrigger
 } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
-import { NotebookIcon, Search, Send } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle
-} from "@/components/ui/card";
-import { useAddVendorNote } from "./api";
-import toast from "react-hot-toast";
-import { ReloadIcon } from "@radix-ui/react-icons";
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from "@/components/ui/tooltip";
 import { queryClient } from "@/lib/utils";
+import { ReloadIcon } from "@radix-ui/react-icons";
+import { NotebookIcon, Send } from "lucide-react";
+import { memo, useState } from "react";
+import toast from "react-hot-toast";
+import { useAddVendorNote } from "./api";
 
 const VendorNotes = ({ data = [], vendor_id }) => {
+  
   const [note, setNote] = useState("");
   const { mutate, isPending } = useAddVendorNote();
   return (
@@ -57,7 +56,7 @@ const VendorNotes = ({ data = [], vendor_id }) => {
           <SheetTitle className="!text-lg">Vendor Notes</SheetTitle>
           <SheetDescription className="!h-full">
             <div className="flex-1 !h-[90vh] flex-col gap-y-4  flex items-center justify-between">
-              <div className="flex-1 min-h-[86vh] overflow-auto flex-col w-full ">
+              <div className="flex-1  2xl:min-h-[86vh]   lg:min-h-[80vh]  overflow-auto flex-col w-full ">
                 {data?.data?.map(
                   ({
                     note_uuid,

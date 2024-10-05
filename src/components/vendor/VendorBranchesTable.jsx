@@ -106,7 +106,7 @@ const VendorBranchesTable = ({ data = [], isLoading }) => {
                               ? vendor_address?.slice(0, 45) + "..."
                               : vendor_address}
                           </Link>
-                          <span>{human_verified && <Verified />}</span>
+                          <span>{human_verified && <Verified  d className="h-4 w-4 text-primary"/>}</span>
                         </TooltipTrigger>
                         <TooltipContent className=" bg-[#FFFFFF] font-semibold text-primary !text-sm">
                           <p>{vendor_address}</p>

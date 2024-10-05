@@ -12,11 +12,11 @@ import {
   AccordionItem,
   AccordionTrigger
 } from "@/components/ui/accordion";
-import VendorDetailsTable from "@/components/vendor/VendorDetailsTable";
 import {
   useGetVendorDetails,
   useGetVendorNotes
 } from "@/components/vendor/api";
+import VendorDetailsTable from "@/components/vendor/VendorDetailsTable";
 import VendorNotes from "@/components/vendor/VendorNotes";
 
 const VendorDetails = () => {
@@ -27,7 +27,6 @@ const VendorDetails = () => {
 
   const [searchParams] = useSearchParams();
   const updateParams = useUpdateParams();
-  // console.log(data);s
 
   return (
     <>
@@ -40,7 +39,7 @@ const VendorDetails = () => {
           }`}
           className="border mt-10 rounded-t-md !shadow-none bg-primary !capitalize !text-[#FFFFFF] relative "
         >
-          <VendorNotes  data={vendorNotes} vendor_id={vendor_id}/>
+          <VendorNotes data={vendorNotes} vendor_id={vendor_id} />
         </Header>
         <VendorDetailsTable data={data?.data} isLoading={isLoading} />
 

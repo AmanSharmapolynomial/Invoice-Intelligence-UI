@@ -56,7 +56,6 @@ const VendorBranches = () => {
               <Button
                 type="submit"
                 onClick={() => {
-                  console.log("hello")
                   updateParams({ vendor_address: searchTerm });
                 }}
               >

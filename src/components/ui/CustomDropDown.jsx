@@ -87,7 +87,7 @@ const CustomDropDown = ({
                         {item.label}
                         </span>
                         <span>
-                        {item?.['human_verified'] && <Verified/>}
+                        {item?.['human_verified'] && <Verified className="h-4 w-4 text-primary"/>}
                         </span>
                       </div>
                     </CommandItem>

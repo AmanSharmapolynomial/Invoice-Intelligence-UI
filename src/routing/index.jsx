@@ -9,6 +9,7 @@ import VendorDetails from "@/pages/VendorDetails";
 import VendorConsolidation from "@/pages/VendorConsolidation";
 import VendorBranches from "@/pages/VendorBranches";
 import VendorBranchDetails from "@/pages/VendorBranchDetails";
+import InvoiceDetails from "@/pages/InvoiceDetails";
 
 const publicRoutes = [
   {
@@ -33,7 +34,7 @@ const protectedRoutes = [
       </Protected>
     )
   },
-// Users Pages Routes
+  // Users Pages Routes
   {
     path: "/user-activity",
     element: (
@@ -52,6 +53,14 @@ const protectedRoutes = [
       </Protected>
     )
   },
+  {
+    path: "/invoice-details/:invoice_id",
+    element: (
+      <Protected>
+        <InvoiceDetails />
+      </Protected>
+    )
+  },
 
   // Vendor Pages Routes
   {
@@ -66,7 +75,7 @@ const protectedRoutes = [
     path: "/vendor-details/:vendor_id",
     element: (
       <Protected>
-        <VendorDetails/>
+        <VendorDetails />
       </Protected>
     )
   },
@@ -74,7 +83,7 @@ const protectedRoutes = [
     path: "/vendor-branches/:vendor_id",
     element: (
       <Protected>
-        <VendorBranches/>
+        <VendorBranches />
       </Protected>
     )
   },
@@ -82,7 +91,7 @@ const protectedRoutes = [
     path: "/vendor-branch-details/:branch_id",
     element: (
       <Protected>
-        <VendorBranchDetails/>
+        <VendorBranchDetails />
       </Protected>
     )
   }
