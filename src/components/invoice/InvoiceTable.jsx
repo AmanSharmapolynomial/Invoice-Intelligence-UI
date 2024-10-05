@@ -25,9 +25,8 @@ import no_data from "@/assets/image/no-data.svg";
 // import Modal,{ ModalTrigger } from "../ui/Modal";
 
 const InvoiceTable = ({ data = [], isLoading }) => {
-
   return (
-    <div className="w-full overflow-auto pb-4">
+    <div className="w-full overflow-auto ">
       <Table className="flex flex-col   box-border  scrollbar ">
         <TableHeader className="min-h-16">
           <TableRow className="flex  text-base  !border-none  ">
@@ -256,15 +255,14 @@ const InvoiceTable = ({ data = [], isLoading }) => {
                 }
               )
             ) : (
-            
               <div className="flex justify-center items-center h-[40vh] !w-[95vw] !overflow-hidden">
-              <img src={no_data} alt="" className="flex-1 h-full" />
-            </div>
+                <img src={no_data} alt="" className="flex-1 h-full" />
+              </div>
             )}
           </TableBody>
         </div>
       </Table>
-      <div className="w-full flex flex-col items-center justify-center mt-2">
+      {/* <div className="w-full flex flex-col items-center justify-center mt-2">
       
         <Link to={"/create-invoice"}>
           <Button className="flex gap-x-1 bg-primary hover:bg-primary/95">
@@ -274,7 +272,7 @@ const InvoiceTable = ({ data = [], isLoading }) => {
             <span>Create Invoice</span>
           </Button>
         </Link>
-      </div>
+      </div> */}
     </div>
   );
 };

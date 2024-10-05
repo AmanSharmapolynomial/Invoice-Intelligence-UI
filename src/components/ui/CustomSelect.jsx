@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue
 } from "./select";
+import { Button } from "./button";
 
 const CustomSelect = ({
   data = [],
@@ -15,12 +16,11 @@ const CustomSelect = ({
   placeholderClassName,
   triggerClassName,
   optionClassName,
-  searchPlaceHolder="Search",
+  additionalKeysAndFunctions,
+  searchPlaceHolder = "Search",
   label = "",
   onSelect,
-  value,
-  showCustomContent = false,
-  children
+  value
 }) => {
   const [dropDownSearch, setDropDownSearch] = useState("");
   const [filteredDropDownItems, setFilteredDropDownItems] = useState(data);
@@ -30,7 +30,9 @@ const CustomSelect = ({
       className="!bg-[#FFFFFF]"
       value={value}
       placeholder={placeholder}
+      
       onValueChange={(val) => {
+        console.log(val)
         onSelect(val);
       }}
     >
@@ -39,25 +41,14 @@ const CustomSelect = ({
         className={`${triggerClassName} min-w-[180px] focus:outline-none focus:ring-0 !bg-gray-100 font-medium`}
       >
         <SelectValue
-          placeholder={
-            <span className={`${placeholderClassName} capitalize`}>
-              {placeholder}
-            </span>
-          }
+          // placeholder={
+          //   <span className={`${placeholderClassName} capitalize`}>
+          //     {placeholder}
+          //   </span>
+          // }
         />
       </SelectTrigger>
       <SelectContent>
-        {/* {!showCustomContent && data.length !== 0
-          ? data.map(({ label, value }) => (
-              <SelectItem
-                key={value}
-                value={value}
-                className={`${optionClassName} capitalize`}
-              >
-                {label}
-              </SelectItem>
-            ))
-          : children} */}
         <Input
           placeholder={searchPlaceHolder}
           value={dropDownSearch}
@@ -72,8 +63,25 @@ const CustomSelect = ({
         <div className="py-1">
           {data && filteredDropDownItems?.length > 0 ? (
             filteredDropDownItems?.map(({ label, value }) => (
-              <SelectItem key={value} value={value} className={``}>
-                {label}
+              <SelectItem
+                key={value}
+                value={value}
+                className={`${optionClassName} !flex justify-between relative `}
+              >
+                <div className="flex gap-x-12 items-center justify-between w-full">
+                  <span>{label}</span>
+                  <div>
+                    {additionalKeysAndFunctions?.map(({ key, method }) => (
+                      <Button
+                        key={key}
+                        className={"font-normal h-8"}
+                        onClick={() => method(label)}
+                      >
+                        {key}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
               </SelectItem>
             ))
           ) : (

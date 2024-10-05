@@ -7,15 +7,19 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { useGetVendorBranches } from "@/components/vendor/api";
 import VendorBranchesTable from "@/components/vendor/VendorBranchesTable";
+import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { Search } from "lucide-react";
 
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 
 const VendorBranches = () => {
   const { vendor_id } = useParams();
   const [searchTerm, setSearchTerm] = useState("");
-  const { data, isLoading } = useGetVendorBranches(vendor_id);
+  const [searchParams]=useSearchParams()
+  const updateParams=useUpdateParams()
+  let vendor_address=searchParams.get('vendor_address')||"";
+  const { data, isLoading } = useGetVendorBranches(vendor_id,vendor_address);
   return (
     <>
       <Navbar className="" />
@@ -41,7 +45,7 @@ const VendorBranches = () => {
                 onChange={(e) => {
                   if (e.target.value === "") {
                     setSearchTerm("");
-                    updateParams({ vendor_name_search: undefined });
+                    updateParams({ vendor_address: undefined });
                   } else {
                     setSearchTerm(e.target.value);
                   }
@@ -52,7 +56,8 @@ const VendorBranches = () => {
               <Button
                 type="submit"
                 onClick={() => {
-                  updateParams({ vendor_name_search: searchTerm });
+                  console.log("hello")
+                  updateParams({ vendor_address: searchTerm });
                 }}
               >
                 <Search />

@@ -3,10 +3,18 @@ import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
 import { Progress } from "@/components/ui/progress";
 import { Table, TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { useGetVendorBranchDetails } from "@/components/vendor/api";
 import { Save, Search, Trash2 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
 
 import CustomSelect from "@/components/ui/CustomSelect";
 import { SelectItem } from "@/components/ui/select";
@@ -18,11 +26,13 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { queryClient } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import CustomInput from "@/components/ui/CustomInput";
+import ScrollableDropDown from "@/components/ui/ScrollableDropDown";
 
 const VendorBranchDetails = () => {
   const { branch_id } = useParams();
-  const [searchTerm, setSearchTerm] = useState("");
   const { data, isLoading } = useGetVendorBranchDetails(branch_id);
+  const vendorAddress = data?.data?.["vendor_address"] || "";
 
   return (
     <>
@@ -36,50 +46,15 @@ const VendorBranchDetails = () => {
               : ""
           }`}
           className="border mt-10 rounded-t-md !capitalize !shadow-none bg-primary !text-[#FFFFFF] relative "
-        >
-          <Progress
-            innerClassName="border-primary  !bg-white/85 "
-            value={33}
-            className="w-72 absolute right-4 h-4 bg-white/15 "
-          />
-        </Header>
+        />
         <div className="w-full border flex justify-between p-4 gap-x-4 overflow-auto">
-          <div>
-            <div className="flex w-full max-w-sm items-center space-x-2">
-              <Input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => {
-                  if (e.target.value === "") {
-                    setSearchTerm("");
-                    // updateParams({ vendor_name_search: undefined });
-                  } else {
-                    setSearchTerm(e.target.value);
-                  }
-                }}
-                placeholder="Search vendor address"
-                className="min-w-72 max-w-96 border border-gray-200  focus:!ring-0 focus:!outline-none"
-              />
-              <Button
-                type="submit"
-                onClick={() => {
-                  //   updateParams({ vendor_name_search: searchTerm });
-                }}
-              >
-                <Search />
-              </Button>
-            </div>
-          </div>
+          <div></div>
           <div className="flex gap-x-2">
             <Button>
               <Save
                 className="h-5 w-5"
                 onClick={() => {
-                  const updatedData = queryClient.getQueryData([
-                    "vendor-branch-details",
-                    branch_id
-                  ]);
-                  console.log("Current saved data:", updatedData);
+                  console.log("Current saved data:", data);
                 }}
               />
             </Button>
@@ -110,7 +85,7 @@ const VendorBranchDetails = () => {
                 Field Value
               </TableHead>
               {isLoading ? (
-                [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,12,13].map((_, index) => (
+                [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((_, index) => (
                   <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
                     <Skeleton className={"w-96 h-5"} />
                   </TableCell>
@@ -118,30 +93,15 @@ const VendorBranchDetails = () => {
               ) : (
                 <>
                   <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                    <Input
-                      value={data?.data?.["vendor_address"]}
-                      onChange={(e) => {
-                        const newData = {
-                          ...data,
-                          data: {
-                            ...data.data,
-                            vendor_address: e.target.value
-                          }
-                        };
-
-                        // Update the query data
+                    <CustomInput
+                      value={vendorAddress}
+                      placeholder="Vendor Address"
+                      onChange={(val) => {
+                        let copyObj = { ...data };
+                        copyObj["data"]["vendor_address"] = val;
                         queryClient.setQueryData(
                           ["vendor-branch-details", branch_id],
-                          newData
-                        );
-                        const updatedData = queryClient.getQueryData([
-                          "vendor-branch-details",
-                          branch_id
-                        ]);
-                        console.log("Updated data:", updatedData);
-                        queryClient.setQueryData(
-                          ["vendor-branch-details", branch_id],
-                          updatedData
+                          copyObj
                         );
                       }}
                     />
@@ -157,16 +117,11 @@ const VendorBranchDetails = () => {
                     <Switch
                       value={data?.data?.["human_verified"]}
                       onCheckedChange={(val) => {
-                        const newData = {
-                          ...data,
-                          data: {
-                            ...data.data,
-                            human_verified: val
-                          }
-                        };
+                        let copyObj = { ...data };
+                        copyObj.data["human_verified"] = val;
                         queryClient.setQueryData(
                           ["vendor-branch-details", branch_id],
-                          newData
+                          copyObj
                         );
                       }}
                     />
@@ -175,36 +130,113 @@ const VendorBranchDetails = () => {
                     {data?.data?.["document_count"]}
                   </TableCell>
                   <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                    {data?.data?.["vendor_city"]}
+                    <CustomInput
+                      value={data?.data?.["vendor_city"]}
+                      placeholder="Vendor City"
+                      onChange={(val) => {
+                        let copyObj = { ...data };
+                        copyObj["data"]["vendor_city"] = val;
+                        queryClient.setQueryData(
+                          ["vendor-branch-details", branch_id],
+                          copyObj
+                        );
+                      }}
+                    />
                   </TableCell>
                   <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                    {data?.data?.["vendor_phone_number"]}
+                    <CustomInput
+                      value={data?.data?.["vendor_phone_number"]}
+                      placeholder="Vendor Phone Number"
+                      onChange={(val) => {
+                        let copyObj = { ...data };
+                        copyObj["data"]["vendor_phone_number"] = val;
+                        queryClient.setQueryData(
+                          ["vendor-branch-details", branch_id],
+                          copyObj
+                        );
+                      }}
+                    />
                   </TableCell>
                   <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                    {data?.data?.["vendor_state"]}
+                    <CustomInput
+                      value={data?.data?.["vendor_state"]}
+                      placeholder="Vendor State"
+                      onChange={(val) => {
+                        let copyObj = { ...data };
+                        copyObj["data"]["vendor_state"] = val;
+                        queryClient.setQueryData(
+                          ["vendor-branch-details", branch_id],
+                          copyObj
+                        );
+                      }}
+                    />
                   </TableCell>
                   <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                    {data?.data?.["vendor_street"]}
+                    <CustomInput
+                      value={data?.data?.["vendor_street"]}
+                      placeholder="Vendor Street"
+                      onChange={(val) => {
+                        let copyObj = { ...data };
+                        copyObj["data"]["vendor_street"] = val;
+                        queryClient.setQueryData(
+                          ["vendor-branch-details", branch_id],
+                          copyObj
+                        );
+                      }}
+                    />
                   </TableCell>
                   <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                    {data?.data?.["vendor_zip_code"]}
+                    <CustomInput
+                      value={data?.data?.["vendor_zip_code"]}
+                      placeholder="Vendor Zip Code"
+                      onChange={(val) => {
+                        let copyObj = { ...data };
+                        copyObj["data"]["vendor_zip_code"] = val;
+                        queryClient.setQueryData(
+                          ["vendor-branch-details", branch_id],
+                          copyObj
+                        );
+                      }}
+                    />
                   </TableCell>
                   <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                    <CustomSelect
-                    searchPlaceHolder="Search Vendor Address Synonym"
-                      showCustomContent={true}
+                    <ScrollableDropDown
                       placeholder={
-                        makeKeyValueFromKey(
-                          data?.data?.["vendor_address_synonyms"]
-                        )?.[0]?.label
+                        data?.data?.["vendor_address_synonyms"]?.[0]
+                          ? data?.data?.["vendor_address_synonyms"]?.[0]
+                          : "Vendor Address Synonyms"
                       }
-                      placeholderClassName={"font-normal"}
-                      onSelect={(val) => {}}
-                      data={makeKeyValueFromKey(
-                        data?.data?.["vendor_address_synonyms"]
+                    >
+                      {data?.data?.["vendor_address_synonyms"]?.map(
+                        (item, index) => {
+                          return (
+                            <div
+                              key={index}
+                              className="bg-gray-100 p-2 px-2 flex justify-between items-center "
+                            >
+                              <p>{item}</p>
+                              <Button
+                                className={"h-8 font-normal"}
+                                onClick={() => {
+                                  let copyObj = { ...data };
+                                  copyObj["data"]["vendor_address_synonyms"] =
+                                    copyObj["data"][
+                                      "vendor_address_synonyms"
+                                    ].filter((it) => it !== item);
+                                    console.log(copyObj)
+                                  queryClient.setQueryData(
+                                    ["vendor-branch-details", branch_id],
+                                    copyObj
+                                  );
+                                }}
+                              >
+                                Remove
+                              </Button>
+                            </div>
+                          );
+                        }
                       )}
-                      className={"!min-w-fit"}
-                    ></CustomSelect>
+                    </ScrollableDropDown>
                   </TableCell>
                   <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
                     {data?.data?.["vendor_id"]}

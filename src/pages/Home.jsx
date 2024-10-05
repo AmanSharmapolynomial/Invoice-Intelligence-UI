@@ -13,10 +13,7 @@ import {
 } from "@/components/ui/sheet";
 
 import InvoiceTable from "@/components/invoice/InvoiceTable";
-import {
-  formatRestaurantsList,
-  vendorNamesFormatter
-} from "@/lib/helpers";
+import { formatRestaurantsList, vendorNamesFormatter } from "@/lib/helpers";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { Filter as FilterIcon, Search } from "lucide-react";
 import { useEffect } from "react";
@@ -92,13 +89,14 @@ const Home = () => {
   ]);
   return (
     <>
-      <Navbar></Navbar>
+      <Navbar />
       <Layout className={"mx-10 rounded-md  border mt-8 !shadow-none "}>
         <Header
-          className={"shadow-none bg-primary rounded-t-md !text-[#FFFFFF] relative"}
+          className={
+            "shadow-none bg-primary rounded-t-md !text-[#FFFFFF] relative"
+          }
           showVC={true}
           title={"Invoices"}
-          showDeDuplication={true}
         />
         <InfoSection />
         <Header className={"shadow-none  relative"}>
@@ -117,8 +115,7 @@ const Home = () => {
               <CustomDropDown
                 triggerClassName={"bg-gray-100"}
                 contentClassName={"bg-gray-100"}
-                Value={ restaurantFilterValue
-                }
+                Value={restaurantFilterValue}
                 placeholder="All Restaurants"
                 data={formatRestaurantsList(
                   restaurantsList && restaurantsList?.data
