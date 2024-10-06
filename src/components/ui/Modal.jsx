@@ -1,41 +1,32 @@
-import React from "react";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger
-} from "@/components/ui/alert-dialog";
+  Dialog,
+  DialogContent,
+  DialogDescription
+} from "@/components/ui/dialog";
 
 const Modal = ({
-  trigger,
-  titleClassName,
+  open,
+  setOpen,
+  children,
   className,
-  contentClassName,
   title,
-  children
+  titleClassName
 }) => {
   return (
-    <AlertDialog className={className}>
-      <AlertDialogTrigger className={titleClassName}>
-        {trigger}
-      </AlertDialogTrigger>
-      <AlertDialogContent className={contentClassName}>
-        <AlertDialogHeader>
-          <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>{children}</AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          {/* <AlertDialogAction>Continue</AlertDialogAction> */}
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent className={`  overflow-auto pt-4 px-4 ${className}`}>
+        <p className={`${titleClassName} font-medium `}> {title}</p>
+        <div className="h-full !overflow-hidden">
+          <div className={`  ${className}`}>{children}</div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
-export default Modal;
+const ModalDescription = ({ children }) => (
+  <DialogDescription className="">{children}</DialogDescription>
+);
+
+export { Modal, ModalDescription };
+

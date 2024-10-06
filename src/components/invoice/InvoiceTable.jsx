@@ -1,6 +1,6 @@
+import no_data from "@/assets/image/no-data.svg";
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -16,70 +16,26 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table";
-import { BadgeCheck, CirclePlus } from "lucide-react";
-import { Link } from "react-router-dom";
-import { Button } from "../ui/button";
-import { Skeleton } from "../ui/skeleton";
-import no_data from "@/assets/image/no-data.svg";
-
-// import Modal,{ ModalTrigger } from "../ui/Modal";
-
+import { invoiceTableHeaders } from "@/constants";
+import { BadgeCheck } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 const InvoiceTable = ({ data = [], isLoading }) => {
-
+  const navigate = useNavigate();
   return (
-    <div className="w-full overflow-auto pb-4">
+    <div className="w-full overflow-auto ">
       <Table className="flex flex-col   box-border  scrollbar ">
         <TableHeader className="min-h-16">
           <TableRow className="flex  text-base  !border-none  ">
-            <TableHead className="flex cursor-pointer border-r !text-left items-center justify-start  !font-semibold !text-gray-800 !min-w-32 border-b pl-6  bg-gray-200 h-14">
-              Invoice ID
-            </TableHead>
-
-            <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start pl-6 !font-semibold !text-gray-800 !min-w-40 border-b  bg-gray-200 h-14">
-              Source/Channel
-            </TableHead>
-
-            <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start pl-4  !font-semibold !text-gray-800 !min-w-44 border-b  bg-gray-200 h-14">
-              Restaurant
-            </TableHead>
-
-            <TableHead className="flex cursor-pointer border-r !min-h-10  gap-x-2 !text-left items-center justify-start pl-4 !font-semibold !text-gray-800 !min-w-72 border-b  bg-gray-200 h-14">
-              Vendor
-            </TableHead>
-
-            <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start pl-4 !font-semibold !text-gray-800 !min-w-40 border-b  bg-gray-200 h-14">
-              Upload Date
-            </TableHead>
-
-            <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start pl-4  !font-semibold !text-gray-800 !min-w-44 capitalize border-b  bg-gray-200 h-14">
-              Balance Status
-            </TableHead>
-
-            <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-center pl-4 !font-semibold !text-gray-800 !min-w-40 border-b pb- bg-gray-200 h-14">
-              Final Status
-            </TableHead>
-
-            <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start pl-4 !font-semibold !text-gray-800 !min-w-40 border-b  bg-gray-200 h-14">
-              clickBACON Status
-            </TableHead>
-
-            <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start pl-4 !font-semibold !text-gray-800 !min-w-44 border-b  bg-gray-200 h-14">
-              Failure Cause Code
-            </TableHead>
-
-            <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start pl-4 !font-semibold !text-gray-800 !min-w-40 border-b bg-gray-200 h-14 ">
-              Accepted/Rejected
-            </TableHead>
-
-            <TableHead className="flex cursor-pointer !text-left items-center justify-center  !font-semibold !text-gray-800 !min-w-60  border-b border-r  bg-gray-200 h-14">
-              Rejected Reasons
-            </TableHead>
-            <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start pl-4 !font-semibold !text-gray-800 !min-w-60 border-b  bg-gray-200 h-14">
-              Invoice Type
-            </TableHead>
-            <TableHead className="flex cursor-pointer !text-left items-center justify-start  !font-semibold !text-gray-800 !min-w-60 border-b  pl-4 bg-gray-200 h-14">
-              Human Verification Date
-            </TableHead>
+            {invoiceTableHeaders?.map(({ label, styling }) => (
+              <TableHead
+                key={label}
+                className={`flex cursor-pointer border-r !text-left items-center justify-start  !font-semibold !text-gray-800 !${styling} border-b pl-4 bg-gray-200 h-14`}
+              >
+                {label}
+              </TableHead>
+            ))}
           </TableRow>
         </TableHeader>
         <div className="flex-1 !w-full">
@@ -144,6 +100,9 @@ const InvoiceTable = ({ data = [], isLoading }) => {
                 ) => {
                   return (
                     <TableRow
+                      onClick={(e) => {
+                        navigate(`/invoice-details/${document_uuid}`);
+                      }}
                       className="flex  text-base items-center !min-h-14  !border-none"
                       key={index}
                     >
@@ -168,11 +127,11 @@ const InvoiceTable = ({ data = [], isLoading }) => {
                         </span>
                       </TableHead>
 
-                      <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start pl-4 !font-normal !text-gray-800 !min-w-40 border-b  ">
+                      <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-center !font-normal !text-gray-800 !min-w-40 border-b  ">
                         {date_uploaded?.split("T")[0]}
                       </TableHead>
 
-                      <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start  capitalize pl-4 !font-normal !text-gray-800 !min-w-44 border-b pb- ">
+                      <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-center  capitalize  !font-normal !text-gray-800 !min-w-44 border-b pb- ">
                         {balance_type}
                       </TableHead>
                       <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-center  capitalize pl-4 !font-normal !text-gray-800 !min-w-40 border-b pb- ">
@@ -185,7 +144,7 @@ const InvoiceTable = ({ data = [], isLoading }) => {
                         )}
                       </TableHead>
 
-                      <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-center pl-4 !font-normal !text-gray-800 !min-w-40 border-b  ">
+                      <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-center pl-4 !font-normal !text-gray-800 !min-w-44 border-b  ">
                         {clickbacon_status}
                       </TableHead>
 
@@ -217,11 +176,17 @@ const InvoiceTable = ({ data = [], isLoading }) => {
                           : ""}
                       </TableHead>
 
-                      <TableHead className="flex cursor-pointer !text-left items-center justify-center   !font-normal !text-gray-800 !min-w-60  border-b border-r  ">
+                      <TableHead
+                        onClick={(e) => e.stopPropagation()}
+                        className="flex cursor-pointer !text-left items-center justify-center   !font-normal !text-gray-800 !min-w-60  border-b border-r  "
+                      >
                         {rejection_reason && (
                           <AlertDialog>
-                            <AlertDialogTrigger>
-                              <Button className="text-xs h-8 py-1 w-fit px-3 bg-primary hover:bg-primary/90 !font-normal">
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                className="text-xs h-8 py-1 w-fit px-3 bg-primary hover:bg-primary/90 !font-normal"
+                                onClick={(e) => e.stopPropagation()}
+                              >
                                 View Reason
                               </Button>
                             </AlertDialogTrigger>
@@ -237,13 +202,17 @@ const InvoiceTable = ({ data = [], isLoading }) => {
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
-                                <AlertDialogCancel>Close</AlertDialogCancel>
+                                <AlertDialogCancel
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  Close
+                                </AlertDialogCancel>
                               </AlertDialogFooter>
                             </AlertDialogContent>
                           </AlertDialog>
                         )}
                       </TableHead>
-                      <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start pl-4 !font-normal !text-gray-800 !min-w-60 border-b  ">
+                      <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-center !font-normal !text-gray-800 !min-w-60 border-b  ">
                         {invoice_type}
                       </TableHead>
                       <TableHead className="flex cursor-pointer !text-left items-center justify-center   !font-normal !text-gray-800 !min-w-60 border-b  ">
@@ -256,25 +225,13 @@ const InvoiceTable = ({ data = [], isLoading }) => {
                 }
               )
             ) : (
-            
               <div className="flex justify-center items-center h-[40vh] !w-[95vw] !overflow-hidden">
-              <img src={no_data} alt="" className="flex-1 h-full" />
-            </div>
+                <img src={no_data} alt="" className="flex-1 h-full" />
+              </div>
             )}
           </TableBody>
         </div>
       </Table>
-      <div className="w-full flex flex-col items-center justify-center mt-2">
-      
-        <Link to={"/create-invoice"}>
-          <Button className="flex gap-x-1 bg-primary hover:bg-primary/95">
-            <span>
-              <CirclePlus className="h-4" />
-            </span>
-            <span>Create Invoice</span>
-          </Button>
-        </Link>
-      </div>
     </div>
   );
 };

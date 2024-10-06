@@ -12,7 +12,7 @@ const Navbar = ({ children, className }) => {
       className={`${className} w-full h-[8vh]  flex items-center px-8 pl-14 shadow relative`}
     >
 
-      {pathname!=="/"&&<ArrowLeft className="absolute left-4 pt-1 cursor-pointer" onClick={()=>window.history.back()}/>}
+      {pathname!=="/"&&<ArrowLeft className="absolute left-4 pt-1 cursor-pointer" onClick={()=>pathname=="/home"?navigate("/"):window.history.back()}/>}
       {!["/home", "/"].includes(pathname) && (
         <Link to={"/home"}>
           <LucideHome className="mt-0.5" />

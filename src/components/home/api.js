@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { listInvoices, listRestautants, listVendors } from "./utils";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { listInvoices, listRestautants, listVendors,searchInvoice, } from "./utils";
 
 export const useListInvoices = (payload) => {
   return useQuery({
@@ -20,3 +20,10 @@ export const useListVendors = () => {
     queryFn: listVendors
   });
 };
+
+export const useSearchInvoice=()=>{
+  return useMutation({
+    mutationFn:(invoice_number)=>searchInvoice(invoice_number),
+    onSuccess:(data)=>data
+  })
+}

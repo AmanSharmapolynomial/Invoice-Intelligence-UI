@@ -3,30 +3,31 @@ import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import { Button } from "@/components/ui/button";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
-import { NotebookIcon } from "lucide-react";
+
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from "@/components/ui/tooltip";
-import VendorDetailsTable from "@/components/vendor/VendorDetailsTable";
-import { useGetVendorDetails } from "@/components/vendor/api";
+
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger
 } from "@/components/ui/accordion";
+import {
+  useGetVendorDetails,
+  useGetVendorNotes
+} from "@/components/vendor/api";
+import VendorDetailsTable from "@/components/vendor/VendorDetailsTable";
+import VendorNotes from "@/components/vendor/VendorNotes";
 
 const VendorDetails = () => {
   const { vendor_id } = useParams();
   const { data, isLoading } = useGetVendorDetails(vendor_id);
+  const { data: vendorNotes, isLoading: vendorNotesLoading } =
+    useGetVendorNotes(vendor_id);
 
   const [searchParams] = useSearchParams();
   const updateParams = useUpdateParams();
-  // console.log(data);s
+
   return (
     <>
       <Navbar className="" />
@@ -34,25 +35,11 @@ const VendorDetails = () => {
       <Layout className={"mx-10 box-border overflow-auto"}>
         <Header
           title={`Vendor Details ${
-            data?.data?.vendor_name ? "for" + data?.data?.vendor_name : ""
+            data?.data?.vendor_name ? " for " + data?.data?.vendor_name : ""
           }`}
           className="border mt-10 rounded-t-md !shadow-none bg-primary !capitalize !text-[#FFFFFF] relative "
         >
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger className={"!absolute !right-4"}>
-                {" "}
-                <Button
-                  className={" bg-[#FFFFFF] !w-fit hover:bg-[#FFFFFF] px-2"}
-                >
-                  <NotebookIcon className="text-primary" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent className=" bg-[#FFFFFF] font-semibold text-primary !text-sm">
-                <p>View Vendor Notes</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <VendorNotes data={vendorNotes} vendor_id={vendor_id} />
         </Header>
         <VendorDetailsTable data={data?.data} isLoading={isLoading} />
 

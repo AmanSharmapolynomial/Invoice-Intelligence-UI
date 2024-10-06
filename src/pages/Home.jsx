@@ -12,27 +12,48 @@ import {
   SheetTrigger
 } from "@/components/ui/sheet";
 
-import InvoiceTable from "@/components/invoice/InvoiceTable";
-import {
-  formatRestaurantsList,
-  vendorNamesFormatter
-} from "@/lib/helpers";
-import useUpdateParams from "@/lib/hooks/useUpdateParams";
-import { Filter as FilterIcon, Search } from "lucide-react";
-import { useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
 import TablePagination from "@/components/common/TablePagination";
-import { useListInvoices, useListRestaurants } from "@/components/home/api";
+import {
+  useListInvoices,
+  useListRestaurants,
+  useSearchInvoice
+} from "@/components/home/api";
 import InvoiceFilters from "@/components/invoice/InvoiceFilters";
+import InvoiceTable from "@/components/invoice/InvoiceTable";
 import { useInvoiceStore } from "@/components/invoice/store";
 import { Button } from "@/components/ui/button";
-import CustomDateRangePicker from "@/components/ui/CustomDateRangePicker";
 import CustomDropDown from "@/components/ui/CustomDropDown";
 import { Input } from "@/components/ui/input";
 import { useGetVendorNames } from "@/components/vendor/api";
+import { formatRestaurantsList, vendorNamesFormatter } from "@/lib/helpers";
+import useUpdateParams from "@/lib/hooks/useUpdateParams";
+import { Filter as FilterIcon, Search } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from "@/components/ui/alert-dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow
+} from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Home = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
+  const [invoiceNumber, setInvoiceNumber] = useState('');
+  const [searchedInvoices, setSearchedInvoices] = useState([]);
   let page = searchParams.get("page") || 1;
   let page_size = searchParams.get("page_size") || 8;
   let invoice_type = searchParams.get("invoice_type") || "";
@@ -49,8 +70,6 @@ const Home = () => {
   const updateParams = useUpdateParams();
   const { data: restaurantsList, isLoading: restaurantsListLoading } =
     useListRestaurants();
-  const { data: vendorsList, isLoading: vendorsListLoading } =
-    useListInvoices();
   const { data: vendorNamesList, isLoading: vendorNamesLoading } =
     useGetVendorNames();
   const {
@@ -90,35 +109,133 @@ const Home = () => {
     vendorNamesLoading,
     restaurantsListLoading
   ]);
+
+  const {
+    mutate: searchInvoices,
+    isPending: searchingInvoices,
+    isSuccess
+  } = useSearchInvoice();
   return (
     <>
       <Navbar></Navbar>
-      <Layout className={"mx-10 rounded-md  border mt-8 !shadow-none "}>
+      <Layout className={"mx-10 rounded-md  border mt-8 !shadow-none   "}>
         <Header
-          className={"shadow-none bg-primary rounded-t-md !text-[#FFFFFF] relative"}
+          className={
+            "shadow-none bg-primary rounded-t-md !text-[#FFFFFF] relative overflow-auto"
+          }
           showVC={true}
           title={"Invoices"}
           showDeDuplication={true}
         />
         <InfoSection />
-        <Header className={"shadow-none  relative"}>
-          <div className="w-full flex justify-between overflow-auto">
+        <Header className={"!overflow-x-auto !overflow-y-visible"}>
+          {" "}
+          <div className=" flex justify-between overflow-x-auto overflow-y-visible min-h-16 !w-full">
             <div className="flex w-full max-w-sm items-center space-x-2">
               <Input
-                type="text"
+                type="number"
                 placeholder="Search invoice"
-                className="min-w-72 max-w-96 border border-gray-200  focus:!ring-0 focus:!outline-none"
+                value={invoiceNumber}
+                onChange={(e) => setInvoiceNumber(e.target.value)}
+                className="min-w-72 max-w-96 border border-gray-200  focus:!ring-0 focus:!outline-none remove-number-spinner"
               />
-              <Button type="submit" className="w-12">
-                <Search className="h-4 w-10" />
-              </Button>
+
+              <AlertDialog>
+                <AlertDialogTrigger disabled={invoiceNumber?.length == 0}>
+                  {" "}
+                  <Button
+                    type="submit"
+                    className="w-12"
+                    disabled={searchingInvoices}
+                    onClick={() => {
+                      if (invoiceNumber?.length !== 0) {
+                        searchInvoices(invoiceNumber, {
+                          onSuccess: (data) => setSearchedInvoices(data?.data)
+                        });
+                        setInvoiceNumber("");
+                      }
+                    }}
+                  >
+                    <Search className="h-4 w-10" />
+                  </Button>
+                </AlertDialogTrigger>
+                {
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="border-b pb-2 ">
+                        Matched Invoice Numbers
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        <Table>
+                          <TableRow className="flex w-full justify-between !py-0 !pb-0">
+                            <TableHead className="!pb-0 !py-0">
+                              Invoice Number
+                            </TableHead>
+                            <TableHead>Vendor Name</TableHead>
+                          </TableRow>
+
+                          <div className="w-full justify-between flex max-h-56 overflow-auto">
+                            <TableBody className="w-full">
+                              {searchingInvoices ? (
+                                [1, 2, 3, 4, 5].map((_, index) => (
+                                  <TableRow
+                                    key={index}
+                                    className="!w-full flex justify-between cursor-pointer"
+                                  >
+                                    <TableCell>
+                                      <Skeleton className={"w-44 h-5"} />
+                                    </TableCell>
+                                    <TableCell>
+                                      <Skeleton className={"w-44 h-5"} />
+                                    </TableCell>
+                                  </TableRow>
+                                ))
+                              ) : searchedInvoices?.length > 0 ? (
+                                searchedInvoices?.map(
+                                  ({
+                                    document_uuid,
+                                    vendor_name,
+                                    invoice_number
+                                  }) => {
+                                    return (
+                                      <TableRow
+                                        key={document_uuid}
+                                        className="!w-full flex justify-between cursor-pointer !capitalize"
+                                      >
+                                        <TableCell>{invoice_number}</TableCell>
+                                        <TableCell>{vendor_name}</TableCell>
+                                      </TableRow>
+                                    );
+                                  }
+                                )
+                              ) : (
+                                <>
+                                  <div className="w-full flex items-center justify-center mt-4">
+                                    <p>No Invoices Found</p>
+                                  </div>
+                                </>
+                              )}
+                            </TableBody>
+                          </div>
+                        </Table>
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel
+                        onClick={() => setSearchedInvoices([])}
+                      >
+                        Close
+                      </AlertDialogCancel>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                }
+              </AlertDialog>
             </div>
             <div className="flex items-center gap-x-2">
               <CustomDropDown
                 triggerClassName={"bg-gray-100"}
                 contentClassName={"bg-gray-100"}
-                Value={ restaurantFilterValue
-                }
+                Value={restaurantFilterValue}
                 placeholder="All Restaurants"
                 data={formatRestaurantsList(
                   restaurantsList && restaurantsList?.data
@@ -170,9 +287,9 @@ const Home = () => {
                 </SheetContent>
               </Sheet>
             </div>
-            <CustomDateRangePicker />
           </div>
         </Header>
+
         <InvoiceTable data={data?.data} isLoading={isLoading} />
         <div className="w-full flex !justify-end  pt-2 z-10">
           <TablePagination

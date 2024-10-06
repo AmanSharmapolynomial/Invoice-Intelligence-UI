@@ -5,10 +5,12 @@ import {
   getVendorDetails,
   getVendorList,
   getVendorBranchDetails,
-  getVendorNamesList
+  getVendorNamesList,
+  getVendorNotes,
+  addVendorNote
 } from "@/components/vendor/utils";
 import toast from "react-hot-toast";
-const queryClient = new QueryClient();
+import { queryClient } from "@/lib/utils";
 export const useGetVendorList = (payload) => {
   return useQuery({
     queryKey: ["vendor-list", payload],
@@ -45,17 +47,29 @@ export const useGetVendorDetails = (vendor_id) => {
     queryFn: () => getVendorDetails(vendor_id)
   });
 };
-export const useGetVendorBranches = (vendor_id) => {
+export const useGetVendorBranches = (vendor_id, vendor_address) => {
   return useQuery({
-    queryKey: ["vendor-branches", vendor_id],
-    queryFn: () => getVendorBranches(vendor_id)
+    queryKey: ["vendor-branches", vendor_id, vendor_address],
+    queryFn: () => getVendorBranches(vendor_id, vendor_address)
   });
 };
 
-
-export const useGetVendorBranchDetails=(branch_id)=>{
+export const useGetVendorBranchDetails = (branch_id) => {
   return useQuery({
-    queryKey:['vendor-branch-details',branch_id],
-    queryFn:()=>getVendorBranchDetails(branch_id)
-  })
-}
+    queryKey: ["vendor-branch-details", branch_id],
+    queryFn: () => getVendorBranchDetails(branch_id)
+  });
+};
+export const useGetVendorNotes = (vendor_id) => {
+  return useQuery({
+    queryKey: ["vendor-notes", vendor_id],
+    queryFn: () => getVendorNotes(vendor_id)
+  });
+};
+
+export const useAddVendorNote = () => {
+  return useMutation({
+    mutationKey: ["add-vedor-note"],
+    mutationFn: (payload) => addVendorNote(payload)
+  });
+};

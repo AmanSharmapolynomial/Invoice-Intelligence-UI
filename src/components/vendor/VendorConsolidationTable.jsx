@@ -8,7 +8,8 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table";
-import { Eye, Trash, Verified } from "lucide-react";
+import { vendorConsolidationHeaders } from "@/constants";
+import { Eye, Trash, Trash2, Verified } from "lucide-react";
 import { Link } from "react-router-dom";
 const VendorConsolidationTable = ({ data, isLoading }) => {
   return (
@@ -16,49 +17,14 @@ const VendorConsolidationTable = ({ data, isLoading }) => {
       <Table className="flex flex-col   box-border  scrollbar ">
         <TableHeader className="min-h-16">
           <TableRow className="flex  text-base  !border-none  ">
-            <TableHead className="flex  border-r !text-left items-center justify-start  !font-semibold !text-gray-800 !min-w-60 border-b pl-6  bg-gray-200 h-14">
-              Vendor Name
-            </TableHead>
-
-            <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-start pl-6 !font-semibold !text-gray-800 !min-w-60 border-b  bg-gray-200 h-14">
-              Vendor Category
-            </TableHead>
-
-            <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-start pl-4  !font-semibold !text-gray-800 !min-w-36 border-b  bg-gray-200 h-14">
-              Creation Date
-            </TableHead>
-
-            <TableHead className="flex  border-r !min-h-10  gap-x-2 !text-left items-center justify-center  !font-semibold !text-gray-800 !min-w-40 border-b  bg-gray-200 h-14">
-              Document Count
-            </TableHead>
-
-            <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center !font-semibold !text-gray-800 !min-w-40 border-b  bg-gray-200 h-14">
-              Branch Count
-            </TableHead>
-
-            <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-start pl-4  !font-semibold !text-gray-800 !min-w-48 capitalize border-b  bg-gray-200 h-14">
-              Verified Branch Count
-            </TableHead>
-
-            <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center pl-4 !font-semibold !text-gray-800 !min-w-40 border-b pb- bg-gray-200 h-14">
-              Item Count
-            </TableHead>
-
-            <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-start pl-4 !font-semibold !text-gray-800 !min-w-48 border-b  bg-gray-200 h-14">
-              Verified Item Count
-            </TableHead>
-
-            <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center  !font-semibold !text-gray-800 !min-w-44 border-b  bg-gray-200 h-14">
-              Verified By
-            </TableHead>
-
-            <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center !font-semibold !text-gray-800 !min-w-36 border-b bg-gray-200 h-14 ">
-              View Invoice
-            </TableHead>
-
-            <TableHead className="flex  !text-left items-center justify-center  !font-semibold !text-gray-800 !min-w-36  border-b border-r  bg-gray-200 h-14">
-              Delete
-            </TableHead>
+            {vendorConsolidationHeaders?.map(({ label, styling }) => (
+              <TableHead
+                key={label}
+                className={`flex  border-r !text-left items-center  !font-semibold !text-gray-800 !${styling} border-b   bg-gray-200 h-14`}
+              >
+                {label}
+              </TableHead>
+            ))}
           </TableRow>
         </TableHeader>
         <div className="flex-1 ">
@@ -116,7 +82,11 @@ const VendorConsolidationTable = ({ data, isLoading }) => {
                         >
                           {vendor_name}
                         </Link>
-                        <span>{human_verified && <Verified />}</span>
+                        <span>
+                          {human_verified && (
+                            <Verified d className="h-4 w-4 text-primary" />
+                          )}
+                        </span>
                       </TableHead>
 
                       <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-start pl-4  !font-normal !text-gray-800 !min-w-60 border-b pb-4  !capitalize ">
@@ -150,16 +120,12 @@ const VendorConsolidationTable = ({ data, isLoading }) => {
                         {verified_by}{" "}
                       </TableHead>
 
-                      <TableHead className="flex  !text-left items-center justify-center   !font-normal !text-gray-800 !min-w-36  border-b border-r  pb-4">
-                        <Button>
-                          <Eye className="h-4"/>
-                        </Button>
-                      </TableHead>
+                      <TableHead className="flex  !text-left items-center justify-center   !font-normal !text-gray-800 !min-w-44 gap-x-4 border-b border-r  pb-4">
+                        <Link to={`/invoice-details/${vendor_id}`}>
+                          <Eye className="h-5  text-primary cursor-pointer" />
+                        </Link>
 
-                      <TableHead className="flex  !text-left items-center justify-center   !font-normal !text-gray-800 !min-w-36  border-b border-r  pb-4">
-                        <Button>
-                          <Trash className="h-4" />
-                        </Button>
+                        <Trash2 className="h-5 w-5 text-red-600 cursor-pointer  " />
                       </TableHead>
                     </TableRow>
                   );

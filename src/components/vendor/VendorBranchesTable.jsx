@@ -15,7 +15,7 @@ import {
 import { Skeleton } from "../ui/skeleton";
 import no_data from "@/assets/image/no-data.svg";
 import { Button } from "../ui/button";
-import { Delete, Edit, Trash, Trash2, Verified } from "lucide-react";
+import { Delete, Edit, Eye, Trash, Trash2, Verified } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Checkbox } from "../ui/checkbox";
 const VendorBranchesTable = ({ data = [], isLoading }) => {
@@ -23,7 +23,7 @@ const VendorBranchesTable = ({ data = [], isLoading }) => {
     <Table className="flex flex-col   box-border  scrollbar ">
       <TableHeader className="min-h-16">
         <TableRow className="flex text-base  !border-none  ">
-          <TableHead className="flex  border-r !text-left items-center justify-start  !font-semibold !text-gray-800  !max-w-[20%] !min-w-[20%]  border-b pl-6  bg-gray-200 !h-14">
+          <TableHead className="flex  border-r !text-left items-center justify-start  !font-semibold !text-gray-800  !max-w-[20%] !min-w-[25%]  border-b pl-6  bg-gray-200 !h-14">
             Vendor Address
           </TableHead>
 
@@ -35,28 +35,20 @@ const VendorBranchesTable = ({ data = [], isLoading }) => {
             Creation Date
           </TableHead>
 
-          <TableHead className="flex  border-r !min-h-10  gap-x-2 !text-left items-center justify-center  !font-semibold !text-gray-800 !min-w-[10%] border-b  bg-gray-200 h-14">
+          <TableHead className="flex  border-r !min-h-10  gap-x-2 !text-left items-center justify-center  !font-semibold !text-gray-800 !min-w-[12.5%] border-b  bg-gray-200 h-14">
             Select Master
           </TableHead>
 
-          <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center !font-semibold !text-gray-800 !min-w-[10%] border-b  bg-gray-200 h-14">
+          <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center !font-semibold !text-gray-800 !min-w-[12.5%] border-b  bg-gray-200 h-14">
             Select For Merge
           </TableHead>
 
-          <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center   !font-semibold !text-gray-800 !min-w-[10%] capitalize border-b  bg-gray-200 h-14">
+          <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center   !font-semibold !text-gray-800 !min-w-[15%] capitalize border-b  bg-gray-200 h-14">
             Migrate
           </TableHead>
 
-          <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center !font-semibold !text-gray-800 !min-w-[10%] border-b pb- bg-gray-200 h-14">
-            View Invoice
-          </TableHead>
-
-          <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center  !font-semibold !text-gray-800 !min-w-[10%] border-b  bg-gray-200 h-14">
-            Edit
-          </TableHead>
-
-          <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center  !font-semibold !text-gray-800 !min-w-[10%] border-b  bg-gray-200 h-14">
-            Delete
+          <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center !font-semibold !text-gray-800 !min-w-[15%] border-b pb- bg-gray-200 h-14">
+            Actions
           </TableHead>
         </TableRow>
       </TableHeader>
@@ -101,20 +93,20 @@ const VendorBranchesTable = ({ data = [], isLoading }) => {
                   className="flex !w-[100%]  text-base !items-center leading-5  !min-h-16  !border-none"
                   key={index}
                 >
-                  <TableHead className="flex  border-r !text-left justify-between items-center gap-x-4 pl-6  !font-normal !text-gray-800 !min-w-[20%]  border-b py-8 min-h-16 ">
+                  <TableHead className="flex  border-r !text-left justify-between items-center gap-x-4 pl-6  !font-normal !text-gray-800 !min-w-[25%]  border-b py-8 min-h-16 ">
                     <TooltipProvider>
                       <Tooltip>
-                        <TooltipTrigger className="flex items-center justify-between gap-x-2">
+                        <TooltipTrigger className="flex items-center justify-between gap-x-2 w-full">
                           {" "}
                           <Link
                             to={`/vendor-branch-details/${branch_id}`}
                             className="underline underline-offset-2 "
                           >
-                            {vendor_address?.length > 20
-                              ? vendor_address?.slice(0, 35) + "..."
+                            {vendor_address?.length > 45
+                              ? vendor_address?.slice(0, 45) + "..."
                               : vendor_address}
                           </Link>
-                          <span>{human_verified && <Verified />}</span>
+                          <span>{human_verified && <Verified  d className="h-4 w-4 text-primary"/>}</span>
                         </TooltipTrigger>
                         <TooltipContent className=" bg-[#FFFFFF] font-semibold text-primary !text-sm">
                           <p>{vendor_address}</p>
@@ -131,31 +123,22 @@ const VendorBranchesTable = ({ data = [], isLoading }) => {
                     {created_date?.split("T")[0]}{" "}
                   </TableHead>
 
-                  <TableHead className="flex  border-r min-h-16  !text-left items-center justify-center !font-normal !text-gray-800 !min-w-[10%] border-b  ">
+                  <TableHead className="flex  border-r min-h-16  !text-left items-center justify-center !font-normal !text-gray-800 !min-w-[12.5%] border-b  ">
                     <Checkbox className="h-4 w-4" />
                   </TableHead>
 
-                  <TableHead className="flex  border-r min-h-16 !text-left items-center justify-center  capitalize !font-normal !text-gray-800 !min-w-[10%] border-b ">
+                  <TableHead className="flex  border-r min-h-16 !text-left items-center justify-center  capitalize !font-normal !text-gray-800 !min-w-[12.5%] border-b ">
                     <Checkbox className="h-4 w-4" />
                   </TableHead>
-                  <TableHead className="flex  border-r min-h-16  !text-left items-center justify-center  capitalize !font-normal !text-gray-800 !min-w-[10%] border-b ">
+                  <TableHead className="flex  border-r min-h-16  !text-left items-center justify-center  capitalize !font-normal !text-gray-800 !min-w-[15%] border-b ">
                     <Button className="font-normal">Migrate</Button>
                   </TableHead>
 
-                  <TableHead className="flex  border-r min-h-16  !text-left items-center justify-center !font-normal !text-gray-800 !min-w-[10%] border-b">
-                    <Button className="font-normal">View</Button>
-                  </TableHead>
+                  <TableHead className="flex  border-r min-h-16  !text-left items-center justify-center gap-x-4 !font-normal !text-gray-800 !min-w-[15%] border-b  ">
+                    <Edit className="h-4 text-gray-700 cursor-pointer" />
+                    <Eye className="h-5 text-primary cursor-pointer" />
 
-                  <TableHead className="flex  border-r min-h-16  !text-left items-center justify-center !font-normal !text-gray-800 !min-w-[10%] border-b">
-                    <Button>
-                      <Edit className="h-4" />
-                    </Button>
-                  </TableHead>
-
-                  <TableHead className="flex  border-r min-h-16  !text-left items-center justify-center  !font-normal !text-gray-800 !min-w-[10%] border-b  ">
-                    <Button>
-                      <Trash2 className="h-4"/>
-                    </Button>
+                    <Trash2 className="h-4 text-red-500 cursor-pointer" />
                   </TableHead>
                 </TableRow>
               );

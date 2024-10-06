@@ -36,13 +36,26 @@ export const getVendorDetails = async (vendor_id) => {
   const response = await axiosInstance.get(apiUrl);
   return response;
 };
-export const getVendorBranches = async (vendor_id) => {
-  const apirUrl = `/api/vendor-branch/${vendor_id}/`;
+export const getVendorBranches = async (vendor_id, vendor_address) => {
+  const apirUrl = `/api/vendor-branch/${vendor_id}/?vendor_address=${vendor_address}`;
   const response = await axiosInstance.get(apirUrl);
   return response;
 };
 export const getVendorBranchDetails = async (branch_id) => {
   const apirUrl = `/api/vendor-branch/${branch_id}/details/`;
   const response = await axiosInstance.get(apirUrl);
+  return response;
+};
+export const getVendorNotes = async (vendor_id) => {
+  const apirUrl = `/api/vendor/${vendor_id}/note/`;
+  const response = await axiosInstance.get(apirUrl);
+  return response;
+};
+export const addVendorNote = async (payload) => {
+  const {vendor_id,note}=payload
+  const apirUrl = `/api/vendor/${vendor_id}/note/`;
+  const response = await axiosInstance.post(apirUrl, {
+    note
+  });
   return response;
 };
