@@ -1,19 +1,25 @@
-import React from "react";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { ArrowLeft, LogOut, LucideHome } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
-import { ArrowLeft, ChevronLeft, Home, HomeIcon, LogOut, LucideHome } from "lucide-react";
 
 const Navbar = ({ children, className }) => {
   const { pathname } = useLocation();
-  const navigate=useNavigate();
+  const token = localStorage.getItem("access_token");
+  const navigate = useNavigate();
 
   return (
     <div
       className={`${className} w-full h-[8vh]  flex items-center px-8 pl-14 shadow relative`}
     >
-
-      {pathname!=="/"&&<ArrowLeft className="absolute left-4 pt-1 cursor-pointer" onClick={()=>pathname=="/home"?navigate("/"):window.history.back()}/>}
-      {!["/home", "/"].includes(pathname) && (
+      {!["/", "/login"].includes(pathname) && (
+        <ArrowLeft
+          className="absolute left-4 pt-1 cursor-pointer"
+          onClick={() =>
+            pathname == "/home" ? navigate("/") : window.history.back()
+          }
+        />
+      )}
+      {!["/home", "/", "/login"].includes(pathname) && (
         <Link to={"/home"}>
           <LucideHome className="mt-0.5" />
         </Link>
@@ -22,8 +28,17 @@ const Navbar = ({ children, className }) => {
         Invoice Intelligence Platform
       </Link>
       {children}
-
-      <LogOut className="absolute right-10" />
+      {token && (
+        <Button
+          className="absolute  right-10 h-10 w-16"
+          onClick={() => {
+            localStorage.clear();
+            navigate("/login")
+          }}
+        >
+          <LogOut className="h-6 w-6" />
+        </Button>
+      )}
     </div>
   );
 };

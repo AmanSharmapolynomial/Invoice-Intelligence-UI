@@ -78,16 +78,18 @@ const VendorDetails = () => {
           <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]">
             Save
           </Button>
-
-          <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]">
-            Find Similar Vendors
-          </Button>
+          <Link to={`/vendor-consolidation/combine-vendors/${vendor_id}`}>
+            <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]">
+              Find Similar Vendors
+            </Button>
+          </Link>
           <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]">
             View Invoices
           </Button>
           <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]">
             Delete
           </Button>
+
           <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]">
             Disapprove All Items
           </Button>
@@ -100,9 +102,11 @@ const VendorDetails = () => {
           <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]">
             Fast Item Verification
           </Button>
+<Link to={`/vendor-consolidation/vendor-item-master/${vendor_id}`}>
           <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]">
             View Items
           </Button>
+</Link>
         </div>
       </Layout>
     </>

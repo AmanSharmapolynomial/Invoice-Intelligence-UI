@@ -9,7 +9,9 @@ import {
   getVendorNotes,
   addVendorNote,
   saveVendorBranchDetails,
-  deleteVendorBranchDetails
+  deleteVendorBranchDetails,
+  getSimilarVendors,
+  getVendorItemMaster
 } from "@/components/vendor/utils";
 import toast from "react-hot-toast";
 import { queryClient } from "@/lib/utils";
@@ -91,5 +93,19 @@ export const useDeleteVendorBranchDetails=()=>{
       queryClient.invalidateQueries(["vendor-branches"])
       return data;
     }
+  })
+}
+
+export const useGetSimilarVendors=(vendor_id)=>{
+  return useQuery({
+    queryKey:['similar-vendors',vendor_id],
+    queryFn:()=>getSimilarVendors(vendor_id)
+  })
+}
+
+export const useGetVendorItemMaster=(vendor_id)=>{
+  return useQuery({
+    queryKey:['similar-vendors',vendor_id],
+    queryFn:()=>getVendorItemMaster(vendor_id)
   })
 }

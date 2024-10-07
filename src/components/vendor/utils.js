@@ -80,3 +80,14 @@ export const deleteVendorBranchDetails = async (branch_id) => {
   const response = await axiosInstance.delete(apirUrl);
   return response;
 };
+export const getSimilarVendors = async (vendor_id) => {
+  const apirUrl = `/api/vendor/${vendor_id}/similar-vendors/${50}/`;
+  const response = await axiosInstance.get(apirUrl);
+  return response;
+};
+export const getVendorItemMaster = async (vendor_id) => {
+ 
+  const apirUrl = `/api/item-master/vendor/${vendor_id}/`;
+  const response = await axiosInstance.get(apirUrl);
+  return response;
+};
