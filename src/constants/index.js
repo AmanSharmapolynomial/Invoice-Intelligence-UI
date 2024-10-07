@@ -573,3 +573,28 @@ export const editableFieldsForInvoiceMetadata = [
   "vendor_name",
   "invoice_due_date"
 ];
+
+
+
+export const combineVendorsHeaders=[
+  {
+    label:"Vendor Name",
+    value:"vendor_id"
+  },
+  {
+    label:"Documnets Count",
+    value:"documents_count"
+  },
+  {
+    label:"Matching Score",
+    value:"matching_score"
+  },
+  {
+    label:"Invoice",
+    value:"invoice"
+  },
+  {
+    label:"Select",
+    value:"select"
+  },
+]

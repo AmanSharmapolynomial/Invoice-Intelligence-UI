@@ -7,12 +7,15 @@ const Protected = ({ children }) => {
   const role = localStorage.getItem("user_role");
 
   return token ? (
-    managerRoutes.includes(pathname) && role !== "manager" ? (
-      <Navigate to={"/"} />
-    ) : (
+    // managerRoutes.includes(pathname) && role !== "manager" ? (
+    //   // <Navigate to={"/"} />
       children
-    )
-  ) : <Navigate to={"/login"}/>;
+    // ) : (
+      // children
+    // )
+  ) : (
+    <Navigate to={"/login"} />
+  );
 };
 
 export default Protected;
