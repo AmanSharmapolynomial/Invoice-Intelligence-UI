@@ -30,6 +30,13 @@ import { humanVerifiedOptions, vendorCategories } from "@/constants";
 import TablePagination from "@/components/common/TablePagination";
 import { useSearchParams } from "react-router-dom";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
+import { Label } from "@/components/ui/label";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from "@/components/ui/tooltip";
 
 const VendorConsolidation = () => {
   const [searchParams] = useSearchParams();
@@ -71,11 +78,33 @@ const VendorConsolidation = () => {
           title={"Vendor Consolidation"}
           className="border mt-10 rounded-t-md !shadow-none bg-primary !text-[#FFFFFF] relative "
         >
-          <Progress
-            innerClassName="border-primary  !bg-white/85 "
-            value={33}
-            className="w-72 absolute right-4 h-4 bg-white/15 "
-          />
+          <div className="flex items-center justify-center gap-x-2 w-fit">
+            <Label className="min-w-16">
+              Total :- {vendorsData?.["data"]?.["total_vendor_count"]}
+            </Label>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger className="flex items-center justify-between gap-x-2 w-full">
+                  {" "}
+                  <Progress
+                    innerClassName="border-primary  !bg-white/85 "
+                    value={vendorsData?.["data"]?.["verified_vendor_count"]}
+                    // innerText={vendorsData?.['data']?.['verified_vendor_count']}
+                    className="w-72  h-4 bg-white/15 "
+                  />
+                </TooltipTrigger>
+                <TooltipContent className=" bg-[#FFFFFF] font-semibold text-primary !text-sm flex flex-col justify-center gap-y-1">
+                  {/* <p>{vendor_address}</p> */}
+             
+                  <span>
+                    Verified Vendor Count :-{" "}
+                    {vendorsData?.["data"]?.["verified_vendor_count"]}
+                  </span>
+             
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
         </Header>
 
         <div className="w-full border flex justify-between p-4 gap-x-4 overflow-auto">
@@ -107,7 +136,6 @@ const VendorConsolidation = () => {
           </div>
           <div className="flex items-center gap-x-2">
             <CustomDropDown
-
               triggerClassName={"bg-gray-100"}
               contentClassName={"bg-gray-100"}
               data={vendorCategories}
@@ -123,7 +151,6 @@ const VendorConsolidation = () => {
               }
             />{" "}
             <CustomDropDown
-      
               triggerClassName={"bg-gray-100"}
               contentClassName={"bg-gray-100"}
               data={humanVerifiedOptions}
@@ -143,7 +170,6 @@ const VendorConsolidation = () => {
               }
             />
             <CustomDropDown
-        
               triggerClassName={"bg-gray-100"}
               contentClassName={"bg-gray-100"}
               data={usersListLoading ? [] : formatData(usersData?.data)}
@@ -158,8 +184,9 @@ const VendorConsolidation = () => {
                 <span className="capitalize">
                   {verified_by == undefined
                     ? "Verified By"
-                    : usersData ?
-                      getUserNameFromId(usersData?.data, verified_by):"Verified By"}
+                    : usersData
+                    ? getUserNameFromId(usersData?.data, verified_by)
+                    : "Verified By"}
                 </span>
               }
             />
@@ -196,7 +223,7 @@ const VendorConsolidation = () => {
           </div>
         </div>
         <VendorConsolidationTable
-          data={vendorsData?.data}
+          data={vendorsData?.data?.["vendors"]}
           isLoading={vendorsDataLoading}
         />
 

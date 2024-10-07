@@ -4,7 +4,11 @@ import Navbar from "@/components/common/Navbar";
 import { Button } from "@/components/ui/button";
 
 import { Table, TableCell, TableHead, TableRow } from "@/components/ui/table";
-import { useGetVendorBranchDetails } from "@/components/vendor/api";
+import {
+  useDeleteVendorBranchDetails,
+  useGetVendorBranchDetails,
+  useSaveVendorBranchDetails
+} from "@/components/vendor/api";
 import { Save, Trash2 } from "lucide-react";
 
 import CustomInput from "@/components/ui/CustomInput";
@@ -13,13 +17,18 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { vendorBranchDetailsPageFirstColRowData } from "@/constants";
 import { queryClient } from "@/lib/utils";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const VendorBranchDetails = () => {
   const { branch_id } = useParams();
   const { data, isLoading } = useGetVendorBranchDetails(branch_id);
   const vendorAddress = data?.data?.["vendor_address"] || "";
-
+  const { mutate: saveDetails, isPending: savingDetails } =
+    useSaveVendorBranchDetails();
+  const { mutate: deleteBranch, isPending: deletingBranch } =
+    useDeleteVendorBranchDetails();
+  const navigate = useNavigate();
+  const {vendor_id}=useParams()
   return (
     <>
       <Navbar className="" />
@@ -36,15 +45,28 @@ const VendorBranchDetails = () => {
         <div className="w-full border flex justify-between p-4 gap-x-4 overflow-auto">
           <div></div>
           <div className="flex gap-x-2">
-            <Button>
+            <Button
+              onClick={() => {
+                saveDetails({ data: data?.data, branch_id });
+              }}
+            >
               <Save
                 className="h-5 w-5"
                 onClick={() => {
-                  console.log("Current saved data:", data);
+                  // console.log("Current saved data:", data);
                 }}
               />
             </Button>
-            <Button className="bg-red-600 hover:bg-red-600/90">
+            <Button
+              className="bg-red-600 hover:bg-red-600/90"
+              onClick={() => {
+                deleteBranch(branch_id, {
+                  onSuccess: (data) => {
+                    navigate(`/vendor-branches/${vendor_id}`);
+                  }
+                });
+              }}
+            >
               <Trash2 className="h-5 w-5" />
             </Button>
           </div>
@@ -103,7 +125,7 @@ const VendorBranchDetails = () => {
                     <Switch
                       checked={data?.data?.["human_verified"]}
                       onCheckedChange={(val) => {
-                        let copyObj = { ...data };
+                        let copyObj = JSON.parse(JSON.stringify(data));
                         copyObj.data["human_verified"] = val;
                         queryClient.setQueryData(
                           ["vendor-branch-details", branch_id],
@@ -190,12 +212,11 @@ const VendorBranchDetails = () => {
                       placeholder={"Vendor Address Synonyms"}
                       data={data?.data?.["vendor_address_synonyms"]}
                       onButtonClick={(item) => {
-                        let copyObj = { ...data };
-                        copyObj["data"]["vendor_address_synonyms"] = copyObj[
-                          "data"
-                        ]["vendor_address_synonyms"]?.filter(
-                          (it) => it !== item.label
-                        );
+                        let copyObj = JSON.parse(JSON.stringify(data));
+                        let filtered = copyObj["data"][
+                          "vendor_address_synonyms"
+                        ]?.filter((it) => it !== item.value);
+                        copyObj["data"]["vendor_address_synonyms"] = filtered;
                         queryClient.setQueryData(
                           ["vendor-branch-details", branch_id],
                           copyObj

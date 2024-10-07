@@ -45,7 +45,7 @@ const CustomDropDown = ({
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen} className={className}>
+    <Popover open={open} onOpenChange={setOpen} className={className} >
       <PopoverTrigger asChild className={triggerClassName}>
         <Button
           variant="outline"
@@ -61,14 +61,14 @@ const CustomDropDown = ({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-[200px] p-0"
+        className={`${className} min-w-[200px] !w-full p-0`}
         contentClassName={contentClassName}
       >
-        <Command className={className}>
+        <Command >
           <CommandInput placeholder={searchPlaceholder} />
-          <CommandList>
+          <CommandList >
             <CommandEmpty>No data found.</CommandEmpty>
-            <CommandGroup>
+            <CommandGroup >
               {showCustomItems
                 ? children // Render custom items if showCustomItems is true
                 : data.map((item) => (

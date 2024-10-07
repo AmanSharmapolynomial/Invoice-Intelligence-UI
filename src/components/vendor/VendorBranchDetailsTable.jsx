@@ -1,13 +1,12 @@
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableRow
-  } from "@/components/ui/table";
-  import { vendorDetailsPageFirstColRowData } from "@/constants";
-  import { Input } from "@/components/ui/input";
-  import { Switch } from "@/components/ui/switch";
+  Table,
+  TableCell,
+  TableHead,
+  TableRow
+} from "@/components/ui/table";
+import { vendorDetailsPageFirstColRowData } from "@/constants";
   
   const VendorBranchDetailsTable = ({ data = [], isLoading = false }) => {
     return (

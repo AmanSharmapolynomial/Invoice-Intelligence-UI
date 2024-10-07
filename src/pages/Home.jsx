@@ -21,18 +21,8 @@ import {
 import InvoiceFilters from "@/components/invoice/InvoiceFilters";
 import InvoiceTable from "@/components/invoice/InvoiceTable";
 import { useInvoiceStore } from "@/components/invoice/store";
-import { Button } from "@/components/ui/button";
-import CustomDropDown from "@/components/ui/CustomDropDown";
-import { Input } from "@/components/ui/input";
-import { useGetVendorNames } from "@/components/vendor/api";
-import { formatRestaurantsList, vendorNamesFormatter } from "@/lib/helpers";
-import useUpdateParams from "@/lib/hooks/useUpdateParams";
-import { Filter as FilterIcon, Search } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -41,6 +31,10 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import CustomDropDown from "@/components/ui/CustomDropDown";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -48,11 +42,17 @@ import {
   TableHead,
   TableRow
 } from "@/components/ui/table";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useGetVendorNames } from "@/components/vendor/api";
+import { formatRestaurantsList, vendorNamesFormatter } from "@/lib/helpers";
+import useUpdateParams from "@/lib/hooks/useUpdateParams";
+import { Filter as FilterIcon, Search } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const Home = () => {
   const [searchParams] = useSearchParams();
-  const [invoiceNumber, setInvoiceNumber] = useState('');
+  const navigate = useNavigate();
+  const [invoiceNumber, setInvoiceNumber] = useState("");
   const [searchedInvoices, setSearchedInvoices] = useState([]);
   let page = searchParams.get("page") || 1;
   let page_size = searchParams.get("page_size") || 8;
@@ -76,7 +76,8 @@ const Home = () => {
     setRestaurantFilter,
     setVendorFilter,
     vendorFilterValue,
-    restaurantFilterValue
+    restaurantFilterValue,
+    setVendorNames
   } = useInvoiceStore();
   const { data, isLoading } = useListInvoices({
     auto_accepted: auto_accepted,
@@ -103,6 +104,7 @@ const Home = () => {
 
     setRestaurantFilter(resValue);
     setVendorFilter(vendValue);
+    setVendorNames(vendorNamesList?.data?.vendor_names);
   }, [
     restaurantsList,
     vendorNamesList,
@@ -200,6 +202,11 @@ const Home = () => {
                                     return (
                                       <TableRow
                                         key={document_uuid}
+                                        onClick={() =>
+                                          navigate(
+                                            `/invoice-details/${document_uuid}`
+                                          )
+                                        }
                                         className="!w-full flex justify-between cursor-pointer !capitalize"
                                       >
                                         <TableCell>{invoice_number}</TableCell>

@@ -319,8 +319,7 @@ export const vendorConsolidationHeaders = [
   {
     label: "Actions",
     styling: "min-w-44 justify-center "
-  },
-  
+  }
 ];
 
 export const invoiceTableHeaders = [
@@ -378,122 +377,199 @@ export const invoiceTableHeaders = [
   }
 ];
 
+export const rawMetaDataHeaders = [
+  {
+    label: "Invoice Number",
+    value: "invoice_number"
+  },
+  {
+    label: "Invoice Type",
+    value: "invoice_type"
+  },
+  {
+    label: "Invoice Date",
+    value: "invoice_date"
+  },
+  {
+    label: "Due Date",
+    value: "invoice_due_date"
+  },
+  {
+    label: "Invoice Total",
+    value: "invoice_extracted_total"
+  },
+  {
+    label: "Invoice Balance Due",
+    value: "invoice_balance_due"
+  },
+  {
+    label: "Restaurant Name",
+    value: "restaurant"
+  },
+  {
+    label: "Vendor Name",
+    value: "vendor"
+  },
+  {
+    label: "Vendor Address",
+    value: "branch"
+  },
+  {
+    label: "Vendor Phone Number",
+    value: "vendor_phone_number"
+  },
+  {
+    label: "Document Type Prediction",
+    value: "document_type"
+  },
+  {
+    label: "Verdict",
+    value: ""
+  },
+  {
+    label: "Concerns",
+    value: ""
+  },
+  {
+    label: "Human Verification Required",
+    value: "human_verification_required"
+  },
+  {
+    label: "Quick Books Document TYpe",
+    value: "quick_book_document_type"
+  },
+  {
+    label: "Taxes Added",
+    value: "added_taxes"
+  },
+  {
+    label: "Fees Added",
+    value: "added_fees"
+  },
+  {
+    label: "Invoice Payment Terms",
+    value: "invoice_payment_terms"
+  },
+  {
+    label: "Credit Card Name",
+    value: "credit_card_name"
+  },
+  {
+    label: "Credit Card Number",
+    value: "credit_card_number"
+  },
+  {
+    label: "Invoice Ship To",
+    value: "invoice_ship_to"
+  },
+  {
+    label: "Invoice Bill To",
+    value: "invoice_bill_to"
+  },
+  {
+    label: "Invoice Sold To",
+    value: "invoice_sold_to"
+  },
+  {
+    label: "Total No. of Pages Received",
+    value: "total_number_of_pages_received"
+  },
+  {
+    label: "Invoice Total From Table",
+    value: "total_from_table"
+  },
+  {
+    label: "Invoice UUID",
+    value: "document_uuid"
+  },
+  {
+    label: "Version",
+    value: "version"
+  },
+  {
+    label: "Rerun Status",
+    value: "rerun_status"
+  }
+];
 
-export const rawMetaDataHeaders=[
+export const tableTabs = [
   {
-    label:"Invoice Number",
-    value:"invoice_number"
+    label: "Raw Metadata",
+    value: "raw_metadata"
   },
   {
-    label:"Invoice Type",
-    value:"invoice_type"
+    label: "Edit Metadata",
+    value: "edit_metadata"
   },
   {
-    label:"Invoice Date",
-    value:"invoice_date"
+    label: "Raw Table",
+    value: "Raw Table"
   },
   {
-    label:"Due Date",
-    value:"invoice_due_date"
+    label: "Processed Table",
+    value: "processed_table"
   },
   {
-    label:"Invoice Total",
-    value:"invoice_extracted_total"
+    label: "Combined Table",
+    value: "combined_table"
   },
   {
-    label:"Invoice Balance Due",
-    value:"invoice_balance_due"
+    label: "Human Verification",
+    value: "human_verification"
+  }
+];
+
+export const quickBooksDocumentTypes = [
+  {
+    label: "Expense",
+    value: "Expense"
   },
   {
-    label:"Restaurant Name",
-    value:""
+    label: "Invoice",
+    value: "Invoice"
   },
   {
-    label:"Vendor Name",
-    value:""
+    label: "Bill",
+    value: "Bill"
   },
   {
-    label:"Restaurant Vendor Details",
-    value:""
+    label: "Credit Memo",
+    value: "Credit Memo"
   },
   {
-    label:"Vendor Address",
-    value:""
+    label: "Vendor Credit",
+    value: "Vendor Credit"
   },
   {
-    label:"Vendor Phone Number",
-    value:"vendor_phone_number"
+    label: "Check",
+    value: "Check"
+  }
+];
+
+export const documentTypePrediction = [
+  {
+    label: "Receipt",
+    value: "Receipt"
   },
   {
-    label:"Document Type Prediction",
-    value:"document_type"
-  },
-  {
-    label:"Verdict",
-    value:""
-  },
-  {
-    label:"Concerns",
-    value:""
-  },
-  {
-    label:"Human Verification Required",
-    value:"human_verification_required"
-  },
-  {
-    label:"Quick Books Document TYpe",
-    value:"quick_book_document_type"
-  },
-  {
-    label:"Taxes Added",
-    value:"added_taxes"
-  },
-  {
-    label:"Fees Added",
-    value:"added_fees"
-  },
-  {
-    label:"Invoice Payment Terms",
-    value:"invoice_payment_terms"
-  },
-  {
-    label:"Credit Card Name",
-    value:"credit_card_name"
-  },
-  {
-    label:"Credit Card Number",
-    value:"credit_card_number"
-  },
-  {
-    label:"Invoice Ship To",
-    value:"invoice_ship_to"
-  },
-  {
-    label:"Invoice Bill To",
-    value:"invoice_bill_to"
-  },
-  {
-    label:"Invoice Sold To",
-    value:"invoice_sold_to"
-  },
-  {
-    label:"Total No. of Pages Received",
-    value:"total_number_of_pages_received"
-  },
-  {
-    label:"Invoice Total From Table",
-    value:"total_from_table"
-  },
-  {
-    label:"Invoice UUID",
-    value:"document_uuid"
-  },
-  {
-    label:"Version",
-    value:"version"
-  },
-  {
-    label:"Rerun Status",
-    value:"rerun_status"
-  },
-]
+    label: "Invoice",
+    value: "Invoice"
+  }
+];
+
+
+export const editableFieldsForInvoiceMetadata = [
+  "invoice_date",
+  "invoice_number",
+  "invoice_type",
+  "vendor_address",
+  "credit_card_number",
+  "credit_card_name",
+  "invoice_sold_to",
+  "invoice_bill_to",
+  "invoice_ship_to",
+  "quick_book_document_type",
+  "document_type",
+  "vendor_name",
+  "invoice_due_date"
+];

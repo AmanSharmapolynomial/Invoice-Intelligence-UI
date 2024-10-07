@@ -1,6 +1,5 @@
-import React, { memo, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { Input } from "./input";
-import { Value } from "@radix-ui/react-select";
 
 const CustomInput = ({
   value = "",
@@ -12,11 +11,13 @@ const CustomInput = ({
   const handleChange = (v) => {
     onChange(v);
   };
+
   return (
     <Input
       value={inputValue}
-      className={className}
+      className={`${className}  focus:!outline-none focus:!ring-0 `}
       placeholder={placeholder}
+      type="text"
       onChange={(e) => {
         setinputValue(e.target.value);
         handleChange(e.target.value);
@@ -25,4 +26,4 @@ const CustomInput = ({
   );
 };
 
-export default memo(CustomInput);
+export default (CustomInput);

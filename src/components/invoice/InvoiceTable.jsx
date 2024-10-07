@@ -9,6 +9,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -18,11 +20,11 @@ import {
 } from "@/components/ui/table";
 import { invoiceTableHeaders } from "@/constants";
 import { BadgeCheck } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useNavigate, useSearchParams } from "react-router-dom";
 const InvoiceTable = ({ data = [], isLoading }) => {
+  const [searchParams]=useSearchParams()
   const navigate = useNavigate();
+  let page=searchParams.get("page")||1
   return (
     <div className="w-full overflow-auto ">
       <Table className="flex flex-col   box-border  scrollbar ">
@@ -41,7 +43,7 @@ const InvoiceTable = ({ data = [], isLoading }) => {
         <div className="flex-1 !w-full">
           <TableBody className="flex-1 h-full w-full  ">
             {isLoading ? (
-              [1, 2, 3, 4, 5, 6, 7, 8].map((_, index) => {
+              new Array(8).fill(1).map((_, index) => {
                 return (
                   <TableRow
                     className="flex  !text-sm !border-none min-h-14"
@@ -81,14 +83,13 @@ const InvoiceTable = ({ data = [], isLoading }) => {
                     channel,
                     date_uploaded,
                     restaurant_id,
-                    restaurant_name,
-                    vendor_name,
+                    restaurant,
+                    vendor,
                     invoice_number,
                     auto_accepted,
                     human_verified_date,
                     rejected,
                     document_failed_cause_code,
-                    verified_vendor,
                     balance_type,
                     rejection_reason,
                     clickbacon_status,
@@ -101,7 +102,7 @@ const InvoiceTable = ({ data = [], isLoading }) => {
                   return (
                     <TableRow
                       onClick={(e) => {
-                        navigate(`/invoice-details/${document_uuid}`);
+                        navigate(`/invoice-details/${document_uuid}/?page=${page*(index+1)}`);
                       }}
                       className="flex  text-base items-center !min-h-14  !border-none"
                       key={index}
@@ -115,13 +116,13 @@ const InvoiceTable = ({ data = [], isLoading }) => {
                       </TableHead>
 
                       <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start pl-4  !font-normal !text-gray-800 !min-w-44 border-b  ">
-                        {restaurant_name}
+                        {restaurant?.restaurant_name}
                       </TableHead>
 
                       <TableHead className="flex cursor-pointer border-r !min-h-10  !text-left items-center gap-x-4 justify-between pl-4 !font-normal !text-gray-800 !min-w-72 border-b !capitalize  ">
-                        <span> {vendor_name}</span>
+                        <span> {vendor?.vendor_name}</span>
                         <span>
-                          {verified_vendor && (
+                          {vendor?.['human_verified'] && (
                             <BadgeCheck className="text-blue-500" />
                           )}
                         </span>

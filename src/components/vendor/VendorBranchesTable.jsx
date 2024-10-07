@@ -16,9 +16,10 @@ import { Skeleton } from "../ui/skeleton";
 import no_data from "@/assets/image/no-data.svg";
 import { Button } from "../ui/button";
 import { Delete, Edit, Eye, Trash, Trash2, Verified } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Checkbox } from "../ui/checkbox";
 const VendorBranchesTable = ({ data = [], isLoading }) => {
+  const {vendor_id}=useParams()
   return (
     <Table className="flex flex-col   box-border  scrollbar ">
       <TableHeader className="min-h-16">
@@ -99,7 +100,7 @@ const VendorBranchesTable = ({ data = [], isLoading }) => {
                         <TooltipTrigger className="flex items-center justify-between gap-x-2 w-full">
                           {" "}
                           <Link
-                            to={`/vendor-branch-details/${branch_id}`}
+                            to={`/vendor-branch-details/${vendor_id}/${branch_id}`}
                             className="underline underline-offset-2 "
                           >
                             {vendor_address?.length > 45
