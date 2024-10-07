@@ -52,10 +52,31 @@ export const getVendorNotes = async (vendor_id) => {
   return response;
 };
 export const addVendorNote = async (payload) => {
-  const {vendor_id,note}=payload
+  const { vendor_id, note } = payload;
   const apirUrl = `/api/vendor/${vendor_id}/note/`;
   const response = await axiosInstance.post(apirUrl, {
     note
   });
+  return response;
+};
+export const saveVendorBranchDetails = async ({ data, branch_id }) => {
+  const apirUrl = `/api/vendor-branch/${branch_id}/details/`;
+  const response = await axiosInstance.put(
+    apirUrl,
+    {
+      data
+    },
+    {
+      headers: {
+        // This will ensure no Authorization header is sent
+        Authorization: undefined
+      }
+    }
+  );
+  return response;
+};
+export const deleteVendorBranchDetails = async (branch_id) => {
+  const apirUrl = `/api/vendor-branch/${branch_id}/delete/`;
+  const response = await axiosInstance.delete(apirUrl);
   return response;
 };

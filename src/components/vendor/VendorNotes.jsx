@@ -1,10 +1,5 @@
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Sheet,
@@ -26,9 +21,9 @@ import { NotebookIcon, Send } from "lucide-react";
 import { memo, useState } from "react";
 import toast from "react-hot-toast";
 import { useAddVendorNote } from "./api";
+import { Skeleton } from "../ui/skeleton";
 
-const VendorNotes = ({ data = [], vendor_id }) => {
-  
+const VendorNotes = ({ data = [], vendor_id, isLoading }) => {
   const [note, setNote] = useState("");
   const { mutate, isPending } = useAddVendorNote();
   return (
@@ -57,34 +52,55 @@ const VendorNotes = ({ data = [], vendor_id }) => {
           <SheetDescription className="!h-full">
             <div className="flex-1 !h-[90vh] flex-col gap-y-4  flex items-center justify-between">
               <div className="flex-1  2xl:min-h-[86vh]   lg:min-h-[80vh]  overflow-auto flex-col w-full ">
-                {data?.data?.map(
-                  ({
-                    note_uuid,
-                    created_user,
-                    note,
-                    created_date,
-                    last_modified_date
-                  }) => (
-                    <div
-                      key={note_uuid}
-                      className="w-full flex justify-end mt-4 overflow-auto gap-y-4"
-                    >
-                      <Card className="flex flex-col justify-end items-end min-w-1/2">
-                        <CardHeader className="!py-2 flex justify-end !w-fit flex-row">
-                          <CardTitle className="capitalize">{note}</CardTitle>
-                        </CardHeader>
-                        <CardContent className="!pb-2 flex justify-end !w-fit flex-row">
-                          <p className="text-xs">
-                            {created_date
-                              ?.split(".")?.[0]
-                              ?.split("T")
-                              ?.join(" ")}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  )
-                )}
+                {isLoading
+                  ? [1, 2, 3, 4, 5, 6, 7, 8, 9].map((_, ind) => (
+                      <div
+                        key={ind}
+                        className="w-full flex justify-end mt-4 overflow-auto gap-y-4"
+                      >
+                        <Card className="flex flex-col justify-end items-end min-w-1/2">
+                          <CardHeader className="!py-2 flex justify-end !w-fit flex-row">
+                            <CardTitle className="capitalize">
+                              {" "}
+                              <Skeleton className={"w-36 h-5"} />
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent className="!pb-2 flex justify-end !w-fit flex-row">
+                            <Skeleton className={"w-44 h-6"} />
+                          </CardContent>
+                        </Card>
+                      </div>
+                    ))
+                  : data?.data?.map(
+                      ({
+                        note_uuid,
+                        created_user,
+                        note,
+                        created_date,
+                        last_modified_date
+                      }) => (
+                        <div
+                          key={note_uuid}
+                          className="w-full flex justify-end mt-4 overflow-auto gap-y-4"
+                        >
+                          <Card className="flex flex-col justify-end items-end min-w-1/2">
+                            <CardHeader className="!py-2 flex justify-end !w-fit flex-row">
+                              <CardTitle className="capitalize">
+                                {note}
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent className="!pb-2 flex justify-end !w-fit flex-row">
+                              <p className="text-xs">
+                                {created_date
+                                  ?.split(".")?.[0]
+                                  ?.split("T")
+                                  ?.join(" ")}
+                              </p>
+                            </CardContent>
+                          </Card>
+                        </div>
+                      )
+                    )}
               </div>
 
               <div className="flex w-full max-w-sm items-center space-x-2 h-[10vh]    ">

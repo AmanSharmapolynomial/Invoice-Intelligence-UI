@@ -88,7 +88,7 @@ const protectedRoutes = [
     )
   },
   {
-    path: "/vendor-branch-details/:branch_id",
+    path: "/vendor-branch-details/:vendor_id/:branch_id",
     element: (
       <Protected>
         <VendorBranchDetails />

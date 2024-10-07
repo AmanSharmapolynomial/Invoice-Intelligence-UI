@@ -42,14 +42,15 @@
     border:1px solid #1E7944 !important
 }
 
-.rdrDay:hover,.rdrDayNumber {
-    color: red !important;
+.rdrDay:hover,.rdrDayNumber,::before {
+    /* color: red !important; */
     /* border:1px solid #1E7944 !important */
 }
-::before, ::after{
-    background:red !important
+::before, {
+    /* background:red !important */
 }
 
-.rdrDay:hover {
-   
+.rdrDay:hover, {
+   /* background:red !important */
+   border:2px red solid
 }

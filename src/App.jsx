@@ -25,28 +25,28 @@ function App() {
         <div className=" w-full flex h-[90vh] gap-x-4  overflow-hidden bg-gray-100">
           <div className=" w-[30%] h-full !flex-1 flex-col px-10  flex !items-center gap-y-4 justify-center bg-gray-200 !bg-opacity-25 ">
             <Link to={"/home"} className="!w-full ">
-              <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-transparent">
+              <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary/90 hover:!text-[#FFFFFF]">
                 Invoice Balancing
               </Button>
             </Link>{" "}
             <Button
-              className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-transparent"
+              className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary/90 hover:text-[#FFFFFF]"
               onClick={() => setOpen(!open)}
             >
               Vendor & Branch Verification
             </Button>
             <Link to={""} className="!w-full ">
-              <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-transparent">
+              <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary/90 hover:text-[#FFFFFF]">
                 Fast Item Master Verification
               </Button>
             </Link>
             <Link to={"/user-activity"} className="!w-full ">
-              <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-transparent">
+              <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary/90 hover:text-[#FFFFFF]">
                 User Activity
               </Button>
             </Link>
             <Link to={""} className="!w-full ">
-              <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-transparent">
+              <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary/90 hover:text-[#FFFFFF]">
                 Invoice Assignment
               </Button>
             </Link>

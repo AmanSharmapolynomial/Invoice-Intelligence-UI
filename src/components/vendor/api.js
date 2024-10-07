@@ -7,7 +7,9 @@ import {
   getVendorBranchDetails,
   getVendorNamesList,
   getVendorNotes,
-  addVendorNote
+  addVendorNote,
+  saveVendorBranchDetails,
+  deleteVendorBranchDetails
 } from "@/components/vendor/utils";
 import toast from "react-hot-toast";
 import { queryClient } from "@/lib/utils";
@@ -73,3 +75,21 @@ export const useAddVendorNote = () => {
     mutationFn: (payload) => addVendorNote(payload)
   });
 };
+export const useSaveVendorBranchDetails=()=>{
+  return useMutation({
+    mutationFn:({data,branch_id})=>saveVendorBranchDetails({data,branch_id}),
+    onSuccess:(data)=>{
+      queryClient.invalidateQueries(["vendor-branch-details", branch_id])
+      return data;
+    }
+  })
+}
+export const useDeleteVendorBranchDetails=()=>{
+  return useMutation({
+    mutationFn:(branch_id)=>deleteVendorBranchDetails(branch_id),
+    onSuccess:(data)=>{
+      queryClient.invalidateQueries(["vendor-branches"])
+      return data;
+    }
+  })
+}

@@ -12,6 +12,7 @@ import { vendorConsolidationHeaders } from "@/constants";
 import { Eye, Trash, Trash2, Verified } from "lucide-react";
 import { Link } from "react-router-dom";
 const VendorConsolidationTable = ({ data, isLoading }) => {
+
   return (
     <>
       <Table className="flex flex-col   box-border  scrollbar ">
@@ -117,7 +118,7 @@ const VendorConsolidationTable = ({ data, isLoading }) => {
                       </TableHead>
 
                       <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center !font-normal !text-gray-800 !min-w-44 border-b  pb-4">
-                        {verified_by}{" "}
+                        {verified_by?.['username']}{" "}
                       </TableHead>
 
                       <TableHead className="flex  !text-left items-center justify-center   !font-normal !text-gray-800 !min-w-44 gap-x-4 border-b border-r  pb-4">
