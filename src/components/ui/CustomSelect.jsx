@@ -25,14 +25,13 @@ const CustomSelect = ({
 }) => {
   const [dropDownSearch, setDropDownSearch] = useState("");
   const [filteredDropDownItems, setFilteredDropDownItems] = useState(data);
-  
+
   return (
     <Select
       className="!bg-[#FFFFFF]"
       value={value}
       placeholder={placeholder}
       onValueChange={(val) => {
-
         onSelect(val);
       }}
     >
@@ -41,16 +40,11 @@ const CustomSelect = ({
         className={`${triggerClassName} min-w-[180px] focus:outline-none focus:ring-0 !bg-gray-100 font-medium`}
       >
         <SelectValue
-        /* The `placeholder` attribute in the `SelectValue` component is being set to a JSX element that
-   consists of a `span` element with a class name that combines the `placeholderClassName` prop
-   value and the string "capitalize". The content of this `span` element is the `placeholder` prop
-   value passed to the `CustomSelect` component. This allows for custom styling of the placeholder
-   text displayed in the select input field. */
-        placeholder={
-          <span className={`${placeholderClassName} capitalize`}>
-            {placeholder}
-          </span>
-        }
+          placeholder={
+            <span className={`${placeholderClassName} capitalize`}>
+              {placeholder}
+            </span>
+          }
         />
       </SelectTrigger>
       <SelectContent>

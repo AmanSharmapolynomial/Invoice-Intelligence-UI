@@ -1,4 +1,4 @@
-import Login from "@/components/auth/Login";
+import Login from "@/pages/Login";
 import App from "@/App";
 import { createBrowserRouter } from "react-router-dom";
 import Protected from "@/routing/Protected";
@@ -10,6 +10,9 @@ import VendorConsolidation from "@/pages/VendorConsolidation";
 import VendorBranches from "@/pages/VendorBranches";
 import VendorBranchDetails from "@/pages/VendorBranchDetails";
 import InvoiceDetails from "@/pages/InvoiceDetails";
+import CombineVendors from "@/pages/CombineVendors";
+import VendorItemMaster from "@/pages/VendorItemMaster";
+import CreateUser from "@/pages/CreateUser";
 
 const publicRoutes = [
   {
@@ -34,12 +37,20 @@ const protectedRoutes = [
       </Protected>
     )
   },
-  // Users Pages Routes
+  // Users and auth Pages Routes
   {
     path: "/user-activity",
     element: (
       <Protected>
         <UserActivity />
+      </Protected>
+    )
+  },
+  {
+    path: "/create-user",
+    element: (
+      <Protected>
+        <CreateUser/>
       </Protected>
     )
   },
@@ -68,6 +79,22 @@ const protectedRoutes = [
     element: (
       <Protected>
         <VendorConsolidation />
+      </Protected>
+    )
+  },
+  {
+    path: "/vendor-consolidation/combine-vendors/:vendor_id",
+    element: (
+      <Protected>
+        <CombineVendors />
+      </Protected>
+    )
+  },
+  {
+    path: "/vendor-consolidation/vendor-item-master/:vendor_id",
+    element: (
+      <Protected>
+        <VendorItemMaster />
       </Protected>
     )
   },

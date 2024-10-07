@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import Header from "@/components/common/Header";
-import { Progress } from "@/components/ui/progress";
 import CustomDropDown from "@/components/ui/CustomDropDown";
 import { useGetUsersList } from "../components/user/api";
 import { formatData, getUserNameFromId } from "@/lib/helpers";
@@ -37,6 +36,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from "@/components/ui/tooltip";
+import { Progress } from "@/components/ui/progress";
 
 const VendorConsolidation = () => {
   const [searchParams] = useSearchParams();
@@ -88,6 +88,7 @@ const VendorConsolidation = () => {
                   {" "}
                   <Progress
                     innerClassName="border-primary  !bg-white/85 "
+                    totalValue={vendorsData?.["data"]?.["total_vendor_count"]}
                     value={vendorsData?.["data"]?.["verified_vendor_count"]}
                     // innerText={vendorsData?.['data']?.['verified_vendor_count']}
                     className="w-72  h-4 bg-white/15 "
@@ -95,12 +96,11 @@ const VendorConsolidation = () => {
                 </TooltipTrigger>
                 <TooltipContent className=" bg-[#FFFFFF] font-semibold text-primary !text-sm flex flex-col justify-center gap-y-1">
                   {/* <p>{vendor_address}</p> */}
-             
+
                   <span>
                     Verified Vendor Count :-{" "}
                     {vendorsData?.["data"]?.["verified_vendor_count"]}
                   </span>
-             
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
