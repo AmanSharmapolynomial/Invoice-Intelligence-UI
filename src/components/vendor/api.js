@@ -15,6 +15,7 @@ import {
 } from "@/components/vendor/utils";
 import toast from "react-hot-toast";
 import { queryClient } from "@/lib/utils";
+import { axiosInstance } from "@/axios/instance";
 export const useGetVendorList = (payload) => {
   return useQuery({
     queryKey: ["vendor-list", payload],
@@ -77,35 +78,64 @@ export const useAddVendorNote = () => {
     mutationFn: (payload) => addVendorNote(payload)
   });
 };
-export const useSaveVendorBranchDetails=()=>{
+export const useSaveVendorBranchDetails = () => {
   return useMutation({
-    mutationFn:({data,branch_id})=>saveVendorBranchDetails({data,branch_id}),
-    onSuccess:(data)=>{
-      queryClient.invalidateQueries(["vendor-branch-details", branch_id])
+    mutationFn: ({ data, branch_id }) =>
+      saveVendorBranchDetails({ data, branch_id }),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries(["vendor-branch-details", branch_id]);
       return data;
     }
-  })
-}
-export const useDeleteVendorBranchDetails=()=>{
+  });
+};
+export const useDeleteVendorBranchDetails = () => {
   return useMutation({
-    mutationFn:(branch_id)=>deleteVendorBranchDetails(branch_id),
-    onSuccess:(data)=>{
-      queryClient.invalidateQueries(["vendor-branches"])
+    mutationFn: (branch_id) => deleteVendorBranchDetails(branch_id),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries(["vendor-branches"]);
       return data;
     }
-  })
-}
+  });
+};
 
-export const useGetSimilarVendors=(vendor_id)=>{
+export const useGetSimilarVendors = (payload) => {
   return useQuery({
-    queryKey:['similar-vendors',vendor_id],
-    queryFn:()=>getSimilarVendors(vendor_id)
-  })
-}
+    queryKey: ["similar-vendors", payload],
+    queryFn: () => getSimilarVendors(payload)
+  });
+};
 
-export const useGetVendorItemMaster=(vendor_id)=>{
+export const useGetVendorItemMaster = (vendor_id) => {
   return useQuery({
-    queryKey:['similar-vendors',vendor_id],
-    queryFn:()=>getVendorItemMaster(vendor_id)
-  })
-}
+    queryKey: ["similar-vendors", vendor_id],
+    queryFn: () => getVendorItemMaster(vendor_id)
+  });
+};
+
+export const useCombineVendors = () => {
+  return useMutation({
+    mutationFn: async (payload) => {
+      const { vendor_id, data } = payload;
+      const apiUrl = `/api/vendor/${vendor_id}/combine/`;
+      const response = await axiosInstance.post(apiUrl, {
+        vendors_to_combine: data
+      });
+      return response;
+    },
+    onError: (data) => {
+      if (data?.error) {
+        toast.error(data?.message);
+      } else {
+        // toast.error(data?.message);
+      }
+    },
+    onSuccess: (data) => {
+      if (!data?.error) {
+        toast.success(data?.message);
+        queryClient.invalidateQueries({ queryKey: ["similar-vendors"] });
+      }else{
+        toast.error(data?.message);
+      }
+    }
+  });
+};

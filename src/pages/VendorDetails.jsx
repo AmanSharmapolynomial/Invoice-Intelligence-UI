@@ -78,7 +78,7 @@ const VendorDetails = () => {
           <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]">
             Save
           </Button>
-          <Link to={`/vendor-consolidation/combine-vendors/${vendor_id}`}>
+          <Link to={`/vendor-consolidation/combine-vendors/${vendor_id}?vendor_name=${data?.data?.vendor_name}`}>
             <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]">
               Find Similar Vendors
             </Button>
@@ -102,11 +102,11 @@ const VendorDetails = () => {
           <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]">
             Fast Item Verification
           </Button>
-<Link to={`/vendor-consolidation/vendor-item-master/${vendor_id}`}>
-          <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]">
-            View Items
-          </Button>
-</Link>
+          <Link to={`/vendor-consolidation/vendor-item-master/${vendor_id}`}>
+            <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]">
+              View Items
+            </Button>
+          </Link>
         </div>
       </Layout>
     </>

@@ -63,8 +63,8 @@ export function CreateUser() {
     <>
       <Navbar />
       <Layout>
-        <div className="w-full border h-[90vh] flex overflow-hidden">
-          <div className="w-1/2 h-full flex flex-col pt-[10%] px-20 gap-y-6">
+        <div className="w-full  h-[90vh] flex overflow-hidden">
+          <div className="w-1/2 h-full flex flex-col pt-[10%] px-20 gap-y-6 bg-gray-200/20">
             <p className="text-xl font-bold !text-left text-primary">
               Create User
             </p>

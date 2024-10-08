@@ -66,16 +66,29 @@ export const vendorNamesFormatter = (data = []) => {
   return returnArray;
 };
 
-
-export const makeKeyValueFromKey=(data=[])=>{
+export const makeKeyValueFromKey = (data = []) => {
   let returnArray = [];
 
-  data?.forEach((item)=>{
+  data?.forEach((item) => {
     returnArray.push({
-      label:item,
-      value:item
-    })
-  })
-  return returnArray
-}
+      label: item,
+      value: item
+    });
+  });
+  return returnArray;
+};
 
+export const formatCombineVendorsArray = (data = []) => {
+  let toReturn = [];
+  data?.length>0 && data?.forEach(({ vendor, matching_score, documents_count }) => {
+    toReturn.push({
+      vendor_id: vendor["vendor_id"],
+      vendor_name: vendor["vendor_name"],
+      human_verified: vendor["human_verified"],
+      matching_score,
+      documents_count
+    });
+  });
+
+  return toReturn;
+};

@@ -61,18 +61,7 @@ export const addVendorNote = async (payload) => {
 };
 export const saveVendorBranchDetails = async ({ data, branch_id }) => {
   const apirUrl = `/api/vendor-branch/${branch_id}/details/`;
-  const response = await axiosInstance.put(
-    apirUrl,
-    {
-      data
-    },
-    {
-      headers: {
-        // This will ensure no Authorization header is sent
-        Authorization: undefined
-      }
-    }
-  );
+  const response = await axiosInstance.put(apirUrl, { data });
   return response;
 };
 export const deleteVendorBranchDetails = async (branch_id) => {
@@ -80,13 +69,15 @@ export const deleteVendorBranchDetails = async (branch_id) => {
   const response = await axiosInstance.delete(apirUrl);
   return response;
 };
-export const getSimilarVendors = async (vendor_id) => {
-  const apirUrl = `/api/vendor/${vendor_id}/similar-vendors/${50}/`;
+export const getSimilarVendors = async (payload) => {
+  const { similarity, vendor_id } = payload;
+  const apirUrl = `/api/vendor/${vendor_id}/similar-vendors/?similarity=${Number(
+    similarity
+  )}`;
   const response = await axiosInstance.get(apirUrl);
   return response;
 };
 export const getVendorItemMaster = async (vendor_id) => {
- 
   const apirUrl = `/api/item-master/vendor/${vendor_id}/`;
   const response = await axiosInstance.get(apirUrl);
   return response;

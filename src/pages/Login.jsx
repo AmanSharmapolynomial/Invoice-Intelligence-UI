@@ -70,8 +70,8 @@ const Login = () => {
     <div className="h-full">
       <Navbar />
       <Toaster />
-      <div className="grid grid-cols-2 mt-2 flex-1 h-[90vh] gap-x-2">
-        <div className="h-full flex flex-col  justify-center items-center ">
+      <div className="grid grid-cols-2  flex-1 h-[90vh] gap-x-2">
+        <div className="h-full flex flex-col  justify-start pt-[25%] items-center bg-gray-200/30">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="w-1/2">
               <p className="!text-left font-bold text-xl ">Log in</p>
