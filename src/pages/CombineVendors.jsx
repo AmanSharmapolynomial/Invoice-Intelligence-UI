@@ -16,12 +16,21 @@ import { formatCombineVendorsArray } from "@/lib/helpers";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { Eye } from "lucide-react";
 import { useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import {
+  useLoaderData,
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams
+} from "react-router-dom";
 
 const CombineVendors = () => {
   const { vendor_id } = useParams();
+  const navigate = useNavigate();
   const updateParams = useUpdateParams();
+  console.log(useLocation())
   const [searchParams] = useSearchParams();
+  const pathname = useLocation();
   const similarity_value = searchParams.get("similarity") || 1;
   const actual_vendor_name = searchParams.get("vendor_name") || "";
   const { mutate, isPending } = useCombineVendors();
@@ -46,6 +55,8 @@ const CombineVendors = () => {
     }
   };
 
+  let fullVendorName = pathname?.state.vendor_name;
+
   return (
     <>
       <Navbar className="" />
@@ -55,7 +66,7 @@ const CombineVendors = () => {
           title={`Combine Vendors`}
           className="border mt-10 rounded-t-md border-primary !shadow-none bg-primary !capitalize !text-[#FFFFFF] relative "
         >
-          <p>Actual Vendor Name :- {actual_vendor_name} </p>
+          <p>Actual Vendor Name :- {fullVendorName} </p>
         </Header>
         {checkedVendors?.length > 0 && (
           <Header className="border  rounded-t-md !shadow-none  !capitalize !text-[#FFFFFF] relative ">
@@ -150,7 +161,7 @@ const CombineVendors = () => {
           {/* <TableBody> */}
 
           {isLoading ? (
-          <div className="!w-full max-h-[65vh]">
+            <div className="!w-full max-h-[65vh]">
               {new Array(15).fill(10)?.map((_, index) => (
                 <TableRow
                   className="flex w-full justify-between min-h-10 py-2"
@@ -199,7 +210,14 @@ const CombineVendors = () => {
                           {matching_score}
                         </TableCell>
                         <TableCell className="flex  border-r !text-left justify-center w-1/5 items-center gap-x-4   !font-normal !text-gray-800  border-b pb-4 !capitalize  ">
-                          <Eye className="h-5 w-5 text-primary cursor-pointer" />
+                          <Eye
+                            className="h-5 w-5 text-primary cursor-pointer"
+                            onClick={() => {
+                              navigate(
+                                `/vendor-consolidation/compare-invoices/${fullVendorName}/${vendor_name}`
+                              );
+                            }}
+                          />
                         </TableCell>
                         <TableCell className="flex  border-r !text-left justify-center  w-1/5 items-center gap-x-4  !font-normal !text-gray-800  border-b pb-4 !capitalize  ">
                           <Checkbox

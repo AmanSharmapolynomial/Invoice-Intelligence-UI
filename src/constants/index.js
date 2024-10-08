@@ -408,11 +408,11 @@ export const rawMetaDataHeaders = [
   },
   {
     label: "Vendor Name",
-    value: "vendor"
+    value: "vendor_name"
   },
   {
     label: "Vendor Address",
-    value: "branch"
+    value: "vendor_address"
   },
   {
     label: "Vendor Phone Number",
@@ -494,12 +494,8 @@ export const rawMetaDataHeaders = [
 
 export const tableTabs = [
   {
-    label: "Raw Metadata",
-    value: "raw_metadata"
-  },
-  {
-    label: "Edit Metadata",
-    value: "edit_metadata"
+    label: "Metadata",
+    value: "metadata"
   },
   {
     label: "Raw Table",

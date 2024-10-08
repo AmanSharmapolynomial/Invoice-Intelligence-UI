@@ -14,6 +14,7 @@ import { Button } from "../ui/button";
 import TablePagination from "../common/TablePagination";
 import Navbar from "../common/Navbar";
 import { Skeleton } from "../ui/skeleton";
+import { Link } from "react-router-dom";
 
 const UserActivity = () => {
   const { data, isLoading } = useGetUsersList();
@@ -22,13 +23,20 @@ const UserActivity = () => {
     <>
       <Navbar />
 
-      <Layout className={"mx-10 box-border"}>
+      <Layout className={"mx-10 box-border "}>
         <Header
           title={"Users"}
-          className="border mt-10 rounded-md !shadow-none bg-gray-200"
-        />
+          className="border mt-10 rounded-md  !shadow-none bg-gray-200"
+        >
 
-        <Table className="mt-8 flex flex-col   box-border">
+          <Link to={"/create-user"}>
+          <Button>
+            Add User
+          </Button>
+          </Link>
+        </Header>
+
+        <Table className="pt-4 flex flex-col  border  box-border max-h-[70vh] overflow-hidden px-4">
           <TableHeader className="">
             <TableRow className="grid grid-cols-3  text-base">
               <TableHead className="flex justify-start !font-bold !text-gray-800">
@@ -44,19 +52,19 @@ const UserActivity = () => {
           </TableHeader>
           <TableBody>
             {isLoading
-              ? [0, 1, 2, 3, 4, 5, 6, 7, 8].map((_, index) => (
+              ? [0, 1, 2, 3, 4, 5, 6, 7, 8,9].map((_, index) => (
                   <TableRow
-                    className="grid grid-cols-3 mt-2 font-semibold"
+                    className="grid grid-cols-3 mt-2 font-semibold h-14"
                     key={index}
                   >
-                    <TableCell className="flex justify-start">
-                      <Skeleton className={"w-24 h-5"} />
+                    <TableCell className="flex justify-start items-center">
+                      <Skeleton className={"w-24 h-4"} />
                     </TableCell>
-                    <TableCell className="flex justify-center">
+                    <TableCell className="flex justify-center items-center">
                       {" "}
                       <Skeleton className={"w-72 h-5"} />
                     </TableCell>
-                    <TableCell className="flex justify-end">
+                    <TableCell className="flex justify-end items-center">
                       <Skeleton className={"w-24 h-5"} />
                     </TableCell>
                   </TableRow>
@@ -77,8 +85,8 @@ const UserActivity = () => {
                 ))}
           </TableBody>
         </Table>
-        <div className="absolute right-14 bottom-14">
-          <TablePagination totalPages={data?.total_pages} />
+        <div className="w-full">
+          <TablePagination totalPages={data?.total_pages}  isFinalPage={data?.is_final_page}/>
         </div>
       </Layout>
     </>

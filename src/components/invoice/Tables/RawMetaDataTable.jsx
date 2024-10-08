@@ -16,10 +16,9 @@ import { useInvoiceStore } from "../store";
 import DatePicker from "@/components/ui/DatePicker";
 const RawMetaDataTable = ({ data, isLoading, tab }) => {
   const { vendorsNames } = useInvoiceStore();
-
   return (
     // <div className="w-full !max-h-[50%] overflow-auto">
-    <Table className="flex flex-col !max-h-[67vh]  box-border  scrollbar !w-full ">
+    <Table className="flex flex-col !max-h-[67vh]  box-border  border scrollbar !w-full ">
       <TableRow className="flex  text-base  !border-none  ">
         <div className="!min-w-[50%]">
           {rawMetaDataHeaders.map(({ label, value }) => (
@@ -64,196 +63,155 @@ const RawMetaDataTable = ({ data, isLoading, tab }) => {
                         ? "Rerun"
                         : "Not Rerun")}
 
-                    {value == "invoice_number" &&
-                      (tab == "edit_metadata" ? (
-                        <CustomInput
-                          placeholder="invoice number"
-                          value={
-                            data?.[value] ||
-                            data?.["document_metadata"]?.[value]
-                          }
-                          onChange={(val) => console.log(val)}
-                        />
-                      ) : (
-                        // <></>
-                        data?.[value] || data?.["document_metadata"]?.[value]
-                      ))}
+                    {value == "invoice_number" && (
+                      <CustomInput
+                        placeholder="invoice number"
+                        value={
+                          data?.[value] || data?.["document_metadata"]?.[value]
+                        }
+                        onChange={(val) => console.log(val)}
+                      />
+                    )}
 
-                    {value == "invoice_type" &&
-                      (tab == "edit_metadata" ? (
-                        <CustomSelect
-                          showSearch={false}
-                          value={
-                            data?.[value] ||
-                            data?.["document_metadata"]?.[value]
-                          }
-                          placeholder={"Invoice Type"}
-                          data={vendorCategories.slice(0, 3)}
-                          onSelect={(val) => console.log(val)}
-                        />
-                      ) : (
-                        // <></>
-                        data?.[value] || data?.["document_metadata"]?.[value]
-                      ))}
-                    {value == "vendor_name" &&
-                      (tab == "edit_metadata" ? (
-                        <CustomDropDown
-                          className={"!w-full !min-w-fit"}
-                          triggerClassName={"w-full bg-transparent"}
-                          contentClassName={"w-full"}
-                          showSearch={true}
-                          value={
-                            data?.[value] ||
-                            data?.["document_metadata"]?.[value]
-                          }
-                          placeholder={"Vendor Name"}
-                          data={vendorNamesFormatter(vendorsNames)}
-                          onSelect={(val) => console.log(val)}
-                        />
-                      ) : (
-                        // <></>
-                        data?.[value] || data?.["document_metadata"]?.[value]
-                      ))}
-                    {value == "vendor_address" &&
-                      (tab == "edit_metadata" ? (
-                        <Textarea
-                          placeholder="Vendor Address"
-                          rows={1}
-                          className="min-h-9 focus:!ring-0 focus:outline-none"
-                          value={
-                            data?.[value] ||
-                            data?.["document_metadata"]?.[value]
-                          }
-                        />
-                      ) : (
-                        data?.[value] || data?.["document_metadata"]?.[value]
-                      ))}
-                    {value == "quick_book_document_type" &&
-                      (tab == "edit_metadata" ? (
-                        <CustomDropDown
-                          className={"!w-full !min-w-fit"}
-                          triggerClassName={"w-full bg-transparent"}
-                          contentClassName={"w!-full"}
-                          showSearch={true}
-                          value={
-                            data?.[value] ||
-                            data?.["document_metadata"]?.[value]
-                          }
-                          placeholder={"QBO Document Type"}
-                          data={quickBooksDocumentTypes}
-                          onSelect={(val) => console.log(val)}
-                        />
-                      ) : (
-                        data?.[value] || data?.["document_metadata"]?.[value]
-                      ))}
-                    {value == "document_type" &&
-                      (tab == "edit_metadata" ? (
-                        <CustomDropDown
-                          className={"!w-full !min-w-fit"}
-                          triggerClassName={"w-full bg-transparent"}
-                          contentClassName={"w!-full"}
-                          showSearch={true}
-                          value={
-                            data?.[value] ||
-                            data?.["document_metadata"]?.[value]
-                          }
-                          placeholder={"Document Type"}
-                          data={documentTypePrediction}
-                          onSelect={(val) => console.log(val)}
-                        />
-                      ) : (
-                        data?.[value] || data?.["document_metadata"]?.[value]
-                      ))}
+                    {value == "invoice_type" && (
+                      <CustomSelect
+                        showSearch={false}
+                        value={
+                          data?.[value] || data?.["document_metadata"]?.[value]
+                        }
+                        placeholder={"Invoice Type"}
+                        data={vendorCategories.slice(0, 3)}
+                        onSelect={(val) => console.log(val)}
+                      />
+                    )}
+                    {value == "vendor_name" && (
+                      // <CustomSelect
+                      //   showSearch={true}
+                      //   value={data?.vendor?.vendor_name}
+                      //   placeholder={"Vendor Name"}
+                      //   data={vendorNamesFormatter(vendorsNames)}
+                      //   onSelect={(val) => console.log(val)}
+                      // />
+                      <CustomDropDown
+                      Value={data?.vendor?.vendor_name}
+                      className="!min-w-56"
+                      Key="label"
+                      triggerClassName={"bg-gray-100"}
+                      contentClassName={"bg-gray-100"}
+                      data={vendorNamesFormatter(vendorsNames)}
+                      onChange={(val) => {
+                        if (val == "none") {
+                          // setVendorFilter("none");
+                          // updateParams({ vendor: undefined });
+                        } else {
+                          // setVendorFilter(val);
+                          // updateParams({ vendor: val });
+                        }
+                      }}
+                      placeholder="Vendor Name"
+                      searchPlaceholder="Search Vendor Name"
+                    />
+                    )}
+                    {value == "vendor_address" && (
+                      <Textarea
+                        placeholder="Vendor Address"
+                        rows={1}
+                        className="min-h-9 focus:!ring-0 focus:outline-none"
+                        value={
+                          data?.[value] || data?.["document_metadata"]?.[value]
+                        }
+                      />
+                    )}
+                    {value == "quick_book_document_type" && (
+                      <CustomDropDown
+                        className={"!w-full !min-w-fit"}
+                        triggerClassName={"w-full bg-transparent"}
+                        contentClassName={"w!-full"}
+                        showSearch={true}
+                        value={
+                          data?.[value] || data?.["document_metadata"]?.[value]
+                        }
+                        placeholder={"QBO Document Type"}
+                        data={quickBooksDocumentTypes}
+                        onSelect={(val) => console.log(val)}
+                      />
+                    )}
+                    {value == "document_type" && (
+                      <CustomDropDown
+                        className={"!w-full !min-w-fit"}
+                        triggerClassName={"w-full bg-transparent"}
+                        contentClassName={"w!-full"}
+                        showSearch={true}
+                        value={
+                          data?.[value] || data?.["document_metadata"]?.[value]
+                        }
+                        placeholder={"Document Type"}
+                        data={documentTypePrediction}
+                        onSelect={(val) => console.log(val)}
+                      />
+                    )}
 
-                    {value == "invoice_ship_to" &&
-                      (tab == "edit_metadata" ? (
-                        <CustomInput
-                          placeholder="Invoice Shipped To"
-                          value={
-                            data?.[value] ||
-                            data?.["document_metadata"]?.[value]
-                          }
-                          onChange={(val) => console.log(val)}
-                        />
-                      ) : (
-                        data?.[value] || data?.["document_metadata"]?.[value]
-                      ))}
-                    {value == "invoice_bill_to" &&
-                      (tab == "edit_metadata" ? (
-                        <CustomInput
-                          placeholder="Invoice Billed To"
-                          value={
-                            data?.[value] ||
-                            data?.["document_metadata"]?.[value]
-                          }
-                          onChange={(val) => console.log(val)}
-                        />
-                      ) : (
-                        data?.[value] || data?.["document_metadata"]?.[value]
-                      ))}
-                    {value == "invoice_sold_to" &&
-                      (tab == "edit_metadata" ? (
-                        <CustomInput
-                          placeholder="Invoice Sold To"
-                          value={
-                            data?.[value] ||
-                            data?.["document_metadata"]?.[value]
-                          }
-                          onChange={(val) => console.log(val)}
-                        />
-                      ) : (
-                        data?.[value] || data?.["document_metadata"]?.[value]
-                      ))}
-                    {value == "credit_card_name" &&
-                      (tab == "edit_metadata" ? (
-                        <CustomInput
-                          placeholder="Credit Card Name"
-                          value={
-                            data?.[value] ||
-                            data?.["document_metadata"]?.[value]
-                          }
-                          onChange={(val) => console.log(val)}
-                        />
-                      ) : (
-                        data?.[value] || data?.["document_metadata"]?.[value]
-                      ))}
-                    {value == "credit_card_number" &&
-                      (tab == "edit_metadata" ? (
-                        <CustomInput
-                          placeholder="Credit Card Number"
-                          value={
-                            data?.[value] ||
-                            data?.["document_metadata"]?.[value]
-                          }
-                          onChange={(val) => console.log(val)}
-                        />
-                      ) : (
-                        data?.[value] || data?.["document_metadata"]?.[value]
-                      ))}
-                    {value == "invoice_due_date" &&
-                      (tab == "edit_metadata" ? (
-                        <DatePicker
-                          initialDate={
-                            data?.[value] ||
-                            data?.["document_metadata"]?.[value]
-                          }
-                          onChange={(d) => console.log(d)}
-                        />
-                      ) : (
-                        data?.[value] || data?.["document_metadata"]?.[value]
-                      ))}
-                    {value == "invoice_date" &&
-                      (tab == "edit_metadata" ? (
-                        <DatePicker
-                          initialDate={
-                            data?.[value] ||
-                            data?.["document_metadata"]?.[value]
-                          }
-                          onChange={(d) => console.log(d)}
-                        />
-                      ) : (
-                        data?.[value] || data?.["document_metadata"]?.[value]
-                      ))}
+                    {value == "invoice_ship_to" && (
+                      <CustomInput
+                        placeholder="Invoice Shipped To"
+                        value={
+                          data?.[value] || data?.["document_metadata"]?.[value]
+                        }
+                        onChange={(val) => console.log(val)}
+                      />
+                    )}
+                    {value == "invoice_bill_to" && (
+                      <CustomInput
+                        placeholder="Invoice Billed To"
+                        value={
+                          data?.[value] || data?.["document_metadata"]?.[value]
+                        }
+                        onChange={(val) => console.log(val)}
+                      />
+                    )}
+                    {value == "invoice_sold_to" && (
+                      <CustomInput
+                        placeholder="Invoice Sold To"
+                        value={
+                          data?.[value] || data?.["document_metadata"]?.[value]
+                        }
+                        onChange={(val) => console.log(val)}
+                      />
+                    )}
+                    {value == "credit_card_name" && (
+                      <CustomInput
+                        placeholder="Credit Card Name"
+                        value={
+                          data?.[value] || data?.["document_metadata"]?.[value]
+                        }
+                        onChange={(val) => console.log(val)}
+                      />
+                    )}
+                    {value == "credit_card_number" && (
+                      <CustomInput
+                        placeholder="Credit Card Number"
+                        value={
+                          data?.[value] || data?.["document_metadata"]?.[value]
+                        }
+                        onChange={(val) => console.log(val)}
+                      />
+                    )}
+                    {value == "invoice_due_date" && (
+                      <DatePicker
+                        initialDate={
+                          data?.[value] || data?.["document_metadata"]?.[value]
+                        }
+                        onChange={(d) => console.log(d)}
+                      />
+                    )}
+                    {value == "invoice_date" && (
+                      <DatePicker
+                        initialDate={
+                          data?.[value] || data?.["document_metadata"]?.[value]
+                        }
+                        onChange={(d) => console.log(d)}
+                      />
+                    )}
 
                     {editableFieldsForInvoiceMetadata.includes(value) ? (
                       <></>
@@ -261,22 +219,20 @@ const RawMetaDataTable = ({ data, isLoading, tab }) => {
                       <>
                         {typeof value !== String
                           ? value == "vendor"
-                            ? data?.["vendor"]?.["vendor_name"] ||
-                              data?.["document_metadata"]?.["vendor"]?.[
-                                "vendor_name"
-                              ]
-                            :  value == "restaurant"
+                            ? <></>
+                            : value == "restaurant"
                             ? data?.["restaurant"]?.["restaurant_name"] ||
                               data?.["document_metadata"]?.["restaurant"]?.[
                                 "restaurant_name"
                               ]
-                            :  value == "branch"
+                            : value == "branch"
                             ? data?.["branch"]?.["vendor_address"] ||
                               data?.["document_metadata"]?.["branch"]?.[
                                 "vendor_address"
                               ]
                             : data?.[value] ||
-                            data?.["document_metadata"]?.[value]:null}
+                              data?.["document_metadata"]?.[value]
+                          : null}
                       </>
                     )}
                   </div>
