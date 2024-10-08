@@ -27,15 +27,16 @@ const CustomDropDown = ({
   Value,
   contentClassName,
   showCustomItems = false,
-  children
+  children,
+  Key="value"
 }) => {
-
+ 
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(Value);
-
   useEffect(() => {
     setValue(Value); // Sync internal state with prop value
   }, [Value]);
+
 
   const handleSelect = (currentValue) => {
     const newValue = currentValue === value ? "" : currentValue;
@@ -53,8 +54,8 @@ const CustomDropDown = ({
           aria-expanded={open}
           className="min-w-[200px] justify-between"
         >
-          {value && value !== "none"
-            ? data.find((item) => item.value === value)?.label
+          {(value && value !== "none")
+            ? data.find((item) => item[`${Key}`] == value)?.label
             : placeholder}
 
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />

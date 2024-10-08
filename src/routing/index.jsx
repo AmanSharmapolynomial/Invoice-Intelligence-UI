@@ -13,6 +13,7 @@ import InvoiceDetails from "@/pages/InvoiceDetails";
 import CombineVendors from "@/pages/CombineVendors";
 import VendorItemMaster from "@/pages/VendorItemMaster";
 import CreateUser from "@/pages/CreateUser";
+import CompareInvoices from "@/pages/CompareInvoices";
 
 const publicRoutes = [
   {
@@ -87,6 +88,14 @@ const protectedRoutes = [
     element: (
       <Protected>
         <CombineVendors />
+      </Protected>
+    )
+  },
+  {
+    path: "/vendor-consolidation/compare-invoices/:vendor_one/:vendor_two",
+    element: (
+      <Protected>
+        <CompareInvoices/>
       </Protected>
     )
   },

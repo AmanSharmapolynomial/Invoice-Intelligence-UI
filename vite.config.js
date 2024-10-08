@@ -9,4 +9,8 @@ export default defineConfig({
       '@': resolve(__dirname, 'src'), // Adjust to point to 'src'
     },
   },
+  server:{
+    port:3000
+  }
 });
+

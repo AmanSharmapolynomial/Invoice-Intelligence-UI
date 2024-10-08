@@ -4,7 +4,7 @@ import Navbar from "@/components/common/Navbar";
 import { Button } from "@/components/ui/button";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import {
   Accordion,
@@ -20,7 +20,8 @@ import VendorDetailsTable from "@/components/vendor/VendorDetailsTable";
 import VendorNotes from "@/components/vendor/VendorNotes";
 
 const VendorDetails = () => {
-  const { vendor_id } = useParams();
+  const { vendor_id ,vendor_name} = useParams();
+  const navigate=useNavigate()
   const { data, isLoading } = useGetVendorDetails(vendor_id);
   const { data: vendorNotes, isLoading: vendorNotesLoading } =
     useGetVendorNotes(vendor_id);
@@ -78,11 +79,17 @@ const VendorDetails = () => {
           <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]">
             Save
           </Button>
-          <Link to={`/vendor-consolidation/combine-vendors/${vendor_id}?vendor_name=${data?.data?.vendor_name}`}>
-            <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]">
+          {/* <Link to={`/vendor-consolidation/combine-vendors/${vendor_id}`}> */}
+            <Button
+            onClick={()=>navigate(`/vendor-consolidation/combine-vendors/${vendor_id}`,{
+              state:{
+                vendor_name:data?.data?.vendor_name
+              }
+            })}
+            className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]">
               Find Similar Vendors
             </Button>
-          </Link>
+          {/* </Link> */}
           <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]">
             View Invoices
           </Button>

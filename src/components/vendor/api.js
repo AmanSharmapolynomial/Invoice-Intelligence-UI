@@ -1,4 +1,4 @@
-import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   createVendor,
   getVendorBranches,
@@ -11,7 +11,8 @@ import {
   saveVendorBranchDetails,
   deleteVendorBranchDetails,
   getSimilarVendors,
-  getVendorItemMaster
+  getVendorItemMaster,
+  getVendorsPdfs
 } from "@/components/vendor/utils";
 import toast from "react-hot-toast";
 import { queryClient } from "@/lib/utils";
@@ -139,3 +140,11 @@ export const useCombineVendors = () => {
     }
   });
 };
+
+
+export const useGetVendorsPdfs=(payload)=>{
+  return useQuery({
+    queryKey:['get-vendors-pdfs',payload],
+    queryFn:()=>getVendorsPdfs(payload)
+  })
+}

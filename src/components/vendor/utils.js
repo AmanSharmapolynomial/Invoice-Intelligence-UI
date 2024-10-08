@@ -82,3 +82,12 @@ export const getVendorItemMaster = async (vendor_id) => {
   const response = await axiosInstance.get(apirUrl);
   return response;
 };
+export const getVendorsPdfs = async (payload) => {
+  const { vendor_one, vendor_two } = payload;
+  const apirUrl = `/api/vendor/pdf/`;
+  const response = await axiosInstance.post(apirUrl, {
+    fetch_mode: "vendor_name",
+    vendors: [vendor_one, vendor_two]
+  });
+  return response;
+};
