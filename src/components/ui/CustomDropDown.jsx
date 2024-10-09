@@ -28,15 +28,16 @@ const CustomDropDown = ({
   contentClassName,
   showCustomItems = false,
   children,
-  Key="value"
+  Key = "value"
 }) => {
- 
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(Value);
-  useEffect(() => {
-    setValue(Value); // Sync internal state with prop value
-  }, [Value]);
+  const [value, setValue] = useState(Value || ""); // Default to empty string if Value is undefined
 
+  useEffect(() => {
+    if (Value !== undefined) {
+      setValue(Value); // Sync internal state with prop value
+    }
+  }, [Value]);
 
   const handleSelect = (currentValue) => {
     const newValue = currentValue === value ? "" : currentValue;
@@ -46,7 +47,7 @@ const CustomDropDown = ({
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen} className={className} >
+    <Popover open={open} onOpenChange={setOpen} className={className}>
       <PopoverTrigger asChild className={triggerClassName}>
         <Button
           variant="outline"
@@ -55,7 +56,7 @@ const CustomDropDown = ({
           className="min-w-[200px] justify-between"
         >
           {(value && value !== "none")
-            ? data.find((item) => item[`${Key}`] == value)?.label
+            ? data.find((item) => item?.[Key] == value)?.label
             : placeholder}
 
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -65,11 +66,11 @@ const CustomDropDown = ({
         className={`${className} min-w-[200px] !w-full p-0`}
         contentClassName={contentClassName}
       >
-        <Command >
+        <Command>
           <CommandInput placeholder={searchPlaceholder} />
-          <CommandList >
+          <CommandList>
             <CommandEmpty>No data found.</CommandEmpty>
-            <CommandGroup >
+            <CommandGroup>
               {showCustomItems
                 ? children // Render custom items if showCustomItems is true
                 : data.map((item) => (
@@ -84,12 +85,10 @@ const CustomDropDown = ({
                         )}
                       />
                       <div>
-                        <span>
-                        {item.label}
-                        </span>
-                        <span>
-                        {item?.['human_verified'] && <Verified className="h-4 w-4 text-primary"/>}
-                        </span>
+                        <span>{item.label}</span>
+                        {item?.human_verified && (
+                          <Verified className="h-4 w-4 text-primary" />
+                        )}
                       </div>
                     </CommandItem>
                   ))}

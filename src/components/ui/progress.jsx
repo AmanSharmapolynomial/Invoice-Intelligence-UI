@@ -7,17 +7,17 @@ const Progress = React.forwardRef(
   (
     {
       className,
-      totalValue,
+      totalValue=1,
       innerClassName,
       label,
       innerText,
-      value,
+      value=1,
       ...props
     },
     ref
   ) => {
     const percentage = Math.min((value / totalValue) * 100, 100); // Calculate percentage
-
+console.log(totalValue,value)
     return (
       <ProgressPrimitive.Root
         ref={ref}

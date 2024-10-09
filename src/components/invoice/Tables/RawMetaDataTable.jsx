@@ -1,9 +1,11 @@
 import CustomDropDown from "@/components/ui/CustomDropDown";
 import CustomInput from "@/components/ui/CustomInput";
 import CustomSelect from "@/components/ui/CustomSelect";
+import DatePicker from "@/components/ui/DatePicker";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableCell, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { useGetVendorNames } from "@/components/vendor/api";
 import {
   documentTypePrediction,
   editableFieldsForInvoiceMetadata,
@@ -12,10 +14,8 @@ import {
   vendorCategories
 } from "@/constants";
 import { vendorNamesFormatter } from "@/lib/helpers";
-import { useInvoiceStore } from "../store";
-import DatePicker from "@/components/ui/DatePicker";
 const RawMetaDataTable = ({ data, isLoading, tab }) => {
-  const { vendorsNames } = useInvoiceStore();
+  const { data: vendorNamesList } = useGetVendorNames();
   return (
     // <div className="w-full !max-h-[50%] overflow-auto">
     <Table className="flex flex-col !max-h-[67vh]  box-border  border scrollbar !w-full ">
@@ -85,32 +85,27 @@ const RawMetaDataTable = ({ data, isLoading, tab }) => {
                       />
                     )}
                     {value == "vendor_name" && (
-                      // <CustomSelect
-                      //   showSearch={true}
-                      //   value={data?.vendor?.vendor_name}
-                      //   placeholder={"Vendor Name"}
-                      //   data={vendorNamesFormatter(vendorsNames)}
-                      //   onSelect={(val) => console.log(val)}
-                      // />
                       <CustomDropDown
-                      Value={data?.vendor?.vendor_name}
-                      className="!min-w-56"
-                      Key="label"
-                      triggerClassName={"bg-gray-100"}
-                      contentClassName={"bg-gray-100"}
-                      data={vendorNamesFormatter(vendorsNames)}
-                      onChange={(val) => {
-                        if (val == "none") {
-                          // setVendorFilter("none");
-                          // updateParams({ vendor: undefined });
-                        } else {
-                          // setVendorFilter(val);
-                          // updateParams({ vendor: val });
-                        }
-                      }}
-                      placeholder="Vendor Name"
-                      searchPlaceholder="Search Vendor Name"
-                    />
+                        Value={data?.vendor?.vendor_name}
+                        className="!min-w-56"
+                        Key="label"
+                        triggerClassName={"bg-gray-100"}
+                        contentClassName={"bg-gray-100"}
+                        data={vendorNamesFormatter(
+                          vendorNamesList?.data?.vendor_names
+                        )}
+                        onChange={(val) => {
+                          if (val == "none") {
+                            // setVendorFilter("none");
+                            // updateParams({ vendor: undefined });
+                          } else {
+                            // setVendorFilter(val);
+                            // updateParams({ vendor: val });
+                          }
+                        }}
+                        placeholder="Vendor Name"
+                        searchPlaceholder="Search Vendor Name"
+                      />
                     )}
                     {value == "vendor_address" && (
                       <Textarea
@@ -217,22 +212,24 @@ const RawMetaDataTable = ({ data, isLoading, tab }) => {
                       <></>
                     ) : (
                       <>
-                        {typeof value !== String
-                          ? value == "vendor"
-                            ? <></>
-                            : value == "restaurant"
-                            ? data?.["restaurant"]?.["restaurant_name"] ||
-                              data?.["document_metadata"]?.["restaurant"]?.[
-                                "restaurant_name"
-                              ]
-                            : value == "branch"
-                            ? data?.["branch"]?.["vendor_address"] ||
-                              data?.["document_metadata"]?.["branch"]?.[
-                                "vendor_address"
-                              ]
-                            : data?.[value] ||
-                              data?.["document_metadata"]?.[value]
-                          : null}
+                        {typeof value !== String ? (
+                          value == "vendor" ? (
+                            <></>
+                          ) : value == "restaurant" ? (
+                            data?.["restaurant"]?.["restaurant_name"] ||
+                            data?.["document_metadata"]?.["restaurant"]?.[
+                              "restaurant_name"
+                            ]
+                          ) : value == "branch" ? (
+                            data?.["branch"]?.["vendor_address"] ||
+                            data?.["document_metadata"]?.["branch"]?.[
+                              "vendor_address"
+                            ]
+                          ) : (
+                            data?.[value] ||
+                            data?.["document_metadata"]?.[value]
+                          )
+                        ) : null}
                       </>
                     )}
                   </div>

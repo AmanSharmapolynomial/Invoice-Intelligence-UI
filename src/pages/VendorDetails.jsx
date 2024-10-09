@@ -4,7 +4,12 @@ import Navbar from "@/components/common/Navbar";
 import { Button } from "@/components/ui/button";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 
-import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams
+} from "react-router-dom";
 
 import {
   Accordion,
@@ -18,17 +23,19 @@ import {
 } from "@/components/vendor/api";
 import VendorDetailsTable from "@/components/vendor/VendorDetailsTable";
 import VendorNotes from "@/components/vendor/VendorNotes";
+import { usePersistStore } from "@/components/vendor/store";
+import { useEffect } from "react";
 
 const VendorDetails = () => {
-  const { vendor_id ,vendor_name} = useParams();
-  const navigate=useNavigate()
+  const { vendor_id, vendor_name } = useParams();
+  const navigate = useNavigate();
   const { data, isLoading } = useGetVendorDetails(vendor_id);
   const { data: vendorNotes, isLoading: vendorNotesLoading } =
     useGetVendorNotes(vendor_id);
-
-  const [searchParams] = useSearchParams();
-  const updateParams = useUpdateParams();
-
+  const { setActualVendorName } = usePersistStore();
+  useEffect(() => {
+    setActualVendorName();
+  }, []);
   return (
     <>
       <Navbar className="" />
@@ -40,7 +47,7 @@ const VendorDetails = () => {
           }`}
           className="border mt-10 rounded-t-md !shadow-none bg-primary !capitalize !text-[#FFFFFF] relative "
         >
-          <VendorNotes data={vendorNotes} vendor_id={vendor_id} />
+         {!vendorNotesLoading&& <VendorNotes data={vendorNotes} vendor_id={vendor_id} />}
         </Header>
         <VendorDetailsTable data={data?.data} isLoading={isLoading} />
 
@@ -80,15 +87,15 @@ const VendorDetails = () => {
             Save
           </Button>
           {/* <Link to={`/vendor-consolidation/combine-vendors/${vendor_id}`}> */}
-            <Button
-            onClick={()=>navigate(`/vendor-consolidation/combine-vendors/${vendor_id}`,{
-              state:{
-                vendor_name:data?.data?.vendor_name
-              }
-            })}
-            className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]">
-              Find Similar Vendors
-            </Button>
+          <Button
+            onClick={() => {
+              setActualVendorName(data?.data?.vendor_name);
+              navigate(`/vendor-consolidation/combine-vendors/${vendor_id}`);
+            }}
+            className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]"
+          >
+            Find Similar Vendors
+          </Button>
           {/* </Link> */}
           <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]">
             View Invoices

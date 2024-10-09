@@ -6,5 +6,5 @@ export const useInvoiceStore = create((set) => ({
   vendorsNames: [],
   setVendorNames: (vendors) => set({ vendorsNames: vendors }),
   setVendorFilter: (val) => set({ vendorFilterValue: val }),
-  setRestaurantFilter: (val) => set({ restaurantFilterValue: val })
+  setRestaurantFilter: (val) => set({ restaurantFilterValue: val }),
 }));

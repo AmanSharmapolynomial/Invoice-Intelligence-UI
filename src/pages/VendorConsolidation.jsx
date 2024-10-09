@@ -80,7 +80,7 @@ const VendorConsolidation = () => {
         >
           <div className="flex items-center justify-center gap-x-2 w-fit">
             <Label className="min-w-16">
-              Total :- {vendorsData?.["data"]?.["total_vendor_count"]}
+              Total :- {vendorsData?.["data"]?.["total_vendor_count"] ?? 0}
             </Label>
             <TooltipProvider>
               <Tooltip>
@@ -214,7 +214,7 @@ const VendorConsolidation = () => {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <div onClick={() => handleCreateVendor()}>
-                    <AlertDialogAction>Add</AlertDialogAction>
+                    <AlertDialogAction disabled={addedVendor?.length==0} >Add</AlertDialogAction>
                   </div>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                 </AlertDialogFooter>

@@ -43,7 +43,6 @@ const Login = () => {
   const onSubmit = (payload) => {
     mutate(payload, {
       onError: (data) => {
-        console.log(data);
       },
       onSuccess: (data) => {
         const {

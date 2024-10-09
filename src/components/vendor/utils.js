@@ -61,7 +61,7 @@ export const addVendorNote = async (payload) => {
 };
 export const saveVendorBranchDetails = async ({ data, branch_id }) => {
   const apirUrl = `/api/vendor-branch/${branch_id}/details/`;
-  const response = await axiosInstance.put(apirUrl, { data });
+  const response = await axiosInstance.put(apirUrl, { ...data });
   return response;
 };
 export const deleteVendorBranchDetails = async (branch_id) => {
@@ -82,6 +82,17 @@ export const getVendorItemMaster = async (vendor_id) => {
   const response = await axiosInstance.get(apirUrl);
   return response;
 };
+export const getVendorBranchPdfs = async (branch_id) => {
+  const apirUrl = `/api/vendor-branch/${branch_id}/pdf/`;
+  try {
+    const response = await axiosInstance.get(apirUrl);
+    return response; // This should not be reached on error
+  } catch (error) {
+
+    return Promise.reject(error); // Ensure you reject the promise
+  }
+};
+
 export const getVendorsPdfs = async (payload) => {
   const { vendor_one, vendor_two } = payload;
   const apirUrl = `/api/vendor/pdf/`;
