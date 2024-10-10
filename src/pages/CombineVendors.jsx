@@ -11,13 +11,13 @@ import {
   useCombineVendors,
   useGetSimilarVendors
 } from "@/components/vendor/api";
+import { usePersistStore } from "@/components/vendor/store";
 import { combineVendorsHeaders } from "@/constants";
 import { formatCombineVendorsArray } from "@/lib/helpers";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { Eye } from "lucide-react";
 import { useState } from "react";
 import {
-  useLoaderData,
   useLocation,
   useNavigate,
   useParams,
@@ -28,13 +28,12 @@ const CombineVendors = () => {
   const { vendor_id } = useParams();
   const navigate = useNavigate();
   const updateParams = useUpdateParams();
-  console.log(useLocation())
   const [searchParams] = useSearchParams();
   const pathname = useLocation();
   const similarity_value = searchParams.get("similarity") || 1;
   const actual_vendor_name = searchParams.get("vendor_name") || "";
   const { mutate, isPending } = useCombineVendors();
-  const { data, isLoading } = useGetSimilarVendors({
+  const { data, isLoading ,isError} = useGetSimilarVendors({
     vendor_id,
     similarity: similarity_value
   });
@@ -55,7 +54,7 @@ const CombineVendors = () => {
     }
   };
 
-  let fullVendorName = pathname?.state.vendor_name;
+  const { actualVendorName } = usePersistStore();
 
   return (
     <>
@@ -66,7 +65,7 @@ const CombineVendors = () => {
           title={`Combine Vendors`}
           className="border mt-10 rounded-t-md border-primary !shadow-none bg-primary !capitalize !text-[#FFFFFF] relative "
         >
-          <p>Actual Vendor Name :- {fullVendorName} </p>
+          <p>Actual Vendor Name :- {actualVendorName} </p>
         </Header>
         {checkedVendors?.length > 0 && (
           <Header className="border  rounded-t-md !shadow-none  !capitalize !text-[#FFFFFF] relative ">
@@ -186,8 +185,8 @@ const CombineVendors = () => {
           ) : (
             <>
               <div className="!w-full max-h-[65vh]">
-                {data &&
-                  Object?.keys(data?.["data"])?.length > 0 &&
+                {(data &&
+                  Object?.keys(data?.["data"])?.length > 0 )?
                   formatCombineVendorsArray(data?.["data"])?.map(
                     ({
                       vendor_id,
@@ -214,7 +213,7 @@ const CombineVendors = () => {
                             className="h-5 w-5 text-primary cursor-pointer"
                             onClick={() => {
                               navigate(
-                                `/vendor-consolidation/compare-invoices/${fullVendorName}/${vendor_name}`
+                                `/vendor-consolidation/compare-invoices/${actualVendorName}/${vendor_name}`
                               );
                             }}
                           />
@@ -228,10 +227,12 @@ const CombineVendors = () => {
                         </TableCell>
                       </TableRow>
                     )
-                  )}
+                  ):isError && <div className="flex justify-center flex-col items-center h-full !w-[95vw] !overflow-hidden">
+                  <img src={no_data} alt="" className="flex-1 !max-h-[60vh] " />
+                </div>}
               </div>
               {data && Object?.keys(data?.["data"])?.length === 0 && (
-                <div className="flex justify-center items-center h-full !w-[95vw] !overflow-hidden">
+                <div className="flex justify-center flex-col items-center h-full !w-[95vw] !overflow-hidden">
                   <img src={no_data} alt="" className="flex-1 !max-h-[60vh] " />
                 </div>
               )}

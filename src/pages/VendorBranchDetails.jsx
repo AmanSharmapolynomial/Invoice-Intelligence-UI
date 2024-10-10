@@ -18,6 +18,7 @@ import { Switch } from "@/components/ui/switch";
 import { vendorBranchDetailsPageFirstColRowData } from "@/constants";
 import { queryClient } from "@/lib/utils";
 import { useNavigate, useParams } from "react-router-dom";
+import { LoaderIcon } from "react-hot-toast";
 
 const VendorBranchDetails = () => {
   const { branch_id } = useParams();
@@ -28,12 +29,12 @@ const VendorBranchDetails = () => {
   const { mutate: deleteBranch, isPending: deletingBranch } =
     useDeleteVendorBranchDetails();
   const navigate = useNavigate();
-  const {vendor_id}=useParams()
+  const { vendor_id } = useParams();
   return (
     <>
       <Navbar className="" />
 
-      <Layout className={"mx-10 box-border overflow-auto pb-8"}>
+      <Layout className={"mx-10 box-border  pb-8 !overflow-auto h-full"}>
         <Header
           title={`Vendor Branch  ${
             data?.data?.vendor_name
@@ -42,22 +43,23 @@ const VendorBranchDetails = () => {
           }`}
           className="border mt-10 rounded-t-md !capitalize !shadow-none bg-primary !text-[#FFFFFF] relative "
         />
-        <div className="w-full border flex justify-between p-4 gap-x-4 overflow-auto">
+        <div className="w-full border flex justify-between p-4 gap-x-4 !overflow-auto">
           <div></div>
           <div className="flex gap-x-2">
             <Button
+            disabled={savingDetails||deletingBranch}
               onClick={() => {
                 saveDetails({ data: data?.data, branch_id });
               }}
             >
-              <Save
-                className="h-5 w-5"
-                onClick={() => {
-                  // console.log("Current saved data:", data);
-                }}
-              />
+              {savingDetails ? (
+                <LoaderIcon className="w-5 h-5" />
+              ) : (
+                <Save className="h-5 w-5" />
+              )}
             </Button>
             <Button
+                     disabled={savingDetails||deletingBranch}
               className="bg-red-600 hover:bg-red-600/90"
               onClick={() => {
                 deleteBranch(branch_id, {
@@ -67,14 +69,18 @@ const VendorBranchDetails = () => {
                 });
               }}
             >
-              <Trash2 className="h-5 w-5" />
+              {deletingBranch ? (
+                <LoaderIcon className="w-5 h-5" />
+              ) : (
+                <Trash2 className="h-5 w-5" />
+              )}
             </Button>
           </div>
         </div>
-        <Table className="flex flex-col   box-border  scrollbar !w-full ">
+        <Table className="flex flex-col   box-border  scrollbar !w-full max-h-[70vh] overflow-auto h-full">
           <TableRow className="flex  text-base  !border-none  ">
             <div className="!min-w-[50%]">
-              <TableHead className="flex  border-r !text-left items-center justify-start pl-[5%] !font-semibold !text-gray-800  border-b   bg-gray-200 h-14">
+              <TableHead className="flex sticky top-0  border-r !text-left items-center justify-start pl-[5%] !font-semibold !text-gray-800  border-b   bg-gray-200 h-14">
                 Field Name
               </TableHead>
               {vendorBranchDetailsPageFirstColRowData.map(
@@ -89,7 +95,7 @@ const VendorBranchDetails = () => {
               )}
             </div>
             <div className="!min-w-[50%]">
-              <TableHead className="flex  border-r !text-left items-center justify-start pl-[5%] !font-semibold !text-gray-800  border-b  !min-h-14 bg-gray-200 h-14">
+              <TableHead className="flex sticky top-0 border-r !text-left items-center justify-start pl-[5%] !font-semibold !text-gray-800  border-b  !min-h-14 bg-gray-200 h-14">
                 Field Value
               </TableHead>
               {isLoading ? (
@@ -224,11 +230,12 @@ const VendorBranchDetails = () => {
                       }}
                     />
                   </TableCell>
+
                   <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                    {data?.data?.["vendor_id"]}
+                    {data?.data?.["verified_by"]?.["username"]}
                   </TableCell>
                   <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                    {data?.data?.["branch_id"]}
+                    {data?.data?.["updated_by"]?.["username"]}
                   </TableCell>
                 </>
               )}

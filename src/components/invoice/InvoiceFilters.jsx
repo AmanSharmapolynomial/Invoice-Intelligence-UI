@@ -35,7 +35,7 @@ const InvoiceFilters = () => {
     searchParams.get("detected") || "all"
   );
   const [auto_accepted, setAutoAccepted] = useState(
-    searchParams.get("auto_accepted") || "both"
+    searchParams.get("auto_accepted") || "all"
   );
 
   const [selectionRange, setSelectionRange] = useState({
@@ -80,7 +80,7 @@ const InvoiceFilters = () => {
       start_date: undefined,
       end_date: undefined,
       restaurant:undefined,
-      vendor:undefined
+      vendor:undefined,
     });
 
     setHumanverified("all");
@@ -88,7 +88,7 @@ const InvoiceFilters = () => {
     setInvoiceType("all");
     setDetected("all");
     setRerunStatus("all");
-    setAutoAccepted("both");
+    setAutoAccepted("all");
     setVendorFilter("none")
     setRestaurantFilter("none")
     setSelectionRange({
@@ -110,7 +110,7 @@ const InvoiceFilters = () => {
             value={human_verified}
             onSelect={(val) => {
               setHumanverified(val);
-              updateParams({ human_verified: val });
+              updateParams({ human_verified: val,page:1 });
             }}
             data={HumanVerificationFilterOptions}
           />
@@ -123,7 +123,7 @@ const InvoiceFilters = () => {
             value={invoice_type}
             onSelect={(val) => {
               setInvoiceType(val);
-              updateParams({ invoice_type: val });
+              updateParams({ invoice_type: val,page:1 });
             }}
             data={InvoiceTypeFilterOptions}
           />
@@ -139,7 +139,7 @@ const InvoiceFilters = () => {
             data={InvoiceDetectionStatusFilterOptions}
             onSelect={(val) => {
               setDetected(val);
-              updateParams({ detected: val });
+              updateParams({ detected: val,page:1 });
             }}
           />
         </div>
@@ -151,7 +151,7 @@ const InvoiceFilters = () => {
             label="Invoice Re Run Status"
             onSelect={(val) => {
               setRerunStatus(val);
-              updateParams({ rerun_status: val });
+              updateParams({ rerun_status: val,page:1 });
             }}
             data={InvoiceReRunStatusFilterOptions}
           />
@@ -160,13 +160,13 @@ const InvoiceFilters = () => {
       <div className="grid grid-cols-2 gap-x-2">
         <div>
           <CustomSelect
-            placeholder="Both"
+            placeholder="All"
             triggerClassName={"!w-full"}
             value={auto_accepted}
             label="Auto Accepted Filter"
             onSelect={(val) => {
               setAutoAccepted(val);
-              updateParams({ auto_accepted: val });
+              updateParams({ auto_accepted: val,page:1 });
             }}
             data={AutoAcceptedFilterFilterOptions}
           />
@@ -179,7 +179,7 @@ const InvoiceFilters = () => {
             value={clickbacon_status}
             onSelect={(val) => {
               setClickBaconStatus(val);
-              updateParams({ clickbacon_status: val });
+              updateParams({ clickbacon_status: val,page:1 });
             }}
             data={clickBACONStatusFilterOptions}
           />

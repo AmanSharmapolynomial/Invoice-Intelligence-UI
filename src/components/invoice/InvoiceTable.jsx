@@ -22,12 +22,12 @@ import { invoiceTableHeaders } from "@/constants";
 import { BadgeCheck } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 const InvoiceTable = ({ data = [], isLoading }) => {
-  const [searchParams]=useSearchParams()
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  let page=searchParams.get("page")||1
+  let page = searchParams.get("page") || 1;
   return (
     <div className="w-full overflow-auto ">
-      <Table className="flex flex-col   box-border  scrollbar ">
+      <Table className="flex flex-col   box-border  scrollbar min-h-[60vh] ">
         <TableHeader className="min-h-16">
           <TableRow className="flex  text-base  !border-none  ">
             {invoiceTableHeaders?.map(({ label, styling }) => (
@@ -43,26 +43,13 @@ const InvoiceTable = ({ data = [], isLoading }) => {
         <div className="flex-1 !w-full">
           <TableBody className="flex-1 h-full w-full  ">
             {isLoading ? (
-              new Array(8).fill(1).map((_, index) => {
+              new Array(9).fill(1).map((_, index) => {
                 return (
                   <TableRow
                     className="flex  !text-sm !border-none min-h-14"
                     key={index}
                   >
-                    {[
-                      "a",
-                      "b",
-                      "c",
-                      "d",
-                      "e",
-                      "f",
-                      "g",
-                      "h",
-                      "i",
-                      "j",
-                      "k",
-                      "l"
-                    ].map((_, i) => {
+                    {new Array(16).fill(10).map((_, i) => {
                       return (
                         <TableHead
                           key={i}
@@ -102,7 +89,11 @@ const InvoiceTable = ({ data = [], isLoading }) => {
                   return (
                     <TableRow
                       onClick={(e) => {
-                        navigate(`/invoice-details/${document_uuid}/?page=${page*(index+1)}`);
+                        navigate(
+                          `/invoice-details/?page_number=${
+                           ( (page-1)*9) + (index + 1)
+                          }`
+                        );
                       }}
                       className="flex  text-base items-center !min-h-14  !border-none"
                       key={index}
@@ -122,8 +113,8 @@ const InvoiceTable = ({ data = [], isLoading }) => {
                       <TableHead className="flex cursor-pointer border-r !min-h-10  !text-left items-center gap-x-4 justify-between pl-4 !font-normal !text-gray-800 !min-w-72 border-b !capitalize  ">
                         <span> {vendor?.vendor_name}</span>
                         <span>
-                          {vendor?.['human_verified'] && (
-                            <BadgeCheck className="text-blue-500" />
+                          {vendor?.["human_verified"] && (
+                            <BadgeCheck className="text-primary" />
                           )}
                         </span>
                       </TableHead>
@@ -169,7 +160,7 @@ const InvoiceTable = ({ data = [], isLoading }) => {
 
                       <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start pl-10 !font-normal !text-gray-800 !min-w-40 border-b  ">
                         {auto_accepted === true
-                          ? "Accepted"
+                          ? "Auto Accepted"
                           : rejected === true
                           ? "Rejected"
                           : human_verified == true

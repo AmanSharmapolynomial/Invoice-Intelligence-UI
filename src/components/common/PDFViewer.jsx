@@ -4,12 +4,14 @@ import { Button } from "../ui/button";
 import { Document, Page } from "react-pdf";
 import no_data from "@/assets/image/no-data.svg";
 import { pdfjs } from "react-pdf";
+import { Skeleton } from "../ui/skeleton";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 export const PdfViewer = ({ pdfList, title, singlePdf = false }) => {
+  
   const [currentPdfIndex, setCurrentPdfIndex] = useState(0);
-  const [pdfScale, setPdfScale] = useState(1.0);
+  const [pdfScale, setPdfScale] = useState(0.7); // Start at a zoomed-out scale
   const [pageNum, setPageNum] = useState(1);
   const [numPages, setNumPages] = useState(0);
   const [isError, setIsError] = useState(false);
@@ -19,7 +21,7 @@ export const PdfViewer = ({ pdfList, title, singlePdf = false }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const movementFactor = 0.1; // Factor to control speed of dragging
+  const movementFactor = 0.035;
 
   const handleNextPdf = () => {
     if (currentPdfIndex < pdfList.length - 1) {
@@ -41,12 +43,12 @@ export const PdfViewer = ({ pdfList, title, singlePdf = false }) => {
     setIsError(false);
     setLoading(false);
     setOffset({ x: 0, y: 0 });
-    setPdfScale(1.0); // Reset zoom level
+    setPdfScale(0.7); // Reset to the zoomed-out state
   };
 
   const resetPosition = () => {
-    setOffset({ x: 0, y: 0 }); // Reset the offset to original position
-    setPdfScale(1.0); // Reset zoom level
+    setOffset({ x: 0, y: 0 });
+    setPdfScale(0.7); // Reset to the zoomed-out state
   };
 
   const onDocumentLoadSuccess = ({ numPages }) => {
@@ -63,7 +65,11 @@ export const PdfViewer = ({ pdfList, title, singlePdf = false }) => {
 
   useEffect(() => {
     resetViewer();
-  }, [currentPdfIndex]);
+  }, []);
+
+  useEffect(() => {
+    resetViewer();
+  }, [currentPdfIndex, pdfList]);
 
   const handleWheel = (event) => {
     event.preventDefault();
@@ -90,7 +96,6 @@ export const PdfViewer = ({ pdfList, title, singlePdf = false }) => {
 
   const handleMouseDown = (event) => {
     if (event.button === 0) {
-      // Left button
       setIsDragging(true);
       setDragStart({ x: event.clientX, y: event.clientY });
       event.preventDefault();
@@ -99,15 +104,14 @@ export const PdfViewer = ({ pdfList, title, singlePdf = false }) => {
 
   const handleMouseMove = (event) => {
     if (isDragging) {
-      const dx = (event.clientX - dragStart.x) * movementFactor; // Apply movement factor
+      const dx = (event.clientX - dragStart.x) * movementFactor;
       const dy = (event.clientY - dragStart.y) * movementFactor;
 
       setOffset((prevOffset) => ({
         x: prevOffset.x + dx,
-        y: prevOffset.y + dy,
+        y: prevOffset.y + dy
       }));
 
-      // Update drag start position
       setDragStart({ x: event.clientX, y: event.clientY });
     }
   };
@@ -150,7 +154,10 @@ export const PdfViewer = ({ pdfList, title, singlePdf = false }) => {
             width={20}
             disabled={pdfScale <= 0.1}
             className="cursor-pointer"
-            onClick={() => setPdfScale((s) => Math.max(s / 2, 0.1))}
+            onClick={() => {
+              setPdfScale((s) => Math.max(s / 2, 0.1));
+              resetPosition(); // Reset height to default when zooming out
+            }}
           />
           <button
             type="button"
@@ -196,18 +203,19 @@ export const PdfViewer = ({ pdfList, title, singlePdf = false }) => {
           <p>Loading ..............</p>
         </div>
       ) : isError ? (
-        <div className="w-full flex justify-center items-center !h-full mt-8 overflow-hidden">
+        <div className="w-full flex flex-col justify-center items-center !h-full mt-8 overflow-hidden">
           <img src={no_data} alt="No data" className="!h-[50vh]" />
+          <p>No PDF Available</p>
         </div>
       ) : (
         <div
           ref={pdfRef}
-          className="h-[580px] overflow-hidden w-full "
+          className="h-[600px] overflow-hidden w-full "
           onMouseDown={handleMouseDown}
           style={{
             cursor: isDragging ? "grabbing" : "grab",
             position: "relative",
-            userSelect: "none", // Prevent text selection
+            userSelect: "none" // Prevent text selection
           }}
         >
           <div
@@ -216,20 +224,41 @@ export const PdfViewer = ({ pdfList, title, singlePdf = false }) => {
               position: "absolute",
               top: 0,
               left: 0,
-              transition: isDragging ? "none" : "transform 0.1s",
+              transition: isDragging ? "none" : "transform 0.1s"
             }}
-            className="flex justify-center w-full "
+            className="flex justify-center w-full bg-white "
           >
             <Document
               file={pdfList?.[currentPdfIndex]?.document_link}
               onLoadSuccess={onDocumentLoadSuccess}
+              onLoadProgress={({ loaded, total }) =>
+                loaded === total && setLoading(false)
+              }
+              noData={
+                !loading && (
+                  <div className="w-full flex flex-col  items-center pt-16 mt-8 h-[90vh] overflow-hidden">
+                    <img src={no_data} alt="No data" className="!h-1/2" />
+                    <p>No PDF Available</p>
+                  </div>
+                )
+              }
+              loading={
+                <div className="w-full flex flex-col justify-center items-center !h-[580px] overflow-hidden">
+                  <p>Loading PDF...</p>
+                </div>
+              }
               onLoadError={onDocumentLoadError}
               onLoadStart={() => setLoading(true)}
             >
               <Page
+                width={900}
                 pageNumber={pageNum}
-                className={"!border-4 !h-72 overflow-hidden"}
                 scale={pdfScale}
+                loading={
+                  <div className="w-full flex flex-col justify-center items-center  !h-[580px]  overflow-hidden">
+                    <p>Loading Page...</p>
+                  </div>
+                }
               />
             </Document>
           </div>
@@ -248,7 +277,9 @@ export const PdfViewer = ({ pdfList, title, singlePdf = false }) => {
           <Button
             onClick={handleNextPdf}
             className="mt-3 !font-normal min-w-28"
-            disabled={currentPdfIndex === pdfList.length - 1 || pdfList?.length === 1}
+            disabled={
+              currentPdfIndex === pdfList.length - 1 || pdfList?.length === 1
+            }
           >
             Next PDF
           </Button>

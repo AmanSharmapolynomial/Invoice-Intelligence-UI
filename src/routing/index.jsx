@@ -66,7 +66,7 @@ const protectedRoutes = [
     )
   },
   {
-    path: "/invoice-details/:invoice_id",
+    path: "/invoice-details/",
     element: (
       <Protected>
         <InvoiceDetails />

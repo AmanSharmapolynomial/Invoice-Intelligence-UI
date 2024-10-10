@@ -12,7 +12,8 @@ import {
   deleteVendorBranchDetails,
   getSimilarVendors,
   getVendorItemMaster,
-  getVendorsPdfs
+  getVendorsPdfs,
+  getVendorBranchPdfs
 } from "@/components/vendor/utils";
 import toast from "react-hot-toast";
 import { queryClient } from "@/lib/utils";
@@ -84,6 +85,7 @@ export const useSaveVendorBranchDetails = () => {
     mutationFn: ({ data, branch_id }) =>
       saveVendorBranchDetails({ data, branch_id }),
     onSuccess: (data) => {
+      toast.success(data?.message)
       queryClient.invalidateQueries(["vendor-branch-details", branch_id]);
       return data;
     }
@@ -93,8 +95,11 @@ export const useDeleteVendorBranchDetails = () => {
   return useMutation({
     mutationFn: (branch_id) => deleteVendorBranchDetails(branch_id),
     onSuccess: (data) => {
+      toast.success(error?.message)
       queryClient.invalidateQueries(["vendor-branches"]);
       return data;
+    },onError:(data)=>{
+      toast.error(data?.message)
     }
   });
 };
@@ -108,7 +113,7 @@ export const useGetSimilarVendors = (payload) => {
 
 export const useGetVendorItemMaster = (vendor_id) => {
   return useQuery({
-    queryKey: ["similar-vendors", vendor_id],
+    queryKey: ["get-similar-vendors", vendor_id],
     queryFn: () => getVendorItemMaster(vendor_id)
   });
 };
@@ -134,17 +139,112 @@ export const useCombineVendors = () => {
       if (!data?.error) {
         toast.success(data?.message);
         queryClient.invalidateQueries({ queryKey: ["similar-vendors"] });
-      }else{
+      } else {
         toast.error(data?.message);
       }
     }
   });
 };
 
-
-export const useGetVendorsPdfs=(payload)=>{
+export const useGetVendorsPdfs = (payload) => {
   return useQuery({
-    queryKey:['get-vendors-pdfs',payload],
-    queryFn:()=>getVendorsPdfs(payload)
-  })
-}
+    queryKey: ["get-vendors-pdfs", payload],
+    queryFn: () => getVendorsPdfs(payload)
+  });
+};
+export const useDeleteVendor = () => {
+  return useMutation({
+    mutationFn: async (vendor_id) => {
+      try {
+        const apiUrl = `/api/vendor/${vendor_id}/delete/`;
+        const response = axiosInstance.delete(apiUrl);
+        return response;
+      } catch (error) {
+        return error;
+      }
+    },
+    onError: (data) => {
+      toast.error(data?.message);
+    },
+    onSuccess: (data) => {
+      toast.success(data?.message);
+      queryClient.invalidateQueries({ queryKey: ["vendor-list"] });
+    }
+  });
+};
+
+export const useCombineVendorBranches = () => {
+  return useMutation({
+    mutationFn: async ({ branch_id, branches_to_combine }) => {
+      try {
+        const apiUrl = `/api/vendor-branch/${branch_id}/combine/`;
+        const response = axiosInstance.post(apiUrl, {
+          branches_to_combine
+        });
+        return response;
+      } catch (error) {
+        return error;
+      }
+    },
+    onError: (data) => {
+      toast.error(data?.message);
+    },
+    onSuccess: (data) => {
+      toast.success(data?.message);
+      queryClient.invalidateQueries({ queryKey: ["vendor-branches"] });
+    }
+  });
+};
+
+export const useMigrateVendorBranch = () => {
+  return useMutation({
+    mutationFn: async (payload) => {
+      let { branch_id, vendorId } = payload;
+      try {
+        const apiUrl = `/api/vendor-branch/${branch_id}/migrate/`;
+        const response = axiosInstance.post(apiUrl, {
+          new_vendor_id: vendorId
+        });
+        return response;
+      } catch (error) {
+        return error;
+      }
+    },
+    onError: (data) => {
+      toast.error(data?.message);
+    },
+    onSuccess: (data) => {
+      toast.success(data?.message);
+      queryClient.invalidateQueries({ queryKey: ["vendor-branches"] });
+    }
+  });
+};
+
+export const useDeleteBranch = () => {
+  return useMutation({
+    mutationFn: async (branch_id) => {
+      try {
+        const apiUrl = `/api/vendor-branch/${branch_id}/delete/`;
+        const response = axiosInstance.delete(apiUrl);
+        return response;
+      } catch (error) {
+        return error;
+      }
+    },
+    onError: (data) => {
+      toast.error(data?.message);
+    },
+    onSuccess: (data) => {
+      toast.success(data?.message);
+      queryClient.invalidateQueries({ queryKey: ["vendor-branches"] });
+    }
+  });
+};
+
+export const useGetVendorBranchPdfs = (branch_id) => {
+  return useQuery({
+    queryKey: ['vendor-branch-pdfs', branch_id],
+    queryFn: () => getVendorBranchPdfs(branch_id), // Pass a function
+    enabled: !!branch_id, // Only run if branch_id is valid
+  });
+};

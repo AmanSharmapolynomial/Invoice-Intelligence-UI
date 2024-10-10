@@ -11,8 +11,12 @@ import {
 import { vendorConsolidationHeaders } from "@/constants";
 import { Eye, Trash, Trash2, Verified } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useDeleteVendor } from "./api";
 const VendorConsolidationTable = ({ data, isLoading }) => {
-
+  const { mutate: deleteVendor, isPending: deletingVendor } = useDeleteVendor();
+  const handleDeleteVendor = (vendor_id) => {
+    deleteVendor(vendor_id);
+  };
   return (
     <>
       <Table className="flex flex-col   box-border  scrollbar ">
@@ -118,15 +122,22 @@ const VendorConsolidationTable = ({ data, isLoading }) => {
                       </TableHead>
 
                       <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center !font-normal !text-gray-800 !min-w-44 border-b  pb-4">
-                        {verified_by?.['username']}{" "}
+                        {verified_by?.["username"]}{" "}
                       </TableHead>
 
-                      <TableHead className="flex  !text-left items-center justify-center   !font-normal !text-gray-800 !min-w-44 gap-x-4 border-b border-r  pb-4">
-                        <Link to={`/invoice-details/${vendor_id}`}>
-                          <Eye className="h-5  text-primary cursor-pointer" />
+                      <TableHead className="flex  !text-left items-center justify-center   !font-normal !text-gray-800 !min-w-44  border-b border-r  pb-4">
+                        <Link to={`/invoice-details?vendor=${vendor_id}`}>
+                          <Button className="bg-transparent border-none shadow-none hover:bg-transparent">
+                            <Eye className="h-5  text-primary cursor-pointer" />
+                          </Button>
                         </Link>
-
-                        <Trash2 className="h-5 w-5 text-red-600 cursor-pointer  " />
+                        <Button
+                          className="bg-transparent border-none shadow-none hover:bg-transparent"
+                          disabled={deletingVendor}
+                          onClick={() => handleDeleteVendor(vendor_id)}
+                        >
+                          <Trash2 className="h-5 w-5 text-red-600 cursor-pointer  " />
+                        </Button>
                       </TableHead>
                     </TableRow>
                   );

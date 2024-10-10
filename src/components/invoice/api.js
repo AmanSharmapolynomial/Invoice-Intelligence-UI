@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query"
 import { getInvoiceMetaData } from "./utils"
 
-export const useGetInvoiceMetaData=(invoice_id)=>{
+export const useGetInvoiceMetaData=(payload)=>{
 return useQuery({
-    queryKey:['invoice-metadata',invoice_id],
-    queryFn:()=>getInvoiceMetaData(invoice_id)
+    queryKey:['invoice-metadata',payload],
+    queryFn:()=>getInvoiceMetaData(payload)
 })
 }

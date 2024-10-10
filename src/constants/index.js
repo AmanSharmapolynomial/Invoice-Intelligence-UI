@@ -95,8 +95,8 @@ export const InvoiceReRunStatusFilterOptions = [
 ];
 export const AutoAcceptedFilterFilterOptions = [
   {
-    label: "Both",
-    value: "both"
+    label: "All",
+    value: "all"
   },
   {
     label: "True",
@@ -249,6 +249,7 @@ export const vendorBranchDetailsPageFirstColRowData = [
     label: "Vendor City",
     value: "vendor_city"
   },
+
   {
     label: "Vendor Phone Number",
     value: "vendor_phone_number"
@@ -269,14 +270,22 @@ export const vendorBranchDetailsPageFirstColRowData = [
     label: "Vendor Name Synonyms",
     value: "vendor_name_synonyms"
   },
+  // {
+  //   label: "Vendor Id",
+  //   value: "vendor_id"
+  // },
+  // {
+  //   label: "Branch Id",
+  //   value: "branch_id"
+  // }
   {
-    label: "Vendor Id",
-    value: "vendor_id"
+    label: "Verified By",
+    value: "verified_by"
   },
   {
-    label: "Branch Id",
-    value: "branch_id"
-  }
+    label: "Updated By",
+    value: "updated_by"
+  },
 ];
 
 export const vendorConsolidationHeaders = [

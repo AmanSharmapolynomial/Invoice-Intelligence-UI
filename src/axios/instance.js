@@ -6,12 +6,13 @@ export const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.response.use(
-  function (response) {
-
-    return response?.data;
-  },
-  function (error) {
-
-    return Promise.reject(error);
+  response => response.data, // Return the data on success
+  error => {
+    // Check if the error response exists and reject with it
+    if (error.response) {
+      return Promise.reject(error.response.data); // Reject with the response data
+    } else {
+      return Promise.reject({ message: 'Network Error' }); // Handle network errors
+    }
   }
 );
