@@ -1,19 +1,7 @@
-import React, { useState } from "react";
+import Header from "@/components/common/Header";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
-import Header from "@/components/common/Header";
-import CustomDropDown from "@/components/ui/CustomDropDown";
-import { useGetUsersList } from "../components/user/api";
-import { formatData, getUserNameFromId } from "@/lib/helpers";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { CirclePlus, Search } from "lucide-react";
-import {
-  createVendorMutation,
-  useGetVendorList,
-  useGetVendorNames
-} from "@/components/vendor/api";
-import VendorConsolidationTable from "@/components/vendor/VendorConsolidationTable";
+import TablePagination from "@/components/common/TablePagination";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,21 +10,34 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
+  AlertDialogOverlay,
   AlertDialogTitle,
   AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
-import { humanVerifiedOptions, vendorCategories } from "@/constants";
-import TablePagination from "@/components/common/TablePagination";
-import { useSearchParams } from "react-router-dom";
-import useUpdateParams from "@/lib/hooks/useUpdateParams";
+import { Button } from "@/components/ui/button";
+import CustomDropDown from "@/components/ui/CustomDropDown";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
 } from "@/components/ui/tooltip";
-import { Progress } from "@/components/ui/progress";
+import { useGetUsersList } from "@/components/user/api";
+import {
+  createVendorMutation,
+  useGetVendorList,
+  useGetVendorNames
+} from "@/components/vendor/api";
+import VendorConsolidationTable from "@/components/vendor/vendorConsolidation/VendorConsolidationTable";
+import { humanVerifiedOptions, vendorCategories } from "@/constants";
+import { formatData, getUserNameFromId } from "@/lib/helpers";
+import useUpdateParams from "@/lib/hooks/useUpdateParams";
+import { CirclePlus, Search } from "lucide-react";
+import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 const VendorConsolidation = () => {
   const [searchParams] = useSearchParams();
@@ -190,7 +191,8 @@ const VendorConsolidation = () => {
                 </span>
               }
             />
-            <AlertDialog>
+            <AlertDialog className="!bg-white">
+            
               <AlertDialogTrigger>
                 {" "}
                 <Button className="flex gap-x-1 bg-primary hover:bg-primary/95">

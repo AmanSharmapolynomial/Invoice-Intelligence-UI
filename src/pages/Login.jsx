@@ -1,9 +1,6 @@
-import React from "react";
-import Navbar from "../components/common/Navbar";
 import auth from "@/assets/image/login.svg";
-import { z } from "zod";
+import { useSignIn } from "@/components/auth/api";
 import { Button } from "@/components/ui/button";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
@@ -13,10 +10,12 @@ import {
   FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import { useSignIn } from "@/components/auth/api";
-import toast, { Toaster } from "react-hot-toast";
+import { z } from "zod";
+import Navbar from "@/components/common/Navbar";
 
 const formSchema = z.object({
   username: z
@@ -39,11 +38,10 @@ const Login = () => {
   });
   const { mutate, isPending } = useSignIn();
   const navigate = useNavigate();
-
+let timeout;
   const onSubmit = (payload) => {
     mutate(payload, {
-      onError: (data) => {
-      },
+      onError: (data) => {},
       onSuccess: (data) => {
         const {
           access_token,
@@ -59,8 +57,11 @@ const Login = () => {
         localStorage.setItem("last_name", last_name);
         localStorage.setItem("user_role", role);
         localStorage.setItem("username", username);
-        navigate("/")
-
+        clearTimeout(timeout)
+        timeout=setTimeout(() => {
+          
+          navigate("/");
+        }, 2000);
       }
     });
   };

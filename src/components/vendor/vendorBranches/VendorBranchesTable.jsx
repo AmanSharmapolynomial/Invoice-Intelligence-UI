@@ -26,20 +26,20 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger
-} from "../ui/alert-dialog";
-import { Button } from "../ui/button";
-import { Checkbox } from "../ui/checkbox";
-import CustomDropDown from "../ui/CustomDropDown";
-import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
-import { Skeleton } from "../ui/skeleton";
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import CustomDropDown from "@/components/ui/CustomDropDown";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   useDeleteBranch,
   useGetVendorNames,
   useMigrateVendorBranch,
   useSaveVendorBranchDetails
-} from "./api";
+} from "@/components/vendor/api";
 import { LoaderIcon } from "react-hot-toast";
-import { Input } from "../ui/input";
+import { Input } from "@/components/ui/input";
 import { queryClient } from "@/lib/utils";
 import { EyeClosedIcon } from "@radix-ui/react-icons";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
@@ -115,13 +115,13 @@ const [searchParams]=useSearchParams()
 
         <TableBody className="flex-1 h-full  w-full">
           {isLoading ? (
-            [1, 2, 3, 4, 5, 6, 7, 8].map((_, index) => {
+            [1, 2, 3, 4, 5, 6, 7, 8]?.map((_, index) => {
               return (
                 <TableRow
                   className="flex  !text-sm !border-none !min-h-16"
                   key={index}
                 >
-                  {["a", "b", "c", "d", "e", "f", "g", "h"].map((_, i) => {
+                  {["a", "b", "c", "d", "e", "f", "g", "h","i","j"]?.map((_, i) => {
                     return (
                       <TableHead
                         key={i}

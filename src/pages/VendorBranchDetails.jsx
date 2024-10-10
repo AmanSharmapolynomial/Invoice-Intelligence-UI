@@ -17,8 +17,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { vendorBranchDetailsPageFirstColRowData } from "@/constants";
 import { queryClient } from "@/lib/utils";
-import { useNavigate, useParams } from "react-router-dom";
 import { LoaderIcon } from "react-hot-toast";
+import { useNavigate, useParams } from "react-router-dom";
 
 const VendorBranchDetails = () => {
   const { branch_id } = useParams();
@@ -83,7 +83,7 @@ const VendorBranchDetails = () => {
               <TableHead className="flex sticky top-0  border-r !text-left items-center justify-start pl-[5%] !font-semibold !text-gray-800  border-b   bg-gray-200 h-14">
                 Field Name
               </TableHead>
-              {vendorBranchDetailsPageFirstColRowData.map(
+              {vendorBranchDetailsPageFirstColRowData?.map(
                 ({ label, value }) => (
                   <TableCell
                     key={label}
@@ -99,7 +99,7 @@ const VendorBranchDetails = () => {
                 Field Value
               </TableHead>
               {isLoading ? (
-                [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((_, index) => (
+                [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]?.map((_, index) => (
                   <TableCell className="flex  !text-left items-center justify-start pl-[5%]  !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
                     <Skeleton className={"w-96 h-5"} />
                   </TableCell>

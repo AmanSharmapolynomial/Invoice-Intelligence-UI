@@ -12,10 +12,10 @@ import { DateRangePicker } from "react-date-range";
 import "react-date-range/dist/styles.css"; // main css file
 import "react-date-range/dist/theme/default.css"; // theme css file
 import { useSearchParams } from "react-router-dom";
-import { Button } from "../ui/button";
-import { useInvoiceStore } from "./store";
-import CustomSelect from "../ui/CustomSelect";
-import { Label } from "../ui/label";
+import { Button } from "@/components/ui/button";
+import CustomSelect from "@/components/ui/CustomSelect";
+import { Label } from "@/components/ui/label";
+import { useInvoiceStore } from "@/components/invoice/store/index";
 
 const InvoiceFilters = () => {
   const [searchParams] = useSearchParams();

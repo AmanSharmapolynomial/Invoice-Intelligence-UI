@@ -1,13 +1,14 @@
-"use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import signUp from "@/assets/image/sign-up.svg";
+import { useSignUp } from "@/components/auth/api";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import { Button } from "@/components/ui/button";
+import CustomSelect from "@/components/ui/CustomSelect";
 import {
   Form,
   FormControl,
@@ -17,8 +18,6 @@ import {
   FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useSignUp } from "@/components/auth/api";
-import CustomSelect from "@/components/ui/CustomSelect";
 import { useNavigate } from "react-router-dom";
 
 const formSchema = z.object({

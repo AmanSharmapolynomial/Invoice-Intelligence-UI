@@ -179,7 +179,7 @@ const Home = () => {
                           <div className="w-full justify-between flex max-h-56 overflow-auto">
                             <TableBody className="w-full">
                               {searchingInvoices ? (
-                                [1, 2, 3, 4, 5].map((_, index) => (
+                                [1, 2, 3, 4, 5]?.map((_, index) => (
                                   <TableRow
                                     key={index}
                                     className="!w-full flex justify-between cursor-pointer"

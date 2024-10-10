@@ -17,7 +17,6 @@ const Progress = React.forwardRef(
     ref
   ) => {
     const percentage = Math.min((value / totalValue) * 100, 100); // Calculate percentage
-console.log(totalValue,value)
     return (
       <ProgressPrimitive.Root
         ref={ref}

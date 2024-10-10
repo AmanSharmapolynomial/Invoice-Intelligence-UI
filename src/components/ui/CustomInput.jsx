@@ -5,7 +5,8 @@ const CustomInput = ({
   value = "",
   onChange,
   placeholder = "",
-  className = ""
+  className = "",
+  type="text"
 }) => {
   const [inputValue, setinputValue] = useState(value);
   const handleChange = (v) => {
@@ -17,7 +18,8 @@ const CustomInput = ({
       value={inputValue}
       className={`${className}  focus:!outline-none focus:!ring-0 `}
       placeholder={placeholder}
-      type="text"
+
+      type={type}
       onChange={(e) => {
         setinputValue(e.target.value);
         handleChange(e.target.value);

@@ -1,4 +1,3 @@
-import React, { useEffect, useMemo, useState } from "react";
 import {
   Pagination,
   PaginationContent,
@@ -6,11 +5,12 @@ import {
   PaginationNext,
   PaginationPrevious
 } from "@/components/ui/pagination";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import { useSearchParams } from "react-router-dom";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
-import { Skeleton } from "../ui/skeleton";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const TablePagination = ({ totalPages=null, isFinalPage=false,Key="page" }) => {
   const [searchParams] = useSearchParams();
@@ -39,7 +39,6 @@ const TablePagination = ({ totalPages=null, isFinalPage=false,Key="page" }) => {
   useEffect(() => {
     setPageIndex(currentPage);
   }, [currentPage]);
-  console.log(totalPages)
   return (
     <Pagination className={"!bg-[#1E7944] py-1.5 rounded-b-md"}>
       <PaginationContent>

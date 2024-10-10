@@ -1,17 +1,13 @@
-import React from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
-  SelectItem,
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
 import { makeKeyValueFromKey } from "@/lib/helpers";
 import { Button } from "./button";
 
-// Data Format
-// data=['abcccdefghji','abchsjsjsjsj ]
 const ScrollableDropDown = ({
   children,
   placeholder = "Select",
@@ -20,26 +16,30 @@ const ScrollableDropDown = ({
   contentClassName = "",
   data = [],
   onButtonClick,
-  onItemClick
+  onItemClick,
+  showRemoveButton = true
 }) => {
-  let modiedData = makeKeyValueFromKey(data);
+  let myData = makeKeyValueFromKey(data);
+  myData.pop();
+  let modifiedData = myData;
 
   return (
     <Select>
       <SelectTrigger
         className={`${triggerClassName} min-w-[180px] w-full focus:!border-none focus:ring-0 !border `}
       >
-        <SelectValue placeholder={modiedData?.[0]?.label ?? placeholder} />
+        <SelectValue placeholder={modifiedData?.[0]?.label || placeholder} />
       </SelectTrigger>
       <SelectContent className={contentClassName}>
         <ScrollArea
-          className={`${scrollableClassName} max-h-[200px] overflow-auto min-w-[350px] h-fit rounded-sm text-sm !bg-transparent`}
+          className={`${scrollableClassName} max-h-[200px]  overflow-auto min-w-[350px] h-fit rounded-sm text-sm !bg-transparent`}
         >
           {children}
-          {modiedData?.map(({ label, value }, index) => (
+
+          {modifiedData?.map(({ label, value }, index) => (
             <div
               key={index}
-              className="bg-gray-100 p-2 px-2 flex justify-between items-center "
+              className="bg-gray-100 p-2 px-2 my-1 flex justify-between items-center "
             >
               <p
                 onClick={() => {
@@ -48,14 +48,16 @@ const ScrollableDropDown = ({
               >
                 {label}
               </p>
-              <Button
-                className={"h-8 font-normal"}
-                onClick={() => {
-                  onButtonClick({ label, value });
-                }}
-              >
-                Remove
-              </Button>
+              {showRemoveButton && (
+                <Button
+                  className={"h-8 font-normal"}
+                  onClick={() => {
+                    onButtonClick({ label, value });
+                  }}
+                >
+                  Remove
+                </Button>
+              )}
             </div>
           ))}
         </ScrollArea>

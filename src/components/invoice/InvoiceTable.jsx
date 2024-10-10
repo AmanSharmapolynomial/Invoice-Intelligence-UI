@@ -43,13 +43,13 @@ const InvoiceTable = ({ data = [], isLoading }) => {
         <div className="flex-1 !w-full">
           <TableBody className="flex-1 h-full w-full  ">
             {isLoading ? (
-              new Array(9).fill(1).map((_, index) => {
+              new Array(9)?.fill(1)?.map((_, index) => {
                 return (
                   <TableRow
                     className="flex  !text-sm !border-none min-h-14"
                     key={index}
                   >
-                    {new Array(16).fill(10).map((_, i) => {
+                    {new Array(16).fill(10)?.map((_, i) => {
                       return (
                         <TableHead
                           key={i}

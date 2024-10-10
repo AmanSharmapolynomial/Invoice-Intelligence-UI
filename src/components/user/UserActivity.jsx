@@ -1,5 +1,10 @@
-import Layout from "../common/Layout";
+import Layout from "@/components/common/Layout";
 
+import Header from "@/components/common/Header";
+import Navbar from "@/components/common/Navbar";
+import TablePagination from "@/components/common/TablePagination";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -8,13 +13,8 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table";
-import Header from "../common/Header";
-import { useGetUsersList } from "./api";
-import { Button } from "../ui/button";
-import TablePagination from "../common/TablePagination";
-import Navbar from "../common/Navbar";
-import { Skeleton } from "../ui/skeleton";
 import { Link } from "react-router-dom";
+import { useGetUsersList } from "./api";
 
 const UserActivity = () => {
   const { data, isLoading } = useGetUsersList();
@@ -28,11 +28,8 @@ const UserActivity = () => {
           title={"Users"}
           className="border mt-10 rounded-md  !shadow-none bg-gray-200"
         >
-
           <Link to={"/create-user"}>
-          <Button>
-            Add User
-          </Button>
+            <Button>Add User</Button>
           </Link>
         </Header>
 
@@ -52,7 +49,7 @@ const UserActivity = () => {
           </TableHeader>
           <TableBody>
             {isLoading
-              ? [0, 1, 2, 3, 4, 5, 6, 7, 8,9].map((_, index) => (
+              ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((_, index) => (
                   <TableRow
                     className="grid grid-cols-3 mt-2 font-semibold h-14"
                     key={index}
@@ -86,7 +83,10 @@ const UserActivity = () => {
           </TableBody>
         </Table>
         <div className="w-full">
-          <TablePagination totalPages={data?.total_pages}  isFinalPage={data?.is_final_page}/>
+          <TablePagination
+            totalPages={data?.total_pages}
+            isFinalPage={data?.is_final_page}
+          />
         </div>
       </Layout>
     </>

@@ -62,7 +62,11 @@ export const InvoiceTypeFilterOptions = [
   {
     label: "Summary Invoice",
     value: "Summary Invoice"
-  }
+  },
+  {
+    label: "None",
+    value: "none"
+  },
 ];
 
 export const InvoiceDetectionStatusFilterOptions = [
