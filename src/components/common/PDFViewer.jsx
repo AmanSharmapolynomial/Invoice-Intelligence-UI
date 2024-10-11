@@ -1,10 +1,8 @@
-import { ZoomIn, ZoomOut, Download } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
-import { Button } from "../ui/button";
-import { Document, Page } from "react-pdf";
 import no_data from "@/assets/image/no-data.svg";
-import { pdfjs } from "react-pdf";
-import { Skeleton } from "../ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { Download, ZoomIn, ZoomOut } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Document, Page, pdfjs } from "react-pdf";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 

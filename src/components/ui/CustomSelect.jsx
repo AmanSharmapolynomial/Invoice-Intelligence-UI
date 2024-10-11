@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Input } from "./input";
 import { Label } from "./label";
 import {
@@ -21,10 +21,19 @@ const CustomSelect = ({
   label = "",
   onSelect,
   value,
+  
   showSearch = true
 }) => {
   const [dropDownSearch, setDropDownSearch] = useState("");
   const [filteredDropDownItems, setFilteredDropDownItems] = useState(data);
+  let inputRef = useRef();
+  data?.forEach((item) => {
+    if (item?.value == null || item?.value == "none") {
+      item.label = placeholder;
+
+    }
+    // item?.value?.toLowerCase()
+  });
 
   return (
     <Select
@@ -32,7 +41,7 @@ const CustomSelect = ({
       value={value}
       placeholder={placeholder}
       onValueChange={(val) => {
-        onSelect(val);
+        onSelect(val == "none" ? "none" : val);
       }}
     >
       <Label>{label}</Label>
@@ -42,7 +51,7 @@ const CustomSelect = ({
         <SelectValue
           placeholder={
             <span className={`${placeholderClassName} capitalize`}>
-              {placeholder}
+              {!value ? placeholder : value}
             </span>
           }
         />
@@ -50,41 +59,48 @@ const CustomSelect = ({
       <SelectContent>
         {showSearch && (
           <Input
+            ref={inputRef}
             placeholder={searchPlaceHolder}
             value={dropDownSearch}
             onChange={(e) => {
+              inputRef.current.focus();
               setDropDownSearch(e.target.value);
-              let fil = data?.filter((item) =>
-                item?.label?.includes(e.target.value)
-              );
-              setFilteredDropDownItems(fil);
+              // let fil = data?.filter((item) =>
+              //   item?.label?.toLowerCase()?.includes(e.target.value)
+              // );
+
+              // setFilteredDropDownItems(fil);
             }}
           />
         )}
         <div className="py-1">
           {data && filteredDropDownItems?.length > 0 ? (
-            filteredDropDownItems?.map(({ label, value }) => (
-              <SelectItem
-                key={value}
-                value={value}
-                className={`${optionClassName} !flex justify-between relative `}
-              >
-                <div className="flex gap-x-12 items-center justify-between w-full">
-                  <span>{label}</span>
-                  <div>
-                    {additionalKeysAndFunctions?.map(({ key, method }) => (
-                      <Button
-                        key={key}
-                        className={"font-normal h-8"}
-                        onClick={() => method(label)}
-                      >
-                        {key}
-                      </Button>
-                    ))}
+            data
+              ?.filter((item) =>
+                item?.label?.toLowerCase()?.includes(dropDownSearch)
+              )
+              ?.map(({ label, value }) => (
+                <SelectItem
+                  key={value}
+                  value={value}
+                  className={`${optionClassName} !flex justify-between relative `}
+                >
+                  <div className="flex gap-x-12 items-center justify-between w-full">
+                    <span>{label}</span>
+                    <div>
+                      {additionalKeysAndFunctions?.map(({ key, method }) => (
+                        <Button
+                          key={key}
+                          className={"font-normal h-8"}
+                          onClick={() => method(label)}
+                        >
+                          {key}
+                        </Button>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </SelectItem>
-            ))
+                </SelectItem>
+              ))
           ) : (
             <p className="flex justify-center">No data found.</p>
           )}

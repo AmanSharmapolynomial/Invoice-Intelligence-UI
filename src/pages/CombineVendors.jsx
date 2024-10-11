@@ -143,7 +143,7 @@ const CombineVendors = () => {
 
         <Table className="max-h-[65vh] border-l">
           <TableRow className="flex w-full justify-between sticky top-0 !z-50">
-            {combineVendorsHeaders.map(({ label, value }) => (
+            {combineVendorsHeaders?.map(({ label, value }) => (
               <TableHead
                 key={value}
                 className={`${
@@ -166,7 +166,7 @@ const CombineVendors = () => {
                   className="flex w-full justify-between min-h-10 py-2"
                   key={index}
                 >
-                  {["a", "b", "c", "d", "e"].map((_, i) => {
+                  {["a", "b", "c", "d", "e"]?.map((_, i) => {
                     return (
                       <TableHead
                         key={i}

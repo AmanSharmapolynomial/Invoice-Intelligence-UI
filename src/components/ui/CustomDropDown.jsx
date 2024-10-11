@@ -63,7 +63,7 @@ const CustomDropDown = ({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className={`${className} min-w-[200px] !w-full p-0`}
+        className={`${className} min-w-[500px] !w-full p-0`}
         contentClassName={contentClassName}
       >
         <Command>
@@ -73,7 +73,7 @@ const CustomDropDown = ({
             <CommandGroup>
               {showCustomItems
                 ? children // Render custom items if showCustomItems is true
-                : data.map((item) => (
+                : data?.map((item) => (
                     <CommandItem
                       key={item.value}
                       onSelect={() => handleSelect(item.value)}
@@ -84,7 +84,7 @@ const CustomDropDown = ({
                           value === item.value ? "opacity-100" : "opacity-0"
                         )}
                       />
-                      <div>
+                      <div className="flex justify-between items-center gap-x-4">
                         <span>{item.label}</span>
                         {item?.human_verified && (
                           <Verified className="h-4 w-4 text-primary" />

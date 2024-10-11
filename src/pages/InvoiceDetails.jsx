@@ -6,8 +6,10 @@ import TablePagination from "@/components/common/TablePagination";
 import { useGetInvoiceMetaData } from "@/components/invoice/api";
 import RawMetaDataTable from "@/components/invoice/Tables/RawMetaDataTable";
 import { Button } from "@/components/ui/button";
-import { useGetVendorNotes } from "@/components/vendor/api";
-import VendorNotes from "@/components/vendor/VendorNotes";
+import {
+  useGetVendorNotes
+} from "@/components/vendor/api";
+import VendorNotes from "@/components/vendor/notes/VendorNotes";
 import { tableTabs } from "@/constants";
 import { Save } from "lucide-react";
 import { useState } from "react";
@@ -26,6 +28,7 @@ const InvoiceDetails = () => {
   const [tab, setTab] = useState("metadata");
   const { data: vendorNotes, isLoading: vendorNotesLoading } =
     useGetVendorNotes(data?.["data"]?.[0]?.["vendor"]?.["vendor_id"]);
+
   return (
     <>
       <Navbar />
@@ -49,7 +52,7 @@ const InvoiceDetails = () => {
             </Button>
             <VendorNotes
               data={vendorNotes}
-              vendor_id={data?.["data"]?.[0]?.["vendor"]?.['vendor_id']}
+              vendor_id={data?.["data"]?.[0]?.["vendor"]?.["vendor_id"]}
               isLoading={vendorNotesLoading}
             />
             {tab == "metadata" && (

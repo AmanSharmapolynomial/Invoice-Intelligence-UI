@@ -88,7 +88,6 @@ export const getVendorBranchPdfs = async (branch_id) => {
     const response = await axiosInstance.get(apirUrl);
     return response; // This should not be reached on error
   } catch (error) {
-
     return Promise.reject(error); // Ensure you reject the promise
   }
 };
@@ -100,5 +99,33 @@ export const getVendorsPdfs = async (payload) => {
     fetch_mode: "vendor_name",
     vendors: [vendor_one, vendor_two]
   });
+  return response;
+};
+export const getAdditionalData = async () => {
+  const apirUrl = `api/utils/additional_data?category_choices=true&processed_table_header_candidates=true&vendor_invoice_document_types=true&vendor_invoice_categories=true`;
+  const response = await axiosInstance.get(apirUrl);
+  return response;
+};
+
+export const getInvoiceHeaderExceptions = async (vendor_id) => {
+  const apirUrl = `/api/vendor/${vendor_id}/invoice-header-exceptions/`;
+  const response = await axiosInstance.get(apirUrl);
+  return response;
+};
+export const updateInvoiceHeaderExceptions = async ({ vendor_id, data }) => {
+  const apirUrl = `/api/vendor/${vendor_id}/invoice-header-exceptions/`;
+  const response = await axiosInstance.post(apirUrl, { ...data });
+  return response;
+};
+
+export const updateVendorDetails = async ({ vendor_id, data }) => {
+  const apirUrl = `/api/vendor/${vendor_id}/details/`;
+  const response = await axiosInstance.put(apirUrl, { ...data.data });
+  return response;
+};
+
+export const disapproveAllVendorItems = async (vendor_id) => {
+  const apirUrl = `/api/item-master/vendor/${vendor_id}/unverify-all-items/`;
+  const response = await axiosInstance.post(apirUrl);
   return response;
 };

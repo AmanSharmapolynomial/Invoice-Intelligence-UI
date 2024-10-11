@@ -21,7 +21,7 @@ const RawMetaDataTable = ({ data, isLoading, tab }) => {
     <Table className="flex flex-col !max-h-[67vh]  box-border  border scrollbar !w-full ">
       <TableRow className="flex  text-base  !border-none  ">
         <div className="!min-w-[50%]">
-          {rawMetaDataHeaders.map(({ label, value }) => (
+          {rawMetaDataHeaders?.map(({ label, value }) => (
             <TableCell
               key={label}
               className={`flex  ${
@@ -36,7 +36,7 @@ const RawMetaDataTable = ({ data, isLoading, tab }) => {
         </div>
         <div className="!min-w-[50%] ">
           {isLoading
-            ? new Array(30).fill(1).map((_, index) => (
+            ? new Array(30)?.fill(1)?.map((_, index) => (
                 <TableCell
                   key={index}
                   className="flex  !text-left items-center justify-start pl-[5%]  capitalize !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-16"
@@ -44,7 +44,7 @@ const RawMetaDataTable = ({ data, isLoading, tab }) => {
                   <Skeleton className={"w-72 h-5"} />
                 </TableCell>
               ))
-            : rawMetaDataHeaders.map(({ label, value }) => (
+            : rawMetaDataHeaders?.map(({ label, value }) => (
                 <TableCell
                   key={label}
                   className={`flex  ${

@@ -2,10 +2,7 @@ import Header from "@/components/common/Header";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import { PdfViewer } from "@/components/common/PDFViewer";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { useGetVendorsPdfs } from "@/components/vendor/api";
-import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 
 const CompareInvoices = () => {

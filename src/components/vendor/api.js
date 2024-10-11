@@ -13,7 +13,12 @@ import {
   getSimilarVendors,
   getVendorItemMaster,
   getVendorsPdfs,
-  getVendorBranchPdfs
+  getVendorBranchPdfs,
+  getAdditionalData,
+  updateVendorDetails,
+  updateInvoiceHeaderExceptions,
+  getInvoiceHeaderExceptions,
+  disapproveAllVendorItems
 } from "@/components/vendor/utils";
 import toast from "react-hot-toast";
 import { queryClient } from "@/lib/utils";
@@ -85,8 +90,14 @@ export const useSaveVendorBranchDetails = () => {
     mutationFn: ({ data, branch_id }) =>
       saveVendorBranchDetails({ data, branch_id }),
     onSuccess: (data) => {
-      toast.success(data?.message)
-      queryClient.invalidateQueries(["vendor-branch-details", branch_id]);
+      toast.success(
+        `${data?.message} ${
+          data?.data?.updated_fields?.length > 0
+            ? `Updated Fields:-${data?.data?.updated_fields?.join(" , ")}`
+            : ``
+        }`
+      );
+      queryClient.invalidateQueries(["vendor-branch-details"]);
       return data;
     }
   });
@@ -95,11 +106,12 @@ export const useDeleteVendorBranchDetails = () => {
   return useMutation({
     mutationFn: (branch_id) => deleteVendorBranchDetails(branch_id),
     onSuccess: (data) => {
-      toast.success(error?.message)
+      toast.success(error?.message);
       queryClient.invalidateQueries(["vendor-branches"]);
       return data;
-    },onError:(data)=>{
-      toast.error(data?.message)
+    },
+    onError: (data) => {
+      toast.error(data?.message);
     }
   });
 };
@@ -243,8 +255,68 @@ export const useDeleteBranch = () => {
 
 export const useGetVendorBranchPdfs = (branch_id) => {
   return useQuery({
-    queryKey: ['vendor-branch-pdfs', branch_id],
+    queryKey: ["vendor-branch-pdfs", branch_id],
     queryFn: () => getVendorBranchPdfs(branch_id), // Pass a function
-    enabled: !!branch_id, // Only run if branch_id is valid
+    enabled: !!branch_id // Only run if branch_id is valid
+  });
+};
+
+export const useGetAdditionalData = () => {
+  return useQuery({
+    queryKey: ["additional-data"],
+    queryFn: getAdditionalData
+  });
+};
+
+export const useGetInvoiceHeaderExceptions = (vendor_id) => {
+  return useQuery({
+    queryKey: ["invoice-header-exceptions", vendor_id],
+    queryFn: () => getInvoiceHeaderExceptions(vendor_id)
+  });
+};
+export const useUpdateInvoiceHeaderExceptions = (vendor_id) => {
+  return useMutation({
+    mutationFn: ({ vendor_id, data }) =>
+      updateInvoiceHeaderExceptions({ vendor_id, data }),
+    onError: (data) => {
+      toast.error(data?.error);
+    },
+    onSuccess: (data) => {
+      toast.success(data?.message);
+      queryClient.invalidateQueries({
+        queryKey: ["invoice-header-exceptions"]
+      });
+    }
+  });
+};
+
+export const useUpdateVendorDetails = () => {
+  return useMutation({
+    mutationFn: ({ vendor_id, data }) =>
+      updateVendorDetails({ vendor_id, data }),
+    onError: (data) => {
+      toast.error(data?.message);
+    },
+    onSuccess: (data) => {
+      toast.success(
+        `${data?.message} ${
+          data?.data?.updated_fields?.length > 0
+            ? `Updated Fields:-${data?.data?.updated_fields?.join(" , ")}`
+            : ``
+        }`
+      );
+    }
+  });
+};
+
+export const useDisapproveAllVendorItems = () => {
+  return useMutation({
+    mutationFn: (vendor_id) => disapproveAllVendorItems(vendor_id),
+    onError: (data) => {
+      toast.error(data?.message);
+    },
+    onSuccess: (data) => {
+      toast.success(data?.message);
+    }
   });
 };

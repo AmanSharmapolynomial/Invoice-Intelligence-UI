@@ -9,9 +9,9 @@ import {
   TableRow
 } from "@/components/ui/table";
 import { vendorConsolidationHeaders } from "@/constants";
-import { Eye, Trash, Trash2, Verified } from "lucide-react";
+import { Eye, Trash2, Verified } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useDeleteVendor } from "./api";
+import { useDeleteVendor } from "@/components/vendor/api";
 const VendorConsolidationTable = ({ data, isLoading }) => {
   const { mutate: deleteVendor, isPending: deletingVendor } = useDeleteVendor();
   const handleDeleteVendor = (vendor_id) => {
@@ -35,13 +35,13 @@ const VendorConsolidationTable = ({ data, isLoading }) => {
         <div className="flex-1 ">
           <TableBody className="flex-1 h-full  ">
             {isLoading ? (
-              [1, 2, 3, 4, 5, 6, 7, 8].map((_, index) => {
+              [1, 2, 3, 4, 5, 6, 7, 8]?.map((_, index) => {
                 return (
                   <TableRow
                     className="flex  !text-sm !border-none !min-h-16"
                     key={index}
                   >
-                    {["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"].map(
+                    {["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]?.map(
                       (_, i) => {
                         return (
                           <TableHead

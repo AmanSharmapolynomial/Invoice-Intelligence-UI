@@ -1,6 +1,6 @@
 import { ArrowLeft, LogOut, LucideHome } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 
 const Navbar = ({ children, className }) => {
   const { pathname } = useLocation();

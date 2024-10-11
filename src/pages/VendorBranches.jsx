@@ -1,3 +1,4 @@
+import no_data from "@/assets/image/no-data.svg";
 import Header from "@/components/common/Header";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
@@ -5,7 +6,6 @@ import TablePagination from "@/components/common/TablePagination";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import no_data from "@/assets/image/no-data.svg";
 import { Progress } from "@/components/ui/progress";
 
 import {
@@ -19,13 +19,13 @@ import {
   useGetVendorBranches,
   useGetVendorBranchPdfs
 } from "@/components/vendor/api";
-import VendorBranchesTable from "@/components/vendor/VendorBranchesTable";
+import VendorBranchesTable from "@/components/vendor/vendorBranches/VendorBranchesTable";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { Search } from "lucide-react";
 
-import React, { useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
 import { PdfViewer } from "@/components/common/PDFViewer";
+import { useState } from "react";
+import { useParams, useSearchParams } from "react-router-dom";
 
 const VendorBranches = () => {
   const { vendor_id } = useParams();

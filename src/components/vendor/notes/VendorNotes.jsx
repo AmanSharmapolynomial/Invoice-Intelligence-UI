@@ -20,8 +20,8 @@ import { ReloadIcon } from "@radix-ui/react-icons";
 import { NotebookIcon, Send } from "lucide-react";
 import { memo, useState } from "react";
 import toast from "react-hot-toast";
-import { useAddVendorNote } from "./api";
-import { Skeleton } from "../ui/skeleton";
+import { useAddVendorNote } from "@/components/vendor/api";
+import { Skeleton } from "@/components/ui/skeleton";
 import no_data from "@/assets/image/no-data.svg";
 
 const VendorNotes = ({ data = [], vendor_id, isLoading }) => {
