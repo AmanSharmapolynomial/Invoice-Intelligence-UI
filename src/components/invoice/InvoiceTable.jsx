@@ -19,6 +19,7 @@ import {
   TableRow
 } from "@/components/ui/table";
 import { invoiceTableHeaders } from "@/constants";
+import { AlertDialogOverlay } from "@radix-ui/react-alert-dialog";
 import { BadgeCheck } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 const InvoiceTable = ({ data = [], isLoading }) => {
@@ -173,7 +174,8 @@ const InvoiceTable = ({ data = [], isLoading }) => {
                         className="flex cursor-pointer !text-left items-center justify-center   !font-normal !text-gray-800 !min-w-60  border-b border-r  "
                       >
                         {rejection_reason && (
-                          <AlertDialog>
+                          <AlertDialog >
+                   
                             <AlertDialogTrigger asChild>
                               <Button
                                 className="text-xs h-8 py-1 w-fit px-3 bg-primary hover:bg-primary/90 !font-normal"

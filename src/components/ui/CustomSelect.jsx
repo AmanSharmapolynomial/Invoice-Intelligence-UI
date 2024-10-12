@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Input } from "./input";
 import { Label } from "./label";
 import {
@@ -27,6 +27,7 @@ const CustomSelect = ({
   const [dropDownSearch, setDropDownSearch] = useState("");
   const [filteredDropDownItems, setFilteredDropDownItems] = useState(data);
   let inputRef = useRef();
+useEffect(()=>{
   data?.forEach((item) => {
     if (item?.value == null || item?.value == "none") {
       item.label = placeholder;
@@ -34,6 +35,7 @@ const CustomSelect = ({
     }
     // item?.value?.toLowerCase()
   });
+},[])
 
   return (
     <Select

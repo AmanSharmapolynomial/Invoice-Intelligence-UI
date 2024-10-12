@@ -8,16 +8,21 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Input } from "./components/ui/input";
 import { Modal, ModalDescription } from "./components/ui/Modal";
+import { usePersistStore } from "./components/vendor/store/persisitStore";
 
 function App() {
   const { data: vendorNamesList, isLoading: vendorNamesLoading } =
     useGetVendorNames();
+    const {setActualVendorName}=usePersistStore()
   const [open, setOpen] = useState(false);
   const [vendorName, setVendorName] = useState("");
   const [filteredVendors, setFilteredVendors] = useState([]);
   useEffect(() => {
     setFilteredVendors(vendorNamesList?.data?.vendor_names);
   }, [vendorNamesList]);
+  useEffect(()=>{
+    setActualVendorName(null)
+  },[])
   return (
     <>
       <Layout>

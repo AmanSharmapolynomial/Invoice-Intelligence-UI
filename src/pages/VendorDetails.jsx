@@ -13,7 +13,7 @@ import {
   useUpdateVendorDetails
 } from "@/components/vendor/api";
 import VendorNotes from "@/components/vendor/notes/VendorNotes";
-import { usePersistStore } from "@/components/vendor/store";
+import { usePersistStore } from "@/components/vendor/store/persisitStore";
 import InvoiceHeaderMapping from "@/components/vendor/vendorDetails/InvoiceHeaderMapping";
 import InvoiceHeaderMappingExceptions from "@/components/vendor/vendorDetails/InvoiceHeaderMappingExceptions";
 import VendorDetailsTable from "@/components/vendor/vendorDetails/VendorDetailsTable";

@@ -18,7 +18,9 @@ import {
   updateVendorDetails,
   updateInvoiceHeaderExceptions,
   getInvoiceHeaderExceptions,
-  disapproveAllVendorItems
+  disapproveAllVendorItems,
+  updateVendorItemMaster,
+  deleteVendorItemMaster
 } from "@/components/vendor/utils";
 import toast from "react-hot-toast";
 import { queryClient } from "@/lib/utils";
@@ -123,10 +125,10 @@ export const useGetSimilarVendors = (payload) => {
   });
 };
 
-export const useGetVendorItemMaster = (vendor_id) => {
+export const useGetVendorItemMaster = (payload) => {
   return useQuery({
-    queryKey: ["get-similar-vendors", vendor_id],
-    queryFn: () => getVendorItemMaster(vendor_id)
+    queryKey: ["vendor-item-master", payload],
+    queryFn: () => getVendorItemMaster(payload)
   });
 };
 
@@ -317,6 +319,38 @@ export const useDisapproveAllVendorItems = () => {
     },
     onSuccess: (data) => {
       toast.success(data?.message);
+    }
+  });
+};
+
+export const useUpdateVendorItemMaster = () => {
+  return useMutation({
+    mutationFn: (payload) => updateVendorItemMaster(payload),
+    onSuccess: (data) => {
+      toast.success(
+        `${data?.message} ${
+          data?.data?.updated_fields?.length > 0
+            ? `Updated Fields:-${data?.data?.updated_fields?.join(" , ")}`
+            : ``
+        }`
+      );
+    },
+    onError: (data) => {
+      toast.error(data?.message);
+    }
+  });
+};
+export const useDeleteVendorItemMaster = () => {
+  return useMutation({
+    mutationFn: (payload) => deleteVendorItemMaster(payload),
+    onSuccess: (data) => {
+      toast.success(
+        `${data?.message}`
+      );
+      queryClient.invalidateQueries({queryKey:['vendor-item-master']})
+    },
+    onError: (data) => {
+      toast.error(data?.message);
     }
   });
 };

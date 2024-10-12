@@ -26,15 +26,16 @@ import { Search } from "lucide-react";
 import { PdfViewer } from "@/components/common/PDFViewer";
 import { useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
+import { vendorStore } from "@/components/vendor/store/vendorStore";
 
 const VendorBranches = () => {
   const { vendor_id } = useParams();
   const [searchTerm, setSearchTerm] = useState("");
   const [searchParams] = useSearchParams();
   let branch_id = searchParams.get("branch") || "";
-  const [checkedBranches, setCheckedBranches] = useState([]);
+  const { checkedBranches, setCheckedBranches, setMasterBranch, masterBranch } =
+    vendorStore();
   const [showPdfs, setShowPdfs] = useState(false);
-  const [masterBranch, setMasterBranch] = useState("");
 
   const updateParams = useUpdateParams();
 
@@ -157,11 +158,13 @@ const VendorBranches = () => {
           <Layout className={"box-border w-1/2 overflow-hidden mr-10"}>
             <Header className="border mt-10 rounded-t-md !shadow-none bg-primary !text-[#FFFFFF] relative  ">
               <div className="w-full flex items-center gap-x-4 justify-end">
-                
                 <Button
                   disabled={isError}
                   className=" disabled:!bg-gray-50 bg-[#FFFFFF] text-black hover:bg-white/95 min-w-36"
-                  onClick={() =>{ setShowPdfs(false);updateParams({branch:undefined})}}
+                  onClick={() => {
+                    setShowPdfs(false);
+                    updateParams({ branch: undefined });
+                  }}
                 >
                   Close
                 </Button>
@@ -174,10 +177,7 @@ const VendorBranches = () => {
               </div>
             )}
 
-
-            {
-              branchPdfs && <PdfViewer  pdfList={[...branchPdfs?.data]}/>
-            }
+            {branchPdfs && <PdfViewer pdfList={[...branchPdfs?.data]} />}
           </Layout>
         )}
       </div>
