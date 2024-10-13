@@ -345,12 +345,13 @@ const VendorItemMasterTable = ({ data = [], isLoading = false }) => {
         open={open}
         setOpen={setOpen}
         className=""
+        titleClassName={"border-b pb-1"}
         title={"Delete Item Master"}
       >
         <ModalDescription>
           <div className="flex flex-col gap-y-4 overflow-scroll">
-            <div className="my-4">
-              <p className="font-semibold px-1">
+            <div className="mb-2 py-2">
+              <p className="font-semibold px-1 ">
                 Are you sure to delete{" "}
                 <span className="px-1">{currentDesc}</span> ?
               </p>

@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 
 import { Link, useNavigate, useParams } from "react-router-dom";
 
+import { Modal, ModalDescription } from "@/components/ui/Modal";
 import {
+  useDeleteVendor,
   useDisapproveAllVendorItems,
   useGetAdditionalData,
   useGetVendorDetails,
@@ -18,19 +20,23 @@ import InvoiceHeaderMapping from "@/components/vendor/vendorDetails/InvoiceHeade
 import InvoiceHeaderMappingExceptions from "@/components/vendor/vendorDetails/InvoiceHeaderMappingExceptions";
 import VendorDetailsTable from "@/components/vendor/vendorDetails/VendorDetailsTable";
 import VendorInvoiceColumnData from "@/components/vendor/vendorDetails/VendorInvoiceColumnData";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { LoaderIcon } from "react-hot-toast";
 
 const VendorDetails = () => {
   const { vendor_id } = useParams();
   const navigate = useNavigate();
   const { data, isLoading } = useGetVendorDetails(vendor_id);
+
+  const [open, setOpen] = useState(false);
   const { data: vendorNotes, isLoading: vendorNotesLoading } =
     useGetVendorNotes(vendor_id);
   const { data: additionalData, isLoading: loadingAdditionalData } =
     useGetAdditionalData();
   const { mutate: updateVendorDetails, isPending: updatingVendorDetails } =
     useUpdateVendorDetails();
+
+  const { mutate: deleteVendor, isPending: deletingVendor } = useDeleteVendor();
   const { setActualVendorName } = usePersistStore();
   useEffect(() => {
     setActualVendorName();
@@ -80,7 +86,7 @@ const VendorDetails = () => {
             onClick={() => {
               updateVendorDetails({ vendor_id, data });
             }}
-            disabled={disapproving||updatingVendorDetails}
+            disabled={disapproving || updatingVendorDetails}
             className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]"
           >
             {updatingVendorDetails ? (
@@ -94,7 +100,7 @@ const VendorDetails = () => {
             )}
           </Button>
           <Button
-        disabled={disapproving||updatingVendorDetails}
+            disabled={disapproving || updatingVendorDetails}
             onClick={() => {
               setActualVendorName(data?.data?.vendor_name);
               navigate(`/vendor-consolidation/combine-vendors/${vendor_id}`);
@@ -105,17 +111,21 @@ const VendorDetails = () => {
           </Button>
           {/* </Link> */}
           <Button
-            disabled={disapproving||updatingVendorDetails}
+          onClick={()=>navigate(`/invoice-details?vendor=${vendor_id}`)}
+            disabled={disapproving || updatingVendorDetails}
             className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]"
           >
             View Invoices
           </Button>
-          <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]">
+          <Button
+            className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]"
+            onClick={() => setOpen(true)}
+          >
             Delete
           </Button>
 
           <Button
-            disabled={disapproving||updatingVendorDetails}
+            disabled={disapproving || updatingVendorDetails}
             onClick={() => disapproveAllItems(vendor_id)}
             className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]"
           >
@@ -130,33 +140,84 @@ const VendorDetails = () => {
 
           <Link
             to={`/vendor-branches/${vendor_id}`}
-            disabled={disapproving||updatingVendorDetails}
+            disabled={disapproving || updatingVendorDetails}
           >
             <Button
-              disabled={disapproving||updatingVendorDetails}
+              disabled={disapproving || updatingVendorDetails}
               className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]"
             >
               View Branches
             </Button>
           </Link>
           <Button
-            disabled={disapproving||updatingVendorDetails}
+            disabled={disapproving || updatingVendorDetails}
             className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]"
           >
             Fast Item Verification
           </Button>
           <Link
-            disabled={disapproving||updatingVendorDetails}
+            disabled={disapproving || updatingVendorDetails}
             to={`/vendor-consolidation/vendor-item-master/${vendor_id}`}
           >
             <Button
-              disabled={disapproving||updatingVendorDetails}
+              disabled={disapproving || updatingVendorDetails}
               className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]"
             >
               View Items
             </Button>
           </Link>
         </div>
+        <Modal
+          setOpen={setOpen}
+          open={open}
+          title={"Delete Vendor"}
+          titleClassName={"border-b"}
+        >
+          <ModalDescription>
+            <p className="font-medium pt-2 pb-4">
+              Are you sure to delete this vendor ?
+            </p>
+            <p className="font-medium border-b pb-2 capitalize">
+              Vendor Name : - {data?.data?.vendor_name}
+            </p>
+            <p className="font-medium py-2 border-b">
+              Vendor Id : - {vendor_id}
+            </p>
+
+            <div className="flex justify-end pt-4 gap-x-2">
+              <Button
+                disabled={
+                  deletingVendor || disapproving || updatingVendorDetails
+                }
+                className="bg-red-500 hover:bg-red-500/90 font-normal"
+                onClick={() =>
+                  deleteVendor(vendor_id, {
+                    onSuccess: () => {
+                      setOpen(false);
+                      navigate("/vendor-consolidation");
+                    }
+                  })
+                }
+              >
+                {deletingVendor ? (
+                  <>
+                    Deleting{" "}
+                    <LoaderIcon className="!text-white ml-2 !bg-red-500" />{" "}
+                  </>
+                ) : (
+                  "Delete"
+                )}
+              </Button>
+              <Button
+              disabled={deletingVendor}
+                className="font-normal bg-transparent text-gray-800 border hover:bg-white/70"
+                onClick={() => setOpen(false)}
+              >
+                Close
+              </Button>
+            </div>
+          </ModalDescription>
+        </Modal>
       </Layout>
     </>
   );

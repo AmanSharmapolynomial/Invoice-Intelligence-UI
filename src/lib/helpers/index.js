@@ -76,7 +76,7 @@ export const makeKeyValueFromKey = (data = [], toLower = false) => {
     });
   });
   returnArray.push({
-    label: "",
+    label: "None",
     value: null
   });
   return returnArray;

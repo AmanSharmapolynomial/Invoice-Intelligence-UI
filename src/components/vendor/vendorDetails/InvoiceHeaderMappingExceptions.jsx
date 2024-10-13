@@ -15,6 +15,7 @@ import {
   useGetInvoiceHeaderExceptions,
   useUpdateInvoiceHeaderExceptions
 } from "@/components/vendor/api";
+import CustomDropDown from "@/components/ui/CustomDropDown";
 
 const InvoiceHeaderMappingExceptions = ({ additionalData = [], vendor_id }) => {
   const [headerRawName, setHeaderRawName] = useState("");
@@ -104,13 +105,14 @@ const InvoiceHeaderMappingExceptions = ({ additionalData = [], vendor_id }) => {
             return (
               <TableRow className="flex mt-4 !border-none" key={index}>
                 <TableHead className="text-base flex  !w-full ">
-                  <CustomSelect
-                    triggerClassName={"!w-full "}
+                  <CustomDropDown
+                    triggerClassName={"!w-full !bg-transparent "}
+                    
                     placeholder="Header Display Name"
                     contentClassName="!z-450"
                     showSearch={true}
-                    value={header_display_name}
-                    onSelect={(val) => {
+                    Value={header_display_name}
+                    onChange={(val) => {
                       handleHeaderDisplayNameSelect(val, index);
                     }}
                     data={headerDisplayNameOptions}

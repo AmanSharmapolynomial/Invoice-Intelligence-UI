@@ -1,6 +1,7 @@
 import no_data from "@/assets/image/no-data.svg";
 import { Button } from "@/components/ui/button";
 import CustomAccordion from "@/components/ui/CustomAccordion";
+import CustomDropDown from "@/components/ui/CustomDropDown";
 import CustomInput from "@/components/ui/CustomInput";
 import CustomSelect from "@/components/ui/CustomSelect";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -105,13 +106,14 @@ const InvoiceHeaderMapping = ({
               (item) => (
                 <TableRow className="flex mt-4 !border-none" key={item}>
                   <TableHead className="text-base flex !w-full ">
-                    <CustomSelect
-                      triggerClassName={"!w-full "}
+                    <CustomDropDown
+                      triggerClassName={"!w-full !bg-transparent"}
                       placeholder="Header Display Name"
                       contentClassName="!z-450"
                       showSearch={true}
-                      value={item}
-                      onSelect={(val) => {
+                      Value={item?.toLowerCase()}
+                      
+                      onChange={(val) => {
                         handleHeaderDisplayNameSelect(item, val);
                       }}
                       data={headerDisplayNameOptions}
