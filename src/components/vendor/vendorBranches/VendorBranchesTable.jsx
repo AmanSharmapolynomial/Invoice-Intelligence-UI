@@ -13,10 +13,6 @@ import {
 } from "@/components/ui/tooltip";
 
 import no_data from "@/assets/image/no-data.svg";
-import { vendorNamesFormatter } from "@/lib/helpers";
-import { ArrowBigUp, Edit, Eye, Save, Trash2, Verified } from "lucide-react";
-import { useState } from "react";
-import { Link, useParams, useSearchParams } from "react-router-dom";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -30,6 +26,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import CustomDropDown from "@/components/ui/CustomDropDown";
+import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -38,11 +35,14 @@ import {
   useMigrateVendorBranch,
   useSaveVendorBranchDetails
 } from "@/components/vendor/api";
-import { LoaderIcon } from "react-hot-toast";
-import { Input } from "@/components/ui/input";
+import { vendorNamesFormatter } from "@/lib/helpers";
+import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { queryClient } from "@/lib/utils";
 import { EyeClosedIcon } from "@radix-ui/react-icons";
-import useUpdateParams from "@/lib/hooks/useUpdateParams";
+import { ArrowBigUp, Edit, Eye, Save, Trash2, Verified } from "lucide-react";
+import { useState } from "react";
+import { LoaderIcon } from "react-hot-toast";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 const VendorBranchesTable = ({
   data = [],
   isLoading,
@@ -59,7 +59,7 @@ const VendorBranchesTable = ({
     useMigrateVendorBranch();
   const { mutate: deleteBranch, isPending: deleting } = useDeleteBranch();
   const { data: vendorNamesList } = useGetVendorNames();
-const [searchParams]=useSearchParams()
+  const [searchParams] = useSearchParams();
   const [currentBranch, setCurrentBranch] = useState("");
   const [vendorId, setVendorId] = useState("");
   const [open, setOpen] = useState(false);
@@ -77,7 +77,7 @@ const [searchParams]=useSearchParams()
       setCheckedBranches(filtered);
     }
   };
-  let currentSelectedBranch=searchParams.get("branch")||""
+  let currentSelectedBranch = searchParams.get("branch") || "";
   return (
     <>
       <Table className="flex flex-col   box-border  scrollbar min-h-[65vh] ">
@@ -121,17 +121,19 @@ const [searchParams]=useSearchParams()
                   className="flex  !text-sm !border-none !min-h-16"
                   key={index}
                 >
-                  {["a", "b", "c", "d", "e", "f", "g", "h","i","j"]?.map((_, i) => {
-                    return (
-                      <TableHead
-                        key={i}
-                        className="flex  !text-left items-center justify-center pl-8 pb-4 !font-semibold !text-gray-800 !min-w-52 border-b  "
-                      >
-                        {" "}
-                        <Skeleton className={"w-36 h-5"} />
-                      </TableHead>
-                    );
-                  })}{" "}
+                  {["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]?.map(
+                    (_, i) => {
+                      return (
+                        <TableHead
+                          key={i}
+                          className="flex  !text-left items-center justify-center pl-8 pb-4 !font-semibold !text-gray-800 !min-w-52 border-b  "
+                        >
+                          {" "}
+                          <Skeleton className={"w-36 h-5"} />
+                        </TableHead>
+                      );
+                    }
+                  )}{" "}
                 </TableRow>
               );
             })
@@ -196,7 +198,16 @@ const [searchParams]=useSearchParams()
                     <TableHead className="flex border-r min-h-16 !text-left items-center justify-center !font-normal !text-gray-800 !min-w-[12.5%] border-b">
                       <RadioGroup
                         value={masterBranch}
-                        onValueChange={(val) => setMasterBranch(val)}
+                        onValueChange={(val) => {
+                          setMasterBranch(val);
+                          if (checkedBranches?.includes(branch_id)) {
+                            setCheckedBranches(
+                              checkedBranches.filter(
+                                (it) => it !== branch_id
+                              )
+                            );
+                          }
+                        }}
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem
@@ -210,6 +221,7 @@ const [searchParams]=useSearchParams()
 
                     <TableHead className="flex  border-r min-h-16 !text-left items-center justify-center  capitalize !font-normal !text-gray-800 !min-w-[12.5%] border-b ">
                       <Checkbox
+                        checked={checkedBranches?.includes(branch_id)}
                         disabled={
                           masterBranch == "" || masterBranch == branch_id
                         }
@@ -351,7 +363,7 @@ const [searchParams]=useSearchParams()
                           onClick={() => {
                             setShowPdfs((prev) => !prev);
                             updateParams({ branch: branch_id });
-                            setViewIconIndex(index+1)
+                            setViewIconIndex(index + 1);
                           }}
                           className="w-12 bg-transparent border-none shadow-none hover:bg-transparent"
                         >
@@ -368,7 +380,7 @@ const [searchParams]=useSearchParams()
                         />
                       ) : (
                         <Button
-                          disabled={currentSelectedBranch!==branch_id}
+                          disabled={currentSelectedBranch !== branch_id}
                           onClick={() => {
                             setShowPdfs((prev) => !prev);
                             setViewIconIndex(0);

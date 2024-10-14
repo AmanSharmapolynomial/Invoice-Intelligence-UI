@@ -28,22 +28,25 @@ const CustomDropDown = ({
   contentClassName,
   showCustomItems = false,
   children,
-  Key = "value"
+  Key = "value",
+  showSearch = true
 }) => {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(Value || ""); // Default to empty string if Value is undefined
-
+  const [value, setValue] = useState(Value || ""); 
   useEffect(() => {
     if (Value !== undefined) {
-      setValue(Value); // Sync internal state with prop value
+      setValue(Value); 
     }
   }, [Value]);
 
-  const handleSelect = (currentValue) => {
+
+
+
+  const handleSelect = (currentValue,item) => {
     const newValue = currentValue === value ? "" : currentValue;
     setValue(newValue);
     setOpen(false);
-    onChange(getValueFromLabel(data, newValue));
+    onChange(getValueFromLabel(data, newValue),item);
   };
 
   return (
@@ -55,7 +58,7 @@ const CustomDropDown = ({
           aria-expanded={open}
           className="min-w-[200px] justify-between"
         >
-          {(value && value !== "none")
+          {value && value !== "none"
             ? data.find((item) => item?.[Key] == value)?.label
             : placeholder}
 
@@ -63,11 +66,11 @@ const CustomDropDown = ({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className={`${className} min-w-[500px] !w-full p-0`}
+        className={`${className} min-w-[200px]  !w-full p-0`}
         contentClassName={contentClassName}
       >
         <Command>
-          <CommandInput placeholder={searchPlaceholder} />
+          {showSearch && <CommandInput placeholder={searchPlaceholder} />}
           <CommandList>
             <CommandEmpty>No data found.</CommandEmpty>
             <CommandGroup>
@@ -76,7 +79,7 @@ const CustomDropDown = ({
                 : data?.map((item) => (
                     <CommandItem
                       key={item.value}
-                      onSelect={() => handleSelect(item.value)}
+                      onSelect={() => handleSelect(item.value,item)}
                     >
                       <Check
                         className={cn(

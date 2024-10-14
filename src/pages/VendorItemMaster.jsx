@@ -1,6 +1,7 @@
 import Header from "@/components/common/Header";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
+import TablePagination from "@/components/common/TablePagination";
 import { Button } from "@/components/ui/button";
 import CustomDropDown from "@/components/ui/CustomDropDown";
 import CustomSelect from "@/components/ui/CustomSelect";
@@ -16,10 +17,12 @@ import {
 } from "@/components/ui/tooltip";
 import { useGetUsersList } from "@/components/user/api";
 import { useGetVendorItemMaster } from "@/components/vendor/api";
+import { vendorStore } from "@/components/vendor/store/vendorStore";
+import VendorItemMasterTable from "@/components/vendor/vendorItemMaster/VendorItemMasterTable";
 import { formatData, getUserNameFromId } from "@/lib/helpers";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { Search } from "lucide-react";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 
 const VendorItemMaster = () => {
@@ -28,9 +31,25 @@ const VendorItemMaster = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const updateParams = useUpdateParams();
   const verified_by = searchParams.get("verified_by") || "";
-  const { data, isLoading } = useGetVendorItemMaster(vendor_id);
-  const { data: usersData, isLoading: usersListLoading } = useGetUsersList();
+  const item_code = searchParams.get("item_code") || "";
+  const item_description = searchParams.get("item_description") || "";
+  const human_verified = searchParams.get("human_verified") || "";
+  const search_by = searchParams.get("search_by") || "";
+  const page = searchParams.get("page") || 1;
+  const category_review_required =
+    searchParams.get("category_review_required") || "";
 
+  const { data, isLoading } = useGetVendorItemMaster({
+    vendor_id,
+    verified_by,
+    human_verified,
+    category_review_required,
+    item_code,
+    item_description,
+    page
+  });
+  const { data: usersData, isLoading: usersListLoading } = useGetUsersList();
+  const { masterVendor, checkedVendors } = vendorStore();
   return (
     <>
       <Navbar className="" />
@@ -59,7 +78,7 @@ const VendorItemMaster = () => {
                         className="w-72  h-4 bg-white/15 "
                       />
                     </TooltipTrigger>
-                    <TooltipContent className=" bg-[#FFFFFF] font-semibold text-primary !text-sm flex flex-col justify-center gap-y-1">
+                    <TooltipContent className=" bg-[#FFFFFF] font-semibold text-primary !text-sm flex flex-col justify-center gap-y-1 px-4">
                       {/* <p>{vendor_address}</p> */}
 
                       <span>
@@ -74,7 +93,7 @@ const VendorItemMaster = () => {
           </div>
         </Header>
 
-        <div className="w-full border flex justify-between p-4 gap-x-4 overflow-auto">
+        <div className="w-full border flex justify-between p-3 gap-x-4 overflow-auto">
           <div>
             <div>
               <div className="flex w-full max-w-sm items-center space-x-1">
@@ -82,9 +101,10 @@ const VendorItemMaster = () => {
                   type="text"
                   value={searchTerm}
                   onChange={(e) => {
-                    if (e.target.value === "") {
+                    if (e.target.value == "") {
                       setSearchTerm("");
-                      // updateParams({ vendor_name_search: undefined });
+                      updateParams({ search_by: undefined });
+                      updateParams({ [`${search_by}`]: undefined });
                     } else {
                       setSearchTerm(e.target.value);
                     }
@@ -92,9 +112,18 @@ const VendorItemMaster = () => {
                   placeholder="Search"
                   className="min-w-72 max-w-96 border border-gray-200  focus:!ring-0 focus:!outline-none"
                 />
-                <CustomSelect
+                <CustomDropDown
+                  triggerClassName={"bg-gray-100"}
+                  Value={search_by}
+                  contentClassName={"bg-gray-100"}
                   showSearch={false}
-                  onSelect={(val) => console.log(val)}
+                  onChange={(val) => {
+                    if (val == "none") {
+                      updateParams({ search_by: undefined });
+                    } else {
+                      updateParams({ search_by: val });
+                    }
+                  }}
                   placeholder="Search by "
                   data={[
                     {
@@ -104,13 +133,18 @@ const VendorItemMaster = () => {
                     {
                       label: "Item Description",
                       value: "item_description"
+                    },
+                    {
+                      label: "None",
+                      value: "none"
                     }
                   ]}
                 />
                 <Button
+                  disabled={search_by == ""}
                   type="submit"
                   onClick={() => {
-                    //   updateParams({ vendor_name_search: searchTerm });
+                    updateParams({ [`${search_by}`]: searchTerm });
                   }}
                 >
                   <Search />
@@ -121,6 +155,8 @@ const VendorItemMaster = () => {
           <div className="flex items-center gap-x-2">
             <CustomDropDown
               triggerClassName={"bg-gray-100"}
+              showSearch={false}
+              Value={verified_by}
               contentClassName={"bg-gray-100"}
               data={usersListLoading ? [] : formatData(usersData?.data)}
               onChange={(val) => {
@@ -131,47 +167,83 @@ const VendorItemMaster = () => {
                 }
               }}
               placeholder={
-                <span className="capitalize">
-                  {verified_by == undefined
-                    ? "Verified By"
-                    : usersData
-                    ? getUserNameFromId(usersData?.data, verified_by)
-                    : "Verified By"}
-                </span>
+                verified_by == undefined
+                  ? "Verified By"
+                  : usersData
+                  ? getUserNameFromId(usersData?.data, verified_by)
+                  : "Verified By"
               }
             />
-            <CustomSelect
+            <CustomDropDown
               showSearch={false}
-              onSelect={(val) => console.log(val)}
+              triggerClassName={"bg-gray-100"}
+              contentClassName={"bg-gray-100"}
+              Value={human_verified}
+              onChange={(val) => {
+                if (val == "none") {
+                  updateParams({ human_verified: undefined });
+                } else {
+                  updateParams({ human_verified: val });
+                }
+              }}
               placeholder="Human Verified"
               data={[
                 {
-                  label: "Human Verified",
-                  value: true
+                  label: "Verified",
+                  value: "true"
                 },
                 {
                   label: "Not Verified",
-                  value: false
+                  value: "false"
+                },
+                {
+                  label: "None",
+                  value: "none"
                 }
               ]}
             />
-            <CustomSelect
+            <CustomDropDown
+              Value={category_review_required}
               showSearch={false}
-              onSelect={(val) => console.log(val)}
+              onChange={(val) => {
+                if (val == "none") {
+                  updateParams({ category_review_required: undefined });
+                } else {
+                  updateParams({ category_review_required: val });
+                }
+              }}
               placeholder="Category Review"
+              triggerClassName={"bg-gray-100"}
+              contentClassName={"bg-gray-100"}
               data={[
                 {
                   label: "Yes",
-                  value: true
+                  value: "true"
                 },
                 {
                   label: "No",
-                  value: false
+                  value: "false"
+                },
+                {
+                  label: "None",
+                  value: "none"
                 }
               ]}
             />
+            <Button
+              className="font-normal"
+              disabled={checkedVendors?.length == 0}
+            >
+              Merge Item Master
+            </Button>
           </div>
         </div>
+
+        <VendorItemMasterTable isLoading={isLoading} data={data} />
+        <TablePagination
+          isFinalPage={data?.is_final_page}
+          totalPages={data?.total_pages}
+        />
       </Layout>
     </>
   );

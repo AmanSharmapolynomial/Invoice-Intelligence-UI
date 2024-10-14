@@ -3,12 +3,13 @@ import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import { PdfViewer } from "@/components/common/PDFViewer";
 import TablePagination from "@/components/common/TablePagination";
-import { useGetInvoiceMetaData } from "@/components/invoice/api";
+import {
+  useGetDuplicateInvoices,
+  useGetInvoiceMetaData
+} from "@/components/invoice/api";
 import RawMetaDataTable from "@/components/invoice/Tables/RawMetaDataTable";
 import { Button } from "@/components/ui/button";
-import {
-  useGetVendorNotes
-} from "@/components/vendor/api";
+import { useGetVendorNotes } from "@/components/vendor/api";
 import VendorNotes from "@/components/vendor/notes/VendorNotes";
 import { tableTabs } from "@/constants";
 import { Save } from "lucide-react";
@@ -28,7 +29,7 @@ const InvoiceDetails = () => {
   const [tab, setTab] = useState("metadata");
   const { data: vendorNotes, isLoading: vendorNotesLoading } =
     useGetVendorNotes(data?.["data"]?.[0]?.["vendor"]?.["vendor_id"]);
-
+  const {data:duplicateInvoices,isLoading:loadingDuplicateInvoices} = useGetDuplicateInvoices(data?.["data"]?.[0]?.["document_uuid"]);
   return (
     <>
       <Navbar />
@@ -86,12 +87,7 @@ const InvoiceDetails = () => {
             </div>
             {tab == "edit_metadata" && (
               <Button className=" text-[#FFFFFF] bg-primary hover:bg-primary/95 !p-0 h-14 !rounded-md w-16">
-                <Save
-                  className="h-6 w-6"
-                  onClick={() => {
-                    // console.log("Current saved data:", data);
-                  }}
-                />
+                <Save className="h-6 w-6" onClick={() => {}} />
               </Button>
             )}
           </Header>

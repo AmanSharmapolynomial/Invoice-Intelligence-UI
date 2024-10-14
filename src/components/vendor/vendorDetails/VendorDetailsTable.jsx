@@ -114,20 +114,21 @@ const VendorDetailsTable = ({
                   {data?.data?.["item_count"]}
                 </TableCell>
                 <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                  <CustomSelect
-                    triggerClassName={"!w-full"}
+                  <CustomDropDown
+                    triggerClassName={"!w-full !bg-transparent"}
                     placeholder="None"
+
                     showSearch={false}
-                    value={
+                    Value={
                       data?.data?.vendor_category == null
                         ? null
                         : data?.data?.vendor_category
                     }
-                    onSelect={(val) => {
-                      let copyObj = JSON.parse(JSON.stringify(data));
+                    onChange={(val) => {
+                      let copyObj = {...data};
 
                       copyObj["data"]["vendor_category"] = val;
-
+          
                       queryClient.setQueryData(
                         ["vendor-details", vendor_id],
                         copyObj
@@ -194,13 +195,13 @@ const VendorDetailsTable = ({
                   />
                 </TableCell>
                 <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                  <CustomSelect
-                    value={data?.data?.vendor_document_type?.category_id}
+                  <CustomDropDown
+                    Value={data?.data?.vendor_document_type}
                     className="!min-w-[400px]"
                     triggerClassName={"bg-gray-100 !min-w-full"}
                     contentClassName={"bg-gray-100 !min-w-full"}
                     data={makeKeyValueFromKey(vendor_invoice_document_types)}
-                    onSelect={(val) => {
+                    onChange={(val) => {
                       let copyObj = JSON.parse(JSON.stringify(data));
 
                       copyObj["data"]["vendor_document_type"] = val;

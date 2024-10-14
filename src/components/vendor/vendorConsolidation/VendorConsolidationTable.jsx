@@ -127,7 +127,7 @@ const VendorConsolidationTable = ({ data, isLoading }) => {
 
                       <TableHead className="flex  !text-left items-center justify-center   !font-normal !text-gray-800 !min-w-44  border-b border-r  pb-4">
                         <Link to={`/invoice-details?vendor=${vendor_id}`}>
-                          <Button className="bg-transparent border-none shadow-none hover:bg-transparent">
+                          <Button className="bg-transparent border-none shadow-none hover:bg-transparent" disabled={deletingVendor}>
                             <Eye className="h-5  text-primary cursor-pointer" />
                           </Button>
                         </Link>

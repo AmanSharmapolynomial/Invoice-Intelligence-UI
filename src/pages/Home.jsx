@@ -19,8 +19,8 @@ import {
   useSearchInvoice
 } from "@/components/home/api";
 import InvoiceFilters from "@/components/invoice/InvoiceFilters";
-import InvoiceTable from "@/components/invoice/InvoiceTable";
 import { useInvoiceStore } from "@/components/invoice/store";
+import InvoiceTable from "@/components/invoice/Tables/InvoiceTable";
 import {
   AlertDialog,
   AlertDialogCancel,

@@ -11,7 +11,7 @@ import {
   useCombineVendors,
   useGetSimilarVendors
 } from "@/components/vendor/api";
-import { usePersistStore } from "@/components/vendor/store";
+import { usePersistStore } from "@/components/vendor/store/persisitStore";
 import { combineVendorsHeaders } from "@/constants";
 import { formatCombineVendorsArray } from "@/lib/helpers";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";

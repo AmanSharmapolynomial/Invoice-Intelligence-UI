@@ -66,33 +66,41 @@ export const vendorNamesFormatter = (data = []) => {
   return returnArray;
 };
 
-export const makeKeyValueFromKey = (data = [],toLower=false) => {
+export const makeKeyValueFromKey = (data = [], toLower = false) => {
   let returnArray = [];
 
   data?.forEach((item) => {
     returnArray.push({
       label: item,
-      value: toLower?item.toLowerCase():item
+      value: toLower ? item.toLowerCase() : item
     });
   });
   returnArray.push({
-    label:"",
-    value:null
-  })
+    label: "None",
+    value: null
+  });
   return returnArray;
 };
 
 export const formatCombineVendorsArray = (data = []) => {
   let toReturn = [];
-  data?.length>0 && data?.forEach(({ vendor, matching_score, documents_count }) => {
-    toReturn.push({
-      vendor_id: vendor["vendor_id"],
-      vendor_name: vendor["vendor_name"],
-      human_verified: vendor["human_verified"],
-      matching_score,
-      documents_count
+  data?.length > 0 &&
+    data?.forEach(({ vendor, matching_score, documents_count }) => {
+      toReturn.push({
+        vendor_id: vendor["vendor_id"],
+        vendor_name: vendor["vendor_name"],
+        human_verified: vendor["human_verified"],
+        matching_score,
+        documents_count
+      });
     });
-  });
 
   return toReturn;
+};
+
+export const keysCapitalizer = (str) => {
+  return str
+    .split("_")
+    ?.map((word) => word[0].toUpperCase() + word.slice(1, word.length))
+    .join(" ");
 };

@@ -8,16 +8,21 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Input } from "./components/ui/input";
 import { Modal, ModalDescription } from "./components/ui/Modal";
+import { usePersistStore } from "./components/vendor/store/persisitStore";
 
 function App() {
   const { data: vendorNamesList, isLoading: vendorNamesLoading } =
     useGetVendorNames();
+    const {setActualVendorName}=usePersistStore()
   const [open, setOpen] = useState(false);
   const [vendorName, setVendorName] = useState("");
   const [filteredVendors, setFilteredVendors] = useState([]);
   useEffect(() => {
     setFilteredVendors(vendorNamesList?.data?.vendor_names);
   }, [vendorNamesList]);
+  useEffect(()=>{
+    setActualVendorName(null)
+  },[])
   return (
     <>
       <Layout>
@@ -48,6 +53,11 @@ function App() {
             <Link to={""} className="!w-full ">
               <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary/90 hover:text-[#FFFFFF]">
                 Invoice Assignment
+              </Button>
+            </Link>
+            <Link to={"/invoice-processor"} className="!w-full ">
+              <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary/90 hover:text-[#FFFFFF]">
+                Invoice Processor
               </Button>
             </Link>
           </div>
