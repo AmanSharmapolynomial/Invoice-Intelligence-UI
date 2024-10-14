@@ -1,72 +1,106 @@
 import direction from "@/assets/image/direction.svg";
+import directions_text from "@/assets/image/directions-text.svg";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
-import { Button } from "@/components/ui/button";
 import { useGetVendorNames } from "@/components/vendor/api";
-import { Verified } from "lucide-react";
+import { TestTube, Verified } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Input } from "./components/ui/input";
 import { Modal, ModalDescription } from "./components/ui/Modal";
 import { usePersistStore } from "./components/vendor/store/persisitStore";
+import CustomCard from "./components/ui/CustomCard";
+import frame15 from "@/assets/image/frame-15.svg";
 
 function App() {
   const { data: vendorNamesList, isLoading: vendorNamesLoading } =
     useGetVendorNames();
-    const {setActualVendorName}=usePersistStore()
+  const { setActualVendorName } = usePersistStore();
   const [open, setOpen] = useState(false);
   const [vendorName, setVendorName] = useState("");
   const [filteredVendors, setFilteredVendors] = useState([]);
   useEffect(() => {
     setFilteredVendors(vendorNamesList?.data?.vendor_names);
   }, [vendorNamesList]);
-  useEffect(()=>{
-    setActualVendorName(null)
-  },[])
+  const navigate = useNavigate();
+  useEffect(() => {
+    setActualVendorName(null);
+  }, []);
   return (
     <>
-      <Layout>
+      <Layout className={"h-screen !flex-1  overflow-hidden"}>
         <Navbar />
-        <div className=" w-full flex h-[90vh] gap-x-4  overflow-hidden bg-gray-100">
-          <div className=" w-[30%] h-full !flex-1 flex-col px-10  flex !items-center gap-y-4 justify-center bg-gray-200 !bg-opacity-25 ">
-            <Link to={"/home"} className="!w-full ">
-              <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary/90 hover:!text-[#FFFFFF]">
-                Invoice Balancing
-              </Button>
-            </Link>{" "}
-            <Button
-              className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary/90 hover:text-[#FFFFFF]"
-              onClick={() => setOpen(!open)}
-            >
-              Vendor & Branch Verification
-            </Button>
-            <Link to={""} className="!w-full ">
-              <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary/90 hover:text-[#FFFFFF]">
-                Fast Item Master Verification
-              </Button>
-            </Link>
-            <Link to={"/user-activity"} className="!w-full ">
-              <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary/90 hover:text-[#FFFFFF]">
-                User Activity
-              </Button>
-            </Link>
-            <Link to={""} className="!w-full ">
-              <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary/90 hover:text-[#FFFFFF]">
-                Invoice Assignment
-              </Button>
-            </Link>
-            <Link to={"/invoice-processor"} className="!w-full ">
-              <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary/90 hover:text-[#FFFFFF]">
-                Invoice Processor
-              </Button>
-            </Link>
-          </div>
-          <div className=" w-[70%] flex h-full justify-center items-center">
-            <iframe
+        <div className=" w-full flex h-full gap-x-4  overflow-hidden ">
+          {/* Left Side */}
+          <div className=" w-[50%] h-full !flex-1 flex-col flex !pt-[5.75%] gap-y-4 pl-[6.25rem] !bg-opacity-25 ">
+            {" "}
+            <div className="!text-left ">
+              <p className="!font-poppins font-semibold text-[2rem] flex gap-x-2">
+                <span className="text-primary ">Automated</span>
+                <span className="text-primaryText">Invoice Solutions</span>
+              </p>
+              <p className="text-primaryText text-[1.25rem] font-poppins font-semibold w-full">
+                Simplify Processing, Verification, and User
+              </p>
+              <p className="text-primaryText text-[1.25rem] font-poppins font-semibold">
+                Monitoring
+              </p>
+            </div>
+            <img
               src={direction}
-              style={{ height: "900px", width: "800px" }}
+              style={{ height: "22.32rem", width: "31.72rem" }}
               alt=""
-              className="img-fluid !pt-44"
+              className="mt-[4.625rem]"
+            />
+          </div>
+
+          {/* Right Side */}
+          <div className=" w-[50%] flex flex-col gap-y-4 mt-[5.75%] pr-[6rem] h-full  items-center">
+            <CustomCard
+              Icon={frame15}
+              onClick={() => navigate("/home")}
+              showIcon={true}
+              title="Manage Invoices"
+              className={"cursor-pointer"}
+              content="Ensure smooth processing and verification of invoices"
+            />
+            <CustomCard
+              Icon={frame15}
+              showIcon={true}
+              onClick={() => setOpen(true)}
+              className={"cursor-pointer"}
+              title="Verify Vendors/Branches"
+              content="Ensure vendor and branch information is correct and up-to-date."
+            />
+            <CustomCard
+              Icon={frame15}
+              showIcon={true}
+              className={"cursor-pointer"}
+              title="Check Item Master"
+              content="Speed up item master verification for seamless operations."
+            />
+            <CustomCard
+              Icon={frame15}
+              showIcon={true}
+              className={"cursor-pointer"}
+              onClick={() => navigate("/user-activity")}
+              title="View User Activity"
+              content="Access a comprehensive log of all user activities."
+            />
+            <CustomCard
+              Icon={frame15}
+              className={"cursor-pointer"}
+              showIcon={true}
+              title="Invoice Assignment"
+              content="Manage and delegate invoice tasks seamlessly."
+            />
+            <CustomCard
+              Icon={frame15}
+              onClick={()=>navigate("/process-invoice")}
+              className={"cursor-pointer"}
+              showIcon={true}
+              title="Process Invoice"
+              content="Upload invoices seamlessly."
             />
           </div>
         </div>
@@ -133,3 +167,36 @@ function App() {
 }
 
 export default App;
+{
+  /* <Link to={"/home"} className="!w-full ">
+<Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary/90 hover:!text-[#FFFFFF]">
+  Invoice Balancing
+</Button>
+</Link>{" "}
+<Button
+className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary/90 hover:text-[#FFFFFF]"
+onClick={() => setOpen(!open)}
+>
+Vendor & Branch Verification
+</Button>
+<Link to={""} className="!w-full ">
+<Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary/90 hover:text-[#FFFFFF]">
+  Fast Item Master Verification
+</Button>
+</Link>
+<Link to={"/user-activity"} className="!w-full ">
+<Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary/90 hover:text-[#FFFFFF]">
+  User Activity
+</Button>
+</Link>
+<Link to={""} className="!w-full ">
+<Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary/90 hover:text-[#FFFFFF]">
+  Invoice Assignment
+</Button>
+</Link>
+<Link to={"/invoice-processor"} className="!w-full ">
+<Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary/90 hover:text-[#FFFFFF]">
+  Invoice Processor
+</Button>
+</Link> */
+}

@@ -57,6 +57,7 @@ const VendorBranchesTable = ({
   const updateParams = useUpdateParams();
   const { mutate: migrateBranch, isPending: migrating } =
     useMigrateVendorBranch();
+    
   const { mutate: deleteBranch, isPending: deleting } = useDeleteBranch();
   const { data: vendorNamesList } = useGetVendorNames();
   const [searchParams] = useSearchParams();
@@ -80,34 +81,34 @@ const VendorBranchesTable = ({
   let currentSelectedBranch = searchParams.get("branch") || "";
   return (
     <>
-      <Table className="flex flex-col   box-border  scrollbar min-h-[65vh] ">
+      <Table className="flex flex-col   box-border  scrollbar min-h-[65vh]  max-h-[70vh] ">
         <TableHeader className="min-h-16">
           <TableRow className="flex text-base  !border-none  ">
-            <TableHead className="flex  border-r !text-left items-center justify-start  !font-semibold !text-gray-800  !max-w-[20%] !min-w-[25%]  border-b pl-6  bg-gray-200 !h-14">
+            <TableHead className="flex  border-r !text-left items-center justify-start  !font-semibold !text-gray-800  !max-w-[20%] !min-w-[25%]  border-b pl-6  bg-gray-200 !min-h-14">
               Vendor Address
             </TableHead>
 
-            <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center  !font-semibold !text-gray-800 !min-w-[10%] border-b  bg-gray-200 h-14">
+            <TableHead className="flex  border-r ! !text-left items-center justify-center  !font-semibold !text-gray-800 !min-w-[10%] border-b  bg-gray-200 !min-h-14">
               Document Count
             </TableHead>
 
-            <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center   !font-semibold !text-gray-800 !min-w-[10%] border-b  bg-gray-200 h-14">
+            <TableHead className="flex  border-r ! !text-left items-center justify-center   !font-semibold !text-gray-800 !min-w-[10%] border-b  bg-gray-200 min-h-14">
               Creation Date
             </TableHead>
 
-            <TableHead className="flex  border-r !min-h-10  gap-x-2 !text-left items-center justify-center  !font-semibold !text-gray-800 !min-w-[12.5%] border-b  bg-gray-200 h-14">
+            <TableHead className="flex  border-r !  gap-x-2 !text-left items-center justify-center  !font-semibold !text-gray-800 !min-w-[12.5%] border-b  bg-gray-200 min-h-14">
               Select Master
             </TableHead>
 
-            <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center !font-semibold !text-gray-800 !min-w-[12.5%] border-b  bg-gray-200 h-14">
+            <TableHead className="flex  border-r ! !text-left items-center justify-center !font-semibold !text-gray-800 !min-w-[12.5%] border-b  bg-gray-200 min-h-14">
               Select For Merge
             </TableHead>
 
-            <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center   !font-semibold !text-gray-800 !min-w-[15%] capitalize border-b  bg-gray-200 h-14">
+            <TableHead className="flex  border-r ! !text-left items-center justify-center   !font-semibold !text-gray-800 !min-w-[15%] capitalize border-b  bg-gray-200 min-h-14">
               Migrate
             </TableHead>
 
-            <TableHead className="flex  border-r !min-h-10 !text-left items-center justify-center !font-semibold !text-gray-800 !min-w-[15%] border-b pb- bg-gray-200 h-14">
+            <TableHead className="flex  border-r ! !text-left items-center justify-center !font-semibold !text-gray-800 !min-w-[15%] border-b pb- bg-gray-200 min-h-14">
               Actions
             </TableHead>
           </TableRow>

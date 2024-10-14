@@ -3,18 +3,19 @@ import { Button } from "@/components/ui/button";
 import { Download, ZoomIn, ZoomOut } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
+import { Skeleton } from "../ui/skeleton";
+import useUpdateParams from "@/lib/hooks/useUpdateParams";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
-export const PdfViewer = ({ pdfList, title, singlePdf = false }) => {
-  
+export const PdfViewer = ({ pdfList, title, singlePdf = false, children }) => {
   const [currentPdfIndex, setCurrentPdfIndex] = useState(0);
   const [pdfScale, setPdfScale] = useState(0.7); // Start at a zoomed-out scale
   const [pageNum, setPageNum] = useState(1);
   const [numPages, setNumPages] = useState(0);
   const [isError, setIsError] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  const updateParams=useUpdateParams()
   const pdfRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
@@ -22,7 +23,7 @@ export const PdfViewer = ({ pdfList, title, singlePdf = false }) => {
   const movementFactor = 0.035;
 
   const handleNextPdf = () => {
-    if (currentPdfIndex < pdfList.length - 1) {
+    if (currentPdfIndex < pdfList?.length - 1) {
       setCurrentPdfIndex(currentPdfIndex + 1);
       resetViewer();
     }
@@ -136,10 +137,12 @@ export const PdfViewer = ({ pdfList, title, singlePdf = false }) => {
   return (
     <div className="pdf-viewer-container">
       <div
-        className="ml-50 p-2 rounded"
+        className={`${
+          !isError && !singlePdf && "flex justify-normal"
+        } justify-center p-2 rounded flex  items-center`}
         style={{ zIndex: "50", backgroundColor: "rgb(240, 240, 240)" }}
       >
-        <div className="flex items-center w-full justify-center gap-x-4">
+        <div className="flex items-center w-[60%] justify-center gap-x-4">
           <ZoomIn
             height={20}
             width={20}
@@ -194,6 +197,37 @@ export const PdfViewer = ({ pdfList, title, singlePdf = false }) => {
             />
           </div>
         </div>
+        {!isError && !singlePdf && (
+          <div className="w-[40%] flex justify-center gap-x-2">
+            <Button
+              onClick={handlePrevPdf}
+              className=" !font-normal min-w-28 !text-xs  !p-0 h-8"
+              disabled={currentPdfIndex === 0 || pdfList?.length === 1}
+            >
+              Previous PDF
+            </Button>
+            <Button
+              onClick={handleNextPdf}
+              className=" !font-normal px-2 !text-xs !p-0 !py-0 min-w-28 h-8"
+              disabled={
+                currentPdfIndex === pdfList?.length - 1 || pdfList?.length === 1
+              }
+            >
+              Next PDF
+            </Button>
+            <Button
+              className="min-w-20 h-8 font-normal"
+              onClick={() =>
+                updateParams({
+                  document_uuid: pdfList?.[currentPdfIndex]?.document_uuid
+                })
+              }
+            >
+              Items
+            </Button>
+            {children}
+          </div>
+        )}
       </div>
 
       {loading ? (
@@ -208,7 +242,7 @@ export const PdfViewer = ({ pdfList, title, singlePdf = false }) => {
       ) : (
         <div
           ref={pdfRef}
-          className="h-[600px] overflow-hidden w-full "
+          className="!min-h-[550px] overflow-hidden w-full "
           onMouseDown={handleMouseDown}
           style={{
             cursor: isDragging ? "grabbing" : "grab",
@@ -224,24 +258,26 @@ export const PdfViewer = ({ pdfList, title, singlePdf = false }) => {
               left: 0,
               transition: isDragging ? "none" : "transform 0.1s"
             }}
-            className="flex justify-center w-full bg-white "
+            className="flex justify-center  w-full min-h-full"
           >
             <Document
               file={pdfList?.[currentPdfIndex]?.document_link}
               onLoadSuccess={onDocumentLoadSuccess}
+              className={"w-full flex justify-center"}
               onLoadProgress={({ loaded, total }) =>
                 loaded === total && setLoading(false)
               }
               noData={
                 !loading && (
-                  <div className="w-full flex flex-col  items-center pt-16 mt-8 h-[90vh] overflow-hidden">
-                    <img src={no_data} alt="No data" className="!h-1/2" />
-                    <p>No PDF Available</p>
+                  <div className="w-full flex flex-col  items-center !min-h-[60vh]   flex-1 !h-full overflow-hidden">
+                    <Skeleton
+                      className={"!min-w-[1000px] !min-h-[600px] max-h-[800px]"}
+                    />
                   </div>
                 )
               }
               loading={
-                <div className="w-full flex flex-col justify-center items-center !h-[580px] overflow-hidden">
+                <div className="w-full flex flex-col justify-center items-center !min-h-[400px] max-h-[500px] overflow-hidden">
                   <p>Loading PDF...</p>
                 </div>
               }
@@ -253,34 +289,13 @@ export const PdfViewer = ({ pdfList, title, singlePdf = false }) => {
                 pageNumber={pageNum}
                 scale={pdfScale}
                 loading={
-                  <div className="w-full flex flex-col justify-center items-center  !h-[580px]  overflow-hidden">
+                  <div className="w-full flex flex-col justify-center items-center    overflow-hidden">
                     <p>Loading Page...</p>
                   </div>
                 }
               />
             </Document>
           </div>
-        </div>
-      )}
-
-      {!isError && !singlePdf && (
-        <div className="w-full flex justify-center gap-x-2">
-          <Button
-            onClick={handlePrevPdf}
-            className="mt-3 !font-normal min-w-28"
-            disabled={currentPdfIndex === 0 || pdfList?.length === 1}
-          >
-            Previous PDF
-          </Button>
-          <Button
-            onClick={handleNextPdf}
-            className="mt-3 !font-normal min-w-28"
-            disabled={
-              currentPdfIndex === pdfList.length - 1 || pdfList?.length === 1
-            }
-          >
-            Next PDF
-          </Button>
         </div>
       )}
     </div>

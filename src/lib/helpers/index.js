@@ -104,3 +104,29 @@ export const keysCapitalizer = (str) => {
     ?.map((word) => word[0].toUpperCase() + word.slice(1, word.length))
     .join(" ");
 };
+
+export function formatRawDataTable(rawTable) {
+  const columns = [];
+
+  // Get the number of columns by finding the length of the first row
+  const numColumns = rawTable && Object?.keys(rawTable?.[0]).length;
+
+  // Initialize each column array
+  for (let i = 0; i < numColumns; i++) {
+    columns.push([]);
+  }
+
+  // Iterate through each row
+  for (const key in rawTable) {
+    for (let col = 0; col < numColumns; col++) {
+      // Push the text value into the corresponding column array
+      const cell = rawTable[key][col];
+      columns[col].push(cell ? cell.text : null);
+    }
+  }
+
+  // Check for duplicates in columns
+  const uniqueColumns = Array.from(new Set(columns.map(JSON.stringify))).map(JSON.parse);
+
+  return uniqueColumns;
+}

@@ -92,7 +92,7 @@ const InvoiceTable = ({ data = [], isLoading }) => {
                       onClick={(e) => {
                         navigate(
                           `/invoice-details/?page_number=${
-                           ( (page-1)*9) + (index + 1)
+                            (page - 1) * 9 + (index + 1)
                           }`
                         );
                       }}
@@ -108,7 +108,9 @@ const InvoiceTable = ({ data = [], isLoading }) => {
                       </TableHead>
 
                       <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start pl-4  !font-normal !text-gray-800 !min-w-60 border-b  ">
-                        {restaurant?.restaurant_name}
+                        {restaurant?.restaurant_name!==null
+                          ? restaurant?.restaurant_name
+                          : restaurant?.restaurant_id}
                       </TableHead>
 
                       <TableHead className="flex cursor-pointer border-r !min-h-10  !text-left items-center gap-x-4 justify-between pl-4 !font-normal !text-gray-800 !min-w-72 border-b !capitalize  ">
@@ -174,8 +176,7 @@ const InvoiceTable = ({ data = [], isLoading }) => {
                         className="flex cursor-pointer !text-left items-center justify-center   !font-normal !text-gray-800 !min-w-60  border-b border-r  "
                       >
                         {rejection_reason && (
-                          <AlertDialog >
-                   
+                          <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <Button
                                 className="text-xs h-8 py-1 w-fit px-3 bg-primary hover:bg-primary/90 !font-normal"

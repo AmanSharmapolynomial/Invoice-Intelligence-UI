@@ -1,7 +1,9 @@
 import Header from "@/components/common/Header";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
+import { PdfViewer } from "@/components/common/PDFViewer";
 import TablePagination from "@/components/common/TablePagination";
+import { useGetItemMasterPdfs } from "@/components/invoice/api";
 import { Button } from "@/components/ui/button";
 import CustomDropDown from "@/components/ui/CustomDropDown";
 import CustomSelect from "@/components/ui/CustomSelect";
@@ -16,13 +18,17 @@ import {
   TooltipTrigger
 } from "@/components/ui/tooltip";
 import { useGetUsersList } from "@/components/user/api";
-import { useGetVendorItemMaster } from "@/components/vendor/api";
+import {
+  useGetVendorItemMaster,
+  useMergeVendorItemMaster
+} from "@/components/vendor/api";
 import { vendorStore } from "@/components/vendor/store/vendorStore";
 import VendorItemMasterTable from "@/components/vendor/vendorItemMaster/VendorItemMasterTable";
 import { formatData, getUserNameFromId } from "@/lib/helpers";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { Search } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { LoaderIcon } from "react-hot-toast";
 import { useParams, useSearchParams } from "react-router-dom";
 
 const VendorItemMaster = () => {
@@ -36,6 +42,7 @@ const VendorItemMaster = () => {
   const human_verified = searchParams.get("human_verified") || "";
   const search_by = searchParams.get("search_by") || "";
   const page = searchParams.get("page") || 1;
+  const document_uuid = searchParams.get("document_uuid") || "";
   const category_review_required =
     searchParams.get("category_review_required") || "";
 
@@ -46,10 +53,37 @@ const VendorItemMaster = () => {
     category_review_required,
     item_code,
     item_description,
-    page
+    page,
+    document_uuid
   });
+  const [viewIconIndex, setViewIconIndex] = useState(null);
+  const [showPdfs, setShowPdfs] = useState(false);
+  const [item_uuid, setItem_uuid] = useState(null);
   const { data: usersData, isLoading: usersListLoading } = useGetUsersList();
-  const { masterVendor, checkedVendors } = vendorStore();
+  const { masterVendor, checkedVendors, setCheckedVendors, setMasterVendor } =
+    vendorStore();
+  const { mutate: mergeVendorItemMaster, isPending: merging } =
+    useMergeVendorItemMaster();
+
+  const handleMerge = () => {
+    mergeVendorItemMaster(
+      {
+        master_item_uuid: masterVendor,
+        items_to_merge: checkedVendors
+      },
+      {
+        onSuccess: () => {
+          setCheckedVendors();
+          setMasterVendor();
+        }
+      }
+    );
+  };
+
+  const { data: pdfsData, isLoading: loadingPdfs } = useGetItemMasterPdfs(
+    showPdfs ? item_uuid : null
+  );
+
   return (
     <>
       <Navbar className="" />
@@ -232,14 +266,41 @@ const VendorItemMaster = () => {
             />
             <Button
               className="font-normal"
-              disabled={checkedVendors?.length == 0}
+              onClick={handleMerge}
+              disabled={!checkedVendors || checkedVendors?.length == 0}
             >
-              Merge Item Master
+              {merging ? (
+                <>
+                  Merging <LoaderIcon className="ml-2" />
+                </>
+              ) : (
+                "Merge Item Master"
+              )}
             </Button>
           </div>
         </div>
 
-        <VendorItemMasterTable isLoading={isLoading} data={data} />
+        <div className={`${showPdfs && "flex "} w-full h-full`}>
+          <div className={` ${showPdfs && "w-1/2 overflow-auto"}`}>
+            <VendorItemMasterTable
+              isLoading={isLoading}
+
+              data={data}
+              setViewIconIndex={setViewIconIndex}
+              viewIconIndex={viewIconIndex}
+              setItem_uuid={setItem_uuid}
+              showPdfs={showPdfs}
+              setShowPdfs={setShowPdfs}
+            />
+          </div>
+          <div className="w-1/2 h-full">
+            {showPdfs && (
+              <PdfViewer pdfList={pdfsData?.data}>
+              
+              </PdfViewer>
+            )}
+          </div>
+        </div>
         <TablePagination
           isFinalPage={data?.is_final_page}
           totalPages={data?.total_pages}

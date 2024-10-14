@@ -67,7 +67,7 @@ const protectedRoutes = [
     )
   },
   {
-    path: "/invoice-processor",
+    path: "/process-invoice",
     element: (
       <Protected>
         <InvoiceProcessor />

@@ -18,7 +18,7 @@ const RawMetaDataTable = ({ data, isLoading, tab }) => {
   const { data: vendorNamesList } = useGetVendorNames();
   return (
     // <div className="w-full !max-h-[50%] overflow-auto">
-    <Table className="flex flex-col !max-h-[67vh]  box-border  border scrollbar !w-full ">
+    <Table className="flex flex-col !min-h-[67vh] !max-h-full   box-border  border scrollbar !w-full ">
       <TableRow className="flex  text-base  !border-none  ">
         <div className="!min-w-[50%]">
           {rawMetaDataHeaders?.map(({ label, value }) => (
@@ -216,10 +216,11 @@ const RawMetaDataTable = ({ data, isLoading, tab }) => {
                           value == "vendor" ? (
                             <></>
                           ) : value == "restaurant" ? (
-                            data?.["restaurant"]?.["restaurant_name"] ||
-                            data?.["document_metadata"]?.["restaurant"]?.[
-                              "restaurant_name"
-                            ]
+                            <>
+                              {data?.["restaurant"]?.["restaurant_name"]
+                                ? data?.["restaurant"]?.["restaurant_name"]
+                                : data?.["restaurant"]?.["restaurant_id"]}
+                            </>
                           ) : value == "branch" ? (
                             data?.["branch"]?.["vendor_address"] ||
                             data?.["document_metadata"]?.["branch"]?.[

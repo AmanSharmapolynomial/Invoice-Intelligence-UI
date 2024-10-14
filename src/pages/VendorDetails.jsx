@@ -29,6 +29,7 @@ const VendorDetails = () => {
   const { data, isLoading } = useGetVendorDetails(vendor_id);
 
   const [open, setOpen] = useState(false);
+ 
   const { data: vendorNotes, isLoading: vendorNotesLoading } =
     useGetVendorNotes(vendor_id);
   const { data: additionalData, isLoading: loadingAdditionalData } =
@@ -111,7 +112,7 @@ const VendorDetails = () => {
           </Button>
           {/* </Link> */}
           <Button
-          onClick={()=>navigate(`/invoice-details?vendor=${vendor_id}`)}
+            onClick={() => navigate(`/invoice-details?vendor=${vendor_id}`)}
             disabled={disapproving || updatingVendorDetails}
             className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]"
           >
@@ -209,7 +210,7 @@ const VendorDetails = () => {
                 )}
               </Button>
               <Button
-              disabled={deletingVendor}
+                disabled={deletingVendor}
                 className="font-normal bg-transparent text-gray-800 border hover:bg-white/70"
                 onClick={() => setOpen(false)}
               >

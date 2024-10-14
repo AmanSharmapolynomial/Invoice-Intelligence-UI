@@ -66,7 +66,7 @@ export const InvoiceTypeFilterOptions = [
   {
     label: "None",
     value: "none"
-  },
+  }
 ];
 
 export const InvoiceDetectionStatusFilterOptions = [
@@ -289,7 +289,7 @@ export const vendorBranchDetailsPageFirstColRowData = [
   {
     label: "Updated By",
     value: "updated_by"
-  },
+  }
 ];
 
 export const vendorConsolidationHeaders = [
@@ -512,7 +512,7 @@ export const tableTabs = [
   },
   {
     label: "Raw Table",
-    value: "Raw Table"
+    value: "raw_table"
   },
   {
     label: "Processed Table",
@@ -566,7 +566,6 @@ export const documentTypePrediction = [
   }
 ];
 
-
 export const editableFieldsForInvoiceMetadata = [
   "invoice_date",
   "invoice_number",
@@ -583,29 +582,25 @@ export const editableFieldsForInvoiceMetadata = [
   "invoice_due_date"
 ];
 
-
-
-export const combineVendorsHeaders=[
+export const combineVendorsHeaders = [
   {
-    label:"Vendor Name",
-    value:"vendor_id"
+    label: "Vendor Name",
+    value: "vendor_id"
   },
   {
-    label:"Documnets Count",
-    value:"documents_count"
+    label: "Documnets Count",
+    value: "documents_count"
   },
   {
-    label:"Matching Score",
-    value:"matching_score"
+    label: "Matching Score",
+    value: "matching_score"
   },
   {
-    label:"Invoice",
-    value:"invoice"
+    label: "Invoice",
+    value: "invoice"
   },
   {
-    label:"Select",
-    value:"select"
-  },
-]
-
-
+    label: "Select",
+    value: "select"
+  }
+];

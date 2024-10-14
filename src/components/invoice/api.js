@@ -1,5 +1,11 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { getInvoiceMetaData, getDuplicateInvoices } from "./utils";
+import {
+  getInvoiceMetaData,
+  getDuplicateInvoices,
+  getMasterItemPdfs,
+  getDocumentNotes,
+  getRawTable
+} from "./utils";
 import { axiosInstance } from "@/axios/instance";
 import toast from "react-hot-toast";
 
@@ -36,5 +42,27 @@ export const useProcessInvoice = () => {
     onError: (data) => {
       toast.error(data?.message);
     }
+  });
+};
+
+export const useGetItemMasterPdfs = (item_uuid) => {
+  return useQuery({
+    queryKey: ["get-item-master-pdf", item_uuid],
+    queryFn: () => getMasterItemPdfs(item_uuid)
+  });
+};
+
+export const useGetDocumentNotes = (documnent_uuid) => {
+  return useQuery({
+    queryKey: ["document-notes", documnent_uuid],
+    queryFn: () => getDocumentNotes(documnent_uuid)
+    // enabled:false
+  });
+};
+
+export const useGetRawTableData = (documnent_uuid) => {
+  return useQuery({
+    queryKey: ["raw-table-data", documnent_uuid],
+    queryFn: () => getRawTable(documnent_uuid)
   });
 };

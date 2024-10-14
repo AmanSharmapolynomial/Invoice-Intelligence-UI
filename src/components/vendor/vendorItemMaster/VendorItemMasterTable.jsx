@@ -1,21 +1,11 @@
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger
-} from "@/components/ui/alert-dialog";
+import no_data from "@/assets/image/no-data.svg";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import CustomDropDown from "@/components/ui/CustomDropDown";
 import CustomInput from "@/components/ui/CustomInput";
+import { Modal, ModalDescription } from "@/components/ui/Modal";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
-import no_data from "@/assets/image/no-data.svg";
 import {
   Table,
   TableBody,
@@ -26,6 +16,7 @@ import {
 } from "@/components/ui/table";
 import { keysCapitalizer } from "@/lib/helpers";
 import { queryClient } from "@/lib/utils";
+import { EyeClosedIcon } from "@radix-ui/react-icons";
 import { BadgeCheck, Edit, Eye, Save, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { LoaderIcon } from "react-hot-toast";
@@ -35,14 +26,24 @@ import {
   useUpdateVendorItemMaster
 } from "../api";
 import { vendorStore } from "../store/vendorStore";
-import { Modal, ModalDescription } from "@/components/ui/Modal";
+import useUpdateParams from "@/lib/hooks/useUpdateParams";
 
-const VendorItemMasterTable = ({ data = [], isLoading = false }) => {
+const VendorItemMasterTable = ({
+  data = [],
+  isLoading = false,
+  showPdfs,
+  setShowPdfs,
+  setViewIconIndex,
+  viewIconIndex,
+  setItem_uuid
+}) => {
   const { masterVendor, setMasterVendor, checkedVendors, setCheckedVendors } =
     vendorStore();
   const [currentDesc, setCurrentDesc] = useState(null);
+  const [saveError, setSaveError] = useState(false);
   const [editableRow, setEditableRow] = useState(null);
   const [rowUUID, setRowUUID] = useState(null);
+  const updateParams = useUpdateParams();
   const [open, setOpen] = useState(false);
   const {
     mutate: updateVendorItemMaster,
@@ -65,21 +66,22 @@ const VendorItemMasterTable = ({ data = [], isLoading = false }) => {
     }
   };
 
-  const handleUpdateVendorItemMaster = (uuid, data,ind) => {
+  const handleUpdateVendorItemMaster = (uuid, payload, ind) => {
+    setSaveError(true);
     updateVendorItemMaster(
-      { item_uuid: uuid, data },
+      { item_uuid: uuid, data:payload },
       {
         onSuccess: () => {
+          setSaveError(false);
           setEditableRow(null);
-        },
-        onError:()=>{
           let copyObj = { ...data };
-          let { items } = data?.data;
+          let { items } = data.data;
           items[ind]["human_verified"] = true;
-          queryClient.setQueryData(
-            ["vendor-item-master"],
-            copyObj
-          );
+          queryClient.setQueryData(["vendor-item-master"], copyObj);
+        },
+        onError: (e) => {
+          setSaveError(false);
+
         }
       }
     );
@@ -97,10 +99,11 @@ const VendorItemMasterTable = ({ data = [], isLoading = false }) => {
       }
     );
   };
+
   return (
     <div className="w-full overflow-auto   ">
       <div className="w-full overflow-auto ">
-        {isLoading ? (
+        {loadingAdditionalData || isLoading ? (
           new Array(11).fill(11)?.map((_, index) => {
             return (
               <TableRow key={index} className="flex w-full">
@@ -196,9 +199,12 @@ const VendorItemMasterTable = ({ data = [], isLoading = false }) => {
                                       let copyObj = { ...data };
                                       let { items } = data?.data;
 
-                                      items[ind][col]["category_id"] = val;
-                                      items[ind][col]["name"] = valObj?.label;
+                                      let catObj = {
+                                        category_id: val,
+                                        name: valObj?.label
+                                      };
 
+                                      items[ind][col] = catObj;
                                       queryClient.setQueryData(
                                         ["vendor-item-master"],
                                         copyObj
@@ -252,14 +258,8 @@ const VendorItemMasterTable = ({ data = [], isLoading = false }) => {
                               onClick={() => {
                                 handleUpdateVendorItemMaster(
                                   item?.item_uuid,
-                                  item,ind
-                                );
-                                let copyObj = { ...data };
-                                let { items } = data?.data;
-                                items[ind]["human_verified"] = true;
-                                queryClient.setQueryData(
-                                  ["vendor-item-master"],
-                                  copyObj
+                                  item,
+                                  ind
                                 );
                               }}
                             />
@@ -302,20 +302,53 @@ const VendorItemMasterTable = ({ data = [], isLoading = false }) => {
                           />
                         </TableCell>
                         <TableCell className="flex  border-r !min-h-10 !text-left items-center justify-center !font-normal !text-gray-800 !min-w-[9.16%] border-b  ">
-                          <Eye className="text-primary h-5 w-5 cursor-pointer" />
+                          {!showPdfs ? (
+                            <Button
+                              // disabled={viewIconIndex == 0}
+                              onClick={() => {
+                                setShowPdfs((prev) => !prev);
+                                setItem_uuid(item?.item_uuid);
+                                // updateParams({ branch: branch_id });
+                                setViewIconIndex(ind + 1);
+                              }}
+                              className="min-w-12 bg-transparent border-none shadow-none hover:bg-transparent"
+                            >
+                              <Eye className="h-5 w-5 text-primary cursor-pointer" />
+                            </Button>
+                          ) : viewIconIndex == ind + 1 ? (
+                            <EyeClosedIcon
+                              className="h-5 w-5 text-primary cursor-pointer"
+                              onClick={() => {
+                                updateParams({ document_uuid: undefined });
+                                setViewIconIndex(0);
+                                setShowPdfs((prev) => !prev);
+                              }}
+                            />
+                          ) : (
+                            <Button
+                              onClick={() => {
+                                setShowPdfs((prev) => !prev);
+                                setViewIconIndex(0);
+                              }}
+                              disabled={viewIconIndex !== ind + 1}
+                              className=" !p-0 bg-transparent border-none shadow-none hover:bg-transparent"
+                            >
+                              <Eye className="h-5 w-5 text-primary cursor-pointer" />
+                            </Button>
+                          )}
                         </TableCell>
                         <TableCell className="flex  border-r !min-h-10 !text-left items-center justify-center !font-normal !text-gray-800 !min-w-[9.16%] border-b  ">
                           {editableRow !== item?.item_uuid ? (
                             <Button
                               className="hover:bg-transparent bg-transparent shadow-none"
                               onClick={() => setEditableRow(item?.item_uuid)}
-                              disabled={updatingVendorItemMaster}
+                              disabled={saveError || updatingVendorItemMaster}
                             >
                               <Edit className="h-5 w-5 text-primary" />
                             </Button>
                           ) : (
                             <Button
-                              disabled={updatingVendorItemMaster}
+                              disabled={saveError || updatingVendorItemMaster}
                               className="hover:bg-transparent bg-transparent shadow-none"
                               onClick={() =>
                                 handleUpdateVendorItemMaster(
@@ -335,7 +368,7 @@ const VendorItemMasterTable = ({ data = [], isLoading = false }) => {
                               setRowUUID(item?.item_uuid);
                             }}
                             className="hover:bg-transparent bg-transparent shadow-none"
-                            disabled={updatingVendorItemMaster}
+                            disabled={saveError || updatingVendorItemMaster}
                           >
                             <Trash2 className="h-5 w-5 text-red-500" />
                           </Button>
