@@ -65,13 +65,21 @@ const VendorItemMasterTable = ({ data = [], isLoading = false }) => {
     }
   };
 
-  const handleUpdateVendorItemMaster = (uuid, data) => {
+  const handleUpdateVendorItemMaster = (uuid, data,ind) => {
     updateVendorItemMaster(
       { item_uuid: uuid, data },
       {
         onSuccess: () => {
           setEditableRow(null);
-          return "success";
+        },
+        onError:()=>{
+          let copyObj = { ...data };
+          let { items } = data?.data;
+          items[ind]["human_verified"] = true;
+          queryClient.setQueryData(
+            ["vendor-item-master"],
+            copyObj
+          );
         }
       }
     );
@@ -171,7 +179,7 @@ const VendorItemMasterTable = ({ data = [], isLoading = false }) => {
                               <>
                                 {col === "category" ? (
                                   <CustomDropDown
-                                    Value={item[col]["category_id"]}
+                                    Value={item?.[col]?.["category_id"]}
                                     className="!min-w-[300px] !max-w-[400px]"
                                     triggerClassName={"bg-gray-100 !min-w-full"}
                                     contentClassName={"bg-gray-100 !min-w-full"}
@@ -203,7 +211,7 @@ const VendorItemMasterTable = ({ data = [], isLoading = false }) => {
                                   <CustomInput
                                     value={
                                       col == "category"
-                                        ? item[col]["name"]
+                                        ? item?.[col]?.["name"]
                                         : item[col]
                                     }
                                     onChange={(val) => {
@@ -222,7 +230,7 @@ const VendorItemMasterTable = ({ data = [], isLoading = false }) => {
                               </>
                             ) : //   Values only
                             col == "category" ? (
-                              item[col]["name"]
+                              item?.[col]?.["name"]
                             ) : (
                               item[col]
                             )}
@@ -244,7 +252,7 @@ const VendorItemMasterTable = ({ data = [], isLoading = false }) => {
                               onClick={() => {
                                 handleUpdateVendorItemMaster(
                                   item?.item_uuid,
-                                  item
+                                  item,ind
                                 );
                                 let copyObj = { ...data };
                                 let { items } = data?.data;

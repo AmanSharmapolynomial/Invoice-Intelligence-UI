@@ -14,6 +14,7 @@ import CombineVendors from "@/pages/CombineVendors";
 import VendorItemMaster from "@/pages/VendorItemMaster";
 import CreateUser from "@/pages/CreateUser";
 import CompareInvoices from "@/pages/CompareInvoices";
+import InvoiceProcessor from "@/pages/InvoiceProcessor";
 
 const publicRoutes = [
   {
@@ -62,6 +63,14 @@ const protectedRoutes = [
     element: (
       <Protected>
         <CreateInvoice />
+      </Protected>
+    )
+  },
+  {
+    path: "/invoice-processor",
+    element: (
+      <Protected>
+        <InvoiceProcessor />
       </Protected>
     )
   },

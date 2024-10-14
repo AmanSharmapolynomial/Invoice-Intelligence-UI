@@ -107,7 +107,7 @@ const InvoiceTable = ({ data = [], isLoading }) => {
                         {channel}
                       </TableHead>
 
-                      <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start pl-4  !font-normal !text-gray-800 !min-w-44 border-b  ">
+                      <TableHead className="flex cursor-pointer border-r !min-h-10 !text-left items-center justify-start pl-4  !font-normal !text-gray-800 !min-w-60 border-b  ">
                         {restaurant?.restaurant_name}
                       </TableHead>
 

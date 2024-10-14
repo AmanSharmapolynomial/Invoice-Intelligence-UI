@@ -3,7 +3,10 @@ import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import { PdfViewer } from "@/components/common/PDFViewer";
 import TablePagination from "@/components/common/TablePagination";
-import { useGetInvoiceMetaData } from "@/components/invoice/api";
+import {
+  useGetDuplicateInvoices,
+  useGetInvoiceMetaData
+} from "@/components/invoice/api";
 import RawMetaDataTable from "@/components/invoice/Tables/RawMetaDataTable";
 import { Button } from "@/components/ui/button";
 import { useGetVendorNotes } from "@/components/vendor/api";
@@ -26,7 +29,7 @@ const InvoiceDetails = () => {
   const [tab, setTab] = useState("metadata");
   const { data: vendorNotes, isLoading: vendorNotesLoading } =
     useGetVendorNotes(data?.["data"]?.[0]?.["vendor"]?.["vendor_id"]);
-
+  const {data:duplicateInvoices,isLoading:loadingDuplicateInvoices} = useGetDuplicateInvoices(data?.["data"]?.[0]?.["document_uuid"]);
   return (
     <>
       <Navbar />

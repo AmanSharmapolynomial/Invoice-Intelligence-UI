@@ -346,7 +346,7 @@ export const invoiceTableHeaders = [
   },
   {
     label: "Restaurant",
-    styling: "min-w-44"
+    styling: "min-w-60"
   },
   {
     label: "Vendor",

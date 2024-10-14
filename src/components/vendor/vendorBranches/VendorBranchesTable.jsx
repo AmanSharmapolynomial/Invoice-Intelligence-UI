@@ -198,7 +198,16 @@ const VendorBranchesTable = ({
                     <TableHead className="flex border-r min-h-16 !text-left items-center justify-center !font-normal !text-gray-800 !min-w-[12.5%] border-b">
                       <RadioGroup
                         value={masterBranch}
-                        onValueChange={(val) => setMasterBranch(val)}
+                        onValueChange={(val) => {
+                          setMasterBranch(val);
+                          if (checkedBranches?.includes(branch_id)) {
+                            setCheckedBranches(
+                              checkedBranches.filter(
+                                (it) => it !== branch_id
+                              )
+                            );
+                          }
+                        }}
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem
@@ -212,7 +221,7 @@ const VendorBranchesTable = ({
 
                     <TableHead className="flex  border-r min-h-16 !text-left items-center justify-center  capitalize !font-normal !text-gray-800 !min-w-[12.5%] border-b ">
                       <Checkbox
-                      checked={checkedBranches?.includes(branch_id)}
+                        checked={checkedBranches?.includes(branch_id)}
                         disabled={
                           masterBranch == "" || masterBranch == branch_id
                         }

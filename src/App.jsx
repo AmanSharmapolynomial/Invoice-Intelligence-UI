@@ -55,6 +55,11 @@ function App() {
                 Invoice Assignment
               </Button>
             </Link>
+            <Link to={"/invoice-processor"} className="!w-full ">
+              <Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary/90 hover:text-[#FFFFFF]">
+                Invoice Processor
+              </Button>
+            </Link>
           </div>
           <div className=" w-[70%] flex h-full justify-center items-center">
             <iframe
