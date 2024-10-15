@@ -204,8 +204,9 @@ const Home = () => {
                                         key={document_uuid}
                                         onClick={() =>
                                           navigate(
-                                            `/invoice-details/${document_uuid}`
+                                            `/invoice-details?document_uuid=${document_uuid}`
                                           )
+                                          
                                         }
                                         className="!w-full flex justify-between cursor-pointer !capitalize"
                                       >

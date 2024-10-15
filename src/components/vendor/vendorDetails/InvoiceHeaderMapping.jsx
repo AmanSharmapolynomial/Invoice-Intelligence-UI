@@ -41,7 +41,7 @@ const InvoiceHeaderMapping = ({
       // Create a new object to maintain order
       const newMapping = {};
       // Copy existing keys to the new object
-      Object.keys(invoice_header_names_mapping).forEach((key) => {
+      Object?.keys(invoice_header_names_mapping).forEach((key) => {
         if (key === item) {
           newMapping[value] = invoice_header_names_mapping[key]; // Add the new key
         } else {
@@ -62,6 +62,7 @@ const InvoiceHeaderMapping = ({
     }
     queryClient.setQueryData(["vendor-details", vendor_id], copyObj);
   };
+
   return (
     <CustomAccordion
       title={"Invoice Header Mapping "}
@@ -94,15 +95,15 @@ const InvoiceHeaderMapping = ({
                 </TableHead>
               </TableRow>
             ))}
-          {data &&
-            Object?.keys(data.data.invoice_header_names_mapping)?.length ==
-              0 && (
-              <div className="min-h-96">
-                <img src={no_data} alt="" className="min-h-72" />
+          {!isLoading &&
+            data?.data?.invoice_header_names_mapping == undefined && (
+              <div className="max-h-96 flex justify-center pt-4">
+                <img src={no_data} alt="" className="!max-h-72" />
               </div>
             )}
-          {data &&
-            Object?.keys(data.data.invoice_header_names_mapping)?.map(
+          {!isLoading &&
+            data?.data?.invoice_header_names_mapping &&
+            Object?.keys(data?.data?.invoice_header_names_mapping)?.map(
               (item) => (
                 <TableRow className="flex mt-4 !border-none" key={item}>
                   <TableHead className="text-base flex !w-full ">
@@ -112,7 +113,6 @@ const InvoiceHeaderMapping = ({
                       contentClassName="!z-450"
                       showSearch={true}
                       Value={item?.toLowerCase()}
-                      
                       onChange={(val) => {
                         handleHeaderDisplayNameSelect(item, val);
                       }}

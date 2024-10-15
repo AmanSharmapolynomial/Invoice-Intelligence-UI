@@ -3,9 +3,9 @@ import Navbar from "./Navbar";
 import { Toaster } from "react-hot-toast";
 const Layout = ({ children, className }) => {
   return (
-    <div className={className}>
-      <Toaster />
+    <div className={`${className} `}>
       {children}
+      <Toaster />
     </div>
   );
 };

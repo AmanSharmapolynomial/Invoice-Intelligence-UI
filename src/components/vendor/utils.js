@@ -85,9 +85,10 @@ export const getVendorItemMaster = async (payload) => {
     verified_by,
     item_code,
     item_description,
-    page
+    page,
+    document_uuid
   } = payload;
-  const apiUrl = `/api/item-master/vendor/${vendor_id}/?page=${page}&human_verified=${human_verified}&category_review_required=${category_review_required}&verified_by=${verified_by}&item_code=${item_code}&item_description=${item_description}`;
+  const apiUrl = `/api/item-master/vendor/${vendor_id}/?page=${page}&human_verified=${human_verified}&category_review_required=${category_review_required}&verified_by=${verified_by}&item_code=${item_code}&item_description=${item_description}&document_uuid=${document_uuid}`;
   const response = await axiosInstance.get(apiUrl);
   return response;
 };
@@ -149,6 +150,16 @@ export const deleteVendorItemMaster = async (payload) => {
   const { item_uuid, type } = payload;
   const apiUrl = `/api/item-master/${item_uuid}/delete/?type=${type}`;
   const response = await axiosInstance.delete(apiUrl);
+
+  return response;
+};
+export const mergeVendorItemMaster = async (payload) => {
+  const { master_item_uuid, items_to_merge } = payload;
+  const apiUrl = `/api/item-master/merge/`;
+  const response = await axiosInstance.post(apiUrl, {
+    master_item_uuid,
+    items_to_merge
+  });
 
   return response;
 };

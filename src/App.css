@@ -9,6 +9,12 @@
     -ms-overflow-style: none; /* Internet Explorer and Edge */
 }
 
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 /* For any element you want to hide the scrollbar */
 .hide-scrollbar {
     overflow: hidden; /* Optional: Prevents scrolling */

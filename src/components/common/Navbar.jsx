@@ -9,7 +9,7 @@ const Navbar = ({ children, className }) => {
 
   return (
     <div
-      className={`${className} w-full h-[8vh]  flex items-center px-8 pl-14 shadow relative`}
+      className={`${className} w-full h-[3.75rem]  flex items-center  pl-[6.25rem] shadow relative bg-white`}
     >
       {!["/", "/login"].includes(pathname) && (
         <ArrowLeft
@@ -24,7 +24,10 @@ const Navbar = ({ children, className }) => {
           <LucideHome className="mt-0.5" />
         </Link>
       )}
-      <Link to={"/"} className="font-bold text-2xl pl-3">
+      <Link
+        to={"/"}
+        className="font-bold !text-[1.25rem] pl-3  font-poppins text-color/900 "
+      >
         Invoice Intelligence Platform
       </Link>
       {children}
@@ -33,7 +36,7 @@ const Navbar = ({ children, className }) => {
           className="absolute  right-10 h-10 w-16"
           onClick={() => {
             localStorage.clear();
-            navigate("/login")
+            navigate("/login");
           }}
         >
           <LogOut className="h-6 w-6" />

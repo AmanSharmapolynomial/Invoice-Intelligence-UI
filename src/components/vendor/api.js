@@ -20,7 +20,8 @@ import {
   getInvoiceHeaderExceptions,
   disapproveAllVendorItems,
   updateVendorItemMaster,
-  deleteVendorItemMaster
+  deleteVendorItemMaster,
+  mergeVendorItemMaster
 } from "@/components/vendor/utils";
 import toast from "react-hot-toast";
 import { queryClient } from "@/lib/utils";
@@ -337,6 +338,7 @@ export const useUpdateVendorItemMaster = () => {
     },
     onError: (data) => {
       toast.error(data?.message);
+      return data
     }
   });
 };
@@ -344,10 +346,20 @@ export const useDeleteVendorItemMaster = () => {
   return useMutation({
     mutationFn: (payload) => deleteVendorItemMaster(payload),
     onSuccess: (data) => {
-      toast.success(
-        `${data?.message}`
-      );
-      queryClient.invalidateQueries({queryKey:['vendor-item-master']})
+      toast.success(`${data?.message}`);
+      queryClient.invalidateQueries({ queryKey: ["vendor-item-master"] });
+    },
+    onError: (data) => {
+      toast.error(data?.message);
+    }
+  });
+};
+
+export const useMergeVendorItemMaster = () => {
+  return useMutation({
+    mutationFn: (payload) => mergeVendorItemMaster(payload),
+    onSuccess: (data) => {
+      toast.success(data?.message);
     },
     onError: (data) => {
       toast.error(data?.message);
