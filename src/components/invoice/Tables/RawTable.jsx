@@ -13,7 +13,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const RawTable = ({ document_uuid }) => {
   const { data, isLoading } = useGetRawTableData(document_uuid);
-  console.log( formatRawDataTable(data?.data?.raw_table))
   return (
     <>
       {isLoading ? (

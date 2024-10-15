@@ -15,6 +15,7 @@ import VendorItemMaster from "@/pages/VendorItemMaster";
 import CreateUser from "@/pages/CreateUser";
 import CompareInvoices from "@/pages/CompareInvoices";
 import InvoiceProcessor from "@/pages/InvoiceProcessor";
+import FastItemVerification from "@/pages/FastItemVerification";
 
 const publicRoutes = [
   {
@@ -52,7 +53,7 @@ const protectedRoutes = [
     path: "/create-user",
     element: (
       <Protected>
-        <CreateUser/>
+        <CreateUser />
       </Protected>
     )
   },
@@ -104,7 +105,7 @@ const protectedRoutes = [
     path: "/vendor-consolidation/compare-invoices/:vendor_one/:vendor_two",
     element: (
       <Protected>
-        <CompareInvoices/>
+        <CompareInvoices />
       </Protected>
     )
   },
@@ -137,6 +138,14 @@ const protectedRoutes = [
     element: (
       <Protected>
         <VendorBranchDetails />
+      </Protected>
+    )
+  },
+  {
+    path: "/fast-item-verification/:vendor_id",
+    element: (
+      <Protected>
+        <FastItemVerification />
       </Protected>
     )
   }

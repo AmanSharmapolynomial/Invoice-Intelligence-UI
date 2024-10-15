@@ -31,3 +31,9 @@ export const getRawTable = async (document_uuid) => {
   const response = await axiosInstance.get(apiUrl);
   return response;
 };
+export const createDocumentNote=async(payload)=>{
+  const {document_uuid,note}=payload;
+  const apiUrl=`/api/document/${document_uuid}/clickbacon-notes/`
+  const response = await axiosInstance.post(apiUrl,{note:note});
+  return response;
+}

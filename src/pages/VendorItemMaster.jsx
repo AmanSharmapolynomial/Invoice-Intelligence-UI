@@ -284,8 +284,15 @@ const VendorItemMaster = () => {
           <div className={` ${showPdfs && "w-1/2 overflow-auto"}`}>
             <VendorItemMasterTable
               isLoading={isLoading}
-
               data={data}
+              extraHeaders={[
+                "Verified By",
+                "Approved",
+                "Select Master",
+                "Select Item",
+                "Invoice",
+                "Actions"
+              ]}
               setViewIconIndex={setViewIconIndex}
               viewIconIndex={viewIconIndex}
               setItem_uuid={setItem_uuid}
@@ -294,11 +301,7 @@ const VendorItemMaster = () => {
             />
           </div>
           <div className="w-1/2 h-full">
-            {showPdfs && (
-              <PdfViewer pdfList={pdfsData?.data}>
-              
-              </PdfViewer>
-            )}
+            {showPdfs && <PdfViewer pdfList={pdfsData?.data}></PdfViewer>}
           </div>
         </div>
         <TablePagination
