@@ -196,7 +196,7 @@ const VendorDetailsTable = ({
                 </TableCell>
                 <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
                   <CustomDropDown
-                    Value={data?.data?.vendor_document_type}
+                    Value={data?.data?.vendor_document_type?.toLowerCase()}
                     className="!min-w-[400px]"
                     triggerClassName={"bg-gray-100 !min-w-full"}
                     contentClassName={"bg-gray-100 !min-w-full"}

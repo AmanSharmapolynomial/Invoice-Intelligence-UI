@@ -160,4 +160,4 @@ const VendorNotes = ({ data = [], vendor_id, isLoading }) => {
   );
 };
 
-export default memo(VendorNotes);
+export default (VendorNotes);

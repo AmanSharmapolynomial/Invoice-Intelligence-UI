@@ -56,7 +56,7 @@ const CustomDropDown = ({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="min-w-[200px] justify-between"
+          className="min-w-[200px] justify-between capitalize"
         >
           {value && value !== "none"
             ? data.find((item) => item?.[Key] == value)?.label

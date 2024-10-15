@@ -29,7 +29,7 @@ const VendorDetails = () => {
   const { data, isLoading } = useGetVendorDetails(vendor_id);
 
   const [open, setOpen] = useState(false);
- 
+
   const { data: vendorNotes, isLoading: vendorNotesLoading } =
     useGetVendorNotes(vendor_id);
   const { data: additionalData, isLoading: loadingAdditionalData } =
@@ -151,6 +151,7 @@ const VendorDetails = () => {
             </Button>
           </Link>
           <Button
+            onClick={() => navigate(`/fast-item-verification/${vendor_id}`)}
             disabled={disapproving || updatingVendorDetails}
             className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]"
           >

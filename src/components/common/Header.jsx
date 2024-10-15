@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 const Header = ({ title, children, className, showVC }) => {
   return (
     <div
-      className={`${className} w-full min-h-16 max-h-full shadow px-8 flex items-center `}
+      className={`${className} w-full min-h-16 max-h-full shadow px-8 rounded-t-md flex items-center `}
     >
       {title && <p className="text-left font-semibold text-xl w-full">{title}</p>}
       <div className="flex gap-x-2 justify-end w-full right-8 items-center">

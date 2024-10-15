@@ -8,14 +8,22 @@ import useUpdateParams from "@/lib/hooks/useUpdateParams";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
-export const PdfViewer = ({ pdfList, title, singlePdf = false, children }) => {
+export const PdfViewer = ({
+  pdfList,
+  title,
+  singlePdf = false,
+  children,
+  showInvoiceButton=false,
+  isLoading,
+  className
+}) => {
   const [currentPdfIndex, setCurrentPdfIndex] = useState(0);
   const [pdfScale, setPdfScale] = useState(0.7); // Start at a zoomed-out scale
   const [pageNum, setPageNum] = useState(1);
   const [numPages, setNumPages] = useState(0);
   const [isError, setIsError] = useState(false);
   const [loading, setLoading] = useState(false);
-  const updateParams=useUpdateParams()
+  const updateParams = useUpdateParams();
   const pdfRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
@@ -142,7 +150,7 @@ export const PdfViewer = ({ pdfList, title, singlePdf = false, children }) => {
         } justify-center p-2 rounded flex  items-center`}
         style={{ zIndex: "50", backgroundColor: "rgb(240, 240, 240)" }}
       >
-        <div className="flex items-center w-[60%] justify-center gap-x-4">
+        <div className={`flex items-center w-[50%] ${ singlePdf && "!w-[100%] justify-center"} justify-start px-4 gap-x-4`}>
           <ZoomIn
             height={20}
             width={20}
@@ -198,7 +206,7 @@ export const PdfViewer = ({ pdfList, title, singlePdf = false, children }) => {
           </div>
         </div>
         {!isError && !singlePdf && (
-          <div className="w-[40%] flex justify-center gap-x-2">
+          <div className="w-[50%] flex justify-end gap-x-2 px-4">
             <Button
               onClick={handlePrevPdf}
               className=" !font-normal min-w-28 !text-xs  !p-0 h-8"
@@ -210,13 +218,20 @@ export const PdfViewer = ({ pdfList, title, singlePdf = false, children }) => {
               onClick={handleNextPdf}
               className=" !font-normal px-2 !text-xs !p-0 !py-0 min-w-28 h-8"
               disabled={
-                currentPdfIndex === pdfList?.length - 1 || pdfList?.length === 1
+                isLoading ||
+                (pdfList !== undefined && Object?.keys(pdfList)?.length == 0) ||
+                currentPdfIndex + 1 === pdfList?.length - 1 ||
+                pdfList?.length === 1
               }
             >
               Next PDF
             </Button>
             <Button
               className="min-w-20 h-8 font-normal"
+              disabled={
+                isLoading ||
+                (pdfList !== undefined && Object?.keys(pdfList)?.length == 0)
+              }
               onClick={() =>
                 updateParams({
                   document_uuid: pdfList?.[currentPdfIndex]?.document_uuid
@@ -225,6 +240,20 @@ export const PdfViewer = ({ pdfList, title, singlePdf = false, children }) => {
             >
               Items
             </Button>
+          {showInvoiceButton&&  <Button
+              className="min-w-20 h-8 font-normal"
+              disabled={
+                isLoading ||
+                (pdfList !== undefined && Object?.keys(pdfList)?.length == 0)
+              }
+              onClick={() =>
+                navigate(
+                  `/invoice-details?document_uuid=${pdfList?.[currentPdfIndex]?.document_uuid}`
+                )
+              }
+            >
+              Invoice
+            </Button>}
             {children}
           </div>
         )}
@@ -242,7 +271,7 @@ export const PdfViewer = ({ pdfList, title, singlePdf = false, children }) => {
       ) : (
         <div
           ref={pdfRef}
-          className="!min-h-[550px] overflow-hidden w-full "
+          className={`!min-h-[550px] overflow-hidden w-full ${className}`}
           onMouseDown={handleMouseDown}
           style={{
             cursor: isDragging ? "grabbing" : "grab",
@@ -270,9 +299,22 @@ export const PdfViewer = ({ pdfList, title, singlePdf = false, children }) => {
               noData={
                 !loading && (
                   <div className="w-full flex flex-col  items-center !min-h-[60vh]   flex-1 !h-full overflow-hidden">
-                    <Skeleton
-                      className={"!min-w-[1000px] !min-h-[600px] max-h-[800px]"}
-                    />
+                    {isLoading ? (
+                      <Skeleton
+                        className={
+                          "!min-w-[1000px] !min-h-[600px] max-h-[800px]"
+                        }
+                      />
+                    ) : (
+                      <div className="w-full flex flex-col justify-center items-center !h-full mt-8 overflow-hidden">
+                        <img
+                          src={no_data}
+                          alt="No data"
+                          className="!min-h-[30vh]"
+                        />
+                        <p>No PDF Available</p>
+                      </div>
+                    )}
                   </div>
                 )
               }

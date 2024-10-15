@@ -18,7 +18,7 @@ import { keysCapitalizer } from "@/lib/helpers";
 import { queryClient } from "@/lib/utils";
 import { EyeClosedIcon } from "@radix-ui/react-icons";
 import { BadgeCheck, Edit, Eye, Save, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LoaderIcon } from "react-hot-toast";
 import {
   useDeleteVendorItemMaster,
@@ -27,6 +27,7 @@ import {
 } from "../api";
 import { vendorStore } from "../store/vendorStore";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
+import { Switch } from "@/components/ui/switch";
 
 const VendorItemMasterTable = ({
   data = [],
@@ -35,6 +36,7 @@ const VendorItemMasterTable = ({
   setShowPdfs,
   setViewIconIndex,
   viewIconIndex,
+  extraHeaders,
   setItem_uuid
 }) => {
   const { masterVendor, setMasterVendor, checkedVendors, setCheckedVendors } =
@@ -42,6 +44,11 @@ const VendorItemMasterTable = ({
   const [currentDesc, setCurrentDesc] = useState(null);
   const [saveError, setSaveError] = useState(false);
   const [editableRow, setEditableRow] = useState(null);
+  const [updateHumanVerified, setUpdateHumanVerified] = useState({
+    status: null,
+    index: -1,
+    key:null
+  });
   const [rowUUID, setRowUUID] = useState(null);
   const updateParams = useUpdateParams();
   const [open, setOpen] = useState(false);
@@ -67,26 +74,43 @@ const VendorItemMasterTable = ({
   };
 
   const handleUpdateVendorItemMaster = (uuid, payload, ind) => {
+
     setSaveError(true);
     updateVendorItemMaster(
-      { item_uuid: uuid, data:payload },
+      { item_uuid: uuid, data: payload },
       {
         onSuccess: () => {
           setSaveError(false);
           setEditableRow(null);
-          let copyObj = { ...data };
-          let { items } = data.data;
-          items[ind]["human_verified"] = true;
-          queryClient.setQueryData(["vendor-item-master"], copyObj);
+          if(updateHumanVerified.key=='human_verified'){
+            setUpdateHumanVerified((prevState) => ({
+              ...prevState,
+              status: true
+            }));
+          }
+      
         },
         onError: (e) => {
           setSaveError(false);
-
         }
       }
     );
   };
+  useEffect(() => {
+    if (updateHumanVerified?.status == true&& updateHumanVerified?.key=="human_verified") {
+      let copyObj = {...data};
+      let { items } = copyObj.data;
 
+      items[updateHumanVerified.index].human_verified = true;
+
+      queryClient.setQueryData(["vendor-item-master"], copyObj);
+    } else if (updateHumanVerified?.status == false) {
+      let copyObj = {...data};
+      let { items } = copyObj.data;
+      items[updateHumanVerified.index].human_verified = false;
+      queryClient.setQueryData(["vendor-item-master"], copyObj);
+    }
+  }, [updateHumanVerified]);
   const handleVendorItemMasterDelete = (type) => {
     deleteItemMasterVendor(
       { item_uuid: rowUUID, type },
@@ -129,25 +153,18 @@ const VendorItemMasterTable = ({
                     key={index}
                     className={`${
                       item == "item_description"
-                        ? "!min-w-[20%] "
-                        : item == "category" && "!min-w-[15%]"
-                    } border-r !text-left items-center !pl-6  flex  !font-semibold !text-gray-800    bg-gray-200 min-w-[10%] h-14 `}
+                        ? "!min-w-[20%] w-full"
+                        : item == "category" && "!min-w-[15%] w-full"
+                    } border-r !text-left w-full items-center !pl-6  flex  !font-semibold !text-gray-800    bg-gray-200 min-w-[10%] h-14 `}
                   >
                     {keysCapitalizer(item)}
                   </TableHead>
                 ))}
 
-                {[
-                  "Verified By",
-                  "Approved",
-                  "Select Master",
-                  "Select Item",
-                  "Invoice",
-                  "Actions"
-                ]?.map((item, i) => (
+                {extraHeaders?.map((item, i) => (
                   <TableHead
                     key={i}
-                    className={`flex  border-r !text-left items-center min-w-[9.16%]  justify-center  !font-semibold !text-gray-800  border-b  bg-gray-200 h-14`}
+                    className={`flex  border-r w-full !text-left items-center min-w-[9.16%]  justify-center  !font-semibold !text-gray-800  border-b  bg-gray-200 h-14`}
                   >
                     {item}
                   </TableHead>
@@ -176,7 +193,7 @@ const VendorItemMasterTable = ({
                                 : col == "category"
                                 ? "!min-w-[15%]"
                                 : "min-w-[10%]"
-                            }  !border-b  flex  border-r !min-h-14 !text-left items-center justify-start pl-6 !font-normal !text-gray-800   `}
+                            }  !border-b  flex w-full border-r !min-h-14 !text-left items-center justify-start pl-6 !font-normal !text-gray-800   `}
                           >
                             {editableRow == item?.item_uuid ? (
                               <>
@@ -243,10 +260,12 @@ const VendorItemMasterTable = ({
                           </TableCell>
                         ))}
 
-                        <TableCell className="flex  border-r !min-h-10 !text-left items-center justify-center !font-normal !text-gray-800 !min-w-[9.16%] border-b  ">
-                          {item?.["verified_by"]?.username}
-                        </TableCell>
-                        <TableCell className="flex  border-r !min-h-10 !text-left items-center justify-center !font-normal !text-gray-800 !min-w-[9.16%] border-b  ">
+                        {extraHeaders?.includes("Verified By") && (
+                          <TableCell className="flex  border-r !min-h-10 !text-left items-center justify-center !font-normal !text-gray-800 !min-w-[9.16%] border-b  ">
+                            {item?.["verified_by"]?.username}
+                          </TableCell>
+                        )}
+                        <TableCell className="flex w-full border-r !min-h-10 !text-left items-center justify-center !font-normal !text-gray-800 !min-w-[9.16%] border-b  ">
                           {item?.["human_verified"] == true ? (
                             <BadgeCheck
                               className="text-primary  h-5 w-5"
@@ -258,86 +277,120 @@ const VendorItemMasterTable = ({
                               onClick={() => {
                                 handleUpdateVendorItemMaster(
                                   item?.item_uuid,
-                                  item,
+                                  { ...item, human_verified: true },
                                   ind
                                 );
+                                setUpdateHumanVerified(prevState => ({
+                                  ...prevState,
+                                  index: ind,
+                                  key:"human_verified"
+                                }));
+                                
                               }}
                             />
                           )}
                         </TableCell>
-                        <TableCell className="flex  border-r !min-h-10 !text-left items-center justify-center !font-normal !text-gray-800 !min-w-[9.16%] border-b  ">
-                          <RadioGroup
-                            value={masterVendor}
-                            onValueChange={(val) => {
-                              setMasterVendor(val);
-                              if (checkedVendors?.includes(item?.item_uuid)) {
-                                setCheckedVendors(
-                                  checkedVendors.filter(
-                                    (it) => it !== item?.item_uuid
-                                  )
+                        {extraHeaders.includes("Category Review") && (
+                          <TableCell className="flex w-full border-r !min-h-10 !text-left items-center justify-center !font-normal !text-gray-800 !min-w-[9.16%] border-b  ">
+                            <Switch
+                              value={item?.["category_review_required"]}
+                              onCheckedChange={(val) => {
+                                let copyObj = JSON.parse(JSON.stringify(data));
+                                let { items } = data?.data;
+
+                                items[0]["category_review_required"] = val;
+
+                                queryClient.setQueryData(
+                                  ["vendor-item-master"],
+                                  copyObj
                                 );
-                              }
-                            }}
-                          >
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem
-                                onClick={() => setMasterVendor("")}
-                                value={item?.item_uuid}
-                                id={`branch-${item?.item_uuid}`}
-                              />
-                            </div>
-                          </RadioGroup>
-                        </TableCell>
-                        <TableCell className="flex  border-r !min-h-10 !text-left items-center justify-center !font-normal !text-gray-800 !min-w-[9.16%] border-b  ">
-                          <Checkbox
-                            checked={checkedVendors?.includes(item?.item_uuid)}
-                            disabled={
-                              masterVendor == "" ||
-                              masterVendor == item?.item_uuid
-                            }
-                            className="h-4 w-4"
-                            onCheckedChange={(val) =>
-                              handleCheckedChange(item?.item_uuid, val)
-                            }
-                          />
-                        </TableCell>
-                        <TableCell className="flex  border-r !min-h-10 !text-left items-center justify-center !font-normal !text-gray-800 !min-w-[9.16%] border-b  ">
-                          {!showPdfs ? (
-                            <Button
-                              // disabled={viewIconIndex == 0}
-                              onClick={() => {
-                                setShowPdfs((prev) => !prev);
-                                setItem_uuid(item?.item_uuid);
-                                // updateParams({ branch: branch_id });
-                                setViewIconIndex(ind + 1);
-                              }}
-                              className="min-w-12 bg-transparent border-none shadow-none hover:bg-transparent"
-                            >
-                              <Eye className="h-5 w-5 text-primary cursor-pointer" />
-                            </Button>
-                          ) : viewIconIndex == ind + 1 ? (
-                            <EyeClosedIcon
-                              className="h-5 w-5 text-primary cursor-pointer"
-                              onClick={() => {
-                                updateParams({ document_uuid: undefined });
-                                setViewIconIndex(0);
-                                setShowPdfs((prev) => !prev);
                               }}
                             />
-                          ) : (
-                            <Button
-                              onClick={() => {
-                                setShowPdfs((prev) => !prev);
-                                setViewIconIndex(0);
+                          </TableCell>
+                        )}
+                        {extraHeaders.includes("Select Master") && (
+                          <TableCell className="flex  border-r !min-h-10 !text-left items-center justify-center !font-normal !text-gray-800 !min-w-[9.16%] border-b  ">
+                            <RadioGroup
+                              value={masterVendor}
+                              onValueChange={(val) => {
+                                setMasterVendor(val);
+                                if (checkedVendors?.includes(item?.item_uuid)) {
+                                  setCheckedVendors(
+                                    checkedVendors.filter(
+                                      (it) => it !== item?.item_uuid
+                                    )
+                                  );
+                                }
                               }}
-                              disabled={viewIconIndex !== ind + 1}
-                              className=" !p-0 bg-transparent border-none shadow-none hover:bg-transparent"
                             >
-                              <Eye className="h-5 w-5 text-primary cursor-pointer" />
-                            </Button>
-                          )}
-                        </TableCell>
-                        <TableCell className="flex  border-r !min-h-10 !text-left items-center justify-center !font-normal !text-gray-800 !min-w-[9.16%] border-b  ">
+                              <div className="flex items-center space-x-2">
+                                <RadioGroupItem
+                                  onClick={() => setMasterVendor("")}
+                                  value={item?.item_uuid}
+                                  id={`branch-${item?.item_uuid}`}
+                                />
+                              </div>
+                            </RadioGroup>
+                          </TableCell>
+                        )}
+                        {extraHeaders.includes("Select Item") && (
+                          <TableCell className="flex  border-r !min-h-10 !text-left items-center justify-center !font-normal !text-gray-800 !min-w-[9.16%] border-b  ">
+                            <Checkbox
+                              checked={checkedVendors?.includes(
+                                item?.item_uuid
+                              )}
+                              disabled={
+                                masterVendor == "" ||
+                                masterVendor == item?.item_uuid
+                              }
+                              className="h-4 w-4"
+                              onCheckedChange={(val) =>
+                                handleCheckedChange(item?.item_uuid, val)
+                              }
+                            />
+                          </TableCell>
+                        )}
+
+                        {extraHeaders.includes("Invoice") && (
+                          <TableCell className="flex  border-r !min-h-10 !text-left items-center justify-center !font-normal !text-gray-800  !min-w-[9.16%] border-b  ">
+                            {!showPdfs ? (
+                              <Button
+                                // disabled={viewIconIndex == 0}
+                                onClick={() => {
+                                  setShowPdfs((prev) => !prev);
+                                  setItem_uuid(item?.item_uuid);
+                                  // updateParams({ branch: branch_id });
+                                  setViewIconIndex(ind + 1);
+                                }}
+                                className="min-w-12 bg-transparent border-none shadow-none hover:bg-transparent"
+                              >
+                                <Eye className="h-5 w-5 text-primary cursor-pointer" />
+                              </Button>
+                            ) : viewIconIndex == ind + 1 ? (
+                              <EyeClosedIcon
+                                className="h-5 w-5 text-primary cursor-pointer"
+                                onClick={() => {
+                                  updateParams({ document_uuid: undefined });
+                                  setViewIconIndex(0);
+                                  setShowPdfs((prev) => !prev);
+                                }}
+                              />
+                            ) : (
+                              <Button
+                                onClick={() => {
+                                  setShowPdfs((prev) => !prev);
+                                  setViewIconIndex(0);
+                                }}
+                                disabled={viewIconIndex !== ind + 1}
+                                className=" !p-0 bg-transparent border-none shadow-none hover:bg-transparent"
+                              >
+                                <Eye className="h-5 w-5 text-primary cursor-pointer" />
+                              </Button>
+                            )}
+                          </TableCell>
+                        )}
+
+                        <TableCell className="flex  border-r !min-h-10 !text-left items-center justify-center !font-normal !text-gray-800 !min-w-[9.16%] w-full border-b  ">
                           {editableRow !== item?.item_uuid ? (
                             <Button
                               className="hover:bg-transparent bg-transparent shadow-none"
