@@ -2,7 +2,7 @@ import no_data from "@/assets/image/no-data.svg";
 import { Button } from "@/components/ui/button";
 import CustomAccordion from "@/components/ui/CustomAccordion";
 import CustomDropDown from "@/components/ui/CustomDropDown";
-import CustomInput from "@/components/ui/CustomInput";
+import CustomInput from "@/components/ui/Custom/CustomInput";
 import CustomSelect from "@/components/ui/CustomSelect";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableHead, TableRow } from "@/components/ui/table";

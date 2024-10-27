@@ -1,12 +1,12 @@
+import userStore from "@/components/auth/store/userStore";
 import React from "react";
 import { Navigate, useParams } from "react-router-dom";
 const managerRoutes = ["/create-user"];
 const Protected = ({ children }) => {
   const { pathname } = useParams();
-  const token = localStorage.getItem("access_token");
-  const role = localStorage.getItem("user_role");
+const {access_token}=userStore()
 
-  return token ? (
+  return access_token ? (
     // managerRoutes.includes(pathname) && role !== "manager" ? (
     //   // <Navigate to={"/"} />
       children

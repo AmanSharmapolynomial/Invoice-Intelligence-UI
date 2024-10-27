@@ -1,16 +1,23 @@
+import approved from "@/assets/image/approved.svg";
 import direction from "@/assets/image/direction.svg";
-import directions_text from "@/assets/image/directions-text.svg";
+import frame15 from "@/assets/image/frame-15.svg";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import { useGetVendorNames } from "@/components/vendor/api";
-import { TestTube, Verified } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Input } from "./components/ui/input";
-import { Modal, ModalDescription } from "./components/ui/Modal";
-import { usePersistStore } from "./components/vendor/store/persisitStore";
+import { useNavigate } from "react-router-dom";
+import CustomInput from "./components/ui/Custom/CustomInput";
 import CustomCard from "./components/ui/CustomCard";
-import frame15 from "@/assets/image/frame-15.svg";
+import { Modal, ModalDescription } from "./components/ui/Modal";
+import {
+  Table,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "./components/ui/table";
+import { usePersistStore } from "./components/vendor/store/persisitStore";
+import useThemeStore from "./store/themeStore";
 
 function App() {
   const { data: vendorNamesList, isLoading: vendorNamesLoading } =
@@ -22,13 +29,17 @@ function App() {
   useEffect(() => {
     setFilteredVendors(vendorNamesList?.data?.vendor_names);
   }, [vendorNamesList]);
+  const { theme } = useThemeStore();
+
+
   const navigate = useNavigate();
+
   useEffect(() => {
     setActualVendorName(null);
   }, []);
   return (
     <>
-      <Layout className={"h-screen !flex-1  overflow-hidden"}>
+      <Layout className={"h-screen !flex-1  overflow-hidden dark:bg-[#040807]"}>
         <Navbar />
         <div className=" w-full flex h-full gap-x-4  overflow-hidden ">
           {/* Left Side */}
@@ -37,12 +48,12 @@ function App() {
             <div className="!text-left ">
               <p className="!font-poppins font-semibold text-[2rem] flex gap-x-2">
                 <span className="text-primary ">Automated</span>
-                <span className="text-primaryText">Invoice Solutions</span>
+                <span className="text-primaryText dark:text-white">Invoice Solutions</span>
               </p>
-              <p className="text-primaryText text-[1.25rem] font-poppins font-semibold w-full">
+              <p className="text-primaryText text-[1.25rem] font-poppins font-semibold w-full dark:text-white">
                 Simplify Processing, Verification, and User
               </p>
-              <p className="text-primaryText text-[1.25rem] font-poppins font-semibold">
+              <p className="text-primaryText text-[1.25rem] font-poppins font-semibold dark:text-white">
                 Monitoring
               </p>
             </div>
@@ -96,7 +107,7 @@ function App() {
             />
             <CustomCard
               Icon={frame15}
-              onClick={()=>navigate("/process-invoice")}
+              onClick={() => navigate("/process-invoice")}
               className={"cursor-pointer"}
               showIcon={true}
               title="Process Invoice"
@@ -108,21 +119,24 @@ function App() {
       <Modal
         open={open}
         setOpen={setOpen}
-        className=""
+        className="bg-white"
         title={"Available Vendors"}
+        titleClassName={"font-semibold text-base font-poppins"}
       >
         <ModalDescription>
-          <div className="flex flex-col gap-y-4 overflow-scroll">
-            <Input
+          <div className="flex flex-col gap-y-4 overflow-scroll !h-[35.875rem] ">
+            <CustomInput
+              showIcon
+              variant="search"
               placeholder="Search Vendor Name"
               className="border border-gray-200  focus:!ring-0 focus:!outline-none remove-number-spinner"
-              value={vendorName}
-              onChange={(e) => {
-                if (e.target.value == "") {
+              Value={vendorName}
+              onChange={(val) => {
+                if (val == "") {
                   setFilteredVendors(vendorNamesList?.data?.vendor_names);
                   setVendorName("");
                 } else {
-                  setVendorName(e.target.value);
+                  setVendorName(val);
                   let filtered = vendorNamesList?.data?.vendor_names?.filter(
                     ({ vendor_name }) =>
                       vendor_name
@@ -134,31 +148,55 @@ function App() {
                 }
               }}
             />
+            <Table className="overflow-auto">
+              <TableHeader className="!bg-[#FFFFFF] sticky top-0">
+                <TableRow className="border-none ">
+                  <TableHead className="!font-poppins !text-[#000000] !text-sm font-semibold">
+                    Vendor Name
+                  </TableHead>
+                  <TableHead className="!font-poppins !text-[#000000] !text-sm font-semibold flex justify-center">
+                    Verified
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
 
-            <div className=" flex flex-col gap-y-2 max-h-72 h-48 overflow-auto">
-              {filteredVendors?.length > 0 ? (
+              {filteredVendors?.length > 0 &&
                 filteredVendors?.map(
                   ({ vendor_id, vendor_name, human_verified }) => (
-                    <Link
-                      to={`/vendor-details/${vendor_id}`}
+                    <TableRow
                       key={vendor_id}
-                      className="flex w-full justify-between py-1 cursor-pointer items-center border rounded-sm px-3 bg-gray-100"
+                      onClick={() => navigate(`/vendor-details/${vendor_id}`)}
+                      className="hover:bg-textColor/50 w-full  justify-between border-none cursor-pointer"
                     >
-                      <p className="capitalize">{vendor_name}</p>
-                      <p>
-                        {human_verified && (
-                          <Verified className="h-4 w-4 text-primary" />
-                        )}
-                      </p>
-                    </Link>
+                      <TableCell className="">
+                        <p className="capitalize font-poppins font-normal text-primaryText text-xs">
+                          {vendor_name}
+                        </p>
+                      </TableCell>
+                      <TableCell className="flex justify-center">
+                        <p>
+                          {human_verified ? (
+                            <img
+                              src={approved}
+                              className="h-[1rem] w-[1rem] text-primary"
+                            />
+                          ) : (
+                            <span className="font-poppins font-normal text-grey">
+                              -
+                            </span>
+                          )}
+                        </p>
+                      </TableCell>
+                    </TableRow>
                   )
-                )
-              ) : (
-                <p className="w-full flex justify-center h-full mt-16">
-                  No Item Found.
+                )}
+
+              {filteredVendors?.length == 0 && (
+                <p className="flex justify-end w-full py-4  font-poppins">
+                  No match found
                 </p>
               )}
-            </div>
+            </Table>
           </div>
         </ModalDescription>
       </Modal>

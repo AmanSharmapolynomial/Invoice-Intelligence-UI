@@ -5,11 +5,20 @@ import App from "@/App";
 import "@/index.css";
 import { queryClient } from "./lib/utils.js";
 import { router } from "./routing/index.jsx";
-createRoot(document.getElementById("root")).render(
+const root = document.getElementById("root");
+
+// Initialize the theme globally from localStorage
+const storedTheme = localStorage.getItem("theme") || "light";
+if (storedTheme === "dark") {
+  document.documentElement.classList.add("dark");
+} else {
+  document.documentElement.classList.remove("dark");
+}
+
+createRoot(root).render(
   <QueryClientProvider client={queryClient}>
     <RouterProvider router={router}>
       <App />
-     
     </RouterProvider>
   </QueryClientProvider>
 );

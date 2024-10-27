@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/popover";
 import { getValueFromLabel } from "@/lib/helpers";
 import { cn } from "@/lib/utils";
-import { Check, ChevronsUpDown, Verified } from "lucide-react";
+import { Check, ChevronDown, Verified } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const CustomDropDown = ({
@@ -32,21 +32,18 @@ const CustomDropDown = ({
   showSearch = true
 }) => {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(Value || ""); 
+  const [value, setValue] = useState(Value || "");
   useEffect(() => {
     if (Value !== undefined) {
-      setValue(Value); 
+      setValue(Value);
     }
   }, [Value]);
 
-
-
-
-  const handleSelect = (currentValue,item) => {
+  const handleSelect = (currentValue, item) => {
     const newValue = currentValue === value ? "" : currentValue;
     setValue(newValue);
     setOpen(false);
-    onChange(getValueFromLabel(data, newValue),item);
+    onChange(getValueFromLabel(data, newValue), item);
   };
 
   return (
@@ -56,17 +53,22 @@ const CustomDropDown = ({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="min-w-[200px] justify-between capitalize"
+          className="min-w-fit !h-[2.5rem] bg-[#FFFFFF] hover:bg-[#FFFFFF] border-[#E0E0E0] border justify-between capitalize shadow-none !rounded-[4px] text-[#666666] hover:text-[#666666] font-poppins font-normal text-xs"
         >
           {value && value !== "none"
             ? data.find((item) => item?.[Key] == value)?.label
             : placeholder}
 
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          {/* Chevron icon with transition */}
+          <ChevronDown
+            className={`ml-2 h-4 w-4 shrink-0 !text-[#666666] transition-transform duration-300 ${
+              open ? "rotate-180" : "rotate-0"
+            }`}
+          />
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className={`${className} min-w-[200px]  !w-full p-0`}
+        className={`${className} min-w-fit  !w-full p-0 bg-[#FFFFFF] `}
         contentClassName={contentClassName}
       >
         <Command>
@@ -79,7 +81,7 @@ const CustomDropDown = ({
                 : data?.map((item) => (
                     <CommandItem
                       key={item.value}
-                      onSelect={() => handleSelect(item.value,item)}
+                      onSelect={() => handleSelect(item.value, item)}
                     >
                       <Check
                         className={cn(
@@ -87,7 +89,7 @@ const CustomDropDown = ({
                           value === item.value ? "opacity-100" : "opacity-0"
                         )}
                       />
-                      <div className="flex justify-between items-center gap-x-4">
+                      <div className="flex justify-between items-center font-poppins text-sm font-normal  gap-x-4">
                         <span>{item.label}</span>
                         {item?.human_verified && (
                           <Verified className="h-4 w-4 text-primary" />

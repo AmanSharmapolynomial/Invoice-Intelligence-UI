@@ -1,5 +1,5 @@
 import CustomDropDown from "@/components/ui/CustomDropDown";
-import CustomInput from "@/components/ui/CustomInput";
+import CustomInput from "@/components/ui/Custom/CustomInput";
 import CustomSelect from "@/components/ui/CustomSelect";
 import DatePicker from "@/components/ui/DatePicker";
 import { Skeleton } from "@/components/ui/skeleton";

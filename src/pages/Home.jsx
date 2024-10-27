@@ -119,8 +119,12 @@ const Home = () => {
   } = useSearchInvoice();
   return (
     <>
-      <Navbar></Navbar>
-      <Layout className={"mx-10 rounded-md  border mt-8 !shadow-none   "}>
+      <Navbar />
+      <Layout
+        className={
+          "mx-10 rounded-md  border mt-8 !shadow-none dark:!bg-[#040807]  "
+        }
+      >
         <Header
           className={
             "shadow-none bg-primary rounded-t-md !text-[#FFFFFF] relative overflow-auto"
@@ -206,7 +210,6 @@ const Home = () => {
                                           navigate(
                                             `/invoice-details?document_uuid=${document_uuid}`
                                           )
-                                          
                                         }
                                         className="!w-full flex justify-between cursor-pointer !capitalize"
                                       >

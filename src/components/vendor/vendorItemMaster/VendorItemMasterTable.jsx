@@ -2,7 +2,7 @@ import no_data from "@/assets/image/no-data.svg";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import CustomDropDown from "@/components/ui/CustomDropDown";
-import CustomInput from "@/components/ui/CustomInput";
+import CustomInput from "@/components/ui/Custom/CustomInput";
 import { Modal, ModalDescription } from "@/components/ui/Modal";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";

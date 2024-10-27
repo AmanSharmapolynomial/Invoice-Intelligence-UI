@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const TablePagination = ({ totalPages=null, isFinalPage=false,Key="page" }) => {
+const TablePagination = ({ totalPages=null, isFinalPage=false,Key="page" ,className }) => {
   const [searchParams] = useSearchParams();
 
   const currentPage = parseInt(searchParams.get([`${Key}`])) || 1;
@@ -40,7 +40,7 @@ const TablePagination = ({ totalPages=null, isFinalPage=false,Key="page" }) => {
     setPageIndex(currentPage);
   }, [currentPage]);
   return (
-    <Pagination className={"!bg-[#1E7944] py-1.5 rounded-b-md"}>
+    <Pagination className={`${className} !bg-[#1E7944] py-1.5 rounded-b-md`} >
       <PaginationContent>
         <PaginationItem className="cursor-pointer" onClick={handlePreviousPage}>
           <PaginationPrevious className={"text-[#FFFFFF]"} />

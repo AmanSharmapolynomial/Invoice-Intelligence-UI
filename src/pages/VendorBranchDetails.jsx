@@ -11,7 +11,7 @@ import {
 } from "@/components/vendor/api";
 import { Save, Trash2 } from "lucide-react";
 
-import CustomInput from "@/components/ui/CustomInput";
+import CustomInput from "@/components/ui/Custom/CustomInput";
 import ScrollableDropDown from "@/components/ui/ScrollableDropDown";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";

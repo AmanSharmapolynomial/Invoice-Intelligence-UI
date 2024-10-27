@@ -7,11 +7,11 @@ const Progress = React.forwardRef(
   (
     {
       className,
-      totalValue=1,
+      totalValue = 1,
       innerClassName,
       label,
       innerText,
-      value=1,
+      value = 1,
       ...props
     },
     ref
