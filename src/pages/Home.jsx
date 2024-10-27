@@ -48,12 +48,14 @@ import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { Filter as FilterIcon, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import persistStore from "@/store/persistStore";
 
 const Home = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [searchedInvoices, setSearchedInvoices] = useState([]);
+  const {setVendorNames:setVendorsList}=persistStore()
   let page = searchParams.get("page") || 1;
   let page_size = searchParams.get("page_size") || 9;
   let invoice_type = searchParams.get("invoice_type") || "";
@@ -105,12 +107,15 @@ const Home = () => {
     setRestaurantFilter(resValue);
     setVendorFilter(vendValue);
     setVendorNames(vendorNamesList?.data?.vendor_names);
+    setVendorsList(vendorNamesList?.data?.vendor_names)
   }, [
     restaurantsList,
     vendorNamesList,
     vendorNamesLoading,
     restaurantsListLoading
   ]);
+
+  
 
   const {
     mutate: searchInvoices,

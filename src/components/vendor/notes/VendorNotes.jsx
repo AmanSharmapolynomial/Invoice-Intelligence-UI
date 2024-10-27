@@ -78,7 +78,7 @@ const VendorNotes = ({ data = [], vendor_id, isLoading }) => {
                           </Card>
                         </div>
                       ))
-                    : data?.data?.map(
+                    :data?.data?.length>0&&data?.data?.map(
                         ({
                           note_uuid,
                           created_user,

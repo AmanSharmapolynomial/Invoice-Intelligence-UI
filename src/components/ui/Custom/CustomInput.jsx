@@ -21,7 +21,8 @@ const CustomInput = ({
       {variant == "search" ? (
         <div
           className={` ${
-            variant == "search" && "!border-[#FFFFFF] gap-x-2 rounded-md "
+            variant == "search" &&
+            "!border-[#FFFFFF] dark:!bg-[#000000] gap-x-2 rounded-md "
           } flex  items-center  `}
           style={{ boxShadow: "0px 0px 4px 0px #0000001A" }}
         >
@@ -30,7 +31,7 @@ const CustomInput = ({
             value={inputValue}
             className={`${className} ${
               variant == "search" && searchClassName
-            } rounded-md border-none shadow-none !h-[2.5rem] focus:!outline-none focus:!ring-0 `}
+            } rounded-md border-none shadow-none dark:text-[#FFFFFF] !h-[2.5rem] focus:!outline-none focus:!ring-0 `}
             placeholder={placeholder}
             type={type}
             onChange={(e) => {
@@ -42,7 +43,7 @@ const CustomInput = ({
       ) : (
         <Input
           value={inputValue}
-          className={`${className}  focus:!outline-none !min-h-[2.5rem] !h-[2.5rem] focus:!ring-0  border-[1px] border-[#E0E0E0] rounded-[4px] shadow-none `}
+          className={`${className}  dark:!bg-[#000000] dark:text-[#FFFFFF]  focus:!outline-none !min-h-[2.5rem] !h-[2.5rem] focus:!ring-0  border-[1px] border-[#E0E0E0] rounded-[4px] shadow-none `}
           placeholder={placeholder}
           type={type}
           onChange={(e) => {

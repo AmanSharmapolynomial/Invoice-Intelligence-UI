@@ -588,7 +588,7 @@ export const combineVendorsHeaders = [
     value: "vendor_id"
   },
   {
-    label: "Documnets Count",
+    label: "Documents Count",
     value: "documents_count"
   },
   {
@@ -596,11 +596,8 @@ export const combineVendorsHeaders = [
     value: "matching_score"
   },
   {
-    label: "Invoice",
+    label: "Compare Invoices",
     value: "invoice"
   },
-  {
-    label: "Select",
-    value: "select"
-  }
+
 ];

@@ -25,12 +25,12 @@ function App() {
   const { setActualVendorName } = usePersistStore();
   const [open, setOpen] = useState(false);
   const [vendorName, setVendorName] = useState("");
+  const [isItemMaster, setIsItemMaster] = useState(false);
   const [filteredVendors, setFilteredVendors] = useState([]);
   useEffect(() => {
     setFilteredVendors(vendorNamesList?.data?.vendor_names);
   }, [vendorNamesList]);
   const { theme } = useThemeStore();
-
 
   const navigate = useNavigate();
 
@@ -48,7 +48,9 @@ function App() {
             <div className="!text-left ">
               <p className="!font-poppins font-semibold text-[2rem] flex gap-x-2">
                 <span className="text-primary ">Automated</span>
-                <span className="text-primaryText dark:text-white">Invoice Solutions</span>
+                <span className="text-primaryText dark:text-white">
+                  Invoice Solutions
+                </span>
               </p>
               <p className="text-primaryText text-[1.25rem] font-poppins font-semibold w-full dark:text-white">
                 Simplify Processing, Verification, and User
@@ -88,6 +90,10 @@ function App() {
               showIcon={true}
               className={"cursor-pointer"}
               title="Check Item Master"
+              onClick={() => {
+                setOpen(true);
+                setIsItemMaster(true);
+              }}
               content="Speed up item master verification for seamless operations."
             />
             <CustomCard
@@ -119,12 +125,14 @@ function App() {
       <Modal
         open={open}
         setOpen={setOpen}
-        className="bg-white"
+        className="bg-white dark:bg-[#051C14] dark:border-[#051C14]"
         title={"Available Vendors"}
-        titleClassName={"font-semibold text-base font-poppins"}
+        titleClassName={
+          "font-semibold text-base font-poppins dark:text-[#F6F6F6]"
+        }
       >
         <ModalDescription>
-          <div className="flex flex-col gap-y-4 overflow-scroll !h-[35.875rem] ">
+          <div className="flex flex-col gap-y-4 overflow-scroll !h-[35.875rem]  ">
             <CustomInput
               showIcon
               variant="search"
@@ -149,12 +157,12 @@ function App() {
               }}
             />
             <Table className="overflow-auto">
-              <TableHeader className="!bg-[#FFFFFF] sticky top-0">
-                <TableRow className="border-none ">
-                  <TableHead className="!font-poppins !text-[#000000] !text-sm font-semibold">
+              <TableHeader className="!bg-[#FFFFFF] dark:!bg-[#051C14] sticky top-0">
+                <TableRow className="border-none hover:bg-transparent ">
+                  <TableHead className="!font-poppins !text-[#000000] dark:!text-[#F6F6F6] !text-sm font-semibold">
                     Vendor Name
                   </TableHead>
-                  <TableHead className="!font-poppins !text-[#000000] !text-sm font-semibold flex justify-center">
+                  <TableHead className="!font-poppins !text-[#000000]  dark:!text-[#F6F6F6] !text-sm font-semibold flex justify-center">
                     Verified
                   </TableHead>
                 </TableRow>
@@ -165,11 +173,15 @@ function App() {
                   ({ vendor_id, vendor_name, human_verified }) => (
                     <TableRow
                       key={vendor_id}
-                      onClick={() => navigate(`/vendor-details/${vendor_id}`)}
-                      className="hover:bg-textColor/50 w-full  justify-between border-none cursor-pointer"
+                      onClick={() => {
+                        isItemMaster
+                          ? navigate(`/fast-item-verification/${vendor_id}`)
+                          : navigate(`/vendor-details/${vendor_id}`);
+                      }}
+                      className="hover:bg-textColor/50 dark:hover:bg-transparent w-full  justify-between border-none cursor-pointer"
                     >
                       <TableCell className="">
-                        <p className="capitalize font-poppins font-normal text-primaryText text-xs">
+                        <p className="capitalize dark:text-[#F6F6F6] font-poppins font-normal text-primaryText text-xs">
                           {vendor_name}
                         </p>
                       </TableCell>
@@ -178,10 +190,10 @@ function App() {
                           {human_verified ? (
                             <img
                               src={approved}
-                              className="h-[1rem] w-[1rem] text-primary"
+                              className="h-[1rem] w-[1rem] dark:text-[#F6F6F6] text-primary"
                             />
                           ) : (
-                            <span className="font-poppins font-normal text-grey">
+                            <span className="font-poppins dark:text-[#F6F6F6] font-normal text-grey">
                               -
                             </span>
                           )}

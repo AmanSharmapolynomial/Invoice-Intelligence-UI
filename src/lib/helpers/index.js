@@ -130,3 +130,13 @@ export function formatRawDataTable(rawTable) {
 
   return uniqueColumns;
 }
+
+
+
+export const findVendorNameById=(data,id)=>{
+  return data?.find((it)=>it?.vendor_id==id)?.['vendor_name']
+}
+
+export const findVendorIdByVendorName=(data,name)=>{
+  return data?.find((it)=>it?.vendor_name?.toLowerCase()?.trim()==name?.toLowerCase()?.trim())?.['vendor_id']
+}

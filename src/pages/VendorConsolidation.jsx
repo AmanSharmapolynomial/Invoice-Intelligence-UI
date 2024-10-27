@@ -1,4 +1,3 @@
-import Header from "@/components/common/Header";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import TablePagination from "@/components/common/TablePagination";
@@ -14,6 +13,9 @@ import {
   AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import BreadCrumb from "@/components/ui/Custom/BreadCrumb";
+import CustomInput from "@/components/ui/Custom/CustomInput";
+import ProgressBar from "@/components/ui/Custom/ProgressBar";
 import CustomDropDown from "@/components/ui/CustomDropDown";
 import { Input } from "@/components/ui/input";
 import { useGetUsersList } from "@/components/user/api";
@@ -26,12 +28,9 @@ import VendorConsolidationTable from "@/components/vendor/vendorConsolidation/Ve
 import { humanVerifiedOptions, vendorCategories } from "@/constants";
 import { formatData, getUserNameFromId } from "@/lib/helpers";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
-import { CirclePlus, Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Plus } from "lucide-react";
+import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import ProgressBar from "@/components/ui/Custom/ProgressBar";
-import BreadCrumb from "@/components/ui/Custom/BreadCrumb";
-import CustomInput from "@/components/ui/Custom/CustomInput";
 
 const VendorConsolidation = () => {
   const [searchParams] = useSearchParams();
@@ -89,16 +88,15 @@ const VendorConsolidation = () => {
   }
 
   let final =
-    // calculateDivHeightInVh("maindiv") -
-    95 -
+    calculateDivHeightInVh("maindiv") -
     (calculateDivHeightInVh("bread") +
       calculateDivHeightInVh("div1") +
       calculateDivHeightInVh("div2") +
       calculateDivHeightInVh("navbar") +
-      10);
+      20);
 
   return (
-    <div className="h-full overflow-auto" id="maindiv">
+    <div className="h-screen !overflow-hidden " id="maindiv">
       <Navbar className="" />
       <Layout className="mx-6 box-border flex flex-col gap-y-4 mt-2  ">
         <BreadCrumb
@@ -106,10 +104,11 @@ const VendorConsolidation = () => {
             { path: "/vendor-consolidation", label: "Vendor Consolidation" }
           ]}
         />
-
-        {/* Flex container for height distribution */}
-        <div className="flex flex-col flex-grow">
-          <div id="div1" className="flex justify-between items-center  ">
+        <div className="flex flex-col flex-grow dark:border-t  dark:rounded-b-lg dark:rounded-t-xl   dark:border-primary dark:bg-[#051C14]">
+          <div
+            id="div1"
+            className="flex justify-between dark:border-l dark:border-r items-center  dark:border-b rounded-t-xl dark:border-primary  "
+          >
             <ProgressBar
               title={"Verified Vendors"}
               currentValue={vendorsData?.["data"]?.["verified_vendor_count"]}
@@ -119,7 +118,7 @@ const VendorConsolidation = () => {
               <AlertDialog className="!bg-white">
                 <AlertDialogTrigger>
                   <Button className="!p-0 h-[2.50rem] w-[2.5rem]">
-                    <Plus className="h-3 w-3 text-[#FFFFFF]" />
+                    <Plus className="h-4 w-4 text-[#FFFFFF]" />
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
@@ -163,7 +162,10 @@ const VendorConsolidation = () => {
             </div>
           </div>
 
-          <div id="div2" className="flex items-center gap-x-2 justify-end py-2">
+          <div
+            id="div2"
+            className="flex dark:border-l dark:border-r items-center gap-x-2 justify-end py-2 pr-[0.625rem] dark:border-b dark:border-primary"
+          >
             <CustomDropDown
               triggerClassName={"bg-gray-100"}
               contentClassName={"bg-gray-100"}
@@ -220,21 +222,16 @@ const VendorConsolidation = () => {
               }
             />
           </div>
-
-          <div
-            className={`flex-grow overflow-auto`}
-            // style={{ height: `${final}vh` }}
-          >
-            <VendorConsolidationTable
-              data={vendorsData?.data?.["vendors"]}
-              isLoading={vendorsDataLoading}
-              totalPages={vendorsData?.total_pages}
-              height={final}
-            />
-          </div>
-          <TablePagination
+          <VendorConsolidationTable
+            data={vendorsData?.data?.["vendors"]}
+            isLoading={vendorsDataLoading}
             totalPages={vendorsData?.total_pages}
-            className={"h-[5vh] mt-4"}
+            height={final}
+          />
+          <TablePagination
+            isFinalPage={vendorsData?.is_final_page}
+            totalPages={vendorsData?.total_pages}
+            className={"h-[5.5vh] mt-4"}
           />
         </div>
       </Layout>
