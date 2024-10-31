@@ -38,7 +38,7 @@ const Navbar = ({ children, className }) => {
   return (
     <div
     id="navbar"
-      className={`${className} w-full h-[3.75rem]  justify-between flex items-center pr-[1.25rem]  ${pathname=="/"?"pl-[6.25rem]":"pl-[1.25rem]"}  shadow relative bg-white dark:!bg-[#051C14]`}
+      className={`${className} sticky top-0 z-10 w-full h-[3.75rem]  justify-between flex items-center pr-[1.25rem]  ${pathname=="/"?"pl-[6.25rem]":"pl-[1.25rem]"}  shadow relative bg-white dark:!bg-[#051C14]`}
     >
       <div>
     

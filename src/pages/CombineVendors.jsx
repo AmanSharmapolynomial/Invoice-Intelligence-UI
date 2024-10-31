@@ -73,7 +73,7 @@ const CombineVendors = () => {
       setCheckedVendors(temp);
     }
   };
-  console.log(checkedVendors);
+
   return (
     <div className="h-screen !overflow-hidden " id="maindiv">
       <Navbar className="" />
@@ -205,7 +205,7 @@ const CombineVendors = () => {
                     <Checkbox
                       className={` !rounded-[2px] border-[1.8px] border-grey checked:!border-none`}
                       checked={
-                       !isLoading && checkedVendors?.length ==
+                       !isLoading &&   formatCombineVendorsArray(data?.data)?.length!==0 && checkedVendors?.length ==
                         formatCombineVendorsArray(data?.data)?.length
                       }
                       onCheckedChange={(val) => {
@@ -228,7 +228,7 @@ const CombineVendors = () => {
                   className="flex w-full justify-between min-h-10 py-2"
                   key={index}
                 >
-                  {["a", "b", "c", "d", "e"]?.map((_, i) => {
+                  {["a", "b", "c", "d", ]?.map((_, i) => {
                     return (
                       <TableHead
                         key={i}

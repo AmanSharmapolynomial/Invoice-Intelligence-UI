@@ -22,6 +22,7 @@ import VendorDetailsTable from "@/components/vendor/vendorDetails/VendorDetailsT
 import VendorInvoiceColumnData from "@/components/vendor/vendorDetails/VendorInvoiceColumnData";
 import { useEffect, useState } from "react";
 import { LoaderIcon } from "react-hot-toast";
+import BreadCrumb from "@/components/ui/Custom/BreadCrumb";
 
 const VendorDetails = () => {
   const { vendor_id } = useParams();
@@ -48,17 +49,35 @@ const VendorDetails = () => {
     <>
       <Navbar className="" />
 
-      <Layout className={"mx-10 box-border overflow-auto"}>
-        <Header
-          title={`Vendor Details ${
-            data?.data?.vendor_name ? " for " + data?.data?.vendor_name : ""
-          }`}
-          className="border mt-10 rounded-t-md !shadow-none bg-primary !capitalize !text-[#FFFFFF] relative "
-        >
-          {!vendorNotesLoading && (
-            <VendorNotes data={vendorNotes} vendor_id={vendor_id} />
-          )}
-        </Header>
+      <Layout>
+        <BreadCrumb
+          title={"Vendor Details"}
+          crumbs={[
+            {
+              path: "",
+              label: `${data?.data?.vendor_name}`
+            },
+            {
+              path: "",
+              label: `Details`
+            }
+          ]}
+        />
+
+        <div className="w-full flex justify-end items-center">
+          <div className="flex items-center gap-x-2">
+            {!vendorNotesLoading && (
+              <VendorNotes data={vendorNotes} vendor_id={vendor_id} />
+            )}
+            <Button className="h-[2.25rem] w-[5.5rem] border-primary flex justify-center hover:bg-transparent bg-transparent shadow-none text-[#000000] font-poppins font-normal text-xs border">
+              Delete
+            </Button>
+            <Button className="h-[2.25rem] w-[5.5rem] border-primary flex justify-center hover:bg-primary bg-transparent shadow-none text-[#FFFFFF] font-poppins font-normal text-xs border bg-primary">
+              Save
+            </Button>
+          </div>
+        </div>
+
         <VendorDetailsTable
           data={data}
           additionalData={additionalData?.data}

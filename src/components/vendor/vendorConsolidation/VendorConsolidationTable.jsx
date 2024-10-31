@@ -29,10 +29,10 @@ const VendorConsolidationTable = ({
   console.log(height);
   return (
     <Table
-      className={`flex flex-col   box-border  scrollbar pt-4 !h-[100%] w-[100%]  dark:border-l dark:border-r dark:border-primary  overflow-auto    `}
+      className={`flex flex-col   box-border  scrollbar pt-4 !h-[100%] w-[100%]   dark:border-l dark:border-r dark:border-primary  overflow-auto    `}
     >
       <TableHeader className="bg-white dark:bg-[#051C14] !sticky top-0 ">
-        <TableRow className="flex  text-base !sticky   !border-none  w-full  justify-between ">
+        <TableRow className="flex  text-base !sticky   !border-none  w-full  justify-between pl-2">
           {vendorConsolidationHeaders?.map(({ label, styling }) => (
             <TableHead
               key={label}
@@ -55,7 +55,7 @@ const VendorConsolidationTable = ({
       {/* <div className="flex-1 "> */}
       <TableBody
         style={{ height: `${height}vh` }}
-        className={`     !overflow-auto  w-full dark:border-b dark:border-b-primary  `}
+        className={`     !overflow-auto  w-full dark:border-b dark:border-b-primary pl-2 `}
       >
         {/* <div> */}
         {isLoading ? (

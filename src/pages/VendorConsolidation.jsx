@@ -107,7 +107,7 @@ const VendorConsolidation = () => {
         <div className="flex flex-col flex-grow dark:border-t  dark:rounded-b-lg dark:rounded-t-xl   dark:border-primary dark:bg-[#051C14]">
           <div
             id="div1"
-            className="flex justify-between dark:border-l dark:border-r items-center  dark:border-b rounded-t-xl dark:border-primary  "
+            className="flex justify-between dark:border-l dark:border-r items-center  dark:border-b rounded-t-xl dark:border-primary pr-[0.625rem] "
           >
             <ProgressBar
               title={"Verified Vendors"}
