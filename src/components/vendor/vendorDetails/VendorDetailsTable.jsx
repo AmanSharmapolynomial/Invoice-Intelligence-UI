@@ -14,6 +14,9 @@ import {
 import { vendorDetailsPageFirstColRowData } from "@/constants";
 import { getValueFromLabel, makeKeyValueFromKey } from "@/lib/helpers";
 import { queryClient } from "@/lib/utils";
+import CustomAccordion from "@/components/ui/Custom/CustomAccordion";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 const VendorDetailsTable = ({
   data = [],
@@ -26,209 +29,169 @@ const VendorDetailsTable = ({
     vendor_invoice_categories,
     category_choices
   } = additionalData;
+
+  const setCachedData = (key, value) => {
+    let copyObj = JSON.parse(JSON.stringify(data));
+
+    copyObj["data"][`${key}`] = value;
+    queryClient.setQueryData(["vendor-details", vendor_id], copyObj);
+  };
+
+  const Template = ({ title, children, styles = false }) => {
+    return (
+      <div className="flex flex-col gap-y-3">
+        <p className="font-medium font-poppins text-base text-[#000000]">
+          {title}
+        </p>
+        {styles ? (
+          <p className="border rounded-sm border-[#E0E0E0] bg-[#F6F6F6] font-poppins font-normal text-sm !h-[2.5rem] flex items-center px-2">
+            {children}
+          </p>
+        ) : (
+          children
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="w-full ">
-      <Table className="flex flex-col   box-border  scrollbar !w-full ">
-        <TableRow className="flex  text-base  !border-none  ">
-          <div className="!min-w-[50%]">
-            <TableHead className="flex  border-r !text-left items-center justify-start pl-[15%] !font-semibold !text-gray-800  border-b   bg-gray-200 h-14">
-              Field Name
-            </TableHead>
-            {vendorDetailsPageFirstColRowData?.map(({ label, value }) => (
-              <TableCell
-                key={label}
-                className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14"
-              >
-                {label}
-              </TableCell>
-            ))}
-          </div>
-          <div className="!min-w-[50%]">
-            <TableHead className="flex  border-r !text-left items-center justify-start pl-[15%] !font-semibold !text-gray-800  border-b  !min-h-14 bg-gray-200 h-14">
-              Field Value
-            </TableHead>
-            {isLoading ? (
-              [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]?.map((_, index) => (
-                <TableCell
-                  key={index}
-                  className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14"
-                >
-                  <Skeleton className={"w-96 h-5"} />
-                </TableCell>
-              ))
-            ) : (
-              <>
-                <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                  {data?.data?.["vendor_id"]}
-                </TableCell>
-                <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14 ">
-                  <CustomInput
-                    value={data?.data?.vendor_name}
-                    onChange={(val) => {
-                      let copyObj = JSON.parse(JSON.stringify(data));
+      <CustomAccordion title="Update Vendor Details">
+        <div className="grid grid-cols-3 gap-6 px-4 py-4">
+          <Template title={"Vendor Id"} styles={true}>
+            {data?.data?.["vendor_id"]}
+          </Template>
 
-                      copyObj["data"]["vendor_name"] = val;
-                      queryClient.setQueryData(
-                        ["vendor-details", vendor_id],
-                        copyObj
-                      );
-                    }}
-                  />
-                </TableCell>
-                <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                  <Switch
-                    value={data?.data?.["human_verified"]}
-                    onCheckedChange={(val) => {
-                      let copyObj = JSON.parse(JSON.stringify(data));
+          <Template title={"Vendor Name"}>
+            <CustomInput
+              value={data?.data?.vendor_name}
+              onChange={(val) => {
+                setCachedData("vendor_name", val);
+              }}
+            />
+          </Template>
+          <Template title={"Human Verified"}>
+            <RadioGroup
+              defaultValue={data?.data?.["human_verified"]}
+              onValueChange={(v) => setCachedData("human_verified", v)}
+              className="flex w-full gap-x-24 items-center h-[2.5rem] i"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value={true} id="r1" />
+                <Label htmlFor="r1">Yes</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value={false} id="r2" />
+                <Label htmlFor="r2">No</Label>
+              </div>
+            </RadioGroup>
+          </Template>
 
-                      copyObj["data"]["human_verified"] = val;
-                      queryClient.setQueryData(
-                        ["vendor-details", vendor_id],
-                        copyObj
-                      );
-                    }}
-                  />
-                </TableCell>
+          <Template title={"Document Count"} styles={true}>
+            {data?.data?.["document_count"]}
+          </Template>
+          <Template title={"Branch Count"} styles={true}>
+            {data?.data?.["branch_count"]}
+          </Template>
+          <Template title={"Auto Approve Invoices"}>
+            <RadioGroup
+              defaultValue={data?.data?.["auto_approve_invoices"]}
+              onValueChange={(v) => setCachedData("auto_approve_invoices", v)}
+              className="flex w-full gap-x-24 items-center h-[2.5rem] "
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value={true} id="r1" />
+                <Label htmlFor="r1">Yes</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value={false} id="r2" />
+                <Label htmlFor="r2">No</Label>
+              </div>
+            </RadioGroup>
+          </Template>
 
-                <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                  <Switch
-                    value={data?.data?.["auto_approve_invoices"]}
-                    onCheckedChange={(val) => {
-                      let copyObj = JSON.parse(JSON.stringify(data));
+          <Template title={"Verified Branches Count"} styles={true}>
+            {data?.data?.["verified_branch_count"]}
+          </Template>
 
-                      copyObj["data"]["auto_approve_invoices"] = val;
-                      queryClient.setQueryData(
-                        ["vendor-details", vendor_id],
-                        copyObj
-                      );
-                    }}
-                  />
-                </TableCell>
-                <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                  {data?.data?.["branch_count"]}
-                </TableCell>
-                <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                  {data?.data?.["verified_branch_count"]}
-                </TableCell>
-                <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                  {data?.data?.["item_count"]}
-                </TableCell>
-                <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                  <CustomDropDown
-                    triggerClassName={"!w-full !bg-transparent"}
-                    placeholder="None"
+          <Template title={"Items Count"} styles={true}>
+            {data?.data?.["item_count"]}
+          </Template>
 
-                    showSearch={false}
-                    Value={
-                      data?.data?.vendor_category == null
-                        ? null
-                        : data?.data?.vendor_category
-                    }
-                    onChange={(val) => {
-                      let copyObj = {...data};
+          <Template title={"Verified Items Count"} styles={true}>
+            {data?.data?.["verified_item_count"]}
+          </Template>
 
-                      copyObj["data"]["vendor_category"] = val;
-          
-                      queryClient.setQueryData(
-                        ["vendor-details", vendor_id],
-                        copyObj
-                      );
-                    }}
-                    data={makeKeyValueFromKey(vendor_invoice_categories)}
-                  />
-                </TableCell>
-                <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                  <CustomSelect
-                    value={data?.data?.vendor_account_category?.category_id}
-                    className="!min-w-[400px]"
-                    triggerClassName={"bg-gray-100 !min-w-full"}
-                    contentClassName={"bg-gray-100 !min-w-full"}
-                    data={category_choices?.map(({ name, category_id }) => {
-                      let obj = {
-                        label: name,
-                        value: category_id
-                      };
-                      return obj;
-                    })}
-                    onSelect={(val) => {
-                      let copyObj = JSON.parse(JSON.stringify(data));
+          <Template title={"Vendor Category"}>
+            <CustomDropDown
+              Value={data?.data?.vendor_category}
+              className="xl:min-w-[600px] md:max-w-[37rem] md:min-w-[24rem]"
+              triggerClassName={"bg-gray-100 !min-w-full"}
+              contentClassName={"bg-gray-100 !min-w-full"}
+              data={makeKeyValueFromKey(vendor_invoice_categories)}
+              onChange={(val) => {
+                setCachedData("vendor_category", val);
+              }}
+              placeholder="None"
+              showSearch={false}
+            />{" "}
+          </Template>
 
-                      copyObj["data"]["vendor_account_category"] = {
-                        category: getValueFromLabel(
-                          category_choices?.map(({ name, category_id }) => {
-                            let obj = {
-                              label: name,
-                              value: category_id
-                            };
-                            return obj;
-                          }),
-                          val
-                        ),
-                        category_id: val
-                      };
+          <Template title={"Account Category"}>
+            <CustomDropDown
+              Value={data?.data?.vendor_account_category?.category_id}
+              className="xl:min-w-[600px] md:max-w-[37rem] md:min-w-[24rem]"
+              triggerClassName={"bg-gray-100 !min-w-full"}
+              contentClassName={"bg-gray-100 !min-w-full"}
+              data={category_choices?.map(({ name, category_id }) => {
+                let obj = {
+                  label: name,
+                  value: category_id
+                };
+                return obj;
+              })}
+              onChange={(val) => {
+                setCachedData("vendor_account_category", val);
+              }}
+              placeholder="None"
+              searchPlaceholder="Search Account Category"
+            />{" "}
+          </Template>
+          <Template title={"Document Type"}>
+            <CustomDropDown
+              Value={data?.data?.vendor_document_type}
+              className="xl:min-w-[600px] md:max-w-[37rem] md:min-w-[24rem]"
+              triggerClassName={"bg-gray-100 !min-w-full"}
+              contentClassName={"bg-gray-100 !min-w-full"}
+              data={makeKeyValueFromKey(vendor_invoice_document_types)}
+              onChange={(val) => {
+                setCachedData("vendor_document_type", val);
+              }}
+              placeholder="None"
+              showSearch={false}
+            />{" "}
+          </Template>
 
-                      queryClient.setQueryData(
-                        ["vendor-details", vendor_id],
-                        copyObj
-                      );
-                    }}
-                    placeholder="None"
-                    searchPlaceholder="Search Vendor Name"
-                  />{" "}
-                </TableCell>
-                <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                  <ScrollableDropDown
-                    placeholder={"Vendor Name Synonyms"}
-                    triggerClassName="font-semibold capitalize"
-                    data={data?.data?.vendor_name_synonyms}
-                    onButtonClick={(item) => {
-                      let copyObj = JSON.parse(JSON.stringify(data));
-                      let filtered = copyObj["data"][
-                        "vendor_name_synonyms"
-                      ]?.filter((it) => it !== item.value);
-                      copyObj["data"]["vendor_name_synonyms"] = filtered;
-                      queryClient.setQueryData(
-                        ["vendor-details", vendor_id],
-                        copyObj
-                      );
-                    }}
-                  />
-                </TableCell>
-                <TableCell className="flex  !text-left items-center justify-start pl-[15%]   !font-normal !text-gray-800 !min-w-[100%] border-b border-r  !min-h-14">
-                  <CustomDropDown
-                    Value={data?.data?.vendor_document_type?.toLowerCase()}
-                    className="!min-w-[400px]"
-                    triggerClassName={"bg-gray-100 !min-w-full"}
-                    contentClassName={"bg-gray-100 !min-w-full"}
-                    data={makeKeyValueFromKey(vendor_invoice_document_types)}
-                    onChange={(val) => {
-                      let copyObj = JSON.parse(JSON.stringify(data));
-
-                      copyObj["data"]["vendor_document_type"] = val;
-
-                      queryClient.setQueryData(
-                        ["vendor-details", vendor_id],
-                        copyObj
-                      );
-                    }}
-                    placeholder="None"
-                    searchPlaceholder="Search Vendor Name"
-                  />{" "}
-                </TableCell>
-              </>
-            )}
-          </div>
-        </TableRow>
-
-        <div className="flex-1 !w-full">
-          <TableBody className="flex-1 h-full  ">
-            <div className="grid grid-cols-2  ">
-              <div></div>
-              <div></div>
-            </div>
-          </TableBody>
+          <Template title={"Vendor Name Synonyms"}>
+            <ScrollableDropDown
+              placeholder={"Vendor Name Synonyms"}
+              triggerClassName="font-semibold capitalize"
+              data={data?.data?.vendor_name_synonyms}
+              onButtonClick={(item) => {
+                let copyObj = JSON.parse(JSON.stringify(data));
+                let filtered = copyObj["data"]["vendor_name_synonyms"]?.filter(
+                  (it) => it !== item.value
+                );
+                copyObj["data"]["vendor_name_synonyms"] = filtered;
+                queryClient.setQueryData(
+                  ["vendor-details", vendor_id],
+                  copyObj
+                );
+              }}
+            />
+          </Template>
         </div>
-      </Table>
+      </CustomAccordion>
     </div>
   );
 };

@@ -24,11 +24,14 @@ const ScrollableDropDown = ({
   let modifiedData = myData;
 
   return (
-    <Select>
+    <Select className="border-none outline-none">
       <SelectTrigger
-        className={`${triggerClassName} min-w-[180px] w-full focus:!border-none focus:ring-0 !border `}
+        className={`${triggerClassName} !text-sm text-[#666666] font-poppins font-normal min-w-[180px] !h-[2.5rem] rounded-sm border border-[#E0E0E0] outline-none  focus:ring-[#E0E0E0] `}
       >
-        <SelectValue placeholder={modifiedData?.[0]?.label || placeholder} />
+        <SelectValue
+          placeholder={modifiedData?.[0]?.label || placeholder}
+          className="!text-sm text-[#666666] font-poppins font-normal"
+        />
       </SelectTrigger>
       <SelectContent className={contentClassName}>
         <ScrollArea
@@ -42,6 +45,7 @@ const ScrollableDropDown = ({
               className="bg-gray-100 p-2 px-2 my-1 flex justify-between items-center "
             >
               <p
+                className="text-sm text-[#666666] font-poppins font-normal"
                 onClick={() => {
                   onItemClick({ label, value });
                 }}

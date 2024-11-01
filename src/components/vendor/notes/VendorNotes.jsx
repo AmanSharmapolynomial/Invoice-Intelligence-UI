@@ -36,7 +36,7 @@ const VendorNotes = ({ data = [], vendor_id, isLoading }) => {
           <Tooltip>
             <TooltipTrigger>
               {" "}
-              <Button className={" bg-primary !w-fit  px-2"}>
+              <Button className={" bg-primary !w-fit  px-2 rounded-sm"}>
                 <img src={receipt} alt="" className="h-5 w-5" />
               </Button>
             </TooltipTrigger>

@@ -338,55 +338,55 @@ export const vendorConsolidationHeaders = [
 export const invoiceTableHeaders = [
   {
     label: "Invoice ID",
-    styling: "min-w-32"
+    styling: "w-[7.27%]"
   },
   {
-    label: "Source/Channnel",
-    styling: "min-w-40"
+    label: "Source/ Channnel",
+    styling: "w-[7.27%]"
   },
   {
     label: "Restaurant",
-    styling: "min-w-60"
+    styling: "w-[10%]"
   },
   {
     label: "Vendor",
-    styling: "min-w-72"
+    styling: "w-[10%]"
   },
   {
     label: "Upload Date",
-    styling: "min-w-40 justify-center"
+    styling: "w-[7.27%] justify-center"
   },
   {
     label: "Balance Status",
-    styling: "min-w-44 justify-center"
+    styling: "w-[7.27%] justify-center"
   },
   {
     label: "Final Status",
-    styling: "min-w-40 justify-center"
+    styling: "w-[7.27%] justify-center"
   },
   {
     label: "clickBACON Status",
-    styling: "min-w-44"
+    styling: "w-[7.27%] !text-center "
   },
   {
     label: "Failure Cause Code",
-    styling: "min-w-44"
+    styling: "w-[7.27%] !text-center"
   },
   {
-    label: "Accepted/Rejected",
-    styling: "min-w-40"
+    label: "Accepted/ Rejected",
+    styling: "w-[7.27%] !text-center"
   },
   {
     label: "Rejected Reasons",
-    styling: "min-w-60 justify-center"
+    styling: "min-w-[7.27%] justify-center !text-center"
   },
   {
     label: "Invoice Type",
-    styling: "min-w-60 justify-center"
+    styling: "min-w-[7.27%] justify-start pl-3"
   },
   {
     label: "Human Verification Date",
-    styling: "min-w-60 justify-center"
+    styling: "min-w-[7.27%] justify-center text-center"
   }
 ];
 
@@ -598,6 +598,5 @@ export const combineVendorsHeaders = [
   {
     label: "Compare Invoices",
     value: "invoice"
-  },
-
+  }
 ];

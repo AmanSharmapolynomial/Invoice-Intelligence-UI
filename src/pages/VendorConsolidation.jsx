@@ -29,7 +29,7 @@ import { humanVerifiedOptions, vendorCategories } from "@/constants";
 import { formatData, getUserNameFromId } from "@/lib/helpers";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 const VendorConsolidation = () => {
@@ -65,7 +65,8 @@ const VendorConsolidation = () => {
     createVendor(addedVendor);
     setAddedVendor("");
   };
-  // const [final, setFinal] = useState("");
+  
+  const [final, setFinal] = useState(50);
   // Function to calculate the height of a div in vh
   function calculateDivHeightInVh(elementId) {
     const element = document.getElementById(elementId);
@@ -79,7 +80,7 @@ const VendorConsolidation = () => {
       // Calculate height in vh
       const heightInVh = (elementHeight / viewportHeight) * 100;
 
-      console.log(`The height of the div is: ${heightInVh.toFixed(2)}vh`);
+ 
       return heightInVh;
     } else {
       console.error("Element not found");
@@ -87,14 +88,15 @@ const VendorConsolidation = () => {
     }
   }
 
-  let final =
-    calculateDivHeightInVh("maindiv") -
-    (calculateDivHeightInVh("bread") +
-      calculateDivHeightInVh("div1") +
-      calculateDivHeightInVh("div2") +
-      calculateDivHeightInVh("navbar") +
-      20);
-
+ 
+useEffect(()=>{
+setFinal(calculateDivHeightInVh("maindiv") -
+(calculateDivHeightInVh("bread") +
+  calculateDivHeightInVh("div1") +
+  calculateDivHeightInVh("div2") +
+  calculateDivHeightInVh("navbar") +
+  16.5))
+},[])
   return (
     <div className="h-screen !overflow-hidden " id="maindiv">
       <Navbar className="" />
@@ -104,17 +106,17 @@ const VendorConsolidation = () => {
             { path: "/vendor-consolidation", label: "Vendor Consolidation" }
           ]}
         />
-        <div className="flex flex-col flex-grow dark:border-t  dark:rounded-b-lg dark:rounded-t-xl   dark:border-primary dark:bg-[#051C14]">
+        <div className="flex flex-col flex-grow dark:border-t  dark:rounded-b-lg dark:rounded-t-xl   dark:border-primary ">
           <div
             id="div1"
-            className="flex justify-between dark:border-l dark:border-r items-center  dark:border-b rounded-t-xl dark:border-primary pr-[0.625rem] "
+            className="flex dark:bg-[#051C14] justify-between dark:border-l dark:border-r items-center  dark:border-b rounded-t-xl dark:border-primary pr-[0.625rem] "
           >
             <ProgressBar
               title={"Verified Vendors"}
               currentValue={vendorsData?.["data"]?.["verified_vendor_count"]}
               totalValue={vendorsData?.["data"]?.["total_vendor_count"]}
             />
-            <div className="flex items-center gap-x-2">
+            <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
               <AlertDialog className="!bg-white">
                 <AlertDialogTrigger>
                   <Button className="!p-0 h-[2.50rem] w-[2.5rem]">
@@ -164,11 +166,12 @@ const VendorConsolidation = () => {
 
           <div
             id="div2"
-            className="flex dark:border-l dark:border-r items-center gap-x-2 justify-end py-2 pr-[0.625rem] dark:border-b dark:border-primary"
+            className="flex dark:border-l dark:bg-[#051C14] dark:border-r items-center gap-x-2 justify-end py-2 pr-[0.625rem] dark:border-b dark:border-primary"
           >
             <CustomDropDown
               triggerClassName={"bg-gray-100"}
               contentClassName={"bg-gray-100"}
+              className={"!min-w-fit"}
               data={vendorCategories}
               onChange={(val) => {
                 if (val === "none") {
@@ -184,6 +187,7 @@ const VendorConsolidation = () => {
             <CustomDropDown
               triggerClassName={"bg-gray-100"}
               contentClassName={"bg-gray-100"}
+              className={"!min-w-fit"}
               data={humanVerifiedOptions}
               onChange={(val) => {
                 if (val === "none") {
@@ -202,6 +206,7 @@ const VendorConsolidation = () => {
             />
             <CustomDropDown
               triggerClassName={"bg-gray-100"}
+              className={"!min-w-fit"}
               contentClassName={"bg-gray-100"}
               data={usersListLoading ? [] : formatData(usersData?.data)}
               onChange={(val) => {

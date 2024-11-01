@@ -4,16 +4,7 @@ import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import TablePagination from "@/components/common/TablePagination";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
 
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from "@/components/ui/tooltip";
 import {
   useCombineVendorBranches,
   useGetVendorBranches,
@@ -21,17 +12,17 @@ import {
 } from "@/components/vendor/api";
 import VendorBranchesTable from "@/components/vendor/vendorBranches/VendorBranchesTable";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
-import { Merge, Search } from "lucide-react";
+import { Merge } from "lucide-react";
 
 import { PdfViewer } from "@/components/common/PDFViewer";
-import { useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
-import { vendorStore } from "@/components/vendor/store/vendorStore";
 import BreadCrumb from "@/components/ui/Custom/BreadCrumb";
-import persistStore from "@/store/persistStore";
-import { findVendorNameById } from "@/lib/helpers";
 import CustomInput from "@/components/ui/Custom/CustomInput";
 import ProgressBar from "@/components/ui/Custom/ProgressBar";
+import { vendorStore } from "@/components/vendor/store/vendorStore";
+import { findVendorNameById } from "@/lib/helpers";
+import persistStore from "@/store/persistStore";
+import { useState } from "react";
+import { useParams, useSearchParams } from "react-router-dom";
 const VendorBranches = () => {
   const { vendor_id } = useParams();
   const [searchTerm, setSearchTerm] = useState("");
@@ -57,7 +48,7 @@ const VendorBranches = () => {
     isRefetchError,
     isFetched
   } = useGetVendorBranchPdfs(branch_id);
-  console.log(vendorNames);
+  
   return (
     <div className="h-screen !overflow-hidden " id="maindiv">
       <Navbar className="" />

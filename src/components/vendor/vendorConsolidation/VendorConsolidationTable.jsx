@@ -1,5 +1,5 @@
+import approved from '@/assets/image/approved.svg';
 import no_data from "@/assets/image/no-data.svg";
-import TablePagination from "@/components/common/TablePagination";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { useDeleteVendor } from "@/components/vendor/api";
 import { vendorConsolidationHeaders } from "@/constants";
-import { Eye, Trash2, Verified } from "lucide-react";
+import { Eye, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 const VendorConsolidationTable = ({
   data,
@@ -26,10 +26,10 @@ const VendorConsolidationTable = ({
   const handleDeleteVendor = (vendor_id) => {
     deleteVendor(vendor_id);
   };
-  console.log(height);
+
   return (
     <Table
-      className={`flex flex-col   box-border  scrollbar pt-4 !h-[100%] w-[100%]   dark:border-l dark:border-r dark:border-primary  overflow-auto    `}
+      className={`flex flex-col dark:bg-[#051C14]  box-border  scrollbar pt-4 !h-[100%] w-[100%]   dark:border-l dark:border-r dark:border-primary  overflow-auto    `}
     >
       <TableHeader className="bg-white dark:bg-[#051C14] !sticky top-0 ">
         <TableRow className="flex  text-base !sticky   !border-none  w-full  justify-between pl-2">
@@ -112,7 +112,7 @@ const VendorConsolidationTable = ({
                     </Link>
                     <span>
                       {human_verified && (
-                        <Verified d className="h-4 w-4 text-primary" />
+                        <img src={approved} className="h-4 w-4 text-primary" />
                       )}
                     </span>
                   </TableCell>

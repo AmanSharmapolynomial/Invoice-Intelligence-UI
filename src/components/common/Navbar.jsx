@@ -37,12 +37,12 @@ const Navbar = ({ children, className }) => {
 
   return (
     <div
-    id="navbar"
-      className={`${className} sticky top-0 z-10 w-full h-[3.75rem]  justify-between flex items-center pr-[1.25rem]  ${pathname=="/"?"pl-[6.25rem]":"pl-[1.25rem]"}  shadow relative bg-white dark:!bg-[#051C14]`}
+      id="navbar"
+      className={`${className} sticky top-0 w-full h-[3.75rem] !z-50  justify-between flex items-center pr-[1.25rem]  ${
+        pathname == "/" ? "pl-[6.25rem]" : "pl-[1.25rem]"
+      }  shadow relative bg-white dark:!bg-[#051C14]`}
     >
       <div>
-    
-       
         <Link
           to={"/"}
           className="font-bold !text-[1.25rem] pl-3  font-poppins text-color/900 dark:text-[#FFFFFF]"

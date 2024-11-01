@@ -1,9 +1,9 @@
 import no_data from "@/assets/image/no-data.svg";
 import { Button } from "@/components/ui/button";
-import CustomAccordion from "@/components/ui/CustomAccordion";
-import CustomDropDown from "@/components/ui/CustomDropDown";
+import CustomAccordion from "@/components/ui/Custom/CustomAccordion";
 import CustomInput from "@/components/ui/Custom/CustomInput";
-import CustomSelect from "@/components/ui/CustomSelect";
+
+import CustomDropDown from "@/components/ui/CustomDropDown";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableHead, TableRow } from "@/components/ui/table";
 import { makeKeyValueFromKey } from "@/lib/helpers";
@@ -64,23 +64,20 @@ const InvoiceHeaderMapping = ({
   };
 
   return (
-    <CustomAccordion
-      title={"Invoice Header Mapping "}
-      contentClassName={"!text-2xl !font-bold"}
-    >
-      <Table className="!w-full mt-4 ">
-        <TableRow className="flex bg-gray-200 items-center  hover:bg-gray-200 rounde-md">
-          <TableHead className="text-base flex justify-center items-center !w-full ">
+    <CustomAccordion title={"Invoice Header Mapping "}>
+      <Table className="!w-full mt-4 !h-fit mb-4">
+        <TableRow className="flex border-none gap-x-2 px-1 items-center rounde-sm !font-poppins !font-medium !text-[#000000]">
+          <TableHead className="text-base flex pl-[0.7rem] justify-start items-center !text-[#000000] !w-full ">
             Header Display Name
           </TableHead>
-          <TableHead className="text-base flex justify-center items-center !w-full ">
+          <TableHead className="text-base flex  pl-[0.7rem]  justify-start items-center !text-[#000000] !w-full ">
             Actual Header Name
           </TableHead>
-          <TableHead className="text-base flex justify-center items-center !w-full ">
+          <TableHead className="text-base flex pl-[0.7rem]  justify-start items-center !text-[#000000] !w-full ">
             Actual Header Position
           </TableHead>
         </TableRow>
-        <TableBody className="!mt-4">
+        <TableBody className="!mt-4 h-full">
           {isLoading &&
             new Array(4)?.fill(4)?.map((_, index) => (
               <TableRow key={index} className="flex rounde-md">
@@ -105,7 +102,10 @@ const InvoiceHeaderMapping = ({
             data?.data?.invoice_header_names_mapping &&
             Object?.keys(data?.data?.invoice_header_names_mapping)?.map(
               (item) => (
-                <TableRow className="flex mt-4 !border-none" key={item}>
+                <TableRow
+                  className="flex mt-4 gap-x-4 !border-none px-1"
+                  key={item}
+                >
                   <TableHead className="text-base flex !w-full ">
                     <CustomDropDown
                       triggerClassName={"!w-full !bg-transparent"}
@@ -134,7 +134,7 @@ const InvoiceHeaderMapping = ({
                       }
                     />
                   </TableHead>
-                  <TableHead className="text-base !border-none flex justify-center gap-x-2 !w-full ">
+                  <TableHead className="text-base !border-none flex justify-center gap-x-8 pr-[2rem] !w-full ">
                     <CustomInput
                       triggerClassName={"!w-full "}
                       placeholder="Actual Header Position"
@@ -152,12 +152,12 @@ const InvoiceHeaderMapping = ({
                           ?.actual_header_position || ""
                       }
                     />
-                    <Button
-                      className="bg-red-600 hover:bg-red-600/90"
-                      onClick={() => deleteRow(item)}
-                    >
-                      <Trash2 className="h-5 w-5" />
-                    </Button>
+                    <p className="flex items-center">
+                      <Trash2
+                        className="h-5 w-5 text-[#939393] cursor-pointer"
+                        onClick={() => deleteRow(item)}
+                      />
+                    </p>
                   </TableHead>
                 </TableRow>
               )

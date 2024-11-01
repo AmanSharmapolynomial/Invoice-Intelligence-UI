@@ -21,21 +21,20 @@ const CustomSelect = ({
   label = "",
   onSelect,
   value,
-  
-  showSearch = true
+
+  showSearch = false
 }) => {
   const [dropDownSearch, setDropDownSearch] = useState("");
   const [filteredDropDownItems, setFilteredDropDownItems] = useState(data);
   let inputRef = useRef();
-useEffect(()=>{
-  data?.forEach((item) => {
-    if (item?.value == null || item?.value == "none") {
-      item.label = placeholder;
-
-    }
-    // item?.value?.toLowerCase()
-  });
-},[])
+  useEffect(() => {
+    data?.forEach((item) => {
+      if (item?.value == null || item?.value == "none") {
+        item.label = placeholder;
+      }
+      // item?.value?.toLowerCase()
+    });
+  }, []);
 
   return (
     <Select
@@ -46,9 +45,9 @@ useEffect(()=>{
         onSelect(val == "none" ? "none" : val);
       }}
     >
-      <Label>{label}</Label>
+      <Label className="font-poppins font-medium text-sm text-[#000000] mb-2">{label}</Label>
       <SelectTrigger
-        className={`${triggerClassName} min-w-[180px] focus:outline-none focus:ring-0 !bg-gray-100 font-medium`}
+        className={`${triggerClassName} font-poppins font-normal  min-w-[180px] border border-[#E0E0E0] !h-[2.5rem] rounded-sm focus:outline-none focus:ring-0  text-sm text-[#1C1C1E]`}
       >
         <SelectValue
           placeholder={

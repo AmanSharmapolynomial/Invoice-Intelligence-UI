@@ -39,8 +39,10 @@ function App() {
   }, []);
   return (
     <>
-      <Layout className={"h-screen !flex-1  overflow-hidden dark:bg-[#040807]"}>
-        <Navbar />
+      <Navbar />
+      <Layout
+        className={" !flex-1  !overflow-hidden dark:bg-[#040807]  "}
+      >
         <div className=" w-full flex h-full gap-x-4  overflow-hidden ">
           {/* Left Side */}
           <div className=" w-[50%] h-full !flex-1 flex-col flex !pt-[5.75%] gap-y-4 pl-[6.25rem] !bg-opacity-25 ">

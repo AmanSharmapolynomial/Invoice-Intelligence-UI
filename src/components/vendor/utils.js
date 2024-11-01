@@ -113,7 +113,7 @@ export const getVendorsPdfs = async (payload) => {
   return response;
 };
 export const getAdditionalData = async () => {
-  const apiUrl = `api/utils/additional_data?category_choices=true&processed_table_header_candidates=true&vendor_invoice_document_types=true&vendor_invoice_categories=true`;
+  const apiUrl = `api/utils/additional_data/?category_choices=true&processed_table_header_candidates=true&vendor_invoice_document_types=true&vendor_invoice_categories=true`;
   const response = await axiosInstance.get(apiUrl);
   return response;
 };

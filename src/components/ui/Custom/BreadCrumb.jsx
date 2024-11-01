@@ -14,13 +14,13 @@ import { ArrowLeft, MoveLeft } from "lucide-react";
 const BreadCrumb = ({ crumbs = [], title }) => {
   const navigate = useNavigate();
   return (
-    <div className="flex w-full items-center justify-between p-4" id="bread">
-      <p className="text-textColor/950 font-poppins font-semibold text-xl dark:text-[#FFFFFF] flex items-center gap-x-2">
+    <div className="flex w-full items-center justify-between py-4 pr-2  " id="bread">
+      <p className="text-textColor/950 font-poppins font-semibold  dark:text-[#FFFFFF] flex items-center gap-x-2">
         <ArrowLeft
           className="h-5 w-5 cursor-pointer"
           onClick={() => navigate(-1)}
         />{" "}
-        <span> {title || crumbs?.[crumbs?.length - 1]?.["label"]}</span>
+        <span className="!text-xl !font-semibold font-poppins text-[#121212] dark:!text-[#FFFFFF]" > {title || crumbs?.[crumbs?.length - 1]?.["label"]}</span>
       </p>
       <Breadcrumb>
         <BreadcrumbList className="flex items-center">
