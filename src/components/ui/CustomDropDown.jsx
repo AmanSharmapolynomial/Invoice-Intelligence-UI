@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/popover";
 import { getValueFromLabel } from "@/lib/helpers";
 import { cn } from "@/lib/utils";
-import { Check, ChevronsUpDown, Verified } from "lucide-react";
+import { Check, ChevronDown, Verified } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const CustomDropDown = ({
@@ -32,62 +32,73 @@ const CustomDropDown = ({
   showSearch = true
 }) => {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(Value || ""); 
+  const [value, setValue] = useState(Value || "");
   useEffect(() => {
     if (Value !== undefined) {
-      setValue(Value); 
+      setValue(Value);
     }
   }, [Value]);
 
-
-
-
-  const handleSelect = (currentValue,item) => {
+  const handleSelect = (currentValue, item) => {
     const newValue = currentValue === value ? "" : currentValue;
     setValue(newValue);
     setOpen(false);
-    onChange(getValueFromLabel(data, newValue),item);
+    onChange(getValueFromLabel(data, newValue), item);
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen} className={className}>
-      <PopoverTrigger asChild className={triggerClassName}>
+    <Popover
+      open={open}
+      onOpenChange={setOpen}
+      className={`${className} dark:!border-[#000000]`}
+    >
+      <PopoverTrigger
+        asChild
+        className={`${triggerClassName} dark:!border-[#000000]`}
+      >
         <Button
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="min-w-[200px] justify-between capitalize"
+          className="min-w-fit border !h-[2.5rem] dark:bg-[#000000] dark:text-textColor/200 dark:border-[#000000] bg-[#FFFFFF] hover:bg-[#FFFFFF] border-[#E0E0E0]  justify-between capitalize shadow-none !rounded-[4px] text-[#666666] hover:text-[#666666] font-poppins font-normal text-xs"
         >
           {value && value !== "none"
             ? data.find((item) => item?.[Key] == value)?.label
             : placeholder}
 
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          {/* Chevron icon with transition */}
+          <ChevronDown
+            className={`ml-2 h-4 font-bold w-4 shrink-0 !text-[#666666] dark:text-textColor/200 transition-transform duration-300 ${
+              open ? "rotate-180" : "rotate-0"
+            }`}
+          />
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className={`${className} min-w-[200px]  !w-full p-0`}
-        contentClassName={contentClassName}
+        className={`${className}  p-0 bg-[#FFFFFF] dark:border-[#051C14] xl:min-w-[600px] md:max-w-[37rem] md:min-w-[24rem]`}
+        contentClassName={`${contentClassName}   w-full`}
       >
-        <Command>
-          {showSearch && <CommandInput placeholder={searchPlaceholder} />}
-          <CommandList>
+        <Command className="dark:!border-[#051C14]    dark:bg-[#051C14] min-w-[100%] !w-full">
+          {showSearch && (
+            <CommandInput placeholder={searchPlaceholder} className="" />
+          )}
+          <CommandList className="border dark:!border-[#000000]">
             <CommandEmpty>No data found.</CommandEmpty>
-            <CommandGroup>
+            <CommandGroup className="">
               {showCustomItems
                 ? children // Render custom items if showCustomItems is true
                 : data?.map((item) => (
                     <CommandItem
                       key={item.value}
-                      onSelect={() => handleSelect(item.value,item)}
+                      onSelect={() => handleSelect(item.value, item)}
                     >
                       <Check
                         className={cn(
-                          "mr-2 h-4 w-4",
+                          "mr-2 h-4 w-4 dark:text-[#FFFFFF]",
                           value === item.value ? "opacity-100" : "opacity-0"
                         )}
                       />
-                      <div className="flex justify-between items-center gap-x-4">
+                      <div className="flex justify-between items-center font-poppins text-xs font-normal dark:!text-[#FFFFFF]   gap-x-4">
                         <span>{item.label}</span>
                         {item?.human_verified && (
                           <Verified className="h-4 w-4 text-primary" />

@@ -2,24 +2,24 @@ import React from "react";
 
 const InfoSection = () => {
   return (
-    <div className=" border-b flex justify-start px-10 gap-x-24 items-center overflow-auto  w-full">
-      <div className="flex gap-x-4 items-center py-4 ">
-        <div className="h-5 w-5 rounded-full bg-red-500 " />
-        <p className="font-medium text-sm">Failed</p>
+    <div className=" flex justify-start   gap-x-4 items-center overflow-auto  w-full dark:text-[#FFFFFF] ">
+      <div className="flex gap-x-2 items-center py-4 ">
+        <div className="h-[0.88rem] w-[0.88rem]  bg-primary " />
+        <p className="text-[#1C1C1E] text-sm font-poppins font-normal dark:text-[#FFFFFF]">Success</p>
       </div>
-      <div className="flex gap-x-4 items-center py-4 ">
-        <div className="h-5 w-5 rounded-full bg-green-500 " />
-        <p className="font-medium text-sm">Success</p>
+      <div className="flex gap-x-2 items-center py-4 ">
+        <div className="h-[0.88rem] w-[0.88rem]  bg-[#F15156] " />
+        <p className="text-[#1C1C1E] text-sm font-poppins font-normal dark:text-[#FFFFFF]">Failed</p>
       </div>
-      <div className="flex gap-x-4 items-center py-4 ">
-        <div className="h-5 w-5 rounded-full bg-yellow-500 " />
-        <p className="font-medium text-sm">
+      <div className="flex gap-x-2 items-center py-4 ">
+          <div className="h-[0.88rem] w-[0.88rem]  bg-[#FFA654]" />
+        <p className="text-[#1C1C1E] text-sm font-poppins font-normal dark:text-[#FFFFFF]">
           Failed Due to Different Document Category
         </p>
       </div>
-      <div className="flex gap-x-4 items-center py-4 ">
-        <div className="h-5 w-5 rounded-full bg-orange-500 " />
-        <p className="font-medium text-sm">Failed Due to Page Missing</p>
+      <div className="flex gap-x-2 items-center py-4 ">
+          <div className="h-[0.88rem] w-[0.88rem]  bg-[#FFEF00] " />
+        <p className="text-[#1C1C1E] text-sm font-poppins font-normal dark:text-[#FFFFFF]">Failed Due to Page Missing</p>
       </div>
     </div>
   );

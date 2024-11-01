@@ -16,6 +16,7 @@ import { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import Navbar from "@/components/common/Navbar";
+import userStore from "@/components/auth/store/userStore";
 
 const formSchema = z.object({
   username: z
@@ -29,6 +30,15 @@ const formSchema = z.object({
 });
 
 const Login = () => {
+  const {
+    setUsername,
+    setLastName,
+    setFirstName,
+    setEmail,
+    setAccessToken,
+    setRefreshToken,
+    setRole
+  } = userStore();
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -38,7 +48,7 @@ const Login = () => {
   });
   const { mutate, isPending } = useSignIn();
   const navigate = useNavigate();
-let timeout;
+  let timeout;
   const onSubmit = (payload) => {
     mutate(payload, {
       onError: (data) => {},
@@ -49,17 +59,19 @@ let timeout;
           first_name,
           last_name,
           role,
-          username
+          username,
+          email
         } = data["data"];
-        localStorage.setItem("access_token", access_token);
-        localStorage.setItem("refresh_token", refresh_token);
-        localStorage.setItem("first_name", first_name);
-        localStorage.setItem("last_name", last_name);
-        localStorage.setItem("user_role", role);
-        localStorage.setItem("username", username);
-        clearTimeout(timeout)
-        timeout=setTimeout(() => {
-          
+
+        setRole(role);
+        setEmail(email);
+        setUsername(username);
+        setFirstName(first_name);
+        setLastName(last_name);
+        setAccessToken(access_token);
+        setRefreshToken(refresh_token);
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
           navigate("/");
         }, 2000);
       }

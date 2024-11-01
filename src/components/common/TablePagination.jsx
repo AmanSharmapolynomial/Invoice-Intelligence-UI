@@ -11,8 +11,18 @@ import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import slash from "@/assets/image/slash.svg";
+import navigate_end from "@/assets/image/navigate_end.svg";
+import navigate_start from "@/assets/image/navigate_start.svg";
+import navigate_next from "@/assets/image/navigate_next.svg";
+import navigate_back from "@/assets/image/navigate_back.svg";
 
-const TablePagination = ({ totalPages=null, isFinalPage=false,Key="page" }) => {
+const TablePagination = ({
+  totalPages = null,
+  isFinalPage = false,
+  Key = "page",
+  className
+}) => {
   const [searchParams] = useSearchParams();
 
   const currentPage = parseInt(searchParams.get([`${Key}`])) || 1;
@@ -23,7 +33,7 @@ const TablePagination = ({ totalPages=null, isFinalPage=false,Key="page" }) => {
   const handlePreviousPage = () => {
     if (currentPage > 1) {
       const newPage = currentPage - 1;
-      updateParams({[`${Key}`]: newPage});
+      updateParams({ [`${Key}`]: newPage });
       setPageIndex(newPage);
     }
   };
@@ -31,19 +41,34 @@ const TablePagination = ({ totalPages=null, isFinalPage=false,Key="page" }) => {
   const handleNextPage = () => {
     if (!isFinalPage) {
       const newPage = currentPage + 1;
-      updateParams({[`${Key}`]: newPage});
+      updateParams({ [`${Key}`]: newPage });
       setPageIndex(newPage);
     }
   };
-
+  const handleNavigateStart = () => {
+    updateParams({ [`${Key}`]: 1 });
+    setPageIndex(newPage);
+  };
+  const handleNavigateEnd = () => {
+    updateParams({ [`${Key}`]: totalPages });
+    setPageIndex(newPage);
+  };
   useEffect(() => {
     setPageIndex(currentPage);
   }, [currentPage]);
   return (
-    <Pagination className={"!bg-[#1E7944] py-1.5 rounded-b-md"}>
-      <PaginationContent>
+    <Pagination
+      className={`${className} !bg-[#1E7944] py-1.5 rounded-b-md flex items-center gap-x-4`}
+    >
+      <PaginationContent className="flex items-center gap-x-4">
+        <PaginationItem
+          className="cursor-pointer"
+          onClick={handleNavigateStart}
+        >
+          <img src={navigate_start} alt="" className="h-[0.8rem]" />
+        </PaginationItem>
         <PaginationItem className="cursor-pointer" onClick={handlePreviousPage}>
-          <PaginationPrevious className={"text-[#FFFFFF]"} />
+          <img src={navigate_back} alt="" className="h-6 w-6" />
         </PaginationItem>
         <PaginationItem className="flex justify-center items-center h-10 z-20">
           <Input
@@ -51,24 +76,25 @@ const TablePagination = ({ totalPages=null, isFinalPage=false,Key="page" }) => {
             type="number"
             onChange={(e) => setPageIndex(e.target.value)}
             onBlur={() => {
-              let newPageIndex = Math.max(
-                1,
-                Math.min(pageIndex, totalPages)
-              );
-              updateParams({[`${Key}`]: newPageIndex});
+              let newPageIndex = Math.max(1, Math.min(pageIndex, totalPages));
+              updateParams({ [`${Key}`]: newPageIndex });
               setPageIndex(newPageIndex);
             }}
-            className="w-10 focus:w-12 !shadow-none !text-sm font-medium remove-number-spinner text-[#FFFFFF] border-none focus:!border-[#FFFFFF] focus:!outline-none focus:!ring-[#FFFFFF]"
+            className=" !shadow-none !text-sm font-medium remove-number-spinner text-[#000000] border-none focus:!border-[#FFFFFF] focus:!outline-none focus:!ring-[#FFFFFF] bg-[#FFFFFF]  flex justify-center items-center  w-[3rem]   h-[1.25rem] "
           />
-          <Button className="!bg-transparent pt-2.5 w-fit shadow-none border-none font-medium text-[#FFFFFF] cursor-default">
-            out of
-          </Button>
-          <Button className="!bg-transparent w-4 pt-2.5 shadow-none border-none font-medium text-[#FFFFFF] cursor-default">
-            <span>{totalPages!==null?totalPages:<Skeleton className={"w-7 h-7 bg-gray-300"}/>}</span>
-          </Button>
+          <img src={slash} alt="" className="h-4 w-6" />
+
+          <Input
+            disabled
+            value={totalPages || 1}
+            className=" !shadow-none !text-sm font-medium remove-number-spinner text-[#000000] border-none focus:!border-[#FFFFFF] focus:!outline-none focus:!ring-[#FFFFFF] bg-[#F6F6F6]  w-[3rem] max  h-[1.25rem]  disabled:!bg-[#F6F6F6] disabled:text-textColor/400"
+          />
         </PaginationItem>
         <PaginationItem className="cursor-pointer" onClick={handleNextPage}>
-          <PaginationNext className={"text-[#FFFFFF]"}/>
+          <img src={navigate_next} alt="" className="h-6 w-6" />
+        </PaginationItem>
+        <PaginationItem className="cursor-pointer" onClick={handleNavigateEnd}>
+          <img src={navigate_end} alt="" className="h-[0.8rem]" />
         </PaginationItem>
       </PaginationContent>
     </Pagination>

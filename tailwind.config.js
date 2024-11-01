@@ -21,7 +21,7 @@ export default {
           foreground: "hsl(var(--popover-foreground))"
         },
         primary: {
-          DEFAULT: "#348355",
+          DEFAULT: "#1E7944",
           foreground: "hsl(var(--primary-foreground))"
         },
         secondary: {
@@ -58,7 +58,12 @@ export default {
         grey: "#666667",
         primaryText: "#000000",
         border: "#E2E8F0",
-        "textColor/50": "#F6F6F6"
+        "textColor/50": "#F6F6F6",
+        'textColor/950':"#121212",
+        'textColor/900':"#3D3D3D",
+        'textColor/400':"#888888",
+        'textColor/800':"#454545",
+        'textColor/200':"#D1D1D1"
       },
       keyframes: {
         "accordion-down": {

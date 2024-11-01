@@ -4,16 +4,7 @@ import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import TablePagination from "@/components/common/TablePagination";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
 
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from "@/components/ui/tooltip";
 import {
   useCombineVendorBranches,
   useGetVendorBranches,
@@ -21,13 +12,17 @@ import {
 } from "@/components/vendor/api";
 import VendorBranchesTable from "@/components/vendor/vendorBranches/VendorBranchesTable";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
-import { Search } from "lucide-react";
+import { Merge } from "lucide-react";
 
 import { PdfViewer } from "@/components/common/PDFViewer";
+import BreadCrumb from "@/components/ui/Custom/BreadCrumb";
+import CustomInput from "@/components/ui/Custom/CustomInput";
+import ProgressBar from "@/components/ui/Custom/ProgressBar";
+import { vendorStore } from "@/components/vendor/store/vendorStore";
+import { findVendorNameById } from "@/lib/helpers";
+import persistStore from "@/store/persistStore";
 import { useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
-import { vendorStore } from "@/components/vendor/store/vendorStore";
-
 const VendorBranches = () => {
   const { vendor_id } = useParams();
   const [searchTerm, setSearchTerm] = useState("");
@@ -35,6 +30,7 @@ const VendorBranches = () => {
   let branch_id = searchParams.get("branch") || "";
   const { checkedBranches, setCheckedBranches, setMasterBranch, masterBranch } =
     vendorStore();
+  const { vendorNames } = persistStore();
   const [showPdfs, setShowPdfs] = useState(false);
 
   const updateParams = useUpdateParams();
@@ -52,9 +48,9 @@ const VendorBranches = () => {
     isRefetchError,
     isFetched
   } = useGetVendorBranchPdfs(branch_id);
-
+  
   return (
-    <>
+    <div className="h-screen !overflow-hidden " id="maindiv">
       <Navbar className="" />
       <div className={`${showPdfs && "flex gap-x-2"}`}>
         <Layout
@@ -62,41 +58,30 @@ const VendorBranches = () => {
             showPdfs ? "!ml-10 !mx-0 w-1/2" : "!mx-10"
           }  box-border  overflow-auto`}
         >
-          <Header
-            title={`Vendor Branches `}
-            className="border mt-10 rounded-t-md !shadow-none bg-primary !text-[#FFFFFF] relative "
-          >
-            <div className="flex items-center justify-center gap-x-2 w-fit">
-              <Label className="min-w-16">
-                Total :- {data?.["data"]?.["total_branch_count"]}
-              </Label>
+          <BreadCrumb
+            crumbs={[
+              {
+                path: `/vendor-details/${vendor_id}`,
+                label: `${findVendorNameById(vendorNames, vendor_id)}`
+              },
+              { path: "", label: "Branches" }
+            ]}
+          />
 
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger className="flex items-center justify-between gap-x-2 w-full">
-                    {" "}
-                    <Progress
-                      innerClassName="border-primary  !bg-white/85 "
-                      value={data?.["data"]?.["verified_branch_count"]}
-                      totalValue={data?.["data"]?.["total_branch_count"]}
-                      className="w-72  h-4 bg-white/15 "
-                    />
-                  </TooltipTrigger>
-                  <TooltipContent className=" bg-[#FFFFFF] font-semibold text-primary !text-sm flex flex-col justify-center gap-y-1">
-                    <span>
-                      Verified Branch Count :-{" "}
-                      {data?.["data"]?.["verified_branch_count"]}
-                    </span>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          </Header>
-          <div className="w-full border flex justify-between p-4 gap-x-4 overflow-auto">
-            <div>
-              <div className="flex w-full max-w-sm items-center space-x-2">
-                <Input
-                  type="text"
+          <div>
+            <div
+              id="div1"
+              className="flex justify-between dark:border-l dark:border-r items-center  dark:border-b rounded-t-xl dark:border-primary  "
+            >
+              <ProgressBar
+                title={"Verified Branches"}
+                currentValue={data?.["data"]?.["verified_branch_count"]}
+                totalValue={data?.["data"]?.["total_branch_count"]}
+              />
+              <div className="flex items-center gap-x-2">
+                <CustomInput
+                  variant="search"
+                  showIcon
                   value={searchTerm}
                   onChange={(e) => {
                     if (e.target.value === "") {
@@ -106,39 +91,34 @@ const VendorBranches = () => {
                       setSearchTerm(e.target.value);
                     }
                   }}
-                  placeholder="Search vendor address"
-                  className="min-w-72 max-w-96 border border-gray-200  focus:!ring-0 focus:!outline-none"
+                  placeholder="Search Vendor Address"
+                  className="!min-w-[300px]"
                 />
                 <Button
-                  type="submit"
+                  className="disabled:bg-[#CBCBCB] disabled:text-[#FFFFFF] font-poppins font-normal  rounded-sm !text-xs flex items-center gap-x-1 h-10 px-3"
+                  disabled={combiningBranches || checkedBranches?.length == 0}
                   onClick={() => {
-                    updateParams({ vendor_address: searchTerm });
+                    combineBranches(
+                      {
+                        branch_id: masterBranch,
+                        branches_to_combine: checkedBranches
+                      },
+                      {
+                        onSuccess: () => {
+                          setCheckedBranches([]);
+                          setMasterBranch([]);
+                        }
+                      }
+                    );
                   }}
                 >
-                  <Search />
+                  <Merge className="h-4 w-4" /> Combine
                 </Button>
               </div>
             </div>
-            <Button
-              disabled={combiningBranches || checkedBranches?.length == 0}
-              onClick={() => {
-                combineBranches(
-                  {
-                    branch_id: masterBranch,
-                    branches_to_combine: checkedBranches
-                  },
-                  {
-                    onSuccess: () => {
-                      setCheckedBranches([]);
-                      setMasterBranch([]);
-                    }
-                  }
-                );
-              }}
-            >
-              Combine Vendor Branches
-            </Button>
           </div>
+
+          <div className="w-full border flex justify-between p-4 gap-x-4 overflow-auto"></div>
           <VendorBranchesTable
             setShowPdfs={setShowPdfs}
             showPdfs={showPdfs}
@@ -154,6 +134,7 @@ const VendorBranches = () => {
             totalPages={data?.total_pages}
           />
         </Layout>
+
         {showPdfs && (
           <Layout className={"box-border w-1/2 overflow-hidden mr-10"}>
             <Header className="border mt-10 rounded-t-md !shadow-none bg-primary !text-[#FFFFFF] relative  ">
@@ -181,7 +162,7 @@ const VendorBranches = () => {
           </Layout>
         )}
       </div>
-    </>
+    </div>
   );
 };
 

@@ -23,6 +23,7 @@ import toast from "react-hot-toast";
 import { useAddVendorNote } from "@/components/vendor/api";
 import { Skeleton } from "@/components/ui/skeleton";
 import no_data from "@/assets/image/no-data.svg";
+import receipt from "@/assets/image/receipt_long.svg";
 
 const VendorNotes = ({ data = [], vendor_id, isLoading }) => {
   const [note, setNote] = useState("");
@@ -35,10 +36,8 @@ const VendorNotes = ({ data = [], vendor_id, isLoading }) => {
           <Tooltip>
             <TooltipTrigger>
               {" "}
-              <Button
-                className={" bg-[#FFFFFF] !w-fit hover:bg-[#FFFFFF] px-2"}
-              >
-                <NotebookIcon className="text-primary" />
+              <Button className={" bg-primary !w-fit  px-2 rounded-sm"}>
+                <img src={receipt} alt="" className="h-5 w-5" />
               </Button>
             </TooltipTrigger>
             <TooltipContent className=" bg-[#FFFFFF] font-semibold text-primary !text-sm">
@@ -78,7 +77,8 @@ const VendorNotes = ({ data = [], vendor_id, isLoading }) => {
                           </Card>
                         </div>
                       ))
-                    : data?.data?.map(
+                    : data?.data?.length > 0 &&
+                      data?.data?.map(
                         ({
                           note_uuid,
                           created_user,
@@ -160,4 +160,4 @@ const VendorNotes = ({ data = [], vendor_id, isLoading }) => {
   );
 };
 
-export default (VendorNotes);
+export default VendorNotes;

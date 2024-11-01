@@ -22,6 +22,8 @@ import VendorDetailsTable from "@/components/vendor/vendorDetails/VendorDetailsT
 import VendorInvoiceColumnData from "@/components/vendor/vendorDetails/VendorInvoiceColumnData";
 import { useEffect, useState } from "react";
 import { LoaderIcon } from "react-hot-toast";
+import BreadCrumb from "@/components/ui/Custom/BreadCrumb";
+import CustomAccordion from "@/components/ui/Custom/CustomAccordion";
 
 const VendorDetails = () => {
   const { vendor_id } = useParams();
@@ -48,126 +50,187 @@ const VendorDetails = () => {
     <>
       <Navbar className="" />
 
-      <Layout className={"mx-10 box-border overflow-auto"}>
-        <Header
-          title={`Vendor Details ${
-            data?.data?.vendor_name ? " for " + data?.data?.vendor_name : ""
-          }`}
-          className="border mt-10 rounded-t-md !shadow-none bg-primary !capitalize !text-[#FFFFFF] relative "
-        >
-          {!vendorNotesLoading && (
-            <VendorNotes data={vendorNotes} vendor_id={vendor_id} />
-          )}
-        </Header>
-        <VendorDetailsTable
-          data={data}
-          additionalData={additionalData?.data}
-          isLoading={isLoading}
-          vendor_id={vendor_id}
+      <Layout>
+        <BreadCrumb
+          title={"Vendor Details"}
+          crumbs={[
+            {
+              path: "",
+              label: `${data?.data?.vendor_name}`
+            },
+            {
+              path: "",
+              label: `Details`
+            }
+          ]}
         />
 
-        <VendorInvoiceColumnData
-          additionalData={additionalData?.data}
-          vendor_id={vendor_id}
-          data={data}
-        />
-        <InvoiceHeaderMapping
-          additionalData={additionalData?.data}
-          vendor_id={vendor_id}
-          data={data}
-          isLoading={isLoading}
-        />
-        <InvoiceHeaderMappingExceptions
-          additionalData={additionalData?.data}
-          vendor_id={vendor_id}
-        />
-
-        <div className="w-full grid xl:grid-cols-4 sm:grid-cols-2 gap-x-4 gap-y-2 mt-4 mb-16">
-          <Button
-            onClick={() => {
-              updateVendorDetails({ vendor_id, data });
-            }}
-            disabled={disapproving || updatingVendorDetails}
-            className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]"
-          >
-            {updatingVendorDetails ? (
-              <>
-                {" "}
-                Saving
-                <LoaderIcon className="ml-0.5" />{" "}
-              </>
-            ) : (
-              "Save"
+        <div className="w-full flex justify-end items-center ">
+          <div className="flex items-center gap-x-3">
+            {!vendorNotesLoading && (
+              <VendorNotes data={vendorNotes} vendor_id={vendor_id} />
             )}
-          </Button>
-          <Button
-            disabled={disapproving || updatingVendorDetails}
-            onClick={() => {
-              setActualVendorName(data?.data?.vendor_name);
-              navigate(`/vendor-consolidation/combine-vendors/${vendor_id}`);
-            }}
-            className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]"
-          >
-            Find Similar Vendors
-          </Button>
-          {/* </Link> */}
-          <Button
-            onClick={() => navigate(`/invoice-details?vendor=${vendor_id}`)}
-            disabled={disapproving || updatingVendorDetails}
-            className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]"
-          >
-            View Invoices
-          </Button>
-          <Button
-            className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]"
-            onClick={() => setOpen(true)}
-          >
-            Delete
-          </Button>
-
-          <Button
-            disabled={disapproving || updatingVendorDetails}
-            onClick={() => disapproveAllItems(vendor_id)}
-            className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]"
-          >
-            {disapproving ? (
-              <>
-                Disapproving <LoaderIcon className="ml-0.5" />
-              </>
-            ) : (
-              "Disapprove All Items"
-            )}
-          </Button>
-
-          <Link
-            to={`/vendor-branches/${vendor_id}`}
-            disabled={disapproving || updatingVendorDetails}
-          >
             <Button
-              disabled={disapproving || updatingVendorDetails}
-              className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]"
+              onClick={() => setOpen(true)}
+              className="h-[2.25rem] w-[5.5rem] border-primary flex justify-center hover:bg-transparent bg-transparent shadow-none text-[#000000] font-poppins font-thin text-xs rounded-sm  border"
             >
-              View Branches
+              Delete
             </Button>
-          </Link>
-          <Button
-            onClick={() => navigate(`/fast-item-verification/${vendor_id}`)}
-            disabled={disapproving || updatingVendorDetails}
-            className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]"
-          >
-            Fast Item Verification
-          </Button>
-          <Link
-            disabled={disapproving || updatingVendorDetails}
-            to={`/vendor-consolidation/vendor-item-master/${vendor_id}`}
-          >
             <Button
+              onClick={() => {
+                updateVendorDetails({ vendor_id, data });
+              }}
               disabled={disapproving || updatingVendorDetails}
-              className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary hover:text-[#FFFFFF]"
+              className="h-[2.25rem] w-[5.5rem] border-primary flex justify-center hover:bg-primary bg-transparent shadow-none text-[#FFFFFF] font-poppins !font-thin text-xs rounded-sm border bg-primary"
             >
-              View Items
+              Save
             </Button>
-          </Link>
+          </div>
+        </div>
+        <div className="flex flex-col gap-y-4 mt-4">
+          <VendorDetailsTable
+            data={data}
+            additionalData={additionalData?.data}
+            isLoading={isLoading}
+            vendor_id={vendor_id}
+          />
+
+          <VendorInvoiceColumnData
+            additionalData={additionalData?.data}
+            vendor_id={vendor_id}
+            data={data}
+          />
+          <InvoiceHeaderMapping
+            additionalData={additionalData?.data}
+            vendor_id={vendor_id}
+            data={data}
+            isLoading={isLoading}
+          />
+          <InvoiceHeaderMappingExceptions
+            additionalData={additionalData?.data}
+            vendor_id={vendor_id}
+          />
+        </div>
+
+        <div className="w-full grid grid-cols-2 gap-x-8 gap-y-2 mt-4 mb-16">
+          <div
+            style={{ boxShadow: "0px 0px 8px 0px rgba(0, 0, 0, 0.12)" }}
+            className="p-2 rounded-xl"
+          >
+            {" "}
+            <p className=" font-poppins  font-semibold text-[#222222] text-lg py-2 border-b border-b-[#F1F1F1]">
+              <span className="px-2"> More Vendor Actions</span>
+            </p>
+            <div className="flex flex-col gap-y-4 justify-center my-2">
+              <div className="flex justify-between items-center px-2">
+                <p className="font-poppins font-medium text-base text-[#222222]">
+                  {" "}
+                  View Branches
+                </p>
+                <Link
+                  to={`/vendor-branches/${vendor_id}`}
+                  disabled={disapproving || updatingVendorDetails}
+                >
+                  <Button
+                    disabled={disapproving || updatingVendorDetails}
+                    className="h-[1.625rem] font-thin text-xs bg-transparent border-primary border w-[5rem] rounded-sm font-poppins   bg-primary text-[#FFFFFF] hover:bg-primary hover:text-[#FFFFFF]"
+                  >
+                    Click Here
+                  </Button>
+                </Link>
+              </div>
+              <div className="flex justify-between items-center px-2">
+                <p className="font-poppins font-medium text-base text-[#222222]">
+                  {" "}
+                  View Invoices
+                </p>
+                <Button
+                  disabled={disapproving || updatingVendorDetails}
+                  onClick={() =>
+                    navigate(`/invoice-details?vendor=${vendor_id}`)
+                  }
+                  className=" h-[1.625rem] font-thin text-xs bg-transparent border-primary border w-[5rem] rounded-sm font-poppins   bg-primary text-[#FFFFFF] hover:bg-primary hover:text-[#FFFFFF]"
+                >
+                  Click Here
+                </Button>
+              </div>{" "}
+              <div className="flex justify-between items-center px-2">
+                <p className="font-poppins font-medium text-base text-[#222222]">
+                  {" "}
+                  Find Similar Vendors
+                </p>
+                <Button
+                  disabled={disapproving || updatingVendorDetails}
+                  onClick={() => {
+                    setActualVendorName(data?.data?.vendor_name);
+                    navigate(
+                      `/vendor-consolidation/combine-vendors/${vendor_id}`
+                    );
+                  }}
+                  className=" h-[1.625rem] font-thin text-xs bg-transparent border-primary border w-[5rem] rounded-sm font-poppins   bg-primary text-[#FFFFFF] hover:bg-primary hover:text-[#FFFFFF]"
+                >
+                  Click Here
+                </Button>
+              </div>
+            </div>
+          </div>
+          <div
+            style={{ boxShadow: "0px 0px 8px 0px rgba(0, 0, 0, 0.12)" }}
+            className="p-2 rounded-xl"
+          >
+            {" "}
+            <p className=" font-poppins  font-semibold text-[#222222] text-lg py-2 border-b border-b-[#F1F1F1]">
+              <span className="px-2"> Item Verification Actions</span>
+            </p>
+            <div className="flex flex-col gap-y-4 justify-center my-2">
+              <div className="flex justify-between items-center px-2">
+                <p className="font-poppins font-medium text-base text-[#222222]">
+                  {" "}
+                  Fast Item Verification
+                </p>
+
+                <Button
+                  onClick={() =>
+                    navigate(`/fast-item-verification/${vendor_id}`)
+                  }
+                  disabled={disapproving || updatingVendorDetails}
+                  className="h-[1.625rem] !font-thin text-xs bg-transparent border-primary border w-[5rem] rounded-sm font-poppins   bg-primary text-[#FFFFFF] hover:bg-primary hover:text-[#FFFFFF]"
+                >
+                  Click Here
+                </Button>
+              </div>
+              <div className="flex justify-between items-center px-2">
+                <p className="font-poppins font-medium text-base text-[#222222]">
+                  {" "}
+                  View Items
+                </p>
+                <Button
+                  disabled={disapproving || updatingVendorDetails}
+                  onClick={() =>
+                    navigate(
+                      `/vendor-consolidation/vendor-item-master/${vendor_id}?vendor_name=${`'${data?.data?.vendor_name}'`}`
+                    )
+                  }
+                  className=" h-[1.625rem] font-thin text-xs bg-transparent border-primary border w-[5rem] rounded-sm font-poppins   bg-primary text-[#FFFFFF] hover:bg-primary hover:text-[#FFFFFF]"
+                >
+                  Click Here
+                </Button>
+              </div>{" "}
+              <div className="flex justify-between items-center px-2">
+                <p className="font-poppins font-medium text-base text-[#222222]">
+                  {" "}
+                  Disapprove All Items
+                </p>
+                <Button
+                  disabled={disapproving || updatingVendorDetails}
+                  onClick={() => disapproveAllItems(vendor_id)}
+                  className=" h-[1.625rem] font-thin text-xs bg-transparent border-primary border w-[5rem] rounded-sm font-poppins   bg-primary text-[#FFFFFF] hover:bg-primary hover:text-[#FFFFFF]"
+                >
+                  Click Here
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
         <Modal
           setOpen={setOpen}

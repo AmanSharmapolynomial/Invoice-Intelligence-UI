@@ -29,4 +29,3 @@ const ModalDescription = ({ children }) => (
 );
 
 export { Modal, ModalDescription };
-

@@ -1,5 +1,3 @@
-import CustomAccordion from "@/components/ui/CustomAccordion";
-import CustomSelect from "@/components/ui/CustomSelect";
 import ScrollableDropDown from "@/components/ui/ScrollableDropDown";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableHead, TableRow } from "@/components/ui/table";
 import { makeKeyValueFromKey } from "@/lib/helpers";
 import { queryClient } from "@/lib/utils";
-import { PlusCircle, Save, Trash2 } from "lucide-react";
+import { Plus, PlusCircle, Save, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { LoaderIcon } from "react-hot-toast";
 import no_data from "@/assets/image/no-data.svg";
@@ -16,6 +14,7 @@ import {
   useUpdateInvoiceHeaderExceptions
 } from "@/components/vendor/api";
 import CustomDropDown from "@/components/ui/CustomDropDown";
+import CustomAccordion from "@/components/ui/Custom/CustomAccordion";
 
 const InvoiceHeaderMappingExceptions = ({ additionalData = [], vendor_id }) => {
   const [headerRawName, setHeaderRawName] = useState("");
@@ -75,17 +74,47 @@ const InvoiceHeaderMappingExceptions = ({ additionalData = [], vendor_id }) => {
     invoice_header_exceptions.splice(index, 1);
     queryClient.setQueryData(["invoice-header-exceptions", vendor_id], copyObj);
   };
+
+  const triggerButtons = () => {
+    return (
+      <div className="flex  gap-x-4 z-50 " onClick={(e)=>e.stopPropagation()}>
+        <Button
+          className="p-0 w-[6.9rem] h-[2rem] gap-x-2 font-thin !text-xs font-poppins flex justify-center bg-transparent hover:bg-transparent border-primary border shadow-none rounded-sm"
+          onClick={addNewHeader}
+        >
+          <span>
+            {" "}
+            <Plus className="h-3 w-4 text-primary" />
+          </span>{" "}
+          <span className="text-xs font-normal text-primary">Add New </span>
+        </Button>
+        {myData?.length !== 0 && (
+          <Button
+            onClick={() => saveHeaders({ vendor_id, data: data?.data })}
+            disabled={savingHeaders || isLoading}
+               className="p-0 w-[6.9rem] h-[2rem] font-poppins font-thin gap-x-2  flex justify-center bg-primary  border-primary border shadow-none rounded-sm"
+          >
+           
+            <span className="text-xs font-normal">
+              {savingHeaders ? "Updating" : "Update"}
+            </span>
+          </Button>
+        )}
+      </div>
+    );
+  };
   return (
     <CustomAccordion
-      title={"Invoice Header Mapping Exceptions"}
+      triggerButtons={triggerButtons()}
+      title={"Invoice Header Mapping - Exceptions"}
       contentClassName={"!text-2xl !font-bold"}
     >
-      <Table className="!w-full mt-4 ">
-        <TableRow className="flex bg-gray-200 items-center  hover:bg-gray-200 rounde-md">
-          <TableHead className="text-base flex justify-center items-center !w-full ">
+      <Table className="!w-full mt-4 !h-fit mb-4">
+        <TableRow className="flex border-none gap-x-2 px-1 items-center rounde-sm !font-poppins !font-medium !text-[#000000]">
+          <TableHead className="text-base flex pl-[0.7rem] justify-start items-center !text-[#000000] !w-full ">
             Header Display Name
           </TableHead>
-          <TableHead className="text-base flex justify-center items-center !w-full ">
+          <TableHead className="text-base flex pl-[0.7rem] justify-start items-center !text-[#000000] !w-full ">
             Header Raw Name
           </TableHead>
         </TableRow>
@@ -103,12 +132,15 @@ const InvoiceHeaderMappingExceptions = ({ additionalData = [], vendor_id }) => {
             ))}
           {myData?.map(({ header_raw_names, header_display_name }, index) => {
             return (
-              <TableRow className="flex mt-4 !border-none" key={index}>
+              <TableRow
+                className="flex mt-4 !border-none px-1 gap-x-4"
+                key={index}
+              >
                 <TableHead className="text-base flex  !w-full ">
                   <CustomDropDown
                     triggerClassName={"!w-full !bg-transparent "}
-                    
                     placeholder="Header Display Name"
+                    className={"!min-w-full"}
                     contentClassName="!z-450"
                     showSearch={true}
                     Value={header_display_name}
@@ -118,7 +150,7 @@ const InvoiceHeaderMappingExceptions = ({ additionalData = [], vendor_id }) => {
                     data={headerDisplayNameOptions}
                   />
                 </TableHead>
-                <TableHead className="text-base !border-none flex justify-center gap-x-2 !w-full ">
+                <TableHead className="text-base !border-none flex justify-center gap-x-8 pr-[2rem] !w-full ">
                   <ScrollableDropDown
                     placeholder={"Header Raw Name"}
                     contentClassName="py-1"
@@ -147,16 +179,12 @@ const InvoiceHeaderMappingExceptions = ({ additionalData = [], vendor_id }) => {
                       </Button>
                     </div>
                   </ScrollableDropDown>
-                  <Button
-                    className="bg-red-600 hover:bg-red-600/90"
-                    onClick={() => deleteRow(index)}
-                  >
-                    {false ? (
-                      <LoaderIcon className="w-5 h-5" />
-                    ) : (
-                      <Trash2 className="h-5 w-5" />
-                    )}
-                  </Button>
+                  <p className="flex items-center">
+                    <Trash2
+                      className="h-5 w-5 text-[#939393] cursor-pointer"
+                      onClick={() => deleteRow(index)}
+                    />
+                  </p>
                 </TableHead>
               </TableRow>
             );
@@ -166,34 +194,6 @@ const InvoiceHeaderMappingExceptions = ({ additionalData = [], vendor_id }) => {
               <img src={no_data} alt="" className="max-h-72" />
             </div>
           )}
-
-          <div className="flex justify-center gap-x-4 mb-2 mt-6">
-            <Button
-              className="p-0 min-w-40 gap-x-2 font-normal flex justify-center"
-              onClick={addNewHeader}
-            >
-              <span>
-                {" "}
-                <PlusCircle className="h-4 w-4" />
-              </span>{" "}
-              <span className="text-sm font-normal">Add New Header</span>
-            </Button>
-            {myData?.length !== 0 && (
-              <Button
-                onClick={() => saveHeaders({ vendor_id, data: data?.data })}
-                disabled={savingHeaders || isLoading}
-                className="p-0 min-w-40 gap-x-2 font-normal flex justify-center"
-              >
-                <span>
-                  {" "}
-                  <Save className="h-4 w-4" />
-                </span>{" "}
-                <span className="text-sm font-normal">
-                  {savingHeaders ? "Saving" : "Save"}
-                </span>
-              </Button>
-            )}
-          </div>
         </TableBody>
       </Table>
     </CustomAccordion>

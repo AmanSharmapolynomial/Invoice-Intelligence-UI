@@ -6,17 +6,10 @@ import TablePagination from "@/components/common/TablePagination";
 import { useGetItemMasterPdfs } from "@/components/invoice/api";
 import { Button } from "@/components/ui/button";
 import CustomDropDown from "@/components/ui/CustomDropDown";
-import CustomSelect from "@/components/ui/CustomSelect";
 import { Input } from "@/components/ui/input";
+import ProgressBar from "@/components/ui/Custom/ProgressBar";
 import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
 
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from "@/components/ui/tooltip";
 import { useGetUsersList } from "@/components/user/api";
 import {
   useGetVendorItemMaster,
@@ -26,10 +19,11 @@ import { vendorStore } from "@/components/vendor/store/vendorStore";
 import VendorItemMasterTable from "@/components/vendor/vendorItemMaster/VendorItemMasterTable";
 import { formatData, getUserNameFromId } from "@/lib/helpers";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
-import { Search } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Merge, Search } from "lucide-react";
+import { useState } from "react";
 import { LoaderIcon } from "react-hot-toast";
 import { useParams, useSearchParams } from "react-router-dom";
+import BreadCrumb from "@/components/ui/Custom/BreadCrumb";
 
 const VendorItemMaster = () => {
   const { vendor_id } = useParams();
@@ -42,6 +36,7 @@ const VendorItemMaster = () => {
   const human_verified = searchParams.get("human_verified") || "";
   const search_by = searchParams.get("search_by") || "";
   const page = searchParams.get("page") || 1;
+  const vendor_name= searchParams.get("vendor_name") || "";
   const document_uuid = searchParams.get("document_uuid") || "";
   const category_review_required =
     searchParams.get("category_review_required") || "";
@@ -88,44 +83,42 @@ const VendorItemMaster = () => {
     <>
       <Navbar className="" />
 
-      <Layout className={"mx-10 box-border overflow-auto"}>
-        <Header
-          title={`Vendor Items`}
-          className="border mt-10 rounded-t-md !shadow-none bg-primary !text-[#FFFFFF] relative "
-        >
-          <div className="flex items-center justify-center gap-x-2 w-fit">
-            {!isLoading && (
+      <Layout>
+        <BreadCrumb
+        title={"Vendor Items"}
+          crumbs={[
+            {
+              path: "",
+              label: `${vendor_name?.split("'").join("")}`
+            },
+            {
+              path: "",
+              label: "Items"
+            }
+          ]}
+        />
+        <div className="flex items-center justify-between gap-x-2 w-full ">
+          <ProgressBar
+            title="Verified Items"
+            totalValue={data?.["data"]?.["total_item_count"]}
+            currentValue={data?.["data"]?.["verified_item_count"]}
+            className="w-72  h-4 bg-white/15 "
+          />
+          <Button
+            className="!font-thin !font-poppins !text-xs flex disabled:bg-[#CBCBCB] items-center gap-x-2 !p-0 h-[2.125rem] w-[6rem] rounded-sm"
+            onClick={handleMerge}
+            disabled={!checkedVendors || checkedVendors?.length == 0}
+          >
+            <Merge className="h-4 w-4" />
+            {merging ? (
               <>
-                {" "}
-                <Label className="min-w-16">
-                  Total :- {data?.["data"]?.["total_item_count"]}
-                </Label>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger className="flex items-center justify-between gap-x-2 w-full">
-                      {" "}
-                      <Progress
-                        innerClassName="border-primary  !bg-white/85 "
-                        totalValue={data?.["data"]?.["total_item_count"]}
-                        value={data?.["data"]?.["verified_item_count"]}
-                        // innerText={vendorsData?.['data']?.['verified_vendor_count']}
-                        className="w-72  h-4 bg-white/15 "
-                      />
-                    </TooltipTrigger>
-                    <TooltipContent className=" bg-[#FFFFFF] font-semibold text-primary !text-sm flex flex-col justify-center gap-y-1 px-4">
-                      {/* <p>{vendor_address}</p> */}
-
-                      <span>
-                        Verified Item Count :-{" "}
-                        {data?.["data"]?.["verified_item_count"]}
-                      </span>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                Merging <LoaderIcon className="ml-2" />
               </>
+            ) : (
+              "Merge"
             )}
-          </div>
-        </Header>
+          </Button>
+        </div>
 
         <div className="w-full border flex justify-between p-3 gap-x-4 overflow-auto">
           <div>
@@ -264,19 +257,6 @@ const VendorItemMaster = () => {
                 }
               ]}
             />
-            <Button
-              className="font-normal"
-              onClick={handleMerge}
-              disabled={!checkedVendors || checkedVendors?.length == 0}
-            >
-              {merging ? (
-                <>
-                  Merging <LoaderIcon className="ml-2" />
-                </>
-              ) : (
-                "Merge Item Master"
-              )}
-            </Button>
           </div>
         </div>
 
