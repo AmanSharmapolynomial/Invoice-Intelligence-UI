@@ -1,5 +1,6 @@
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
+import Sidebar from "@/components/common/Sidebar";
 import TablePagination from "@/components/common/TablePagination";
 import {
   AlertDialog,
@@ -98,7 +99,9 @@ setFinal(calculateDivHeightInVh("maindiv") -
   16.5))
 },[])
   return (
-    <div className="h-screen !overflow-hidden " id="maindiv">
+    <div className="h-screen flex" id="maindiv">
+      <Sidebar/>
+      <div className="w-full">
       <Navbar className="" />
       <Layout className="mx-6 box-border flex flex-col gap-y-4 mt-2  ">
         <BreadCrumb
@@ -206,7 +209,7 @@ setFinal(calculateDivHeightInVh("maindiv") -
             />
             <CustomDropDown
               triggerClassName={"bg-gray-100"}
-              className={"!min-w-fit"}
+              className={""}
               contentClassName={"bg-gray-100"}
               data={usersListLoading ? [] : formatData(usersData?.data)}
               onChange={(val) => {
@@ -240,6 +243,7 @@ setFinal(calculateDivHeightInVh("maindiv") -
           />
         </div>
       </Layout>
+      </div>
     </div>
   );
 };

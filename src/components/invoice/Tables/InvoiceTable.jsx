@@ -58,7 +58,7 @@ const InvoiceTable = ({ data = [], isLoading, height }) => {
                   className="flex  !text-sm !border-none min-h-14"
                   key={index}
                 >
-                  {new Array(16).fill(10)?.map((_, i) => {
+                  {new Array(13).fill(10)?.map((_, i) => {
                     return (
                       <TableHead
                         key={i}

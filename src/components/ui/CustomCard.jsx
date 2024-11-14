@@ -19,27 +19,22 @@ const CustomCard = ({
 }) => {
   return (
     <Card
-      className={`${className} !w-full border-border bg-white shadow-none h-[5rem] hover:bg-textColor/50 dark:bg-[#051C14] dark:border-textColor/800 hover:border-primary`}
+      className={`${className} !w-full border-[#E2E8F0] bg-[#FFFFFF] shadow-none py-3  hover:bg-textColor/50 dark:bg-[#051C14] dark:border-textColor/800 hover:border-primary rounded-md`}
       onClick={onClick}
     >
-      <CardHeader className="!mb-0 !pb-0">
-        <CardTitle className="flex !pb-0 ">
+      <CardHeader className=" flex justify-center items-center  w-full ">
+        <CardTitle className=" flex  justify-center items-center ">
           {showIcon && (
             <span>
               <img src={Icon} alt="" className="dark:hidden " />
               <Terminal className="dark:flex hidden h-4 w-4" />
             </span>
           )}
-          <span className="pl-2 text-foreground !font-poppins font-medium text-[1rem] dark:text-[#FFFFFF]">
+          <span className="pl-2 text-foreground !font-poppins font-medium text-[1.2rem] dark:!text-[#FFFFFF]">
             {title}
           </span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="!mt-0 !pt-1">
-        <div className="pl-6 !text-grey !text-[0.875rem] font-normal !font-poppins  dark:text-textColor/200 ">
-          {content}
-        </div>
-      </CardContent>
     </Card>
   );
 };

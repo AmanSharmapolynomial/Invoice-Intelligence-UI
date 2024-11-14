@@ -1,29 +1,29 @@
+import Header from "@/components/common/Header";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import { PdfViewer } from "@/components/common/PDFViewer";
-import {
-  useGetVendorItemMaster,
-  useGetVendorsPdfs
-} from "@/components/vendor/api";
-import VendorItemMasterTable from "@/components/vendor/vendorItemMaster/VendorItemMasterTable";
-import React from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import TablePagination from "@/components/common/TablePagination";
+import { useGetItemMasterPdfs } from "@/components/invoice/api";
+import { Button } from "@/components/ui/button";
+import ProgressBar from "@/components/ui/Custom/ProgressBar";
+import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup
 } from "@/components/ui/resizable";
-import Header from "@/components/common/Header";
-import { Progress } from "@/components/ui/progress";
-import { useGetItemMasterPdfs } from "@/components/invoice/api";
-import { Label } from "@/components/ui/label";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
 } from "@/components/ui/tooltip";
-import TablePagination from "@/components/common/TablePagination";
+import {
+  useGetVendorItemMaster
+} from "@/components/vendor/api";
+import VendorItemMasterTable from "@/components/vendor/vendorItemMaster/VendorItemMasterTable";
+import { useParams, useSearchParams } from "react-router-dom";
 
 const FastItemVerification = () => {
   const { vendor_id } = useParams();
@@ -53,35 +53,19 @@ const FastItemVerification = () => {
     <>
       <Navbar />
       <Layout className={"overflow-auto mx-10 mt-8 "}>
-        <Header
-          title={"Fast Item Verification"}
-          className={"bg-primary text-white"}
-        >
-          <div className="flex items-center justify-center gap-x-2 w-fit">
-            <Label className="min-w-16">
-              Total :- {data?.data?.total_item_count ?? 0}
-            </Label>
-
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger className="flex items-center justify-between gap-x-2 w-full">
-                  {" "}
-                  <Progress
-                    className="w-72  h-4 bg-white/15 "
-                    innerClassName="border-primary  !bg-white/85 "
-                    value={data?.data?.verified_item_count}
-                    totalValue={data?.data?.total_item_count}
-                  />
-                </TooltipTrigger>
-                <TooltipContent className=" bg-[#FFFFFF] font-semibold text-primary !text-sm flex flex-col justify-center gap-y-1 px-4">
-                  <span>
-                    Verified Item Count :- {data?.data?.verified_item_count}
-                  </span>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-        </Header>
+       
+           <div className="flex  items-center justify-between">
+           <ProgressBar
+              title={"Verified Items"}
+              currentValue={data?.data?.verified_item_count}
+              totalValue={data?.data?.total_item_count}
+            />
+            <Button className="!h-[2.25rem] rounded-sm !font-thin w-[5.5rem] font-poppins text-xs">
+              Save
+            </Button>
+           </div>
+        
+         
         <ResizablePanelGroup direction="vertical" className={"min-h-screen "}>
           <ResizablePanel defaultSize={50}>
             <PdfViewer
@@ -115,7 +99,6 @@ const FastItemVerification = () => {
           </ResizablePanel>
         </ResizablePanelGroup>
 
-        <div className="mx-10 mt-4"></div>
       </Layout>
     </>
   );

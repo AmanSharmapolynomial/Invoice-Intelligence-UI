@@ -68,7 +68,9 @@ const VendorInvoiceColumnData = ({
                   />
                   <label
                     htmlFor={column_name}
-                    className="text-sm font-normal font-poppins  leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    className={`${data?.data?.required_invoice_columns_for_item_master?.includes(
+                      column_name?.toLowerCase()
+                    ) && "text-primary"} text-sm font-normal font-poppins  leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70`}
                   >
                     {column_name}
                   </label>

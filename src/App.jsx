@@ -38,90 +38,66 @@ function App() {
     setActualVendorName(null);
   }, []);
   return (
-    <>
+    <div className="dark:bg-[#040807] !h-screen  ">
       <Navbar />
-      <Layout
-        className={" !flex-1  !overflow-hidden dark:bg-[#040807]  "}
-      >
-        <div className=" w-full flex h-full gap-x-4  overflow-hidden ">
-          {/* Left Side */}
-          <div className=" w-[50%] h-full !flex-1 flex-col flex !pt-[5.75%] gap-y-4 pl-[6.25rem] !bg-opacity-25 ">
-            {" "}
-            <div className="!text-left ">
-              <p className="!font-poppins font-semibold text-[2rem] flex gap-x-2">
-                <span className="text-primary ">Automated</span>
-                <span className="text-primaryText dark:text-white">
-                  Invoice Solutions
-                </span>
-              </p>
-              <p className="text-primaryText text-[1.25rem] font-poppins font-semibold w-full dark:text-white">
-                Simplify Processing, Verification, and User
-              </p>
-              <p className="text-primaryText text-[1.25rem] font-poppins font-semibold dark:text-white">
-                Monitoring
-              </p>
-            </div>
-            <img
-              src={direction}
-              style={{ height: "22.32rem", width: "31.72rem" }}
-              alt=""
-              className="mt-[4.625rem]"
-            />
-          </div>
-
-          {/* Right Side */}
-          <div className=" w-[50%] flex flex-col gap-y-4 mt-[5.75%] pr-[6rem] h-full  items-center">
-            <CustomCard
-              Icon={frame15}
-              onClick={() => navigate("/home")}
-              showIcon={true}
-              title="Manage Invoices"
-              className={"cursor-pointer"}
-              content="Ensure smooth processing and verification of invoices"
-            />
-            <CustomCard
-              Icon={frame15}
-              showIcon={true}
-              onClick={() => setOpen(true)}
-              className={"cursor-pointer"}
-              title="Verify Vendors/Branches"
-              content="Ensure vendor and branch information is correct and up-to-date."
-            />
-            <CustomCard
-              Icon={frame15}
-              showIcon={true}
-              className={"cursor-pointer"}
-              title="Check Item Master"
-              onClick={() => {
-                setOpen(true);
-                setIsItemMaster(true);
-              }}
-              content="Speed up item master verification for seamless operations."
-            />
-            <CustomCard
-              Icon={frame15}
-              showIcon={true}
-              className={"cursor-pointer"}
-              onClick={() => navigate("/user-activity")}
-              title="View User Activity"
-              content="Access a comprehensive log of all user activities."
-            />
-            <CustomCard
-              Icon={frame15}
-              className={"cursor-pointer"}
-              showIcon={true}
-              title="Invoice Assignment"
-              content="Manage and delegate invoice tasks seamlessly."
-            />
-            <CustomCard
-              Icon={frame15}
-              onClick={() => navigate("/process-invoice")}
-              className={"cursor-pointer"}
-              showIcon={true}
-              title="Process Invoice"
-              content="Upload invoices seamlessly."
-            />
-          </div>
+      <Layout className={" !flex-1  !overflow-hidden dark:bg-[#040807]  "}>
+        <div className="w-full px-[6.25rem] flex flex-col  justify-center items-center mt-[8.75rem]">
+          <p className="text-[2rem] font-semibold font-poppins dark:text-[#FFFFFF]">
+            <span className="text-primary">Automated</span> Invoice Solutions
+          </p>
+          <p className="text-[1.25rem]  font-poppins font-normal text-[#000000] dark:text-[#FFFFFF]">Simplify Processing, Verification, and User Monitoring</p>
+        </div>
+        <div className=" px-[6.25rem]  grid grid-cols-3 gap-4 mt-[5.75%] pr-[6rem] h-full  items-center">
+          <CustomCard
+            Icon={frame15}
+            onClick={() => navigate("/home")}
+            showIcon={true}
+            title="Manage Invoices"
+            className={"cursor-pointer"}
+            content="Ensure smooth processing and verification of invoices"
+          />
+          <CustomCard
+            Icon={frame15}
+            showIcon={true}
+            onClick={() => setOpen(true)}
+            className={"cursor-pointer"}
+            title="Verify Vendors/Branches"
+            content="Ensure vendor and branch information is correct and up-to-date."
+          />
+          <CustomCard
+            Icon={frame15}
+            showIcon={true}
+            className={"cursor-pointer"}
+            title="Check Item Master"
+            onClick={() => {
+              setOpen(true);
+              setIsItemMaster(true);
+            }}
+            content="Speed up item master verification for seamless operations."
+          />
+          <CustomCard
+            Icon={frame15}
+            showIcon={true}
+            className={"cursor-pointer"}
+            onClick={() => navigate("/user-activity")}
+            title="View User Activity"
+            content="Access a comprehensive log of all user activities."
+          />
+          <CustomCard
+            Icon={frame15}
+            className={"cursor-pointer"}
+            showIcon={true}
+            title="Invoice Assignment"
+            content="Manage and delegate invoice tasks seamlessly."
+          />
+          <CustomCard
+            Icon={frame15}
+            onClick={() => navigate("/process-invoice")}
+            className={"cursor-pointer"}
+            showIcon={true}
+            title="Process Invoice"
+            content="Upload invoices seamlessly."
+          />
         </div>
       </Layout>
       <Modal
@@ -214,7 +190,7 @@ function App() {
           </div>
         </ModalDescription>
       </Modal>
-    </>
+    </div>
   );
 }
 

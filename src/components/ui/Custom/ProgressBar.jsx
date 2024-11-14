@@ -15,7 +15,7 @@ const ProgressBar = ({ title, currentValue, totalValue, className }) => {
           } flex items-center justify-center`}
           style={{ width: `${progressValue}%` }}
         >
-          <span className="text-white text-xs font-normal font-poppins ">
+          <span className={`${currentValue==0 && "pl-4 !text-primary"} text-white text-xs font-normal font-poppins `}>
             {currentValue && currentValue.toString()?.length == 1
               ? `0${currentValue}`
               : currentValue}

@@ -51,6 +51,7 @@ import persistStore from "@/store/persistStore";
 import { ArrowRight, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import Sidebar from "@/components/common/Sidebar";
 
 const Home = () => {
   const [searchParams] = useSearchParams();
@@ -149,227 +150,242 @@ const Home = () => {
       2.5);
 
   return (
-    <div className="h-screen !overflow-hidden " id="maindiv">
-      <Navbar />
-      <Layout>
-        <BreadCrumb
-          title={"Invoice Balancing"}
-          crumbs={[
-            {
-              path: "",
-              label: "Invoices"
-            }
-          ]}
-        />
-
-        <div
-          className="w-full flex items-center justify-end dark:bg-[#051C14] py-3 rounded-t-xl dark:border-primary dark:border px-4 "
-          id="vendor-consolidation"
-        >
-          <div className="flex  items-center space-x-2 ">
-            <Button
-              onClick={() => navigate("/vendor-consolidation")}
-              className="border border-primary dark:bg-[#000000] bg-transparent hover:bg-transparent dark:text-[#E7E7E7] text-[#0F172A] font-poppins font-normal text-sm"
-            >
-              Vendor Consolidation
-            </Button>
-            <CustomInput
-              showIcon={true}
-              variant="search"
-              placeholder="Search invoice"
-              value={invoiceNumber}
-              onChange={(e) => setInvoiceNumber(e.target.value)}
-              className="min-w-72 max-w-96 border border-gray-200  focus:!ring-0 focus:!outline-none remove-number-spinner"
-            />
-
-            <AlertDialog>
-              <AlertDialogTrigger disabled={invoiceNumber?.length == 0}>
-                {" "}
-                <Button
-                  type="submit"
-                  className="w-12"
-                  disabled={searchingInvoices}
-                  onClick={() => {
-                    if (invoiceNumber?.length !== 0) {
-                      searchInvoices(invoiceNumber, {
-                        onSuccess: (data) => setSearchedInvoices(data?.data)
-                      });
-                      setInvoiceNumber("");
-                    }
-                  }}
-                >
-                  <Search className="h-4 w-10" />
-                </Button>
-              </AlertDialogTrigger>
+    <div className="h-screen  flex w-full " id="maindiv">
+      <Sidebar />
+      <div className="w-full">
+        {" "}
+        <Navbar />
+        <Layout>
+          <BreadCrumb
+            title={"Invoice Balancing"}
+            crumbs={[
               {
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle className="border-b pb-2 ">
-                      Matched Invoice Numbers
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      <Table>
-                        <TableRow className="flex w-full justify-between !py-0 !pb-0">
-                          <TableHead className="!pb-0 !py-0">
-                            Invoice Number
-                          </TableHead>
-                          <TableHead>Vendor Name</TableHead>
-                        </TableRow>
-
-                        <div className="w-full justify-between flex max-h-56 overflow-auto">
-                          <TableBody className="w-full">
-                            {searchingInvoices ? (
-                              [1, 2, 3, 4, 5]?.map((_, index) => (
-                                <TableRow
-                                  key={index}
-                                  className="!w-full flex justify-between cursor-pointer"
-                                >
-                                  <TableCell>
-                                    <Skeleton className={"w-44 h-5"} />
-                                  </TableCell>
-                                  <TableCell>
-                                    <Skeleton className={"w-44 h-5"} />
-                                  </TableCell>
-                                </TableRow>
-                              ))
-                            ) : searchedInvoices?.length > 0 ? (
-                              searchedInvoices?.map(
-                                ({
-                                  document_uuid,
-                                  vendor_name,
-                                  invoice_number
-                                }) => {
-                                  return (
-                                    <TableRow
-                                      key={document_uuid}
-                                      onClick={() =>
-                                        navigate(
-                                          `/invoice-details?document_uuid=${document_uuid}`
-                                        )
-                                      }
-                                      className="!w-full flex justify-between cursor-pointer !capitalize"
-                                    >
-                                      <TableCell>{invoice_number}</TableCell>
-                                      <TableCell>{vendor_name}</TableCell>
-                                    </TableRow>
-                                  );
-                                }
-                              )
-                            ) : (
-                              <>
-                                <div className="w-full flex items-center justify-center mt-4">
-                                  <p>No Invoices Found</p>
-                                </div>
-                              </>
-                            )}
-                          </TableBody>
-                        </div>
-                      </Table>
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel onClick={() => setSearchedInvoices([])}>
-                      Close
-                    </AlertDialogCancel>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
+                path: "",
+                label: "Invoices"
               }
-            </AlertDialog>
-          </div>
-        </div>
-        <div
-          className="flex items-center justify-between pr-4 pl-2  py-1  dark:border-primary dark:border-b  dark:border-l dark:border-r  dark:bg-[#051C14] "
-          id="div2"
-        >
-          <InfoSection />
-
-          <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
-            <CustomDropDown
-              triggerClassName={"bg-gray-100"}
-              contentClassName={"bg-gray-100"}
-              Value={restaurantFilterValue}
-              placeholder="All Restaurants"
-              data={formatRestaurantsList(
-                restaurantsList && restaurantsList?.data
-              )}
-              searchPlaceholder="Search Restaurant"
-              onChange={(val) => {
-                if (val == "none") {
-                  updateParams({ restaurant: undefined });
-                  setRestaurantFilter("none");
-                } else {
-                  setRestaurantFilter(val);
-                  updateParams({ restaurant: val });
-                }
-              }}
-            />{" "}
-            <CustomDropDown
-              Value={vendorFilterValue}
-              className="!min-w-56"
-              triggerClassName={"bg-gray-100"}
-              contentClassName={"bg-gray-100"}
-              data={vendorNamesFormatter(
-                vendorNamesList?.data && vendorNamesList?.data?.vendor_names
-              )}
-              onChange={(val) => {
-                if (val == "none") {
-                  setVendorFilter("none");
-                  updateParams({ vendor: undefined });
-                } else {
-                  setVendorFilter(val);
-                  updateParams({ vendor: val });
-                }
-              }}
-              placeholder="All Vendors"
-              searchPlaceholder="Search Vendor Name"
-            />{" "}
-            <Sheet
-              className="!overflow-auto"
-              open={open}
-              onOpenChange={() => setOpen(!open)}
-            >
-              <SheetTrigger>
-                {" "}
-                <Button className="bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000]  ">
-                  <img src={sort} alt="" className="h-4 w-4 dark:hidden" />
-                  <img
-                    src={sort_white}
-                    alt=""
-                    className="h-4 w-4 hidden dark:flex"
-                  />
-                </Button>
-              </SheetTrigger>
-              <SheetContent className="min-w-fit !overflow-auto">
-                <SheetHeader>
-                  <SheetTitle>
-                    <div className="flex justify-between items-center">
-                      <p>Filters</p>
-                      <div className="flex items-center gap-x-2 cursor-pointer" onClick={()=>setOpen(!open)}>
-                        <p className="text-sm font-poppins font-normal text-[#000000]">
-                          Collapse
-                        </p>
-                        <ArrowRight className="h-4 w-4 text-[#000000]" />
-                      </div>
-                    </div>
-                  </SheetTitle>
-                </SheetHeader>
-                <InvoiceFilters />
-              </SheetContent>
-            </Sheet>
-          </div>
-        </div>
-
-        <InvoiceTable data={data?.data} isLoading={isLoading} height={final} />
-
-        <div className="w-full flex !justify-end  pt-2 z-10" id="pagination">
-          <TablePagination
-            totalPages={data?.total_pages}
-            isFinalPage={data?.is_final_page}
-            page={page}
-            previousPage={data?.previous_page}
+            ]}
           />
-        </div>
-      </Layout>
+
+          <div
+            className="w-full flex items-center justify-end dark:bg-[#051C14] py-3 rounded-t-xl dark:border-primary dark:border px-4 "
+            id="vendor-consolidation"
+          >
+            <div className="flex  items-center space-x-2 ">
+              <Button
+                onClick={() => navigate("/vendor-consolidation")}
+                className="border border-primary dark:bg-[#000000] bg-transparent hover:bg-transparent dark:text-[#E7E7E7] text-[#0F172A] font-poppins font-normal text-sm"
+              >
+                Vendor Consolidation
+              </Button>
+              <CustomInput
+                showIcon={true}
+                variant="search"
+                placeholder="Search invoice"
+                value={invoiceNumber}
+                onChange={(e) => setInvoiceNumber(e.target.value)}
+                className="min-w-72 max-w-96 border border-gray-200  focus:!ring-0 focus:!outline-none remove-number-spinner"
+              />
+
+              <AlertDialog>
+                <AlertDialogTrigger disabled={invoiceNumber?.length == 0}>
+                  {" "}
+                  <Button
+                    type="submit"
+                    className="w-12"
+                    disabled={searchingInvoices}
+                    onClick={() => {
+                      if (invoiceNumber?.length !== 0) {
+                        searchInvoices(invoiceNumber, {
+                          onSuccess: (data) => setSearchedInvoices(data?.data)
+                        });
+                        setInvoiceNumber("");
+                      }
+                    }}
+                  >
+                    <Search className="h-4 w-10" />
+                  </Button>
+                </AlertDialogTrigger>
+                {
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="border-b pb-2 ">
+                        Matched Invoice Numbers
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        <Table>
+                          <TableRow className="flex w-full justify-between !py-0 !pb-0">
+                            <TableHead className="!pb-0 !py-0">
+                              Invoice Number
+                            </TableHead>
+                            <TableHead>Vendor Name</TableHead>
+                          </TableRow>
+
+                          <div className="w-full justify-between flex max-h-56 overflow-auto">
+                            <TableBody className="w-full">
+                              {searchingInvoices ? (
+                                [1, 2, 3, 4, 5]?.map((_, index) => (
+                                  <TableRow
+                                    key={index}
+                                    className="!w-full flex justify-between cursor-pointer"
+                                  >
+                                    <TableCell>
+                                      <Skeleton className={"w-44 h-5"} />
+                                    </TableCell>
+                                    <TableCell>
+                                      <Skeleton className={"w-44 h-5"} />
+                                    </TableCell>
+                                  </TableRow>
+                                ))
+                              ) : searchedInvoices?.length > 0 ? (
+                                searchedInvoices?.map(
+                                  ({
+                                    document_uuid,
+                                    vendor_name,
+                                    invoice_number
+                                  }) => {
+                                    return (
+                                      <TableRow
+                                        key={document_uuid}
+                                        onClick={() =>
+                                          navigate(
+                                            `/invoice-details?document_uuid=${document_uuid}`
+                                          )
+                                        }
+                                        className="!w-full flex justify-between cursor-pointer !capitalize"
+                                      >
+                                        <TableCell>{invoice_number}</TableCell>
+                                        <TableCell>{vendor_name}</TableCell>
+                                      </TableRow>
+                                    );
+                                  }
+                                )
+                              ) : (
+                                <>
+                                  <div className="w-full flex items-center justify-center mt-4">
+                                    <p>No Invoices Found</p>
+                                  </div>
+                                </>
+                              )}
+                            </TableBody>
+                          </div>
+                        </Table>
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel
+                        onClick={() => setSearchedInvoices([])}
+                      >
+                        Close
+                      </AlertDialogCancel>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                }
+              </AlertDialog>
+            </div>
+          </div>
+          <div
+            className="flex items-center justify-between pr-4 pl-2  py-1  dark:border-primary dark:border-b  dark:border-l dark:border-r  dark:bg-[#051C14] "
+            id="div2"
+          >
+            <InfoSection />
+
+            <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
+              <CustomDropDown
+                triggerClassName={"bg-gray-100"}
+                contentClassName={"bg-gray-100"}
+                Value={restaurantFilterValue}
+                placeholder="All Restaurants"
+                className={"!max-w-fit"}
+                data={formatRestaurantsList(
+                  restaurantsList && restaurantsList?.data
+                )}
+                searchPlaceholder="Search Restaurant"
+                onChange={(val) => {
+                  if (val == "none") {
+                    updateParams({ restaurant: undefined });
+                    setRestaurantFilter("none");
+                  } else {
+                    setRestaurantFilter(val);
+                    updateParams({ restaurant: val });
+                  }
+                }}
+              />{" "}
+              <CustomDropDown
+                Value={vendorFilterValue}
+                // className="!min-w-56"
+                className={"!max-w-56"}
+                triggerClassName={"bg-gray-100"}
+                contentClassName={"bg-gray-100"}
+                data={vendorNamesFormatter(
+                  vendorNamesList?.data && vendorNamesList?.data?.vendor_names
+                )}
+                onChange={(val) => {
+                  if (val == "none") {
+                    setVendorFilter("none");
+                    updateParams({ vendor: undefined });
+                  } else {
+                    setVendorFilter(val);
+                    updateParams({ vendor: val });
+                  }
+                }}
+                placeholder="All Vendors"
+                searchPlaceholder="Search Vendor Name"
+              />{" "}
+              <Sheet
+                className="!overflow-auto"
+                open={open}
+                onOpenChange={() => setOpen(!open)}
+              >
+                <SheetTrigger>
+                  {" "}
+                  <Button className="bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000]  ">
+                    <img src={sort} alt="" className="h-4 w-4 dark:hidden" />
+                    <img
+                      src={sort_white}
+                      alt=""
+                      className="h-4 w-4 hidden dark:flex"
+                    />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent className="min-w-fit !overflow-auto">
+                  <SheetHeader>
+                    <SheetTitle>
+                      <div className="flex justify-between items-center">
+                        <p>Filters</p>
+                        <div
+                          className="flex items-center gap-x-2 cursor-pointer"
+                          onClick={() => setOpen(!open)}
+                        >
+                          <p className="text-sm font-poppins font-normal text-[#000000]">
+                            Collapse
+                          </p>
+                          <ArrowRight className="h-4 w-4 text-[#000000]" />
+                        </div>
+                      </div>
+                    </SheetTitle>
+                  </SheetHeader>
+                  <InvoiceFilters />
+                </SheetContent>
+              </Sheet>
+            </div>
+          </div>
+
+          <InvoiceTable
+            data={data?.data}
+            isLoading={isLoading}
+            height={final}
+          />
+
+          <div className="w-full flex !justify-end  pt-2 z-10" id="pagination">
+            <TablePagination
+              totalPages={data?.total_pages}
+              isFinalPage={data?.is_final_page}
+              page={page}
+              previousPage={data?.previous_page}
+            />
+          </div>
+        </Layout>
+      </div>
     </div>
   );
 };

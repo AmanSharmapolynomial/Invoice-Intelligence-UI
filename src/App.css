@@ -1,65 +1,79 @@
 /* Hide scrollbar for Webkit browsers (Chrome, Safari) */
 ::-webkit-scrollbar {
-    display: none; /* Hides the scrollbar */
+  display: none; /* Hides the scrollbar */
 }
 
 /* Hide scrollbar for Firefox */
 .scrollbar {
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* Internet Explorer and Edge */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer and Edge */
 }
 
-html, body {
-  height: 100%;
+html,
+body {
+  height: 100vh;
   margin: 0;
   padding: 0;
-}
 
+  background: #fafafa;
+}
+.dark > body {
+  background: #000000;
+}
 /* For any element you want to hide the scrollbar */
 .hide-scrollbar {
-    overflow: hidden; /* Optional: Prevents scrolling */
-    overflow-y: scroll; /* Keeps vertical scrolling */
-    height: 100%; /* Adjust as needed */
+  overflow: hidden; /* Optional: Prevents scrolling */
+  overflow-y: scroll; /* Keeps vertical scrolling */
+  height: 100%; /* Adjust as needed */
 }
 
 /* CSS class to remove the up and down buttons from number inputs */
 .remove-number-spinner {
-    -moz-appearance: textfield; /* Firefox */
-  }
-  
-  .remove-number-spinner::-webkit-inner-spin-button,
-  .remove-number-spinner::-webkit-outer-spin-button {
-    -webkit-appearance: none; /* Safari and Chrome */
-    margin: 0; /* Remove default margin */
-  }
-  .rdrSelected, .rdrInRange, .rdrStartEdge, .rdrEndEdge:hover{
-    background:#1E7944 !important;
-
-    border:1px solid #1E7944 !important;
-    border-radius:10 !important
-  }
-  .rdrSelected:hover, .rdrInRange:hover, .rdrStartEdge:hover, .rdrEndEdge:hover{
-    border:1px solid #1E7944 !important
-  }
-
-  .rdrDayToday .rdrDayNumber span:after{
-    background:#1E7944 !important
+  -moz-appearance: textfield; /* Firefox */
 }
 
-.rdr,.rdrInRange,.rdrDateDisplayItem{
-    border:1px solid #1E7944 !important
+.remove-number-spinner::-webkit-inner-spin-button,
+.remove-number-spinner::-webkit-outer-spin-button {
+  -webkit-appearance: none; /* Safari and Chrome */
+  margin: 0; /* Remove default margin */
+}
+.rdrSelected,
+.rdrInRange,
+.rdrStartEdge,
+.rdrEndEdge:hover {
+  background: #1e7944 !important;
+
+  border: 1px solid #1e7944 !important;
+  border-radius: 10 !important;
+}
+.rdrSelected:hover,
+.rdrInRange:hover,
+.rdrStartEdge:hover,
+.rdrEndEdge:hover {
+  border: 1px solid #1e7944 !important;
 }
 
-.rdrDay:hover,.rdrDayNumber,::before {
-    /* color: red !important; */
-    /* border:1px solid #1E7944 !important */
-}
-::before, {
-    /* background:red !important */
+.rdrDayToday .rdrDayNumber span:after {
+  background: #1e7944 !important;
 }
 
-.rdrDay:hover, {
-   /* background:red !important */
-   border:2px red solid
+.rdr,
+.rdrInRange,
+.rdrDateDisplayItem {
+  border: 1px solid #1e7944 !important;
 }
 
+.rdrDay:hover,
+.rdrDayNumber,
+::before {
+  /* color: red !important; */
+  /* border:1px solid #1E7944 !important */
+}
+::before {
+  /* background:red !important */
+}
+
+.rdrDay:hover {
+  /* background:red !important */
+  border: 2px red solid;
+}

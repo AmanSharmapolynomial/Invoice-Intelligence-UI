@@ -75,7 +75,7 @@ const CustomDropDown = ({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className={`${className}  p-0 bg-[#FFFFFF] dark:border-[#051C14] xl:min-w-[600px] md:max-w-[37rem] md:min-w-[24rem]`}
+        className={`${className}  p-0 bg-[#FFFFFF] dark:border-[#051C14]  w-fit  !max-w-60 mr-1`}
         contentClassName={`${contentClassName}   w-full`}
       >
         <Command className="dark:!border-[#051C14]    dark:bg-[#051C14] min-w-[100%] !w-full">
@@ -98,7 +98,7 @@ const CustomDropDown = ({
                           value === item.value ? "opacity-100" : "opacity-0"
                         )}
                       />
-                      <div className="flex justify-between items-center font-poppins text-xs font-normal dark:!text-[#FFFFFF]   gap-x-4">
+                      <div className="flex justify-between  w-full items-center font-poppins text-xs font-normal dark:!text-[#FFFFFF]   gap-x-4">
                         <span>{item.label}</span>
                         {item?.human_verified && (
                           <Verified className="h-4 w-4 text-primary" />
