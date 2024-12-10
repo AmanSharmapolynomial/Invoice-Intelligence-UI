@@ -57,7 +57,7 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
         })}
       </div>
 
-      {currentTab == "metadata" && <MetadataTable data={data} />}
+      {currentTab == "metadata" && !isLoading&& <MetadataTable data={data} />}
     </div>
   );
 };
