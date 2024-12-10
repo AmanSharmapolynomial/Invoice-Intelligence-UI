@@ -11,7 +11,7 @@ import { axiosInstance } from "@/axios/instance";
 import toast from "react-hot-toast";
 import { queryClient } from "@/lib/utils";
 
-export const useGetInvoiceMetaData = (payload) => {
+export const useGetDocumentMetadata = (payload) => {
   return useQuery({
     queryKey: ["invoice-metadata", payload],
     queryFn: () => getInvoiceMetaData(payload)

@@ -5,6 +5,7 @@ export const listInvoices = async (payload) => {
     start_date,
     end_date,
     auto_accepted,
+    human_verification,
     human_verified,
     detected,
     invoice_type,
@@ -13,11 +14,13 @@ export const listInvoices = async (payload) => {
     vendor,
     page_size,
     page,
-    clickbacon_status
+    clickbacon_status,
+    sort_order,
+    assigned_to
   } = payload;
-
-  const apiUrl = `/api/document/?page_size=${page_size}&page=${page}&invoice_type=${invoice_type}&end_date=${end_date}&start_date=${start_date}&auto_accepted=${auto_accepted}&human_verified=${human_verified}&detected=${detected}&rerun_status=${rerun_status}&clickbacon_status=${clickbacon_status}&restaurant=${restaurant}&vendor=${vendor}`;
-
+  const apiUrl = `/api/document/?page_size=${page_size}&page=${page}&invoice_type=${invoice_type}&end_date=${end_date}&start_date=${start_date}&auto_accepted=${auto_accepted}&human_verification_required=${human_verification}&invoice_detection_status=${detected}&rerun_status=${rerun_status}&clickbacon_status=${clickbacon_status}&restaurant=${restaurant}&vendor=${vendor}&sort_order=${sort_order}&human_verified=${human_verified}&assigned_to=${
+    assigned_to || ""
+  }`;
   const response = await axiosInstance.get(apiUrl);
   return response;
 };

@@ -22,6 +22,9 @@ const InvoiceFilters = () => {
   const [human_verified, setHumanverified] = useState(
     searchParams.get("human_verified") || "all"
   );
+  const [human_verification, setHumanverification] = useState(
+    searchParams.get("human_verification") || "all"
+  );
   const [invoice_type, setInvoiceType] = useState(
     searchParams.get("invoice_type") || "all"
   );
@@ -68,16 +71,21 @@ const InvoiceFilters = () => {
 
   const handleReset = () => {
     updateParams({
-      detected: undefined,
-      invoice_type: undefined,
-      human_verified: undefined,
-      clickbacon_status: undefined,
-      rerun_status: undefined,
-      auto_accepted: undefined,
-      start_date: undefined,
-      end_date: undefined,
-      restaurant: undefined,
-      vendor: undefined
+      page: 1,
+      page_size: 15,
+      invoice_type: "",
+      invoice_detection_status: "",
+      rerun_status: "",
+      auto_accepted: "",
+      start_date: "",
+      end_date: "",
+      clickbacon_status: "",
+      human_verification: "all",
+      vendor: "",
+      sort_order: "desc",
+      restaurant: "",
+      human_verified: "all",
+      assigned_to: ""
     });
 
     setHumanverified("all");
@@ -87,6 +95,7 @@ const InvoiceFilters = () => {
     setRerunStatus("all");
     setAutoAccepted("all");
     setVendorFilter("none");
+    setHumanverification("all");
     setRestaurantFilter("none");
     setSelectionRange({
       startDate: new Date(),
@@ -103,12 +112,25 @@ const InvoiceFilters = () => {
             triggerClassName={"!w-full"}
             label="Human Verification"
             placeholder="All"
+            value={human_verification}
+            onSelect={(val) => {
+              setHumanverification(val);
+              updateParams({ human_verification: val, page: 1 });
+            }}
+            data={HumanVerificationFilterOptions}
+          />
+        </div>
+        <div className="">
+          <CustomSelect
+            triggerClassName={"!w-full"}
+            label="Human Verified"
+            placeholder="All"
             value={human_verified}
             onSelect={(val) => {
               setHumanverified(val);
               updateParams({ human_verified: val, page: 1 });
             }}
-            data={HumanVerificationFilterOptions}
+            data={AutoAcceptedFilterFilterOptions}
           />
         </div>
         <div>
@@ -126,19 +148,6 @@ const InvoiceFilters = () => {
         </div>
       </div>
       <div className="flex flex-col gap-y-2">
-        <div>
-          <CustomSelect
-            triggerClassName={"!w-full"}
-            placeholder="All"
-            value={detected}
-            label="Invoice Detection Status"
-            data={InvoiceDetectionStatusFilterOptions}
-            onSelect={(val) => {
-              setDetected(val);
-              updateParams({ detected: val, page: 1 });
-            }}
-          />
-        </div>
         <div>
           <CustomSelect
             triggerClassName={"!w-full"}

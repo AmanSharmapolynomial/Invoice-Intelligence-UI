@@ -15,6 +15,7 @@ const CustomInput = ({
   const handleChange = (v) => {
     onChange(v);
   };
+  useEffect(()=>{setinputValue(value)},[value])
 
   return (
     <>
@@ -26,12 +27,12 @@ const CustomInput = ({
           } flex  items-center  `}
           style={{ boxShadow: "0px 0px 4px 0px #0000001A" }}
         >
-          {showIcon && <img src={search} alt="" className="h-4   mt-1 ml-3 " />}
+          {showIcon && <img src={search} alt="" className="h-5   mt-1 ml-3 " />}
           <Input
             value={inputValue}
             className={`${className} ${
               variant == "search" && searchClassName
-            } rounded-sm border-none shadow-none font-poppins  font-normal text-sm dark:text-[#FFFFFF] !h-[2.5rem] focus:!outline-none focus:!ring-0 `}
+            } rounded-md border-none shadow-none font-poppins  font-normal text-sm placeholder:text-base dark:text-[#FFFFFF] !h-[2.5rem] focus:!outline-none focus:!ring-0 `}
             placeholder={placeholder}
             type={type}
             onChange={(e) => {

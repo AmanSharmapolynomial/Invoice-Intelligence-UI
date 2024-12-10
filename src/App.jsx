@@ -18,6 +18,7 @@ import {
 } from "./components/ui/table";
 import { usePersistStore } from "./components/vendor/store/persisitStore";
 import useThemeStore from "./store/themeStore";
+import useFilterStore from "./store/filtersStore";
 
 function App() {
   const { data: vendorNamesList, isLoading: vendorNamesLoading } =
@@ -37,6 +38,11 @@ function App() {
   useEffect(() => {
     setActualVendorName(null);
   }, []);
+  const { setDefault } = useFilterStore();
+  useEffect(() => {
+    setDefault();
+  }, []);
+
   return (
     <div className="dark:bg-[#040807] !h-screen  ">
       <Navbar />
@@ -45,7 +51,9 @@ function App() {
           <p className="text-[2rem] font-semibold font-poppins dark:text-[#FFFFFF]">
             <span className="text-primary">Automated</span> Invoice Solutions
           </p>
-          <p className="text-[1.25rem]  font-poppins font-normal text-[#000000] dark:text-[#FFFFFF]">Simplify Processing, Verification, and User Monitoring</p>
+          <p className="text-[1.25rem]  font-poppins font-normal text-[#000000] dark:text-[#FFFFFF]">
+            Simplify Processing, Verification, and User Monitoring
+          </p>
         </div>
         <div className=" px-[6.25rem]  grid grid-cols-3 gap-4 mt-[5.75%] pr-[6rem] h-full  items-center">
           <CustomCard

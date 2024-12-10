@@ -126,17 +126,42 @@ export function formatRawDataTable(rawTable) {
   }
 
   // Check for duplicates in columns
-  const uniqueColumns = Array.from(new Set(columns.map(JSON.stringify))).map(JSON.parse);
+  const uniqueColumns = Array.from(new Set(columns.map(JSON.stringify))).map(
+    JSON.parse
+  );
 
   return uniqueColumns;
 }
 
+export const findVendorNameById = (data, id) => {
+  return data?.find((it) => it?.vendor_id == id)?.["vendor_name"];
+};
 
+export const findVendorIdByVendorName = (data, name) => {
+  return data?.find(
+    (it) =>
+      it?.vendor_name?.toLowerCase()?.trim() == name?.toLowerCase()?.trim()
+  )?.["vendor_id"];
+};
 
-export const findVendorNameById=(data,id)=>{
-  return data?.find((it)=>it?.vendor_id==id)?.['vendor_name']
-}
+export function formatDateToReadable(dateString) {
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
+  ];
 
-export const findVendorIdByVendorName=(data,name)=>{
-  return data?.find((it)=>it?.vendor_name?.toLowerCase()?.trim()==name?.toLowerCase()?.trim())?.['vendor_id']
+  const [year, month, day] = dateString.split("-");
+  const monthName = months[parseInt(month, 10) - 1];
+
+  return `${monthName.slice(0, 3)} ${parseInt(day, 10)}, ${year}`;
 }

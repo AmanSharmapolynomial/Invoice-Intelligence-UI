@@ -86,7 +86,7 @@ const TablePagination = ({
 
           <Input
             disabled
-            value={totalPages || 1}
+            value={totalPages || pageIndex}
             className=" !shadow-none !text-sm font-medium remove-number-spinner text-[#000000] border-none focus:!border-[#FFFFFF] focus:!outline-none focus:!ring-[#FFFFFF] bg-[#F6F6F6]  w-[3rem] max  h-[1.25rem]  disabled:!bg-[#F6F6F6] disabled:text-textColor/400"
           />
         </PaginationItem>

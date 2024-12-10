@@ -1,5 +1,5 @@
 import { ArrowLeft, LogOut, LucideHome } from "lucide-react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import userStore from "../auth/store/userStore";
 import settings from "@/assets/image/settings.svg";
@@ -8,6 +8,7 @@ import moon from "@/assets/image/moon.svg";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import useThemeStore from "@/store/themeStore";
 import { useEffect } from "react";
+import useFilterStore from "@/store/filtersStore";
 
 const Navbar = ({ children, className }) => {
   const { pathname } = useLocation();
@@ -34,7 +35,28 @@ const Navbar = ({ children, className }) => {
     `https://ui-avatars.com/api/?name=` +
     username?.[0] +
     `&background=7FCBA0&color=FFFFFF&font-size=0.6&bold=true`;
-
+    const [searchParams,setSearchParams]=useSearchParams()
+  
+    const { filters } = useFilterStore();
+    const appendFiltersToUrl = () => {
+      const newParams = new URLSearchParams(searchParams);
+  
+      // Loop through each filter and append to the search params
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value) {
+          newParams.set(key, value);
+        }
+      });
+  
+      // Update searchParams with new filters
+      setSearchParams(newParams);
+    };
+    useEffect(() => {
+  if(pathname?.includes("invoice-details")||pathname?.includes("home")){
+    appendFiltersToUrl();
+    
+  }
+    }, []);
   return (
     <div
       id="navbar"
