@@ -1,3 +1,4 @@
+import { axiosInstance } from "@/axios/instance";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 export const useExtractOcrText = () => {
@@ -12,12 +13,13 @@ export const useExtractOcrText = () => {
   });
 };
 
-export const useGetVendorsList = () => {
+export const useGetVendorsNames = () => {
   return useQuery({
-    queryKey: ["vendors-list"],
+    queryKey: ["vendors-names"],
     queryFn: async () => {
       try {
-        const response = await instance.get(`/api/vendor/names/`);
+        const response = await axiosInstance.get(`/api/vendor/names/`);
+        
         return response?.data;
       } catch (error) {
         return error?.response?.data;

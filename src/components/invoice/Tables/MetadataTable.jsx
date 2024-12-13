@@ -1,11 +1,16 @@
+import {
+  useGetVendorAddresses,
+  useGetVendorsNames
+} from "@/components/common/api";
 import { Button } from "@/components/ui/button";
 import CustomInput from "@/components/ui/Custom/CustomInput";
+import CustomDropDown from "@/components/ui/CustomDropDown";
+import { vendorCategories } from "@/constants";
+import { vendorNamesFormatter } from "@/lib/helpers";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUpdateVendorOrBranch } from "../api";
-import { useGetVendorList } from "@/components/vendor/api";
-import { useGetVendorAddresses } from "@/components/common/api";
 const Template = ({ title, children, className }) => {
   return (
     <div className={`${className} flex flex-col gap-y-2`}>
@@ -17,6 +22,7 @@ const Template = ({ title, children, className }) => {
   );
 };
 const MetadataTable = ({ data }) => {
+  const { data: vendorsData, isLoading: loadingVendors } = useGetVendorsNames();
   const navigate = useNavigate();
   const [loadingState, setLoadingState] = useState({
     savingVendor: false,
@@ -55,7 +61,6 @@ const MetadataTable = ({ data }) => {
     human_verification_required,
     invoice_type
   } = data?.data?.[0] || data?.data;
-  const { data: vendorsData, isLoading: loadingVendors } = useGetVendorList();
   const [vendorNameSearch, setVendorNameSearch] = useState("");
   const [vendorAddressSearch, setVendorAddressSearch] = useState("");
 
@@ -128,7 +133,6 @@ const MetadataTable = ({ data }) => {
         onSuccess: () => {
           setVendorChanged(false);
           setLoadingState({ ...loadingState, savingVendor: false });
-          // queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
           setEditVendor(false);
           setNewVendor("");
         },
@@ -153,10 +157,8 @@ const MetadataTable = ({ data }) => {
         onSuccess: () => {
           setBranchChanged(false);
           setLoadingState({ ...loadingState, savingBranch: false });
-          // queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
           setEditBranch(false);
           setNewBranch("");
-          // queryClient.invalidateQueries({ queryKey: ["vendor-addresses"] });
         },
         onError: () => {
           setLoadingState({ ...loadingState, savingBranch: false });
@@ -164,7 +166,7 @@ const MetadataTable = ({ data }) => {
       }
     );
   };
-
+  console.log(vendorsData);
   return (
     <div className="w-full mt-1 border border-[#F0F0F0] shadow-sm p-2 rounded-md">
       <div className="grid grid-cols-3 gap-x-4">
@@ -175,10 +177,18 @@ const MetadataTable = ({ data }) => {
           />
         </Template>
         <Template title="Invoice Type">
-          <CustomInput />
+          <CustomDropDown
+            showSearch={false}
+            className={"!min-w-[300px]"}
+            data={vendorCategories?.slice(0, 3)}
+            Value={invoice_type}
+            onChange={(v) => console.log(v)}
+          />
         </Template>
         <Template title="Invoice Date">
-          <CustomInput />
+          <div className="flex">
+            <CustomInput />
+          </div>
         </Template>
       </div>
       <div className="grid grid-cols-3 gap-x-4 mt-4">
@@ -186,8 +196,12 @@ const MetadataTable = ({ data }) => {
           <CustomInput value={document_metadata?.invoice_number} />
         </Template>
         <Template title="Vendor Name" className="col-span-2">
-          <div className="flex items-center gap-x-4 pr-2">
-            <CustomInput />
+          <div className="flex items-center gap-x-4 pr-2 w-full">
+            <CustomDropDown
+              className={"min-w-full"}
+              triggerClassName={"!min-w-[80%]"}
+              data={vendorNamesFormatter(vendorsData?.vendor_names)}
+            />
             <Button className="bg-transparent h-[2.4rem] border-primary w-[4.85rem] !rounded-md hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm">
               Update
             </Button>

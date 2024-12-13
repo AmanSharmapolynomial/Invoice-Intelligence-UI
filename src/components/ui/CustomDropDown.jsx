@@ -45,7 +45,7 @@ const CustomDropDown = ({
     setOpen(false);
     onChange(getValueFromLabel(data, newValue), item);
   };
-
+console.log(data)
   return (
     <Popover
       open={open}

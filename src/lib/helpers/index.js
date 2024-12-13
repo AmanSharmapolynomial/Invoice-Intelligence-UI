@@ -49,6 +49,7 @@ export const getValueFromLabel = (data = [], Value = "") => {
 };
 
 export const vendorNamesFormatter = (data = []) => {
+  console.log(data)
   let returnArray = [];
 
   data?.length > 0 &&
