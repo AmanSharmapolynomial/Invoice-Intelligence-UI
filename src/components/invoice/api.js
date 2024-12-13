@@ -5,7 +5,8 @@ import {
   getMasterItemPdfs,
   getDocumentNotes,
   getRawTable,
-  createDocumentNote
+  createDocumentNote,
+  getDocumentTimeline
 } from "./utils";
 import { axiosInstance } from "@/axios/instance";
 import toast from "react-hot-toast";
@@ -82,6 +83,19 @@ export const useCreateDocumentNote = () => {
   });
 };
 
+export const useGetDocumentTimeLine=()=>{
+  return useMutation({
+    mutationFn:(document_uuid)=>getDocumentTimeline(document_uuid),
+    onSuccess:(data)=>{
+      return data
+    }
+  })
+}
+
+
+
+// Copied code from legacy
+
 export const useUpdateDocumentMetadata = () => {
   return useMutation({
     mutationFn: async ({ data, document_uuid }) => {
@@ -124,25 +138,8 @@ export const useFindDuplicateInvoices = (document_uuid) => {
   });
 };
 
-export const useGetRawTable = (document_uuid) => {
-  return useQuery({
-    queryKey: ["raw-table", document_uuid],
-    queryFn: async () => {
-      // /api/document/:document_uuid/items/
 
-      try {
-        if (document_uuid) {
-          const response = await axiosInstance.get(
-            `/api/document/${document_uuid}/items/`
-          );
-          return response?.data;
-        }
-      } catch (error) {
-        return error?.response?.data;
-      }
-    }
-  });
-};
+
 
 export const useGetCombinedTable = (document_uuid) => {
   return useQuery({

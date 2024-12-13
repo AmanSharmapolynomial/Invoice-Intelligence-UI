@@ -88,7 +88,8 @@ export default {
         "accordion-up": "accordion-up 0.2s ease-out"
       },
       fontFamily: {
-        poppins: ["Poppins", "sans-serif"]
+        poppins: ["Poppins", "sans-serif"],
+        lato:["Lato","sans-serif"]
       }
     }
   },

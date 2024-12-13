@@ -31,7 +31,7 @@ import { useGetVendorNames } from "@/components/vendor/api";
 import { formatRestaurantsList, vendorNamesFormatter } from "@/lib/helpers";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import persistStore from "@/store/persistStore";
-import { ArrowRight, Filter, X } from "lucide-react";
+import { ArrowRight, Check, CheckCheck, ChevronDown, ChevronsDown, ChevronsUp, ChevronUp, Equal, Filter, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
@@ -178,6 +178,13 @@ const Home = () => {
             </div>
             <div className="flex  items-center space-x-2 ">
               <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
+              <Button
+                onClick={() => navigate("/vendor-consolidation")}
+                className="border border-primary dark:bg-[#000000] bg-transparent hover:bg-transparent dark:text-[#E7E7E7] text-[#0F172A] font-poppins font-normal text-sm rounded-sm h-[2.5rem]"
+              >
+                Vendor Consolidation 
+              </Button>
+             
                 <CustomDropDown
                   triggerClassName={"bg-gray-100"}
                   contentClassName={"bg-gray-100"}
@@ -251,12 +258,7 @@ const Home = () => {
                   </SheetContent>
                 </Sheet>
               </div>
-              <Button
-                onClick={() => navigate("/vendor-consolidation")}
-                className="border border-primary dark:bg-[#000000] bg-transparent hover:bg-transparent dark:text-[#E7E7E7] text-[#0F172A] font-poppins font-normal text-sm"
-              >
-                Vendor Consolidation
-              </Button>
+            
 
               <CustomInput
                 showIcon={true}

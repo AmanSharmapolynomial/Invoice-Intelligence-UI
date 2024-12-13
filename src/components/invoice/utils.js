@@ -55,3 +55,8 @@ export const createDocumentNote = async (payload) => {
   const response = await axiosInstance.post(apiUrl, { note: note });
   return response;
 };
+export const getDocumentTimeline = async (document_uuid) => {
+  const apiUrl = `/api/document/${document_uuid}/timeline/`;
+  const response = await axiosInstance.get(apiUrl);
+  return response?.data;
+};
