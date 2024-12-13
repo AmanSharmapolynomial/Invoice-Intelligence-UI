@@ -4,7 +4,7 @@ import CustomTooltip from "../ui/Custom/CustomTooltip";
 
 const Timeline = ({ timeline }) => {
   const styling=`grid-cols-${timeline?.length}`
-  console.log(styling)
+ 
   return (
     <div className={`!relative flex  my-4 w-full !justify-between  items-start h-full bg-[#FAFAFA]`}>
       {timeline?.map(({ order, note, reached, timestamp, state }, index) => (

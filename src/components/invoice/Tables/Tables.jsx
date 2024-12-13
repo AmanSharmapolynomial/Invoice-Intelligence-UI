@@ -1,10 +1,11 @@
 import React, { useEffect } from "react";
 
 import { useSearchParams } from "react-router-dom";
-import { useGetDocumentMetadata } from "../api";
+import { useGetCombinedTable, useGetDocumentMetadata } from "../api";
 import useFilterStore from "@/store/filtersStore";
 import { invoiceDetailsTabs } from "@/constants";
 import MetadataTable from "./MetadataTable";
+import CombinedTable from "./CombinedTable";
 
 const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -14,7 +15,7 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
   let document_uuid = searchParams.get("document_uuid") || "";
   let layout = searchParams.get("layout") || null;
   let assigned_to = searchParams.get("assigned_to");
-  const { data, isLoading, isPending, isFetched } = useGetDocumentMetadata({
+  let payload = {
     page: page,
     page_size: filters?.page_size,
     invoice_type: filters?.invoice_type,
@@ -31,7 +32,13 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
     vendor_id,
     document_uuid,
     assigned_to
-  });
+  };
+  const { data, isLoading, isPending, isFetched } =
+    useGetDocumentMetadata(payload);
+  const { data: combinedTableData, isLoading: loadingCombinedTable } =
+    useGetCombinedTable(
+      data?.data?.[0]?.document_uuid || data?.data?.document_uuid
+    );
 
   useEffect(() => {
     setData(data);
@@ -57,7 +64,17 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
         })}
       </div>
 
-      {currentTab == "metadata" && !isLoading&& <MetadataTable data={data} />}
+      {currentTab == "metadata" && !isLoading && (
+        <MetadataTable data={data} payload={payload} />
+      )}
+      {currentTab == "combined-table" && !loadingCombinedTable && (
+        <CombinedTable
+          data={combinedTableData}
+          document_uuid={
+            data?.data?.[0]?.document_uuid || data?.data?.document_uuid
+          }
+        />
+      )}
     </div>
   );
 };

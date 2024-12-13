@@ -343,7 +343,7 @@ export const invoiceTableHeaders = [
 
   {
     label: "Restaurant",
-    styling: "!w-[11.11%] !border !justify-start"
+    styling: "!w-[11.11%]  !justify-start"
   },
   {
     label: "Vendor",
@@ -351,7 +351,7 @@ export const invoiceTableHeaders = [
   },
   {
     label: "Load Date",
-    styling: "w-[11.11%] justify-start"
+    styling: "w-[11.11%] !justify-start !pl-[3.2%]"
   },
   {
     label: "Due Time",

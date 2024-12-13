@@ -17,6 +17,8 @@ const BreadCrumb = ({ crumbs = [], title }) => {
   const navigator = () => {
     if (pathname == "/home") {
       navigate("/");
+    } else if (pathname == "/invoice-details/") {
+      navigate("/home");
     } else {
       window.history.back();
     }

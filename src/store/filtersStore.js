@@ -19,7 +19,8 @@ const useFilterStore = create(
         sort_order: "desc",
         restaurant: "",
         human_verified: "all",
-        assigned_to: ""
+        assigned_to: "",
+        document_priority:"desc"
       },
       setFilters: (newFilters) =>
         set((state) => ({
@@ -42,7 +43,8 @@ const useFilterStore = create(
             sort_order: "desc",
             restaurant: "",
             human_verified: "all",
-            assigned_to: ""
+            assigned_to: "",
+            document_priority:"desc"
           }
         })
     }),

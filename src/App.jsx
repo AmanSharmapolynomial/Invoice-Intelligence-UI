@@ -1,5 +1,4 @@
 import approved from "@/assets/image/approved.svg";
-import direction from "@/assets/image/direction.svg";
 import frame15 from "@/assets/image/frame-15.svg";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
@@ -17,12 +16,12 @@ import {
   TableRow
 } from "./components/ui/table";
 import { usePersistStore } from "./components/vendor/store/persisitStore";
-import useThemeStore from "./store/themeStore";
 import useFilterStore from "./store/filtersStore";
+import useThemeStore from "./store/themeStore";
 
 function App() {
   const { data: vendorNamesList, isLoading: vendorNamesLoading } =
-    useGetVendorNames();
+    useGetVendorNames(true);
   const { setActualVendorName } = usePersistStore();
   const [open, setOpen] = useState(false);
   const [vendorName, setVendorName] = useState("");

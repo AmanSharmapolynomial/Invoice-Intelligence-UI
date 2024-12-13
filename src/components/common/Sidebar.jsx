@@ -20,7 +20,7 @@ const Sidebar = () => {
       hoverImage: image_white
     },
     {
-      path: "/custom",
+      path: "/review-later-tasks",
       icon: null,
       text: "Review Later Tasks (20) ",
       image: theme === "light" ? image : image_white,

@@ -6,6 +6,8 @@ import {
   getDocumentNotes,
   getRawTable,
   createDocumentNote,
+  updateDocumentPriority,
+  getCombinedTable,
   getDocumentTimeline
 } from "./utils";
 import { axiosInstance } from "@/axios/instance";
@@ -70,6 +72,16 @@ export const useGetRawTableData = (documnent_uuid) => {
   });
 };
 
+export const useUpdateDocumentPriority = () => {
+  return useMutation({
+    mutationFn: (payload) => updateDocumentPriority(payload),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["list-invoices"] });
+      toast.success(data?.message);
+    }
+  });
+};
+
 export const useCreateDocumentNote = () => {
   return useMutation({
     mutationFn: (payload) => createDocumentNote(payload),
@@ -83,16 +95,14 @@ export const useCreateDocumentNote = () => {
   });
 };
 
-export const useGetDocumentTimeLine=()=>{
+export const useGetDocumentTimeLine = () => {
   return useMutation({
-    mutationFn:(document_uuid)=>getDocumentTimeline(document_uuid),
-    onSuccess:(data)=>{
-      return data
+    mutationFn: (document_uuid) => getDocumentTimeline(document_uuid),
+    onSuccess: (data) => {
+      return data;
     }
-  })
-}
-
-
+  });
+};
 
 // Copied code from legacy
 
@@ -138,26 +148,10 @@ export const useFindDuplicateInvoices = (document_uuid) => {
   });
 };
 
-
-
-
 export const useGetCombinedTable = (document_uuid) => {
   return useQuery({
     queryKey: ["combined-table", document_uuid],
-    queryFn: async () => {
-      // /api/document/:document_uuid/items/
-
-      try {
-        if (document_uuid) {
-          const response = await axiosInstance.get(
-            `/api/document/${document_uuid}/table/`
-          );
-          return response?.data;
-        }
-      } catch (error) {
-        return error?.response?.data;
-      }
-    }
+    queryFn: () => getCombinedTable(document_uuid)
   });
 };
 

@@ -61,6 +61,7 @@ const Home = () => {
   let sort_order = searchParams.get("sort_order") || "desc";
   let invoice_number = searchParams.get("invoice_number") || "";
   let assigned_to = searchParams.get("assigned_to");
+  let document_priority = searchParams.get("document_priority")||"desc";
   const updateParams = useUpdateParams();
   const { data: restaurantsList, isLoading: restaurantsListLoading } =
     useListRestaurants();
@@ -88,7 +89,8 @@ const Home = () => {
     page,
     sort_order,
     human_verified,
-    assigned_to
+    assigned_to,
+    document_priority
   };
   const { data, isLoading } = useListInvoices(payload);
   useEffect(() => {

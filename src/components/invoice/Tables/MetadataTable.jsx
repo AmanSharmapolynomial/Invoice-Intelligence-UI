@@ -6,11 +6,15 @@ import { Button } from "@/components/ui/button";
 import CustomInput from "@/components/ui/Custom/CustomInput";
 import CustomDropDown from "@/components/ui/CustomDropDown";
 import { vendorCategories } from "@/constants";
-import { vendorNamesFormatter } from "@/lib/helpers";
+import { makeKeyValueFromKey, vendorNamesFormatter } from "@/lib/helpers";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUpdateVendorOrBranch } from "../api";
+import { useGetAdditionalData } from "@/components/vendor/api";
+import DatePicker from "@/components/ui/Custom/DatePicker";
+import { formatISO, isValid, parseISO } from "date-fns";
+import { queryClient } from "@/lib/utils";
 const Template = ({ title, children, className }) => {
   return (
     <div className={`${className} flex flex-col gap-y-2`}>
@@ -21,8 +25,10 @@ const Template = ({ title, children, className }) => {
     </div>
   );
 };
-const MetadataTable = ({ data }) => {
+const MetadataTable = ({ data,payload }) => {
   const { data: vendorsData, isLoading: loadingVendors } = useGetVendorsNames();
+  const { data: additionalData, isLoading: loadingAdditionalData } =
+    useGetAdditionalData();
   const navigate = useNavigate();
   const [loadingState, setLoadingState] = useState({
     savingVendor: false,
@@ -166,7 +172,7 @@ const MetadataTable = ({ data }) => {
       }
     );
   };
-  console.log(vendorsData);
+
   return (
     <div className="w-full mt-1 border border-[#F0F0F0] shadow-sm p-2 rounded-md">
       <div className="grid grid-cols-3 gap-x-4">
@@ -187,13 +193,49 @@ const MetadataTable = ({ data }) => {
         </Template>
         <Template title="Invoice Date">
           <div className="flex">
-            <CustomInput />
+            <DatePicker
+              date={
+                document_metadata?.invoice_date &&
+                isValid(parseISO(document_metadata.invoice_date))
+                  ? parseISO(document_metadata.invoice_date) // Parse ISO string
+                  : null
+              }
+              onChange={(date) => {
+                if (date && isValid(date)) {
+                  // Store date as ISO string in UTC format
+                  setCachedData(
+                    "invoice_date",
+                    formatISO(date, { representation: "date" })
+                  );
+                } else {
+                  setCachedData("invoice_date", null);
+                }
+              }}
+            />
           </div>
         </Template>
       </div>
       <div className="grid grid-cols-3 gap-x-4 mt-4">
         <Template title="Due Date">
-          <CustomInput value={document_metadata?.invoice_number} />
+        <DatePicker
+              date={
+                document_metadata?.invoice_due_date &&
+                isValid(parseISO(document_metadata.invoice_due_date))
+                  ? parseISO(document_metadata.invoice_due_date) // Parse ISO string
+                  : null
+              }
+              onChange={(date) => {
+                if (date && isValid(date)) {
+                  // Store date as ISO string in UTC format
+                  setCachedData(
+                    "invoice_due_date",
+                    formatISO(date, { representation: "date" })
+                  );
+                } else {
+                  setCachedData("invoice_due_date", null);
+                }
+              }}
+            />
         </Template>
         <Template title="Vendor Name" className="col-span-2">
           <div className="flex items-center gap-x-4 pr-2 w-full">
@@ -213,23 +255,46 @@ const MetadataTable = ({ data }) => {
           <CustomInput value={branch?.vendor_address} />
         </Template>
       </div>
-      <div className="grid grid-cols-3 gap-x-4 mt-4">
-        <Template title="Vendor Phone Number">
-          <CustomInput value={document_metadata?.vendor_phone_number} />
-        </Template>
+      <div className="grid grid-cols-2 gap-x-4 mt-4">
         <Template title="Document Type Prediction">
-          <CustomInput />
+          <CustomDropDown
+            value={document_type}
+            className={"min-w-[28rem]"}
+            data={makeKeyValueFromKey(additionalData?.data?.document_types)}
+            onChange={(v) => {
+              setCachedData("document_type", v);
+            }}
+          />
         </Template>
         <Template title="QuickBooks Documents Type">
-          <CustomInput />
+          <CustomDropDown
+            value={quick_book_document_type}
+            className={"min-w-[28rem]"}
+            data={makeKeyValueFromKey(
+              additionalData?.data?.vendor_invoice_document_types
+            )}
+            onChange={(v) => {
+              setCachedData("quick_book_document_type", v);
+            }}
+          />
         </Template>
       </div>
       <div className="grid grid-cols-2 gap-x-4 mt-4">
         <Template title="Credit Card Name">
-          <CustomInput value={document_metadata?.credit_card_name} />
+          <CustomInput
+            value={document_metadata?.credit_card_name}
+            onChange={(v) => {
+              setCachedData("credit_card_name", v);
+            }}
+          />
         </Template>
         <Template title="Credit Card Number">
-          <CustomInput value={document_metadata?.credit_card_number} />
+          <CustomInput
+            value={document_metadata?.credit_card_number}
+            onChange={(v) => {
+              setCachedData("credit_card_number", v);
+            }}
+          />
         </Template>
       </div>
 

@@ -1,5 +1,6 @@
 import approved from "@/assets/image/approved.svg";
 import no_data from "@/assets/image/no-data.svg";
+import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -10,88 +11,103 @@ import {
   TableRow
 } from "@/components/ui/table";
 import { invoiceTableHeaders } from "@/constants";
-import { formatDateToReadable } from "@/lib/helpers";
+import { calculateTimeDifference, formatDateToReadable } from "@/lib/helpers";
+import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import globalStore from "@/store/globalStore";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { useGetDocumentTimeLine } from "../api";
+import { ArrowDown, ArrowUp } from "lucide-react";
 import { useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useGetDocumentTimeLine, useUpdateDocumentPriority } from "../api";
 import Timeline from "../Timeline";
+
 import {
-  ArrowUp,
   CheckCheck,
   ChevronDown,
   ChevronsDown,
   ChevronsUp,
   ChevronUp,
-  Equal,
-  MoveUpIcon
+  Equal
 } from "lucide-react";
-import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+function getPropertyIcon(priority) {
+  if (priority == "HIGHEST") {
+    return (
+      <CustomTooltip
+        content={
+          <p className="flex flex-col gap-y-1 justify-center items-center">
+            <span>HIGHEST</span>
+            <span>Click To Change </span>
+          </p>
+        }
+        top={2}
+      >
+        <ChevronsUp className="w-6 object-fill  text-red-500 cursor-pointer" />
+      </CustomTooltip>
+    );
+  }
+
+  if (priority == "LOWEST") {
+    return (
+      <CustomTooltip content={"LOWEST"} top={2}>
+        <ChevronsDown className=" object-fill h-6  text-blue-500 cursor-pointer" />
+      </CustomTooltip>
+    );
+  }
+
+  if (priority == "HIGH") {
+    return (
+      <CustomTooltip content={"HIGH"} top={2}>
+        <ChevronUp className="w-4 object-fill h-10  text-orange-400 cursor-pointer" />
+      </CustomTooltip>
+    );
+  }
+
+  if (priority == "LOW") {
+    return (
+      <CustomTooltip content={"LOW"} top={2}>
+        <ChevronDown className=" object-fill h-10  text-orange-400 cursor-pointer" />
+      </CustomTooltip>
+    );
+  }
+
+  if (priority == "MEDIUM") {
+    return (
+      <CustomTooltip content={"MEDIUM"} top={2}>
+        <Equal className=" object-fill h-10  text-orange-700 cursor-pointer" />
+      </CustomTooltip>
+    );
+  }
+
+  if (priority == "COMPLETED") {
+    return (
+      <CustomTooltip content={"COMPLETED"}>
+        <CheckCheck className=" object-fill h-5 !z-50  text-primary cursor-pointer" />
+      </CustomTooltip>
+    );
+  }
+}
 const InvoiceTable = ({ data = [], isLoading, height }) => {
   const [searchParams] = useSearchParams();
+  const updateParams = useUpdateParams();
   const [clickedInvoiceUUID, setClickedInvoiceUUID] = useState(null);
   const [timeline, setTimeline] = useState([]);
   const { setSelectedInvoiceRestaurantName, setSelectedInvoiceVendorName } =
     globalStore();
   const navigate = useNavigate();
   let page = searchParams.get("page") || 1;
-  function calculateTimeDifference(dueDate) {
-    const now = new Date();
-    const timeDiff = dueDate - now;
+  let sort_order = searchParams.get("sort_order") || "desc";
+  let document_priority = searchParams.get("document_priority") || "desc";
+  const [changePriorityModal, setChangePriorityModal] = useState({
+    state: false,
+    document_uuid: null,
+    priority: null
+  });
 
-    const hours = Math.floor(
-      (timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-    );
-    const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
-
-    if (timeDiff <= 0) {
-      return `Due  ${hours}h ${minutes}m ago`;
-    }
-    return `${hours}h ${minutes}m`;
-  }
-
-  function getPropertyIcon(priority) {
-    if (priority == "HIGHEST") {
-      return (
-        <ChevronsUp className="w-4 object-fill h-4 text-red-500 cursor-pointer" />
-      );
-    }
-
-    if (priority == "LOWEST") {
-      return (
-        <ChevronsDown className=" object-fill h-10  text-blue-500 cursor-pointer" />
-      );
-    }
-
-    if (priority == "HIGH") {
-      return (
-        <ChevronUp className="w-4 object-fill h-10  text-orange-400 cursor-pointer" />
-      );
-    }
-
-    if (priority == "LOW") {
-      return (
-        <ChevronDown className=" object-fill h-10  text-orange-400 cursor-pointer" />
-      );
-    }
-
-    if (priority == "MEDIUM") {
-      return (
-        <CustomTooltip content={"MEDIUM"} top={2}>
-          <Equal className=" object-fill h-10  text-orange-700 cursor-pointer" />
-        </CustomTooltip>
-      );
-    }
-
-    if (priority == "COMPLETED") {
-      return (
-        <CustomTooltip content={"COMPLETED"}>
-          <CheckCheck className=" object-fill h-5 !z-50  text-primary cursor-pointer" />
-        </CustomTooltip>
-      );
-    }
-  }
   const { mutate, isPending } = useGetDocumentTimeLine();
+  const { mutate: updatePriority, isPending: updatingPriority } =
+    useUpdateDocumentPriority();
 
   return (
     <div className="w-full overflow-auto  dark:bg-[#051C14] mb-1.5 dark:border-b dark:border-r dark:border-l dark:border-primary ">
@@ -106,11 +122,60 @@ const InvoiceTable = ({ data = [], isLoading, height }) => {
             {invoiceTableHeaders?.map(({ label, styling }) => (
               <TableHead
                 key={label}
-                className={`flex  dark:text-[#F6F6F6] flex-wrap break-words  text-[#000000] font-poppins  items-center !justify-start gap-x-1  !font-semibold text-sm w-[11.11%]   `}
+                className={`flex  dark:text-[#F6F6F6] flex-wrap break-words  text-[#000000] font-poppins  items-center !justify-start gap-x-1 ${styling} !font-semibold text-sm w-[11.11%]   `}
               >
+                {label == "Due Time" && (
+                  <>
+                    {sort_order == "desc" && (
+                      <CustomTooltip
+                        content={"Click To Sort In Ascending Order."}
+                      >
+                        <ArrowUp
+                          className="h-4 cursor-pointer"
+                          onClick={() => updateParams({ sort_order: "asc" })}
+                        />
+                      </CustomTooltip>
+                    )}
+                    {sort_order == "asc" && (
+                      <CustomTooltip
+                        content={"Click To Sort In Descending Order."}
+                      >
+                        <ArrowDown
+                          className="h-4 cursor-pointer"
+                          onClick={() => updateParams({ sort_order: "desc" })}
+                        />
+                      </CustomTooltip>
+                    )}
+                  </>
+                )}
                 {label == "Invoice Number" && (
-                  <ArrowUp className="h-4 cursor-pointer" />
-                )}{" "}
+                  <>
+                    {document_priority == "desc" && (
+                      <CustomTooltip
+                        content={"Click To Sort In Ascending Order."}
+                      >
+                        <ArrowUp
+                          className="h-4 cursor-pointer"
+                          onClick={() =>
+                            updateParams({ document_priority: "asc" })
+                          }
+                        />
+                      </CustomTooltip>
+                    )}
+                    {document_priority == "asc" && (
+                      <CustomTooltip
+                        content={"Click To Sort In Descending Order."}
+                      >
+                        <ArrowDown
+                          className="h-4 cursor-pointer"
+                          onClick={() =>
+                            updateParams({ document_priority: "desc" })
+                          }
+                        />
+                      </CustomTooltip>
+                    )}
+                  </>
+                )}
                 {label}
               </TableHead>
             ))}
@@ -171,7 +236,7 @@ const InvoiceTable = ({ data = [], isLoading, height }) => {
                 );
 
                 return (
-                  <div key={index}>
+                  <div key={index} className="relative">
                     <TableRow
                       onClick={(e) => {
                         setSelectedInvoiceVendorName(vendor?.vendor_name);
@@ -186,10 +251,22 @@ const InvoiceTable = ({ data = [], isLoading, height }) => {
                           }`
                         );
                       }}
-                      className="flex gap-y-4  !font-poppins !text-sm w-[100%]  !text-[#1C1C1E] items-center  !border-none"
+                      className="flex gap-y-4  !font-poppins !text-sm w-[100%]  !text-[#1C1C1E] items-center  !border-none "
                     >
-                      <TableCell className="flex dark:!text-[#F6F6F6] font-poppins cursor-pointer!text-left break-word items-center justify-start gap-x-2  !font-normal !w-[11.11%] text-sm  ">
-                        {getPropertyIcon(document_priority)} {invoice_number}
+                      <TableCell className="flex dark:!text-[#F6F6F6] font-poppins cursor-pointer!text-left break-word items-center  justify-start gap-x-2  !font-normal !w-[11.11%] text-sm  ">
+                        <div
+                          className=" pt-[3px]"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setChangePriorityModal({
+                              state: true,
+                              document_uuid: document_uuid
+                            });
+                          }}
+                        >
+                          {getPropertyIcon(document_priority)}
+                        </div>{" "}
+                        <div> {invoice_number}</div>
                       </TableCell>
 
                       <TableCell className="flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-10 !text-left items-center justify-start   !font-normal !text-[#1C1C1E] !w-[11.11%]  text-sm ">
@@ -198,26 +275,29 @@ const InvoiceTable = ({ data = [], isLoading, height }) => {
                           : restaurant?.restaurant_id}
                       </TableCell>
 
-                      <TableCell className="flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-10  !text-left items-center gap-x-4 justify-between  !font-normal !text-[#1C1C1E] !w-[11.11%]  !capitalize  text-sm break-words  ">
+                      <TableCell className="flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-10  !text-left items-center gap-x-2 justify-between  !font-normal !text-[#1C1C1E] !w-[11.11%]  !capitalize  text-sm break-words  ">
                         <span
                           className={`${
                             vendor?.human_verified && "text-primary"
-                          }`}
+                          } w-[80%]`}
                         >
                           {" "}
                           {vendor?.vendor_name}
                         </span>
-                        <span>
+                        <span className="w-[20%]">
                           {vendor?.["human_verified"] && (
-                            <img src={approved} className="text-primary" />
+                            <img
+                              src={approved}
+                              className="text-primary !h-4 !w-5  "
+                            />
                           )}
                         </span>
                       </TableCell>
 
-                      <TableCell className="flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm  !text-left items-center justify-start !font-normal !text-[#1C1C1E] !w-[11.11%]   ">
+                      <TableCell className="flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm  !text-left items-center justify-start pl-[3.2%] !font-normal !text-[#1C1C1E] !w-[11.11%]   ">
                         {formatDateToReadable(date_uploaded?.split("T")[0])}
                       </TableCell>
-                      <TableCell className="flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm !text-left items-center justify-start !font-normal !text-[#1C1C1E] !w-[11.11%]   ">
+                      <TableCell className="flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm !text-left items-center justify-start pl-[3.2rem] !font-normal !text-[#1C1C1E] !w-[11.11%]   ">
                         {assignment_details
                           ? timeRemaining?.split("-").join("")
                           : "NA"}
@@ -235,7 +315,7 @@ const InvoiceTable = ({ data = [], isLoading, height }) => {
                             });
                           }
                         }}
-                        className="flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm  !text-left items-center justify-start  capitalize  !font-normal !text-[#1C1C1E] !w-[11.11%]  "
+                        className="flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm  !text-left items-center justify-start pl-[3.2rem]  capitalize  !font-normal !text-[#1C1C1E] !w-[11.11%]  "
                       >
                         {auto_accepted === true
                           ? "Auto Accepted"
@@ -243,7 +323,7 @@ const InvoiceTable = ({ data = [], isLoading, height }) => {
                           ? "Rejected"
                           : human_verified == true
                           ? "Accepted"
-                          : ""}
+                          : "NA"}
                       </TableCell>
 
                       <TableCell
@@ -258,7 +338,7 @@ const InvoiceTable = ({ data = [], isLoading, height }) => {
                             });
                           }
                         }}
-                        className="flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm !text-left items-center justify-start  !font-normal !text-[#1C1C1E] !w-[11.11%]  "
+                        className="flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm !text-left items-center justify-start pl-[3.2%] !font-normal !text-[#1C1C1E] !w-[11.11%]  "
                       >
                         {clickbacon_status}
                       </TableCell>
@@ -266,12 +346,12 @@ const InvoiceTable = ({ data = [], isLoading, height }) => {
                       <TableCell className="flex dark:!text-[#F6F6F6] font-poppins cursor-pointer  text-sm !text-left items-center justify-start !font-normal !text-[#1C1C1E] !w-[11.11%]  ">
                         {invoice_type}
                       </TableCell>
-                      <TableCell className="flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm !text-left items-center justify-start !font-normal !text-[#1C1C1E] !w-[11.11%]">
+                      <TableCell className="flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm !text-left items-center justify-center !font-normal !text-[#1C1C1E] !w-[11.11%]">
                         {!human_verified_date
-                          ? ""
+                          ? "NA"
                           : formatDateToReadable(
                               human_verified_date?.split("T")?.[0]
-                            )}
+                            ) || "NA"}
                       </TableCell>
                     </TableRow>
 
@@ -288,6 +368,101 @@ const InvoiceTable = ({ data = [], isLoading, height }) => {
                         )}
                       </div>
                     )}
+
+                    {changePriorityModal?.state == true &&
+                      changePriorityModal?.document_uuid == document_uuid && (
+                        <div
+                        onMouseLeave={()=>{
+                          setChangePriorityModal({
+                            state: false,
+                            document_uuid: null,
+                            priority: null
+                          });
+                        }}
+                          style={{
+                            boxShadow: "4px 4px 8px 0px rgba(0, 0, 0, 0.12)"
+                          }}
+                          className="absolute  top-10 left-8 rounded-md min-h-64  p-4 w-44 bg-white z-50 border"
+                        >
+                          <p className="font-poppins  font-bold text-sm leading-4 text-[#000000] tracking-normal">
+                            Priority
+                          </p>
+                          <RadioGroup
+                            defaultValue={document_priority}
+                            onValueChange={(v) => {
+                              setChangePriorityModal({
+                                ...changePriorityModal,
+                                priority: v
+                              });
+                            }}
+                            className="flex flex-col   gap-y-4 mt-4"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem
+                                value="HIGHEST"
+                                id="HIGHEST"
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                              <ChevronsUp className="h-5 text-red-500" />
+                              <Label htmlFor="HIGHEST">Highest</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="HIGH" id="HIGH" />
+                              <ChevronDown className=" object-fill h-5  text-orange-400 cursor-pointer" />
+                              <Label htmlFor="HIGH">High</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="MEDIUM" id="MEDIUM" />
+                              <Equal className=" object-fill h-5 text-center text-orange-700 cursor-pointer" />
+                              <Label htmlFor="MEDIUM">Medium</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="LOW" id="LOW" />
+                              <ChevronDown className=" object-fill h-5  text-orange-400 cursor-pointer" />
+                              <Label htmlFor="LOW">Low</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="LOWEST" id="LOWEST" />
+                              <ChevronsDown className=" object-fill h-5  text-blue-500 cursor-pointer" />
+                              <Label htmlFor="LOWEST">Lowest</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem
+                                value="COMPLETED"
+                                id="COMPLETED"
+                              />
+                              <CheckCheck className=" object-fill h-5 !z-50  text-primary cursor-pointer" />
+                              <Label htmlFor="COMPLETED">Completed</Label>
+                            </div>
+                          </RadioGroup>
+
+                          {changePriorityModal?.priority && (
+                            <Button
+                              onClick={() => {
+                                updatePriority(
+                                  {
+                                    document_uuid:
+                                      changePriorityModal?.document_uuid,
+                                    priority: changePriorityModal?.priority
+                                  },
+                                  {
+                                    onSuccess: () => {
+                                      setChangePriorityModal({
+                                        state: false,
+                                        document_uuid: null,
+                                        priority: null
+                                      });
+                                    }
+                                  }
+                                );
+                              }}
+                              className="text-xs h-[1.5rem] font-normal mt-4 relative  left-14  font-poppins"
+                            >
+                              {updatingPriority ? "Updating.." : "Update"}
+                            </Button>
+                          )}
+                        </div>
+                      )}
                   </div>
                 );
               }

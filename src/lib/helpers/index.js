@@ -1,3 +1,4 @@
+
 export const formatData = (data) => {
   let formatted = [];
   data &&
@@ -49,7 +50,7 @@ export const getValueFromLabel = (data = [], Value = "") => {
 };
 
 export const vendorNamesFormatter = (data = []) => {
-  console.log(data)
+
   let returnArray = [];
 
   data?.length > 0 &&
@@ -166,3 +167,21 @@ export function formatDateToReadable(dateString) {
 
   return `${monthName.slice(0, 3)} ${parseInt(day, 10)}, ${year}`;
 }
+
+
+
+
+  export function calculateTimeDifference(dueDate) {
+    const now = new Date();
+    const timeDiff = dueDate - now;
+
+    const hours = Math.floor(
+      (timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    );
+    const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+
+    if (timeDiff <= 0) {
+      return `Due  ${hours}h ${minutes}m ago`;
+    }
+    return `${hours}h ${minutes}m`;
+  }

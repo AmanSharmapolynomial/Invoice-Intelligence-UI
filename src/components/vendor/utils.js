@@ -26,9 +26,15 @@ export const createVendor = async (vendor_name) => {
     return response;
   }
 };
-export const getVendorNamesList = async () => {
-  const response = await axiosInstance.get("/api/vendor/names/");
-  return response;
+export const getVendorNamesList = async (non_summary) => {
+  if(non_summary){
+    const response = await axiosInstance.get("/api/vendor/names/?non_summary_vendors=true");
+    return response;
+
+  }else{
+    const response = await axiosInstance.get("/api/vendor/names/");
+    return response;
+  }
 };
 
 export const getVendorDetails = async (vendor_id) => {
@@ -113,7 +119,7 @@ export const getVendorsPdfs = async (payload) => {
   return response;
 };
 export const getAdditionalData = async () => {
-  const apiUrl = `api/utils/additional_data/?category_choices=true&processed_table_header_candidates=true&vendor_invoice_document_types=true&vendor_invoice_categories=true`;
+  const apiUrl = `/api/utils/additional_data/?category_choices=true&processed_table_header_candidates=true&vendor_invoice_document_types=true&vendor_invoice_categories=true&document_types=true`;
   const response = await axiosInstance.get(apiUrl);
   return response;
 };

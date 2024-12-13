@@ -16,6 +16,7 @@ import { getValueFromLabel } from "@/lib/helpers";
 import { cn } from "@/lib/utils";
 import { Check, ChevronDown, Verified } from "lucide-react";
 import { useEffect, useState } from "react";
+import approved from'@/assets/image/approved.svg'
 
 const CustomDropDown = ({
   data = [],
@@ -45,7 +46,7 @@ const CustomDropDown = ({
     setOpen(false);
     onChange(getValueFromLabel(data, newValue), item);
   };
-console.log(data)
+
   return (
     <Popover
       open={open}
@@ -99,9 +100,12 @@ console.log(data)
                         )}
                       />
                       <div className="flex justify-between  w-full items-center font-poppins text-xs font-normal dark:!text-[#FFFFFF]   gap-x-4">
-                        <span>{item.label}</span>
+                        <span className="capitalize">{item.label}</span>
                         {item?.human_verified && (
-                          <Verified className="h-4 w-4 text-primary" />
+                    <img
+                                                 src={approved}
+                                                 className="text-primary !h-4 !w-5  "
+                                               />
                         )}
                       </div>
                     </CommandItem>

@@ -60,3 +60,22 @@ export const getDocumentTimeline = async (document_uuid) => {
   const response = await axiosInstance.get(apiUrl);
   return response?.data;
 };
+export const updateDocumentPriority = async (payload) => {
+  const apiUrl = `/api/document/${payload?.document_uuid}/update-priority/`;
+  const response = await axiosInstance.put(apiUrl, {
+    priority: payload?.priority
+  });
+  return response;
+};
+export const getCombinedTable = async (document_uuid) => {
+  try {
+    if (document_uuid) {
+      const response = await axiosInstance.get(
+        `/api/document/${document_uuid}/table/`
+      );
+      return response;
+    }
+  } catch (error) {
+    return error?.response?.data;
+  }
+};
