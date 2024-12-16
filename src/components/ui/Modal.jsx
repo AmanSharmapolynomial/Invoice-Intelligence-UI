@@ -10,11 +10,12 @@ const Modal = ({
   children,
   className,
   title,
-  titleClassName
+  titleClassName,
+  showXicon=true
 }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className={`  overflow-auto pt-4 px-4 ${className}`}>
+      <DialogContent  showXicon={showXicon} className={`  overflow-auto pt-4 px-4 ${className}`}>
         <p className={`${titleClassName} font-medium `}> {title}</p>
         <div className="h-full !overflow-hidden">
           <div className={`  ${className}`}>{children}</div>

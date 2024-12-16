@@ -104,6 +104,7 @@ export const useGetDocumentTimeLine = () => {
   });
 };
 
+
 // Copied code from legacy
 
 export const useUpdateDocumentMetadata = () => {
@@ -113,7 +114,7 @@ export const useUpdateDocumentMetadata = () => {
         `/api/document/${document_uuid}/metadata/`,
         { ...data }
       );
-      return response?.data;
+      return response;
     },
     onSuccess: (data) => {
       toast.success(
@@ -126,6 +127,7 @@ export const useUpdateDocumentMetadata = () => {
           autoClose: 2000
         }
       );
+      
     }
   });
 };
@@ -247,9 +249,10 @@ export const useUpdateVendorOrBranch = () => {
       }
 
       let response = await axiosInstance.post(apiUrl, { ...data });
-      return response?.data;
+      return response;
     },
     onSuccess: (data) => {
+      console.log(data)
       toast.success(data?.message);
     }
   });

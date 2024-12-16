@@ -185,3 +185,16 @@ export function formatDateToReadable(dateString) {
     }
     return `${hours}h ${minutes}m`;
   }
+
+
+export  const headerNamesFormatter = (header_names) => {
+      return header_names?.map(
+        ({ is_required_for_item_master, is_default_in_item_master, ...rest }) => {
+          let pair = {
+            label: rest?.column_name,
+            value: rest?.column_name
+          };
+          return pair;
+        }
+      );
+    };

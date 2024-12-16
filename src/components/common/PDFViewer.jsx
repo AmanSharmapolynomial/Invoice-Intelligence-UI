@@ -13,7 +13,7 @@ import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
 import { useExtractOcrText } from "./api";
 
-import { Box, ChevronLeft, ChevronRight, Lock } from "lucide-react";
+import { Box, ChevronLeft, ChevronRight, Lock, ScanSearch } from "lucide-react";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 export const PdfViewer = ({
@@ -306,7 +306,7 @@ export const PdfViewer = ({
     <div className="w-full ">
       {(pdfUrls[currentPdfIndex]?.document_source == "azure_blob" ||
         pdfUrls[currentPdfIndex]?.document_source == "clickbacon") && (
-        <div className="flex justify-center my-2 border-t border-t-[#E7E7E7] border-r-[#E7E7E7] border-b h-10 items-center 2xl:mx-16 md:mx-8">
+        <div className="flex justify-center my-2 border-t border-t-[#E7E7E7] border-r-[#E7E7E7] border-b h-10 items-center ">
           {multiple && (
             <div className="border-2">
               {pdfUrls?.length > 1 && (
@@ -369,7 +369,7 @@ export const PdfViewer = ({
             </>
           )}
 
-          <div className="flex items-stretch gap-x-8">
+          <div className="flex items-center gap-x-8 ">
             <img
               src={rotate_left}
               alt=""
@@ -382,8 +382,8 @@ export const PdfViewer = ({
               className="cursor-pointer h-5 w-5"
               onClick={() => setRotation(rotation === 0 ? 270 : rotation + 90)}
             />
-            <img src={ocr} alt="" className="cursor-pointer h-5 w-5" />
-            <img
+            <ScanSearch className={`cursor-pointer h-6 w-6 ${selectPdfPortion?"text-primary":"text-[#000000]"}`} onClick={() => setSelectPdfPortion(!selectPdfPortion)}/>
+          <img
               src={zoom_in}
               alt=""
               className="cursor-pointer h-5 w-5"
@@ -448,7 +448,7 @@ export const PdfViewer = ({
               }}
             />
             <>
-              <Box
+              {/* <Box
                 height={20}
                 width={20}
                 className="cursor-pointer mx-2"
@@ -456,7 +456,7 @@ export const PdfViewer = ({
                 style={{
                   color: selectPdfPortion ? "green" : "black"
                 }}
-              />
+              /> */}
               {showIsBounding && (
                 <>
                   {pdfUrl?.is_bounding_box_exist ? (

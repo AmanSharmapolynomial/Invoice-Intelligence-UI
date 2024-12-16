@@ -32,9 +32,10 @@ export const useGetVendorAddresses = (vendor_id) => {
   return useQuery({
     queryKey: ["vendor-addresses", vendor_id],
     queryFn: async () => {
+      console.log(vendor_id)
       if (vendor_id) {
         try {
-          const response = await instance.get(
+          const response = await axiosInstance.get(
             `/api/vendor-branch/${vendor_id}/?vendor_address`
           );
           return response?.data;

@@ -16,7 +16,7 @@ import { getValueFromLabel } from "@/lib/helpers";
 import { cn } from "@/lib/utils";
 import { Check, ChevronDown, Verified } from "lucide-react";
 import { useEffect, useState } from "react";
-import approved from'@/assets/image/approved.svg'
+import approved from "@/assets/image/approved.svg";
 
 const CustomDropDown = ({
   data = [],
@@ -30,7 +30,8 @@ const CustomDropDown = ({
   showCustomItems = false,
   children,
   Key = "value",
-  showSearch = true
+  showSearch = true,
+  
 }) => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(Value || "");
@@ -63,8 +64,8 @@ const CustomDropDown = ({
           aria-expanded={open}
           className="min-w-fit border !h-[2.5rem] dark:bg-[#000000] dark:text-textColor/200 dark:border-[#000000] bg-[#FFFFFF] hover:bg-[#FFFFFF] border-[#E0E0E0]  justify-between capitalize shadow-none !rounded-[4px] text-[#666666] hover:text-[#666666] font-poppins font-normal text-xs"
         >
-          {value && value !== "none"
-            ? data.find((item) => item?.[Key] == value)?.label
+          {value && value !== "none" 
+            ?  data.find((item) => item?.[Key] == value)? data.find((item) => item?.[Key] == value)?.label :placeholder
             : placeholder}
 
           {/* Chevron icon with transition */}
@@ -79,18 +80,22 @@ const CustomDropDown = ({
         className={`${className}  p-0 bg-[#FFFFFF] dark:border-[#051C14]  w-fit  !max-w-60 mr-1`}
         contentClassName={`${contentClassName}   w-full`}
       >
+        
         <Command className="dark:!border-[#051C14]    dark:bg-[#051C14] min-w-[100%] !w-full">
           {showSearch && (
             <CommandInput placeholder={searchPlaceholder} className="" />
           )}
+           {children}
           <CommandList className="border dark:!border-[#000000]">
             <CommandEmpty>No data found.</CommandEmpty>
             <CommandGroup className="">
+             
               {showCustomItems
                 ? children // Render custom items if showCustomItems is true
                 : data?.map((item) => (
                     <CommandItem
                       key={item.value}
+                      className="text-left  !pl-0 !ml-0"
                       onSelect={() => handleSelect(item.value, item)}
                     >
                       <Check
@@ -100,12 +105,12 @@ const CustomDropDown = ({
                         )}
                       />
                       <div className="flex justify-between  w-full items-center font-poppins text-xs font-normal dark:!text-[#FFFFFF]   gap-x-4">
-                        <span className="capitalize">{item.label}</span>
+                        <span className="capitalize text-left">{item.label}</span>
                         {item?.human_verified && (
-                    <img
-                                                 src={approved}
-                                                 className="text-primary !h-4 !w-5  "
-                                               />
+                          <img
+                            src={approved}
+                            className="text-primary !h-4 !w-5  "
+                          />
                         )}
                       </div>
                     </CommandItem>
