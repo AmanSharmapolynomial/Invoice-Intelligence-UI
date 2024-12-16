@@ -8,6 +8,7 @@ import {
   createDocumentNote,
   updateDocumentPriority,
   getCombinedTable,
+  markAsReviewLater,
   getDocumentTimeline
 } from "./utils";
 import { axiosInstance } from "@/axios/instance";
@@ -104,6 +105,19 @@ export const useGetDocumentTimeLine = () => {
   });
 };
 
+export const useMarkReviewLater = () => {
+  return useMutation({
+    mutationFn: ({ document_uuid, comments }) =>
+      markAsReviewLater(document_uuid, comments),
+    onSuccess: (data) => {
+      toast.success(data?.message);
+    },
+    onError: (err) => {
+      console.log(err);
+      toast.error(err?.message);
+    }
+  });
+};
 
 // Copied code from legacy
 
@@ -127,7 +141,6 @@ export const useUpdateDocumentMetadata = () => {
           autoClose: 2000
         }
       );
-      
     }
   });
 };
@@ -252,7 +265,7 @@ export const useUpdateVendorOrBranch = () => {
       return response;
     },
     onSuccess: (data) => {
-      console.log(data)
+      console.log(data);
       toast.success(data?.message);
     }
   });

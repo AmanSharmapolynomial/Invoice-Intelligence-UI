@@ -75,9 +75,9 @@ const CombinedTable = ({
         Items
       </p>
 
-      <div className="py-2  overflow-auto w-full">
-        <Table className="w-full">
-          <TableHead className=" px-0 w-full">
+      <div className="py-2  !max-h-[39.7rem] overflow-auto w-full ">
+        <Table className="w-full  !max-h-[30rem]">
+          <TableHead className=" px-0 w-full sticky top-0">
             <TableRow className="!w-full flex gap-x-2  border-b border-[#E0E0E0] px-0.5">
               {columns?.map(
                 ({
@@ -108,8 +108,8 @@ const CombinedTable = ({
             </TableRow>
           </TableHead>
 
-          <TableBody>
-            <div className=" flex gap-x-2 overflow-auto px-0.5">
+            <TableBody  className="!max-h-[30rem] ">
+            <div className=" flex gap-x-2 overflow-auto px-0.5 !max-h-[35rem] ">
               {columns?.map(
                 ({
                   column_uuid,
@@ -125,7 +125,7 @@ const CombinedTable = ({
                       <CustomDropDown
                         Value={column_name}
                         className={"!w-[rem]"}
-                        triggerClassName={"!max-w-[10rem] !min-w-[9.5rem]  "}
+                        triggerClassName={"!max-w-[10rem] !h-[2.25rem] !min-w-[9.5rem]  "}
                         data={headerNamesFormatter(
                           additionalData?.data
                             ?.processed_table_header_candidates
@@ -145,7 +145,7 @@ const CombinedTable = ({
                 }
               )}
             </div>
-            <div className=" flex flex-col gap-x-4 overflow-auto px-0.5">
+            <div className=" flex flex-col gap-x-4 overflow-auto max-h-[30rem] px-0.5">
               {rows?.map((row, index) => {
                 return (
                   <TableRow

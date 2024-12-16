@@ -67,6 +67,13 @@ export const updateDocumentPriority = async (payload) => {
   });
   return response;
 };
+export const markAsReviewLater = async (document_uuid, comments) => {
+  const apiUrl = `/api/document/${document_uuid}/review-later/`;
+  const response = await axiosInstance.post(apiUrl, {
+    comments
+  });
+  return response;
+};
 export const getCombinedTable = async (document_uuid) => {
   try {
     if (document_uuid) {

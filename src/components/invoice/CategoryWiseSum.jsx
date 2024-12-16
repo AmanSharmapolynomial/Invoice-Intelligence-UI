@@ -1,9 +1,10 @@
 import React from "react";
 import { Table, TableBody, TableHead, TableRow } from "../ui/table";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
+import { Skeleton } from "../ui/skeleton";
 
-const CategoryWiseSum = ({}) => {
-    const {categoryWiseSum}=invoiceDetailStore();
+const CategoryWiseSum = ({ isLoading }) => {
+  const { categoryWiseSum } = invoiceDetailStore();
 
   return (
     <div
@@ -24,22 +25,43 @@ const CategoryWiseSum = ({}) => {
           </TableHead>
         </TableRow>
         <TableBody>
-{categoryWiseSum?.map(({category,sum},i)=>{
-    return (
-        <TableRow className="border-none space-y-0 " key={i}>
-        <TableHead>
-          <p className="font-poppins font-normal  pl-[5rem] text-[#000000] px-4 text-sm py-3 leading-6 capitalize">
-            {category}
-          </p>
-        </TableHead>
-        <TableHead>
-          <p className="font-poppins font-normal  pl-[17rem] text-[#000000] px-4 text-sm py-3 leading-6 capitalize">
-            {sum}
-          </p>
-        </TableHead>
-      </TableRow>
-    )
-})}
+          {isLoading ? (
+            <>
+              {[1, 2, 3]?.map((_, i) => {
+                return (
+                  <TableRow className="border-none space-y-0 " key={i}>
+                    <TableHead>
+                      <p className="font-poppins font-normal  pl-[5rem] text-[#000000] px-4 text-sm py-3 leading-6 capitalize">
+                        <Skeleton className={"w-44 h-4"} />
+                      </p>
+                    </TableHead>
+                    <TableHead>
+                      <p className="font-poppins font-normal  pl-[17rem] text-[#000000] px-4 text-sm py-3 leading-6 capitalize">
+                        <Skeleton className={"w-44 h-5"} />
+                      </p>
+                    </TableHead>
+                  </TableRow>
+                );
+              })}
+            </>
+          ) : (
+            categoryWiseSum?.map(({ category, sum }, i) => {
+              return (
+                <TableRow className="border-none space-y-0 " key={i}>
+                  <TableHead>
+                    <p className="font-poppins font-normal  pl-[5rem] text-[#000000] px-4 text-sm py-3 leading-6 capitalize">
+                      {category}
+                    </p>
+                  </TableHead>
+                  <TableHead>
+                    <p className="font-poppins font-normal  pl-[17rem] text-[#000000] px-4 text-sm py-3 leading-6 capitalize">
+                      {sum}
+                    </p>
+                  </TableHead>
+                </TableRow>
+              );
+            })
+          )}
         </TableBody>
       </Table>
     </div>

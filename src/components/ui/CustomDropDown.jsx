@@ -62,7 +62,7 @@ const CustomDropDown = ({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="min-w-fit border !h-[2.5rem] dark:bg-[#000000] dark:text-textColor/200 dark:border-[#000000] bg-[#FFFFFF] hover:bg-[#FFFFFF] border-[#E0E0E0]  justify-between capitalize shadow-none !rounded-[4px] text-[#666666] hover:text-[#666666] font-poppins font-normal text-xs"
+          className="min-w-fit border h-[2.5rem] dark:bg-[#000000] dark:text-textColor/200 dark:border-[#000000] bg-[#FFFFFF] hover:bg-[#FFFFFF] border-[#E0E0E0]  justify-between capitalize shadow-none !rounded-[4px] text-[#666666] hover:text-[#666666] font-poppins font-normal text-xs"
         >
           {value && value !== "none" 
             ?  data.find((item) => item?.[Key] == value)? data.find((item) => item?.[Key] == value)?.label :placeholder

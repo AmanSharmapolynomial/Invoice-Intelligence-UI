@@ -1,19 +1,28 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
+import warning from "@/assets/image/warning.svg";
+import { Modal, ModalDescription } from "@/components/ui/Modal";
+import { useGetAdditionalData } from "@/components/vendor/api";
+import { invoiceDetailsTabs } from "@/constants";
+import useFilterStore from "@/store/filtersStore";
+import { invoiceDetailStore } from "@/store/invoiceDetailStore";
 import { useSearchParams } from "react-router-dom";
 import { useGetCombinedTable, useGetDocumentMetadata } from "../api";
-import useFilterStore from "@/store/filtersStore";
-import { invoiceDetailsTabs } from "@/constants";
-import MetadataTable from "./MetadataTable";
 import CombinedTable from "./CombinedTable";
-import { useGetAdditionalData } from "@/components/vendor/api";
-import { invoiceDetailStore } from "@/store/invoiceDetailStore";
-import { Modal, ModalDescription } from "@/components/ui/Modal";
-import warning from "@/assets/image/warning.svg";
+import MetadataTable from "./MetadataTable";
+import HumanVerificationTable from "./HumanVerificationTable";
 const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [showWarningModal, setShowWarningModal] = useState(false);
-  const { branchChanged, vendorChanged, updatedFields,setCategoryWiseSum,reCalculateCWiseSum,setHistory,operations } = invoiceDetailStore();
+  const {
+    branchChanged,
+    vendorChanged,
+    updatedFields,
+    setCategoryWiseSum,
+    reCalculateCWiseSum,
+    setHistory,
+    operations
+  } = invoiceDetailStore();
   const { data: additionalData, isLoading: loadingAdditionalData } =
     useGetAdditionalData();
 
@@ -53,38 +62,42 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
     setIsLoading(isLoading);
   }, [data]);
   useEffect(() => {
-    
-      const categoryColNum =
+    const categoryColNum =
       combinedTableData?.data?.processed_table?.columns?.findIndex(
-          (col) => col.column_name == "Category"
-        );
-      const extPriceColNum =
+        (col) => col.column_name == "Category"
+      );
+    const extPriceColNum =
       combinedTableData?.data?.processed_table?.columns?.findIndex(
-          (col) => col.column_name == "Extended Price"
-        );
-
-      const categorySum = combinedTableData?.data?.processed_table?.rows?.reduce(
-        (acc, row) => {
-          const category = row?.cells[categoryColNum]?.text;
-          const price = Number(row?.cells[extPriceColNum]?.text || 0);
-          if (category) {
-            acc[category] = (acc[category] || 0) + price;
-          }
-          return acc;
-        },
-        {}
+        (col) => col.column_name == "Extended Price"
       );
-      if (!categorySum) {
-        return;
-      }
-      const categorySumArray = Object?.entries(categorySum).map(
-        ([category, sum]) => ({ category, sum })
-      );
-console.log(categorySumArray)
-      setCategoryWiseSum(categorySumArray);
-    
 
-  }, [reCalculateCWiseSum, history, setHistory, operations, page,combinedTableData]);
+    const categorySum = combinedTableData?.data?.processed_table?.rows?.reduce(
+      (acc, row) => {
+        const category = row?.cells[categoryColNum]?.text;
+        const price = Number(row?.cells[extPriceColNum]?.text || 0);
+        if (category) {
+          acc[category] = (acc[category] || 0) + price;
+        }
+        return acc;
+      },
+      {}
+    );
+    if (!categorySum) {
+      return;
+    }
+    const categorySumArray = Object?.entries(categorySum).map(
+      ([category, sum]) => ({ category, sum })
+    );
+
+    setCategoryWiseSum(categorySumArray);
+  }, [
+    reCalculateCWiseSum,
+    history,
+    setHistory,
+    operations,
+    page,
+    combinedTableData
+  ]);
   return (
     <div className="w-full">
       <div className="grid grid-cols-3 border-b border-b-[#F0F0F0]">
@@ -120,6 +133,17 @@ console.log(categorySumArray)
           payload={payload}
           additionalData={additionalData}
           loadingAdditionalData={loadingAdditionalData}
+        />
+      )}
+      {currentTab == "human-verification" && !isLoading && (
+        <HumanVerificationTable
+          data={combinedTableData}
+          additionalData={additionalData}
+          loadingAdditionalData={loadingAdditionalData}
+          isLoading={loadingCombinedTable}
+          document_uuid={
+            data?.data?.[0]?.document_uuid || data?.data?.document_uuid
+          }
         />
       )}
       {currentTab == "combined-table" && !loadingCombinedTable && (

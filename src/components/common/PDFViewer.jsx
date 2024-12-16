@@ -302,6 +302,7 @@ export const PdfViewer = ({
     setEndX(0);
     setEndY(0);
   };
+
   return (
     <div className="w-full ">
       {(pdfUrls[currentPdfIndex]?.document_source == "azure_blob" ||
@@ -411,8 +412,8 @@ export const PdfViewer = ({
               className="cursor-pointer h-5 w-5"
               onClick={() => window.open(pdfUrl?.document_link, "_blank")}
             />
-            <ChevronLeft className="cursor-pointer h-6 w-6" />
-            <ChevronRight className="cursor-pointer h-6 w-6" />
+            <ChevronLeft className="cursor-pointer h-6 w-6"  onClick={previousPage}/>
+            <ChevronRight className="cursor-pointer h-6 w-6"  onClick={nextPage} />
             {/* <button
               type="button"
               disabled={pageNum <= 1}
