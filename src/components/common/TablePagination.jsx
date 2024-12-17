@@ -1,21 +1,17 @@
+import navigate_back from "@/assets/image/navigate_back.svg";
+import navigate_end from "@/assets/image/navigate_end.svg";
+import navigate_next from "@/assets/image/navigate_next.svg";
+import navigate_start from "@/assets/image/navigate_start.svg";
+import slash from "@/assets/image/slash.svg";
+import { Input } from "@/components/ui/input";
 import {
   Pagination,
   PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious
+  PaginationItem
 } from "@/components/ui/pagination";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
-import slash from "@/assets/image/slash.svg";
-import navigate_end from "@/assets/image/navigate_end.svg";
-import navigate_start from "@/assets/image/navigate_start.svg";
-import navigate_next from "@/assets/image/navigate_next.svg";
-import navigate_back from "@/assets/image/navigate_back.svg";
 
 const TablePagination = ({
   totalPages = null,

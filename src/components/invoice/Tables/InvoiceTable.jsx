@@ -315,7 +315,7 @@ const InvoiceTable = ({ data = [], isLoading, height }) => {
                             });
                           }
                         }}
-                        className="flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm  !text-left items-center justify-start pl-[3.2rem]  capitalize  !font-normal !text-[#1C1C1E] !w-[11.11%]  "
+                        className="flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm   items-center justify-center pr-[6.25rem] !text-center  capitalize  !font-normal !text-[#1C1C1E] !w-[11.11%]  "
                       >
                         {auto_accepted === true
                           ? "Auto Accepted"
@@ -372,13 +372,13 @@ const InvoiceTable = ({ data = [], isLoading, height }) => {
                     {changePriorityModal?.state == true &&
                       changePriorityModal?.document_uuid == document_uuid && (
                         <div
-                        onMouseLeave={()=>{
-                          setChangePriorityModal({
-                            state: false,
-                            document_uuid: null,
-                            priority: null
-                          });
-                        }}
+                          onMouseLeave={() => {
+                            setChangePriorityModal({
+                              state: false,
+                              document_uuid: null,
+                              priority: null
+                            });
+                          }}
                           style={{
                             boxShadow: "4px 4px 8px 0px rgba(0, 0, 0, 0.12)"
                           }}

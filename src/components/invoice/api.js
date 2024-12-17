@@ -176,7 +176,7 @@ export const useMarkAsNotSupported = () => {
       const response = await axiosInstance.post(
         `/api/document/${document_uuid}/mark-as-unsupported/`
       );
-      return response?.data;
+      return response;
     },
     onSuccess: (data) => {
       toast.success(

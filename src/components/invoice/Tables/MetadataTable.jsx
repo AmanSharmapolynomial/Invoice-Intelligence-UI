@@ -189,7 +189,6 @@ const MetadataTable = ({
     );
   };
 
-  console.log(vendorAddressFormatter(vendorAddress?.branches));
   return (
     <div className="w-full mt-1 border border-[#F0F0F0] shadow-sm p-2 rounded-md">
       <div className="grid grid-cols-3 gap-x-4">

@@ -6,6 +6,7 @@ import { Link, useLocation, useSearchParams } from "react-router-dom";
 import download from "@/assets/image/download.svg";
 import ocr from "@/assets/image/ocr.svg";
 import rotate_left from "@/assets/image/rotate_left.svg";
+import copy from "@/assets/image/copy.svg";
 import rotate_right from "@/assets/image/rotate_right.svg";
 import zoom_in from "@/assets/image/zoom_in.svg";
 import zoom_out from "@/assets/image/zoom_out.svg";
@@ -13,7 +14,18 @@ import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
 import { useExtractOcrText } from "./api";
 
-import { Box, ChevronLeft, ChevronRight, Lock, ScanSearch } from "lucide-react";
+import {
+  Box,
+  ChevronLeft,
+  ChevronRight,
+  Copy,
+  Lock,
+  ScanSearch
+} from "lucide-react";
+import { Modal, ModalDescription } from "../ui/Modal";
+import { Textarea } from "../ui/textarea";
+import toast from "react-hot-toast";
+import { Skeleton } from "../ui/skeleton";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 export const PdfViewer = ({
@@ -25,7 +37,8 @@ export const PdfViewer = ({
   showBorder = true,
   loaded = false,
   multiple = false,
-  setLoaded = () => {}
+  setLoaded = () => {},
+  loadinMetadata
 }) => {
   const {
     bounding_box,
@@ -287,6 +300,7 @@ export const PdfViewer = ({
     setImage(base64Image);
 
     const formData = new FormData();
+    setText("");
     canvas.toBlob((blob) => {
       formData.append("image", blob, "selected_area.png");
       mutate(formData, {
@@ -304,7 +318,8 @@ export const PdfViewer = ({
   };
 
   return (
-    <div className="w-full ">
+    <div className="w-full  max-h-[42rem] overflow-auto">
+      {loadinMetadata && <Skeleton className={"w-[50rem] h-[60rem]"} />}
       {(pdfUrls[currentPdfIndex]?.document_source == "azure_blob" ||
         pdfUrls[currentPdfIndex]?.document_source == "clickbacon") && (
         <div className="flex justify-center my-2 border-t border-t-[#E7E7E7] border-r-[#E7E7E7] border-b h-10 items-center ">
@@ -383,8 +398,13 @@ export const PdfViewer = ({
               className="cursor-pointer h-5 w-5"
               onClick={() => setRotation(rotation === 0 ? 270 : rotation + 90)}
             />
-            <ScanSearch className={`cursor-pointer h-6 w-6 ${selectPdfPortion?"text-primary":"text-[#000000]"}`} onClick={() => setSelectPdfPortion(!selectPdfPortion)}/>
-          <img
+            <ScanSearch
+              className={`cursor-pointer h-6 w-6 ${
+                selectPdfPortion ? "text-primary" : "text-[#000000]"
+              }`}
+              onClick={() => setSelectPdfPortion(!selectPdfPortion)}
+            />
+            <img
               src={zoom_in}
               alt=""
               className="cursor-pointer h-5 w-5"
@@ -412,8 +432,14 @@ export const PdfViewer = ({
               className="cursor-pointer h-5 w-5"
               onClick={() => window.open(pdfUrl?.document_link, "_blank")}
             />
-            <ChevronLeft className="cursor-pointer h-6 w-6"  onClick={previousPage}/>
-            <ChevronRight className="cursor-pointer h-6 w-6"  onClick={nextPage} />
+            <ChevronLeft
+              className="cursor-pointer h-6 w-6"
+              onClick={previousPage}
+            />
+            <ChevronRight
+              className="cursor-pointer h-6 w-6"
+              onClick={nextPage}
+            />
             {/* <button
               type="button"
               disabled={pageNum <= 1}
@@ -434,7 +460,7 @@ export const PdfViewer = ({
           */}
 
             <div>
-              <span className="text-center font-poppins font-medium text-sm">
+              <span className="text-center font-poppins font-medium text-[0.9rem]">
                 Page {pageNum} / {numPages || pageNum}
               </span>
             </div>
@@ -505,12 +531,13 @@ export const PdfViewer = ({
               maxWidth: "100%",
               position: "relative"
             }}
-            className="flex justify-center"
+            className="flex "
           >
             {pdfUrl ? (
               <Document
                 file={pdfUrls[currentPdfIndex]?.document_link}
                 onLoadSuccess={onDocumentLoadSuccess}
+                className={""}
               >
                 <Page
                   pageNumber={pageNum}
@@ -621,63 +648,52 @@ export const PdfViewer = ({
         ))}
       {/* Modal for future use */}
 
-      {/* <Modal
-        show={isModalOpen}
-        onHide={() => setIsModalOpen(false)}
-        size="lg"
-        aria-labelledby="contained-modal-title-vcenter"
-        centered
+      <Modal
+        open={isModalOpen}
+        setOpen={setIsModalOpen}
+        title={"Selected Area"}
+        className="!max-h-[35rem] !max-w-[45rem] "
+        iconCN={"mt-1.5"}
+        titleClassName={
+          "font-poppins font-medium mt-2 flex justify-center text-base leading-5 text-[#000000]"
+        }
       >
-        <Modal.Header closeButton>
-          <Modal.Title>Selected Area</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {isPending ? (
-            <div
-              className="d-flex justify-content-center align-items-center w-100 "
-              style={{ height: "400px" }}
-            >
-              <Spinner />
-            </div>
-          ) : (
-            <>
-              <div className="border p-2 rounded mb-2 border-white shadow-sm">
-                <div className="d-flex justify-content-between mb-2">
-                  <h5 className="text-bold m-0">Extracted Text</h5>
-                  <Clipboard2Fill
-                    height={20}
-                    width={20}
-                    className="cursor-pointer"
-                    fill="green"
-                    onClick={() => {
-                      navigator.clipboard.writeText(text);
-                      toast.info("Text copied to clipboard");
-                    }}
-                  />
-                </div>
-                <textarea
-                  className="form-control"
-                  rows="10"
-                  value={text}
-                  onChange={(e) => {
-                    setText(e.target.value);
-                  }}
+        <ModalDescription className="w-full border  ">
+          <div className="mt-2 m-0 flex flex-col gap-y-2 relative">
+            <p className="font-poppins !text-[#000000] font-medium text-sm px-1">
+              Extracted Text
+            </p>
+            <Textarea
+              value={text}
+              onChange={(e) => {
+                setText(e.target.value);
+              }}
+              className="bg-[#F6F6F6] !max-w-full font-poppins  font-normal text-xs !text-[#000000] focus:!outline-none focus:!ring-0 !relative"
+              rows={10}
+            ></Textarea>
+
+            <img
+              src={copy}
+              alt="copy icon"
+              onClick={() => {
+                navigator.clipboard.writeText(text);
+                toast.success("Text copied to clipboard");
+              }}
+              className="absolute right-3  top-10 cursor-pointer h-4  z-50"
+            />
+            <div className="flex justify-center  p-2 mt-8 rounded  border-white shadow-sm">
+              {image && (
+                <img
+                  src={image}
+                  alt="selected area"
+                  className="max-h-[20rem] object-center"
+                  onError={() => console.error("Image failed to load")}
                 />
-              </div>
-              <div className="d-flex justify-content-center border p-2 rounded mb-2 border-white shadow-sm">
-                {image && (
-                  <img
-                    src={image}
-                    alt="selected area"
-                    width={500}
-                    onError={() => console.error("Image failed to load")}
-                  />
-                )}
-              </div>
-            </>
-          )}
-        </Modal.Body>
-      </Modal> */}
+              )}
+            </div>
+          </div>
+        </ModalDescription>
+      </Modal>
     </div>
   );
 };

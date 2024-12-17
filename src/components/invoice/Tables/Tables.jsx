@@ -11,6 +11,7 @@ import { useGetCombinedTable, useGetDocumentMetadata } from "../api";
 import CombinedTable from "./CombinedTable";
 import MetadataTable from "./MetadataTable";
 import HumanVerificationTable from "./HumanVerificationTable";
+import { Skeleton } from "@/components/ui/skeleton";
 const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [showWarningModal, setShowWarningModal] = useState(false);
@@ -21,7 +22,8 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
     setCategoryWiseSum,
     reCalculateCWiseSum,
     setHistory,
-    operations
+    operations,
+    setMetaData
   } = invoiceDetailStore();
   const { data: additionalData, isLoading: loadingAdditionalData } =
     useGetAdditionalData();
@@ -58,6 +60,8 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
       data?.data?.[0]?.document_uuid || data?.data?.document_uuid
     );
   useEffect(() => {
+    setMetaData(data?.data?.[0] || data?.data);
+
     setData(data);
     setIsLoading(isLoading);
   }, [data]);
@@ -126,7 +130,21 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
           );
         })}
       </div>
-
+     <div className=" gap-y-8 mt-4 flex flex-col">
+     {isLoading &&
+        [1, 2, 3, 4, 5, 6, 7, 8.9,10,11,12,13].map((_, i) => {
+          return (
+            <div
+              key={i}
+              className="grid grid-cols-3 items-center gap-y-8 gap-x-8"
+            >
+              <Skeleton key={i} className={"w-[19rem] h-[2rem]"} />
+              <Skeleton key={i} className={"w-[19rem] h-[2rem]"} />
+              <Skeleton key={i} className={"w-[19rem] h-[2rem]"} />
+            </div>
+          );
+        })}
+     </div>
       {currentTab == "metadata" && !isLoading && (
         <MetadataTable
           data={data}

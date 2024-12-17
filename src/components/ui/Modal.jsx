@@ -11,11 +11,12 @@ const Modal = ({
   className,
   title,
   titleClassName,
-  showXicon=true
+  showXicon=true,
+  iconCN
 }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent  showXicon={showXicon} className={`  overflow-auto pt-4 px-4 ${className}`}>
+      <DialogContent  iconCN={iconCN} showXicon={showXicon} className={`  overflow-auto pt-4 px-4 ${className}`}>
         <p className={`${titleClassName} font-medium `}> {title}</p>
         <div className="h-full !overflow-hidden">
           <div className={`  ${className}`}>{children}</div>
@@ -26,7 +27,7 @@ const Modal = ({
 };
 
 const ModalDescription = ({ children }) => (
-  <DialogDescription className="">{children}</DialogDescription>
+  <DialogDescription className=" w-full">{children}</DialogDescription>
 );
 
 export { Modal, ModalDescription };

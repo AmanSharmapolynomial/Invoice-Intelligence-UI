@@ -18,13 +18,13 @@ const CombinedTable = ({
   additionalData,
   loadingAdditionalData
 }) => {
-  const { columns, rows } = data?.data?.processed_table;
+  const { columns=[], rows=[] } = data?.data?.processed_table;
   const setCachedData = (key, value) => {};
 
   useEffect(() => {
     if (data) {
       let copyObj = JSON.parse(JSON.stringify(data));
-      const { columns, rows } = copyObj?.data?.processed_table;
+      const { columns=[], rows=[] } = copyObj?.data?.processed_table;
 
       // Create a mapping from column_uuid to column_order
       const columnOrderMap = columns?.reduce((acc, column) => {
@@ -45,7 +45,7 @@ const CombinedTable = ({
 
   const handleCheckboxChange = (column_uuid, val) => {
     let copyObj = JSON.parse(JSON.stringify(data));
-    const { rows, columns } = copyObj?.data?.processed_table;
+    const { rows=[], columns=[] } = copyObj?.data?.processed_table;
     columns?.forEach((col) => {
       if (col?.column_uuid == column_uuid) {
         col.selected_column = val;
@@ -56,7 +56,7 @@ const CombinedTable = ({
 
   const handleDropdownChange = (column_uuid, col_name) => {
     let copyObj = JSON.parse(JSON.stringify(data));
-    const { rows, columns } = copyObj?.data?.processed_table;
+    const { rows=[], columns=[] } = copyObj?.data?.processed_table;
     columns?.forEach((col) => {
       if (col?.column_uuid == column_uuid) {
         col.column_name = col_name;
@@ -145,7 +145,7 @@ const CombinedTable = ({
                 }
               )}
             </div>
-            <div className=" flex flex-col gap-x-4 overflow-auto max-h-[30rem] px-0.5">
+            <div className=" flex flex-col gap-4 overflow-auto max-h-[30rem] px-0.5">
               {rows?.map((row, index) => {
                 return (
                   <TableRow
