@@ -37,7 +37,8 @@ const Login = () => {
     setEmail,
     setAccessToken,
     setRefreshToken,
-    setRole
+    setRole,
+    setUserId
   } = userStore();
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -60,7 +61,8 @@ const Login = () => {
           last_name,
           role,
           username,
-          email
+          email,
+          user_id
         } = data["data"];
 
         setRole(role);
@@ -71,9 +73,10 @@ const Login = () => {
         setAccessToken(access_token);
         setRefreshToken(refresh_token);
         clearTimeout(timeout);
+        setUserId(user_id)
         timeout = setTimeout(() => {
           navigate("/");
-        }, 2000);
+        }, 500);
       }
     });
   };

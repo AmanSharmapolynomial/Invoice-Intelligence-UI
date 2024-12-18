@@ -101,6 +101,28 @@ const HumanVerificationTable = ({
     queryClient.setQueryData(["combined-table", document_uuid], copyObj);
   };
   useEffect(() => {
+      if (data) {
+        let copyObj = JSON.parse(JSON.stringify(data));
+        const { columns=[], rows=[] } = copyObj?.data?.processed_table;
+  
+        // Create a mapping from column_uuid to column_order
+        const columnOrderMap = columns?.reduce((acc, column) => {
+          acc[column.column_uuid] = column.column_order;
+          return acc;
+        }, {});
+  
+        // Sort cells in each row based on column_order
+        copyObj?.data?.processed_table?.rows?.forEach((row) => {
+          row?.cells?.sort((a, b) => {
+            return columnOrderMap[a.column_uuid] - columnOrderMap[b.column_uuid];
+          });
+        });
+  
+        queryClient.setQueryData(["combined-table", document_uuid], copyObj);
+      }
+    }, []);
+  
+  useEffect(() => {
     if (highlightAll == true) {
       let pushed = [];
       data?.data?.processed_table?.rows?.map((row) =>
@@ -277,7 +299,7 @@ const HumanVerificationTable = ({
                 <div
                   onMouseLeave={() => setShowActionsPopup(false)}
                   style={{ boxShadow: "4px 4px 8px 0px rgba(0, 0, 0, 0.12)" }}
-                  className="absolute bg-white rounded-lg flex flex-col gap-y-1  p-2  !z-50 w-[15rem] right-0 top-8"
+                  className="absolute bg-white rounded-lg flex flex-col gap-y-1  p-2  !z-50 w-[12rem] right-0 top-8"
                 >
                   <p
                     onClick={() => {
@@ -285,7 +307,7 @@ const HumanVerificationTable = ({
                     }}
                     className={`${
                       viewDeleteColumn && "bg-primary text-white"
-                    } cursor-pointer px-4 py-1.5 font-poppins font-normal text-xs rounded-sm`}
+                    } cursor-pointer px- py-1.5 font-poppins font-normal text-xs rounded-sm`}
                   >
                     View Row Delete Button
                   </p>
@@ -295,7 +317,7 @@ const HumanVerificationTable = ({
                     }}
                     className={`${
                       viewVerificationColumn && "bg-primary text-white"
-                    } cursor-pointer px-4 py-1.5 font-poppins font-normal text-xs rounded-sm`}
+                    } cursor-pointer px- py-1.5 font-poppins font-normal text-xs rounded-sm`}
                   >
                     View Verification Button
                   </p>
@@ -305,7 +327,7 @@ const HumanVerificationTable = ({
                     }}
                     className={`${
                       viewShiftColumn && "bg-primary text-white"
-                    } cursor-pointer px-4 py-1.5 font-poppins font-normal text-xs rounded-sm`}
+                    } cursor-pointer px- py-1.5 font-poppins font-normal text-xs rounded-sm`}
                   >
                     View Row Shift Button
                   </p>
@@ -352,8 +374,8 @@ const HumanVerificationTable = ({
           <p>{calculatedsum}</p>
         </div>
 
-        <div className="pb-2  overflow-hidden w-full">
-          <Table className="w-full ">
+        <div className="pb-2  overflow-hidden w-full relative">
+          <Table className="w-full relative ">
             <TableBody
               onMouseLeave={() => {
                 if (stopHovering) {
@@ -405,7 +427,7 @@ const HumanVerificationTable = ({
                 </TableCell>
               </div>
 
-              <div className=" flex flex-col gap-x-2  !max-h-[35.5rem]  px-0.5">
+              <div className=" flex flex-col gap-x-2  !max-h-[31.5rem]  px-0.5">
                 {rows?.map((row, index) => {
                   return (
                     <div className="flex">

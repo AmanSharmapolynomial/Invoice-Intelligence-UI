@@ -17,6 +17,7 @@ import CompareInvoices from "@/pages/CompareInvoices";
 import InvoiceProcessor from "@/pages/InvoiceProcessor";
 import FastItemVerification from "@/pages/FastItemVerification";
 import ReviewLaterTasks from "@/pages/ReviewLaterTasks";
+import MyTasks from "@/pages/MyTasks";
 
 const publicRoutes = [
   {
@@ -46,6 +47,14 @@ const protectedRoutes = [
     element: (
       <Protected>
         <ReviewLaterTasks />
+      </Protected>
+    )
+  },
+  {
+    path: "/my-tasks",
+    element: (
+      <Protected>
+        <MyTasks/>
       </Protected>
     )
   },

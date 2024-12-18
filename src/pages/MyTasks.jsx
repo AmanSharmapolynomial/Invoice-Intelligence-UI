@@ -10,6 +10,7 @@ import {
   SheetTrigger
 } from "@/components/ui/sheet";
 
+import userStore from "@/components/auth/store/userStore";
 import Sidebar from "@/components/common/Sidebar";
 import TablePagination from "@/components/common/TablePagination";
 import {
@@ -31,11 +32,15 @@ import { useGetVendorNames } from "@/components/vendor/api";
 import { formatRestaurantsList, vendorNamesFormatter } from "@/lib/helpers";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import persistStore from "@/store/persistStore";
-import { ArrowRight, Filter, X } from "lucide-react";
+import {
+  ArrowRight,
+  Filter,
+  X
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
-const Home = () => {
+const MyTasks = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [invoiceNumber, setInvoiceNumber] = useState("");
@@ -61,7 +66,9 @@ const Home = () => {
   let sort_order = searchParams.get("sort_order") || "desc";
   let invoice_number = searchParams.get("invoice_number") || "";
   let assigned_to = searchParams.get("assigned_to");
-  let document_priority = searchParams.get("document_priority")||"desc";
+
+  let {userId}=userStore()
+  let document_priority = searchParams.get("document_priority") || "desc";
   const updateParams = useUpdateParams();
   const { data: restaurantsList, isLoading: restaurantsListLoading } =
     useListRestaurants();
@@ -89,8 +96,9 @@ const Home = () => {
     page,
     sort_order,
     human_verified,
-    assigned_to,
-    document_priority
+    assigned_to:userId,
+    document_priority,
+    
   };
   const { data, isLoading } = useListInvoices(payload);
   useEffect(() => {
@@ -150,11 +158,11 @@ const Home = () => {
         <Navbar />
         <Layout>
           <BreadCrumb
-            title={"Invoice Balancing"}
+            title={"Review Later Invoices"}
             crumbs={[
               {
                 path: null,
-                label: "Invoices"
+                label: "Review Later Invoices"
               }
             ]}
           />
@@ -180,13 +188,12 @@ const Home = () => {
             </div>
             <div className="flex  items-center space-x-2 ">
               <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
-              <Button
-                onClick={() => navigate("/vendor-consolidation")}
-                className="border border-primary dark:bg-[#000000] bg-transparent hover:bg-transparent dark:text-[#E7E7E7] text-[#0F172A] font-poppins font-normal text-sm rounded-sm h-[2.5rem]"
-              >
-                Vendor Consolidation 
-              </Button>
-             
+                <Button
+                  onClick={() => navigate("/vendor-consolidation")}
+                  className="border border-primary dark:bg-[#000000] bg-transparent hover:bg-transparent dark:text-[#E7E7E7] text-[#0F172A] font-poppins font-normal text-sm rounded-sm h-[2.5rem]"
+                >
+                  Vendor Consolidation
+                </Button>
                 <CustomDropDown
                   triggerClassName={"bg-gray-100"}
                   contentClassName={"bg-gray-100"}
@@ -260,7 +267,6 @@ const Home = () => {
                   </SheetContent>
                 </Sheet>
               </div>
-            
 
               <CustomInput
                 showIcon={true}
@@ -380,4 +386,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default MyTasks;

@@ -382,7 +382,7 @@ const InvoiceTable = ({ data = [], isLoading, height }) => {
                           style={{
                             boxShadow: "4px 4px 8px 0px rgba(0, 0, 0, 0.12)"
                           }}
-                          className="absolute  top-10 left-8 rounded-md min-h-64  p-4 w-44 bg-white z-50 border"
+                          className="absolute  top-10 left-8 rounded-md min-h-56 p-4 w-44 bg-white z-50 border"
                         >
                           <p className="font-poppins  font-bold text-sm leading-4 text-[#000000] tracking-normal">
                             Priority
@@ -426,14 +426,7 @@ const InvoiceTable = ({ data = [], isLoading, height }) => {
                               <ChevronsDown className=" object-fill h-5  text-blue-500 cursor-pointer" />
                               <Label htmlFor="LOWEST">Lowest</Label>
                             </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem
-                                value="COMPLETED"
-                                id="COMPLETED"
-                              />
-                              <CheckCheck className=" object-fill h-5 !z-50  text-primary cursor-pointer" />
-                              <Label htmlFor="COMPLETED">Completed</Label>
-                            </div>
+                         
                           </RadioGroup>
 
                           {changePriorityModal?.priority && (

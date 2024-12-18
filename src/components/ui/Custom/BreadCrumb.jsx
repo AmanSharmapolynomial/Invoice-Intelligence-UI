@@ -65,7 +65,7 @@ const BreadCrumb = ({ crumbs = [], title }) => {
                       className={`${
                         index == crumbs?.length - 1 &&
                         "!text-[#1E7944] dark:!text-[#1E7944]"
-                      } text-[#000000] !font-poppins !font-normal text-xs dark:!text-[#FFFFFF]`}
+                      } text-[#000000] !font-poppins !font-normal capitalize text-xs dark:!text-[#FFFFFF]`}
                     >
                       {label}
                     </Link>

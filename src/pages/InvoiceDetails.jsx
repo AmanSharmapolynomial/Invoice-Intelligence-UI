@@ -216,7 +216,7 @@ const InvoiceDetails = () => {
           title={selectedInvoiceVendorName}
           crumbs={[
             {
-              path: "/vendor-consolidation",
+              path: null,
               label: `${selectedInvoiceVendorName} `
             },
             {

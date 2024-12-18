@@ -30,6 +30,7 @@ const MetadataTable = ({
   additionalData,
   loadingAdditionalData
 }) => {
+
   const { data: vendorsData, isLoading: loadingVendors } = useGetVendorsNames();
 
   const navigate = useNavigate();
