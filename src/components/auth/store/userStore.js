@@ -11,7 +11,7 @@ const userStore = create(
       role: null,
       access_token: null,
       refresh_token: null,
-      userId:null,
+      userId: null,
       setUsername: (data) => set({ username: data }),
       setFirstName: (data) => set({ first_name: data }),
       setLastName: (data) => set({ last_name: data }),
@@ -20,9 +20,20 @@ const userStore = create(
       setAccessToken: (data) => set({ access_token: data }),
       setRefreshToken: (data) => set({ refresh_token: data }),
       setUserId: (id) => set({ userId: id }),
+      clearStore: () =>
+        set({
+          username: null,
+          first_name: null,
+          last_name: null,
+          email: null,
+          role: null,
+          access_token: null,
+          refresh_token: null,
+          userId: null,
+        }),
     }),
     {
-      name: "user-store"
+      name: "user-store",
     }
   )
 );

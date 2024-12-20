@@ -181,7 +181,7 @@ const Home = () => {
             <div className="flex  items-center space-x-2 ">
               <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
               <Button
-                onClick={() => navigate("/vendor-consolidation")}
+                // onClick={() => navigate("/vendor-consolidation")}
                 className="border border-primary dark:bg-[#000000] bg-transparent hover:bg-transparent dark:text-[#E7E7E7] text-[#0F172A] font-poppins font-normal text-sm rounded-sm h-[2.5rem]"
               >
                 Vendor Consolidation 

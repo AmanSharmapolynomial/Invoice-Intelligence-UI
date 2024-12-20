@@ -86,7 +86,7 @@ function App() {
             Icon={frame15}
             showIcon={true}
             className={"cursor-pointer"}
-            onClick={() => navigate("/user-activity")}
+            // onClick={() => navigate("/user-activity")}
             title="View User Activity"
             content="Access a comprehensive log of all user activities."
           />
@@ -97,14 +97,7 @@ function App() {
             title="Invoice Assignment"
             content="Manage and delegate invoice tasks seamlessly."
           />
-          <CustomCard
-            Icon={frame15}
-            onClick={() => navigate("/process-invoice")}
-            className={"cursor-pointer"}
-            showIcon={true}
-            title="Process Invoice"
-            content="Upload invoices seamlessly."
-          />
+       
         </div>
       </Layout>
       <Modal
@@ -158,11 +151,11 @@ function App() {
                   ({ vendor_id, vendor_name, human_verified }) => (
                     <TableRow
                       key={vendor_id}
-                      onClick={() => {
-                        isItemMaster
-                          ? navigate(`/fast-item-verification/${vendor_id}`)
-                          : navigate(`/vendor-details/${vendor_id}`);
-                      }}
+                      // onClick={() => {
+                      //   isItemMaster
+                      //     ? navigate(`/fast-item-verification/${vendor_id}`)
+                      //     : navigate(`/vendor-details/${vendor_id}`);
+                      // }}
                       className="hover:bg-textColor/50 dark:hover:bg-transparent w-full  justify-between border-none cursor-pointer"
                     >
                       <TableCell className="">

@@ -2,8 +2,14 @@ import useSidebarStore from "@/store/sidebarStore";
 import { ChevronRight, Menu } from "lucide-react";
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import image from "@/assets/image/image.svg";
-import image_white from "@/assets/image/image_white.svg";
+
+import review_later_white from "@/assets/image/review_later_white.svg";
+import review_later_black from "@/assets/image/review_later_black.svg";
+import all_invoices_black from "@/assets/image/all_invoices_black.svg";
+import all_invoices_white from "@/assets/image/all_invoices_white.svg";
+import my_tasks_white from "@/assets/image/check_book_white.svg";
+import my_tasks_black from "@/assets/image/check_book_black.svg";
+
 import useThemeStore from "@/store/themeStore";
 
 const Sidebar = () => {
@@ -16,22 +22,22 @@ const Sidebar = () => {
       path: "/home",
       icon: null,
       text: "All Invoices",
-      image: theme === "light" ? image : image_white,
-      hoverImage: image_white
+      image: theme === "light" ? all_invoices_black : all_invoices_white,
+      hoverImage: all_invoices_white
     },
     {
       path: "/my-tasks",
       icon: null,
       text: "My Tasks",
-      image: theme === "light" ? image : image_white,
-      hoverImage: image_white
+      image: theme === "light" ? my_tasks_black : my_tasks_white,
+      hoverImage: my_tasks_white
     },
     {
       path: "/review-later-tasks",
       icon: null,
       text: "Review Later Invoices",
-      image: theme === "light" ? image : image_white,
-      hoverImage: image_white
+      image: theme === "light" ? review_later_black : review_later_white,
+      hoverImage: review_later_white
     }
     // {
     //   path: "/custom",

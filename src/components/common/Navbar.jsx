@@ -1,21 +1,42 @@
 import { ArrowLeft, LogOut, LucideHome } from "lucide-react";
-import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams
+} from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import userStore from "../auth/store/userStore";
 import settings from "@/assets/image/settings.svg";
 import settings_white from "@/assets/image/settings_white.svg";
+import logout from "@/assets/image/logout.svg";
 import moon from "@/assets/image/moon.svg";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import useThemeStore from "@/store/themeStore";
 import { useEffect } from "react";
 import useFilterStore from "@/store/filtersStore";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 
 const Navbar = ({ children, className }) => {
   const { pathname } = useLocation();
 
   const navigate = useNavigate();
-  const { email, username, first_name, last_name, access_token, role } =
-    userStore();
+  const {
+    email,
+    username,
+    first_name,
+    last_name,
+    access_token,
+    role,
+    clearStore
+  } = userStore();
   const { theme, toggleTheme } = useThemeStore();
 
   useEffect(() => {
@@ -35,35 +56,39 @@ const Navbar = ({ children, className }) => {
     `https://ui-avatars.com/api/?name=` +
     username?.[0] +
     `&background=7FCBA0&color=FFFFFF&font-size=0.6&bold=true`;
-    const [searchParams,setSearchParams]=useSearchParams()
-  
-    const { filters } = useFilterStore();
-    const appendFiltersToUrl = () => {
-      const newParams = new URLSearchParams(searchParams);
-  
-      // Loop through each filter and append to the search params
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value) {
-          newParams.set(key, value);
-        }
-      });
-  
-      // Update searchParams with new filters
-      setSearchParams(newParams);
-    };
-    useEffect(() => {
-  if(pathname?.includes("invoice-details")||pathname?.includes("home")){
-    appendFiltersToUrl();
-    
-  }
-    }, []);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const { filters } = useFilterStore();
+
+  const appendFiltersToUrl = () => {
+    const newParams = new URLSearchParams(searchParams);
+
+    // Loop through each filter and append to the search params
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value) {
+        newParams.set(key, value);
+      }
+    });
+
+    // Update searchParams with new filters
+    setSearchParams(newParams);
+  };
+  useEffect(() => {
+    if (pathname?.includes("invoice-details") || pathname?.includes("home")) {
+      appendFiltersToUrl();
+    }
+  }, []);
+  const handleLogout = () => {
+    clearStore();
+    navigate("/login");
+  };
   return (
     <div
       id="navbar"
       className={`${className} z-30 !sticky top-0 w-full h-[3.75rem]   justify-between flex items-center pr-[1.25rem]  ${
         pathname == "/" ? "pl-[6.25rem]" : "pl-[1.25rem]"
       }  shadow relative bg-white dark:!bg-[#051C14]`}
-      style={{boxShadow:"0px 2px 8px 0px rgba(0, 0, 0, 0.08)"}}
+      style={{ boxShadow: "0px 2px 8px 0px rgba(0, 0, 0, 0.08)" }}
     >
       <div>
         <Link
@@ -75,7 +100,7 @@ const Navbar = ({ children, className }) => {
       </div>
       {children}
       {/* {access_token && ( */}
-      <div className="flex gap-x-8 items-center">
+     {role&& <div className="flex gap-x-8 items-center">
         <div className="flex items-center gap-x-3">
           <div>
             <Avatar>
@@ -94,10 +119,25 @@ const Navbar = ({ children, className }) => {
           </div>
         </div>
         <div className="flex gap-x-3 items-center">
-          <Button className="bg-transparent shadow-none border h-[2.5rem] w-[2.5rem] hover:bg-transparent  p-0 border-textColor/200">
-            <img src={settings} alt="" className="dark:hidden" />
-            <img src={settings_white} alt="" className="dark:flex hidden" />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="focus:!outline-none focus:!ring-0">
+              {" "}
+              <Button className="bg-transparent shadow-none border h-[2.5rem] w-[2.5rem] hover:bg-transparent  p-0 border-textColor/200">
+                <img src={settings} alt="" className="dark:hidden" />
+                <img src={settings_white} alt="" className="dark:flex hidden" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem
+                onClick={handleLogout}
+                className="font-poppins font-normal text-[#000000] text-sm leading-5 flex gap-2 items-center"
+              >
+                <img src={logout} alt="" />
+                <span>Logout</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <Button
             className="bg-primary shadow-none border h-[2.5rem] w-[2.5rem] p-0 border-primary"
             onClick={handleToggleTheme}
@@ -105,7 +145,7 @@ const Navbar = ({ children, className }) => {
             <img src={moon} alt="" />
           </Button>
         </div>
-      </div>
+      </div>}
       {/* )} */}
     </div>
   );
