@@ -364,6 +364,7 @@ const ReviewLaterTasks = () => {
           </div>
 
           <InvoiceTable
+          review_later={true}
             data={data?.data}
             isLoading={isLoading}
             height={final}

@@ -351,11 +351,11 @@ export const invoiceTableHeaders = [
   },
   {
     label: "Load Date",
-    styling: "w-[11.11%] !justify-start !pl-[3.2%]"
+    styling: "w-[11.11%] !justify-start !pl-[3%]"
   },
   {
     label: "Due Time",
-    styling: "w-[11.11%] justify-start"
+    styling: "w-[11.11%] justify-start !pl-[1rem]"
   },
   {
     label: "Invoice Status",
