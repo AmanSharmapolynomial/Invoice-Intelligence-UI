@@ -102,49 +102,72 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
     page,
     combinedTableData
   ]);
+  let length = invoiceDetailsTabs?.filter(({ value }) => {
+    if (value == "combined-table") {
+      if (
+        data?.data?.[0]?.invoice_type === "Summary Invoice" ||
+        data?.data?.invoice_type === "Summary Invoice"
+      ) {
+        return false;
+      }
+    }
+    return true;
+  })?.length;
   return (
     <div className="w-full">
-      <div className="grid grid-cols-3 border-b border-b-[#F0F0F0]">
-        {invoiceDetailsTabs?.map(({ label, value }) => {
-          let styling = `${
-            value == currentTab && "bg-primary text-[#ffffff] rounded-t-xl"
-          }`;
-          return (
-            <div
-              key={value}
-              onClick={() => {
-                if (
-                  branchChanged ||
-                  vendorChanged ||
-                  Object.keys(updatedFields)?.length > 0
-                ) {
-                  setShowWarningModal(true);
-                } else {
-                  setCurrentTab(value);
-                }
-              }}
-              className={`text-center h-[3.2rem] cursor-pointer  ${styling} items-center  font-poppins font-medium text-sm leading-4 flex justify-center `}
-            >
-              {label}
-            </div>
-          );
-        })}
+      <div className={`grid grid-cols-${length} border-b border-b-[#F0F0F0]`}>
+        {invoiceDetailsTabs
+          ?.filter(({ value }) => {
+            if (value == "combined-table") {
+              if (
+                data?.data?.[0]?.invoice_type === "Summary Invoice" ||
+                data?.data?.invoice_type === "Summary Invoice"
+              ) {
+                return false;
+              }
+            }
+            return true;
+          })
+          ?.map(({ label, value }) => {
+            let styling = `${
+              value == currentTab && "bg-primary text-[#ffffff] rounded-t-xl"
+            }`;
+            return (
+              <div
+                key={value}
+                onClick={() => {
+                  if (
+                    branchChanged ||
+                    vendorChanged ||
+                    Object.keys(updatedFields)?.length > 0
+                  ) {
+                    setShowWarningModal(true);
+                  } else {
+                    setCurrentTab(value);
+                  }
+                }}
+                className={`text-center h-[3.2rem] cursor-pointer   ${styling} items-center  font-poppins font-medium text-sm leading-4 flex justify-center `}
+              >
+                {label}
+              </div>
+            );
+          })}
       </div>
-     <div className=" gap-y-8 mt-4 flex flex-col">
-     {isLoading &&
-        [1, 2, 3, 4, 5, 6, 7, 8.9,10,11,12,13].map((_, i) => {
-          return (
-            <div
-              key={i}
-              className="grid grid-cols-3 items-center gap-y-8 gap-x-8"
-            >
-              <Skeleton key={i} className={"w-[19rem] h-[2rem]"} />
-              <Skeleton key={i} className={"w-[19rem] h-[2rem]"} />
-              <Skeleton key={i} className={"w-[19rem] h-[2rem]"} />
-            </div>
-          );
-        })}
-     </div>
+      <div className=" gap-y-8 mt-4 flex flex-col">
+        {isLoading &&
+          [1, 2, 3, 4, 5, 6, 7, 8.9, 10, 11, 12, 13].map((_, i) => {
+            return (
+              <div
+                key={i}
+                className="grid grid-cols-3 items-center gap-y-8 gap-x-8"
+              >
+                <Skeleton key={i} className={"w-[19rem] h-[2rem]"} />
+                <Skeleton key={i} className={"w-[19rem] h-[2rem]"} />
+                <Skeleton key={i} className={"w-[19rem] h-[2rem]"} />
+              </div>
+            );
+          })}
+      </div>
       {currentTab == "metadata" && !isLoading && (
         <MetadataTable
           data={data}
@@ -156,6 +179,13 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
       {currentTab == "human-verification" && !isLoading && (
         <HumanVerificationTable
           data={combinedTableData}
+          metadata={data}
+          payload={{
+            ...filters,
+            page,
+            vendor_id,
+            document_uuid
+          }}
           additionalData={additionalData}
           loadingAdditionalData={loadingAdditionalData}
           isLoading={loadingCombinedTable}
@@ -164,17 +194,20 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
           }
         />
       )}
-      {currentTab == "combined-table" && !loadingCombinedTable && (
-        <CombinedTable
-          data={combinedTableData}
-          isLoading={loadingCombinedTable}
-          additionalData={additionalData}
-          loadingAdditionalData={loadingAdditionalData}
-          document_uuid={
-            data?.data?.[0]?.document_uuid || data?.data?.document_uuid
-          }
-        />
-      )}
+      {currentTab == "combined-table" &&
+        !loadingCombinedTable &&
+        (data?.data?.[0]?.invoice_type !== "Summary Invoice" ||
+          data?.data?.invoice_type !== "Summary Invoice") && (
+          <CombinedTable
+            data={combinedTableData}
+            isLoading={loadingCombinedTable}
+            additionalData={additionalData}
+            loadingAdditionalData={loadingAdditionalData}
+            document_uuid={
+              data?.data?.[0]?.document_uuid || data?.data?.document_uuid
+            }
+          />
+        )}
       <Modal
         open={showWarningModal}
         setOpen={setShowWarningModal}

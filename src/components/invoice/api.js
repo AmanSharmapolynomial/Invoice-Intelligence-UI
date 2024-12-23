@@ -202,7 +202,7 @@ export const useUpdateDocumentTable = () => {
           operations: data
         }
       );
-      return response?.data;
+      return response;
     },
     onSuccess: (data) => {
       toast.success(
@@ -215,6 +215,8 @@ export const useUpdateDocumentTable = () => {
           autoClose: 2000
         }
       );
+      queryClient.invalidateQueries({ queryKey: ["combined-table"] });
+      queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
     }
   });
 };
@@ -241,7 +243,7 @@ export const useAutoCalculate = () => {
         }
       );
 
-      return response?.data;
+      return response;
     },
     onSuccess: (data) => {
       toast.success(data?.message);

@@ -31,8 +31,9 @@ const CustomDropDown = ({
   children,
   Key = "value",
   showSearch = true,
-  
+  onBlur=()=>{}
 }) => {
+
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(Value || "");
   useEffect(() => {
@@ -96,6 +97,7 @@ const CustomDropDown = ({
                     <CommandItem
                       key={item.value}
                       className="text-left  !pl-0 !ml-0"
+                      onBlur={onBlur}
                       onSelect={() => handleSelect(item.value, item)}
                     >
                       <Check

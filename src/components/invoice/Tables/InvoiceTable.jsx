@@ -88,7 +88,12 @@ function getPropertyIcon(priority) {
     );
   }
 }
-const InvoiceTable = ({ data = [], isLoading, height, review_later = false }) => {
+const InvoiceTable = ({
+  data = [],
+  isLoading,
+  height,
+  review_later = false
+}) => {
   const [searchParams] = useSearchParams();
   const updateParams = useUpdateParams();
   const [clickedInvoiceUUID, setClickedInvoiceUUID] = useState(null);
@@ -112,8 +117,9 @@ const InvoiceTable = ({ data = [], isLoading, height, review_later = false }) =>
   return (
     <div className="w-full overflow-auto  dark:bg-[#051C14] mb-1.5 dark:border-b dark:border-r dark:border-l dark:border-primary ">
       <Table
-        className={`flex flex-col   box-border  scrollbar max-h-[${height - 1
-          }vh]  `}
+        className={`flex flex-col   box-border  scrollbar max-h-[${
+          height - 1
+        }vh]  `}
         style={{ height: `${height}vh` }}
       >
         <TableHeader className="sticky top-0">
@@ -178,14 +184,13 @@ const InvoiceTable = ({ data = [], isLoading, height, review_later = false }) =>
                 {label}
               </TableHead>
             ))}
-            {review_later && <TableHead
-
-              className={`flex  dark:text-[#F6F6F6] flex-wrap break-words  text-[#000000] font-poppins  items-center !justify-center gap-x-1  !font-semibold text-sm w-[11.11%]   `}
-            >
-
-
-              Comments
-            </TableHead>}
+            {review_later && (
+              <TableHead
+                className={`flex  dark:text-[#F6F6F6] flex-wrap break-words  text-[#000000] font-poppins  items-center !justify-center gap-x-1  !font-semibold text-sm w-[11.11%]   `}
+              >
+                Comments
+              </TableHead>
+            )}
           </TableRow>
         </TableHeader>
         <TableBody
@@ -254,13 +259,18 @@ const InvoiceTable = ({ data = [], isLoading, height, review_later = false }) =>
                             : restaurant?.restaurant_id
                         );
                         navigate(
-                          `/invoice-details/?page_number=${(page - 1) * 15 + (index + 1)
+                          `/invoice-details/?page_number=${
+                            (page - 1) * 15 + (index + 1)
                           }`
                         );
                       }}
                       className="flex gap-y-4  !font-poppins !text-sm w-[100%]  !text-[#1C1C1E] items-center  !border-none "
                     >
-                      <TableCell className={`flex dark:!text-[#F6F6F6] font-poppins cursor-pointer!text-left break-word items-center  justify-start gap-x-2  !font-normal ${review_later ? "!w-[10%]" : "!w-[11.11%]"}  text-sm  `}>
+                      <TableCell
+                        className={`flex dark:!text-[#F6F6F6] font-poppins cursor-pointer!text-left break-word items-center  justify-start gap-x-2  !font-normal ${
+                          review_later ? "!w-[10%]" : "!w-[11.11%] pl-2"
+                        }  text-sm  `}
+                      >
                         <div
                           className=" pt-[3px]"
                           onClick={(e) => {
@@ -276,16 +286,25 @@ const InvoiceTable = ({ data = [], isLoading, height, review_later = false }) =>
                         <div> {invoice_number}</div>
                       </TableCell>
 
-                      <TableCell className={`flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-10 !text-left items-center justify-start   !font-normal !text-[#1C1C1E] ${review_later ? "!w-[10%]" : "!w-[11.11%]"} text-sm `}>
+                      <TableCell
+                        className={`flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-10 !text-left items-center justify-start   !font-normal !text-[#1C1C1E] ${
+                          review_later ? "!w-[10%]" : "!w-[11.11%]"
+                        } text-sm `}
+                      >
                         {restaurant?.restaurant_name !== null
                           ? restaurant?.restaurant_name
                           : restaurant?.restaurant_id}
                       </TableCell>
 
-                      <TableCell className={` ${review_later ? "!w-[10%]" : "!w-[11.11%]"} flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-10  !text-left items-center gap-x-2 justify-between  !font-normal !text-[#1C1C1E]   !capitalize  text-sm break-words  `}>
+                      <TableCell
+                        className={` ${
+                          review_later ? "!w-[10%]" : "!w-[11.11%]"
+                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-10  !text-left items-center gap-x-2 justify-between  !font-normal !text-[#1C1C1E]   !capitalize  text-sm break-words  `}
+                      >
                         <span
-                          className={`${vendor?.human_verified && "text-primary"
-                            } w-[80%]`}
+                          className={`${
+                            vendor?.human_verified && "text-primary"
+                          } w-[80%]`}
                         >
                           {" "}
                           {vendor?.vendor_name}
@@ -300,10 +319,22 @@ const InvoiceTable = ({ data = [], isLoading, height, review_later = false }) =>
                         </span>
                       </TableCell>
 
-                      <TableCell className={`flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm  !text-left items-center justify-start  !font-normal !text-[#1C1C1E] ${review_later ? "!w-[10%] pl-[3.1%]" : "!w-[11.11%] pl-[4.12rem]"}   `}>
+                      <TableCell
+                        className={`flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm  !text-left items-center justify-start  !font-normal !text-[#1C1C1E] ${
+                          review_later
+                            ? "!w-[10%] pl-[3.1%]"
+                            : "!w-[11.11%] pl-[4.12rem]"
+                        }   `}
+                      >
                         {formatDateToReadable(date_uploaded?.split("T")[0])}
                       </TableCell>
-                      <TableCell className={`${review_later ? "!w-[10%] !pl-[0rem]" : "!w-[11.11%] pl-[2rem]"} flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm !text-left items-center justify-start  !font-normal !text-[#1C1C1E]  `}>
+                      <TableCell
+                        className={`${
+                          review_later
+                            ? "!w-[10%] !pl-[0rem]"
+                            : "!w-[11.11%] pl-[2rem]"
+                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm !text-left items-center justify-start  !font-normal !text-[#1C1C1E]  `}
+                      >
                         {assignment_details
                           ? timeRemaining?.split("-").join("")
                           : "NA"}
@@ -321,15 +352,17 @@ const InvoiceTable = ({ data = [], isLoading, height, review_later = false }) =>
                             });
                           }
                         }}
-                        className={`${review_later ? "!w-[10%]" : "!w-[11.11%]"} flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm   items-center justify-center pr-[7.25rem] !text-center  capitalize  !font-normal !text-[#1C1C1E] `}
+                        className={`${
+                          review_later ? "!w-[10%]" : "!w-[11.11%]"
+                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm   items-center justify-center pr-[7.25rem] !text-center  capitalize  !font-normal !text-[#1C1C1E] `}
                       >
                         {auto_accepted === true
                           ? "Auto Accepted"
                           : rejected === true
-                            ? "Rejected"
-                            : human_verified == true
-                              ? "Accepted"
-                              : "NA"}
+                          ? "Rejected"
+                          : human_verified == true
+                          ? "Accepted"
+                          : "NA"}
                       </TableCell>
 
                       <TableCell
@@ -344,24 +377,38 @@ const InvoiceTable = ({ data = [], isLoading, height, review_later = false }) =>
                             });
                           }
                         }}
-                        className={` ${review_later ? "!w-[10%]" : "!w-[11.11%]"} flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm !text-left items-center justify-start pl-[3.2%] !font-normal !text-[#1C1C1E]  `}
+                        className={` ${
+                          review_later
+                            ? "!w-[8%] pl-[2%]"
+                            : "!w-[11.11%] !pl-[3.4%]"
+                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm !text-left items-center justify-start  !font-normal !text-[#1C1C1E]  `}
                       >
                         {clickbacon_status}
                       </TableCell>
 
-                      <TableCell className={`${review_later ? "!w-[10%]" : "!w-[11.11%]"} flex dark:!text-[#F6F6F6] font-poppins cursor-pointer  text-sm !text-left items-center justify-start !font-normal !text-[#1C1C1E]   `}>
+                      <TableCell
+                        className={`${
+                          review_later ? "!w-[10%] pl-[0.8%] " : "!w-[11.11%]"
+                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer  text-sm !text-left items-center justify-start !font-normal !text-[#1C1C1E]   `}
+                      >
                         {invoice_type}
                       </TableCell>
-                      <TableCell className={`${review_later ? "!w-[10%]" : "!w-[11.11%]"} flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm !text-left items-center justify-center !font-normal !text-[#1C1C1E] `}>
+                      <TableCell
+                        className={`${
+                          review_later ? "!w-[10%] pl-[4%]" : "!w-[11.11%]"
+                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm !text-left items-center justify-center !font-normal !text-[#1C1C1E] `}
+                      >
                         {!human_verified_date
                           ? "NA"
                           : formatDateToReadable(
-                            human_verified_date?.split("T")?.[0]
-                          ) || "NA"}
+                              human_verified_date?.split("T")?.[0]
+                            ) || "NA"}
                       </TableCell>
-                      {review_later && <TableCell className="flex capitalize dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm !text-left items-center justify-center !font-normal !text-[#1C1C1E] !w-[10%]">
-                        {review_later_details?.comments}
-                      </TableCell>}
+                      {review_later && (
+                        <TableCell className="flex capitalize dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm !text-left items-center justify-center pl-[4.5%] !font-normal !text-[#1C1C1E] !w-[10%] ">
+                          {review_later_details?.comments}
+                        </TableCell>
+                      )}
                     </TableRow>
 
                     {clickedInvoiceUUID == document_uuid && (
@@ -435,7 +482,6 @@ const InvoiceTable = ({ data = [], isLoading, height, review_later = false }) =>
                               <ChevronsDown className=" object-fill h-5  text-blue-500 cursor-pointer" />
                               <Label htmlFor="LOWEST">Lowest</Label>
                             </div>
-
                           </RadioGroup>
 
                           {changePriorityModal?.priority && (

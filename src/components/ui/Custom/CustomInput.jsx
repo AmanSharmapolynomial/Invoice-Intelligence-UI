@@ -44,7 +44,7 @@ const CustomInput = ({
       ) : (
         <Input
           value={inputValue}
-          className={`${className} font-poppins  font-normal text-sm dark:!bg-[#000000] dark:text-[#FFFFFF]  focus:!outline-none !min-h-[2.5rem] !h-[2.5rem] focus:!ring-0  border-[1px] border-[#E0E0E0] rounded-[4px] shadow-none `}
+          className={`${className} font-poppins  font-normal text-sm dark:!bg-[#000000] dark:text-[#FFFFFF]  focus:!outline-none  !h-[2.5rem] focus:!ring-0  border-[1px] border-[#E0E0E0] rounded-[4px] shadow-none `}
           placeholder={placeholder}
           type={type}
           onChange={(e) => {

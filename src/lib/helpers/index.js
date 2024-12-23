@@ -1,4 +1,3 @@
-
 export const formatData = (data) => {
   let formatted = [];
   data &&
@@ -50,7 +49,6 @@ export const getValueFromLabel = (data = [], Value = "") => {
 };
 
 export const vendorNamesFormatter = (data = []) => {
-
   let returnArray = [];
 
   data?.length > 0 &&
@@ -168,33 +166,39 @@ export function formatDateToReadable(dateString) {
   return `${monthName.slice(0, 3)} ${parseInt(day, 10)}, ${year}`;
 }
 
+export function calculateTimeDifference(dueDate) {
+  const now = new Date();
+  const timeDiff = dueDate - now;
 
+  const hours = Math.floor(
+    (timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+  );
+  const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
 
-
-  export function calculateTimeDifference(dueDate) {
-    const now = new Date();
-    const timeDiff = dueDate - now;
-
-    const hours = Math.floor(
-      (timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-    );
-    const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
-
-    if (timeDiff <= 0) {
-      return `Due  ${hours}h ${minutes}m ago`;
-    }
-    return `${hours}h ${minutes}m`;
+  if (timeDiff <= 0) {
+    return `Due  ${hours}h ${minutes}m ago`;
   }
+  return `${hours}h ${minutes}m`;
+}
 
+export const headerNamesFormatter = (header_names) => {
+  return header_names?.map(
+    ({ is_required_for_item_master, is_default_in_item_master, ...rest }) => {
+      let pair = {
+        label: rest?.column_name,
+        value: rest?.column_name
+      };
+      return pair;
+    }
+  );
+};
 
-export  const headerNamesFormatter = (header_names) => {
-      return header_names?.map(
-        ({ is_required_for_item_master, is_default_in_item_master, ...rest }) => {
-          let pair = {
-            label: rest?.column_name,
-            value: rest?.column_name
-          };
-          return pair;
-        }
-      );
+export const categoryNamesFormatter = (categories) => {
+  return categories?.map((c) => {
+    let obj = {
+      label: c?.name,
+      value: c?.category_id
     };
+    return obj;
+  });
+};

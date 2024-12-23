@@ -8,6 +8,7 @@ import navigate_start from "@/assets/image/navigate_start_black.svg";
 import slash from "@/assets/image/slash_black.svg";
 import { Input } from "../ui/input";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
+import { queryClient } from "@/lib/utils";
 const InvoicePagination = ({ totalPages,setCurrentTab }) => {
   const [searchParams] = useSearchParams();
   const updateParams = useUpdateParams();
@@ -32,6 +33,8 @@ const InvoicePagination = ({ totalPages,setCurrentTab }) => {
           if (e.key === "ArrowLeft" && pageIndex > 1) {
             // Go to the previous page
             updateParams({ page_number: Number(pageIndex) - 1 });
+            queryClient.invalidateQueries({ queryKey: ["combined-table"] });
+            queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
             setPageIndex(pageIndex - 1);
             setCurrentTab('metadata')
             queryClient.invalidateQueries({ queryKey: ["combined-table"] });
@@ -41,6 +44,8 @@ const InvoicePagination = ({ totalPages,setCurrentTab }) => {
             setPageIndex(pageIndex + 1);
             setCurrentTab('metadata')
             queryClient.invalidateQueries({ queryKey: ["combined-table"] });
+            queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
+            // queryClient.invalidateQueries({ queryKey: ["combined-table"] });
           }
         }
       };
@@ -80,6 +85,12 @@ const InvoicePagination = ({ totalPages,setCurrentTab }) => {
         min={1}
         type="number"
         value={pageIndex}
+        onChange={(e)=>{
+          setPageIndex(e.target.value)
+        }}
+        onBlur={()=>{
+          updateParams({page_number:pageIndex})
+        }}
         className="!w-[3rem] !h-[1.75rem] rounded-md  shadow-none focus:!ring-0 border-[#E0E0E0] text-[#000000] font-poppins font-medium text-[0.9rem] text-center  !p-0 !pl-1.5 !pr-0 leading-5 border-[0.125rem]"
       />
       <img src={slash} alt="" />

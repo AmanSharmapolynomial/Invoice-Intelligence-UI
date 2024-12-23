@@ -226,7 +226,12 @@ const MetadataTable = ({
             className={"!min-w-[300px]"}
             data={vendorCategories?.slice(0, 3)}
             Value={invoice_type}
-            onChange={(v) => console.log(v)}
+            onChange={(v) =>{
+              setCachedData(
+                "invoice_type",
+                v
+              )
+            }}
           />
         </Template>
         <Template title="Invoice Date">

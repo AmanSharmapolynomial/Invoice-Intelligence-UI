@@ -14,6 +14,7 @@ import LastUpdateInfo from "@/components/invoice/LastUpdateInfo";
 import Tables from "@/components/invoice/Tables/Tables";
 import { Button } from "@/components/ui/button";
 import BreadCrumb from "@/components/ui/Custom/BreadCrumb";
+import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
 import { Label } from "@/components/ui/label";
 import { Modal, ModalDescription } from "@/components/ui/Modal";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -52,7 +53,8 @@ const InvoiceDetails = () => {
     clearUpdatedFields,
     metaData,
     operations,
-    setOperations
+    setOperations,
+    metadata
   } = invoiceDetailStore();
   const [isLoading, setIsLoading] = useState(true);
   const [loadingState, setLoadingState] = useState({
@@ -86,7 +88,7 @@ const InvoiceDetails = () => {
   }, []);
 
   const handleSave = () => {
-    if (currentTab == "metadata") {
+    if (currentTab == "metadata" && updatedFields) {
       setLoadingState({ ...loadingState, saving: true });
       updateTable(
         {
@@ -105,6 +107,53 @@ const InvoiceDetails = () => {
           }
         }
       );
+    } else if (currentTab == "human-verification") {
+      setLoadingState({ ...loadingState, saving: true });
+      if (updatedFields) {
+        updateTable(
+          {
+            document_uuid:
+              data?.data?.[0]?.document_uuid || data?.data?.document_uuid,
+            data: updatedFields
+          },
+          {
+            onSuccess: () => {
+              setLoadingState({ ...loadingState, saving: false });
+              queryClient.invalidateQueries({
+                queryKey: ["document-metadata"]
+              });
+              clearUpdatedFields();
+            },
+            onError: () => {
+              setLoadingState({ ...loadingState, saving: false });
+            }
+          }
+        );
+      }
+      if (operations?.length > 0) {
+        saveDocumentTable(
+          { document_uuid: metaData?.document_uuid, data: operations },
+          {
+            onSuccess: () => {
+              setLoadingState({ ...loadingState, saving: false });
+              setOperations([]);
+
+              setHistory([]);
+              queryClient.invalidateQueries({ queryKey: ["combined-table"] });
+              queryClient.invalidateQueries({ queryKey: ["additional-data"] });
+              // queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
+              setCombinedTableCopy({});
+              if (!refreshed) {
+                refreshed = true;
+                window.location.reload();
+              }
+              setAdded(false);
+            },
+
+            onError: () => setLoadingState({ ...loadingState, saving: false })
+          }
+        );
+      }
     }
   };
 
@@ -203,6 +252,10 @@ const InvoiceDetails = () => {
       }
     );
   };
+
+  let action_controls =
+    metadata?.data?.[0]?.action_controls || metadata?.data?.action_controls;
+
   return (
     <>
       <Navbar />
@@ -228,49 +281,67 @@ const InvoiceDetails = () => {
 
         <div className="flex justify-end">
           <div className="flex items-center gap-x-3">
-            <Button
-              onClick={() => {
-                setMarkForReviewModal(true);
-                return;
-              }}
-              disabled={markingForReview}
-              className="bg-transparent h-[2.4rem] border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+            <CustomTooltip content={"Click To Mark It For A Review."}>
+              <Button
+                onClick={() => {
+                  setMarkForReviewModal(true);
+                  return;
+                }}
+                disabled={markingForReview}
+                className="bg-transparent h-[2.4rem] border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+              >
+                Review Later
+              </Button>
+            </CustomTooltip>
+            <CustomTooltip content={"Click To Reject This Document."}>
+              <Button
+                onClick={() => {
+                  setShowRejectionModal(true);
+                }}
+                disabled={action_controls?.reject?.disabled}
+                className="bg-transparent w-[6.5rem] h-[2.4rem] border-[#F15156]  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+              >
+                Reject
+              </Button>
+            </CustomTooltip>
+            <CustomTooltip content={"Click To Accept This Document."}>
+              <Button
+                onClick={handleAccept}
+                disabled={
+                  action_controls?.accept?.disabled || loadingState?.accepting
+                }
+                className="bg-transparent h-[2.4rem] border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+              >
+                {loadingState?.accepting ? "Accepting..." : "Accept"}
+              </Button>
+            </CustomTooltip>
+
+            <CustomTooltip
+              content={"Click To Mark This Document As Not Supported."}
             >
-              Review Later
-            </Button>
-            <Button
-              onClick={() => {
-                setShowRejectionModal(true);
-              }}
-              className="bg-transparent w-[6.5rem] h-[2.4rem] border-[#F15156]  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
-            >
-              Reject
-            </Button>
-            <Button
-              onClick={handleAccept}
-              disabled={loadingState?.accepting}
-              className="bg-transparent h-[2.4rem] border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
-            >
-              {loadingState?.accepting ? "Accepting..." : "Accept"}
-            </Button>
-            <Button
-              onClick={() => setMarkAsNotSupportedModal(true)}
-              className="bg-transparent h-[2.4rem] border-primary w-[7.25rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
-            >
-              Not Supported
-            </Button>
-            <Button
-              disabled={
-                currentTab == "combined-table" ||
-                loadingState?.saving ||
-                loadingState?.rejecting ||
-                loadingState?.accepting
-              }
-              onClick={() => handleSave()}
-              className="font-poppins h-[2.4rem] font-normal text-sm leading-5 border-2 border-primary text-[#ffffff]"
-            >
-              {loadingState?.saving ? "Saving..." : "Save"}
-            </Button>
+              <Button
+                onClick={() => setMarkAsNotSupportedModal(true)}
+                className="bg-transparent h-[2.4rem] border-primary w-[7.25rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+              >
+                Not Supported
+              </Button>
+            </CustomTooltip>
+
+            <CustomTooltip content={"Click To Save This Document."}>
+              <Button
+                disabled={
+                  action_controls?.save?.disabled ||
+                  currentTab == "combined-table" ||
+                  loadingState?.saving ||
+                  loadingState?.rejecting ||
+                  loadingState?.accepting
+                }
+                onClick={() => handleSave()}
+                className="font-poppins h-[2.4rem] font-normal text-sm leading-5 border-2 border-primary text-[#ffffff]"
+              >
+                {loadingState?.saving ? "Saving..." : "Save"}
+              </Button>
+            </CustomTooltip>
           </div>
         </div>
 
@@ -305,7 +376,6 @@ const InvoiceDetails = () => {
             />
           </div>
           <div className="w-1/2">
-        
             <Tables
               setData={setData}
               setIsLoading={setIsLoading}
