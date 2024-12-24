@@ -21,10 +21,19 @@ body {
   background: #000000;
 }
 /* For any element you want to hide the scrollbar */
-.hide-scrollbar {
-  overflow: hidden; /* Optional: Prevents scrolling */
-  overflow-y: scroll; /* Keeps vertical scrolling */
-  height: 100%; /* Adjust as needed */
+
+.show-scrollbar {
+  overflow-y: auto; /* Enables vertical scrolling */
+  height: 100%; /* Adjust as needed to match the container height */
+  scrollbar-width: thin; /* For Firefox: Makes the scrollbar thinner */
+  scrollbar-color: #888 #f0f0f0; /* Thumb color, track color */
+  cursor:pointer;
+}
+.custom-scrollbar {
+  /* Firefox styles */
+  scrollbar-width: 1px !important;
+  scrollbar-color: #e0e0e0 white;
+ 
 }
 
 /* CSS class to remove the up and down buttons from number inputs */

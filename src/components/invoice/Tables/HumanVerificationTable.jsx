@@ -1,4 +1,5 @@
 import approved from "@/assets/image/approved.svg";
+import warning_mark from "@/assets/image/warning_mark.svg";
 import sort from "@/assets/image/sort.svg";
 import unapproved from "@/assets/image/unapproved.svg";
 import undo from "@/assets/image/undo.svg";
@@ -19,6 +20,7 @@ import {
   ArrowDownToLine,
   ArrowUpFromLine,
   ArrowUpToLine,
+  CircleAlert,
   Trash2
 } from "lucide-react";
 import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
@@ -27,6 +29,7 @@ import toast from "react-hot-toast";
 import { Textarea } from "@/components/ui/textarea";
 import CustomInput from "@/components/ui/Custom/CustomInput";
 import { useAutoCalculate } from "../api";
+import { Label } from "@/components/ui/label";
 
 const HumanVerificationTable = ({
   data,
@@ -105,26 +108,28 @@ const HumanVerificationTable = ({
       }
     },
 
-    // {
-    //   label: "Add Cell",
-    //   action: () => {
-    //     addNewCell(
-    //       contextMenu.rowIndex,
-    //       contextMenu?.column_uuid,
-    //       contextMenu?.cell_uuid
-    //     );
-    //   }
-    // },
-    // {
-    //   label: "Delete Cell",
-    //   action: () => {
-    //     deleteCell(
-    //       contextMenu?.rowIndex,
-    //       contextMenu?.column_uuid,
-    //       contextMenu?.cell_uuid
-    //     );
-    //   }
-    // },
+    {
+      label: "Add Cell",
+      action: () => {
+        // rowIndex, column_uuid, cell_uuid, row_uuid
+        addNewCell(
+          contextMenu.rowIndex,
+          contextMenu?.column_uuid,
+          contextMenu?.cell_uuid,
+          contextMenu?.row_uuid
+        );
+      }
+    },
+    {
+      label: "Delete Cell",
+      action: () => {
+        deleteCell(
+          contextMenu?.rowIndex,
+          contextMenu?.column_uuid,
+          contextMenu?.cell_uuid
+        );
+      }
+    },
 
     {
       label: "Shift Row Up",
@@ -357,33 +362,35 @@ const HumanVerificationTable = ({
   };
 
   const undoLastAction = () => {
-    if (history.length === 0) return;
+    if (operations?.length !== 0) {
+      if (history.length === 0) return;
 
-    const { tableData: lastTableData, operations: lastOperations } =
-      history.pop();
-    const lastOperation = lastOperations[lastOperations.length - 1];
-    if (lastOperation?.type === "delete_row") {
-      const deletedRowUuid = lastOperation.data.transaction_uuid;
-      const restoredRow = lastTableData.data.processed_table.rows.find(
-        (row) => row.transaction_uuid === deletedRowUuid
-      );
+      const { tableData: lastTableData, operations: lastOperations } =
+        history.pop();
+      const lastOperation = lastOperations[lastOperations.length - 1];
+      if (lastOperation?.type === "delete_row") {
+        const deletedRowUuid = lastOperation.data.transaction_uuid;
+        const restoredRow = lastTableData.data.processed_table.rows.find(
+          (row) => row.transaction_uuid === deletedRowUuid
+        );
 
-      const updatedRows = [
-        ...lastTableData.data.processed_table.rows,
-        restoredRow
-      ];
-      let copyData = JSON.parse(JSON.stringify(data));
-      copyData.data.processed_table.rows = updatedRows;
-      queryClient.setQueryData(["combined-table", document_uuid], copyData);
-    } else {
-      queryClient.setQueryData(
-        ["combined-table", document_uuid],
-        lastTableData
-      );
+        const updatedRows = [
+          ...lastTableData.data.processed_table.rows,
+          restoredRow
+        ];
+        let copyData = JSON.parse(JSON.stringify(data));
+        copyData.data.processed_table.rows = updatedRows;
+        queryClient.setQueryData(["combined-table", document_uuid], copyData);
+      } else {
+        queryClient.setQueryData(
+          ["combined-table", document_uuid],
+          lastTableData
+        );
+      }
+
+      setOperations(lastOperations);
+      setHistory(history);
     }
-
-    setOperations(lastOperations);
-    setHistory(history);
   };
 
   const addEmptyRow = () => {
@@ -689,116 +696,128 @@ const HumanVerificationTable = ({
     });
   };
 
-  const addNewCell = (rowIndex, column_uuid, cell_uuid) => {
-    saveHistory();
-
+  const addNewCell = (rowIndex, column_uuid, cell_uuid, row_uuid) => {
+    // Step 1: Deep copy the data object to work with
     let copyData = JSON.parse(JSON.stringify(data));
-    let { rows, columns } = copyData?.data?.processed_table;
+    let combinedTableCopy = JSON.parse(JSON.stringify(data));
 
-    // Check if column exists
-    if (!columns.some((col) => col.column_uuid === column_uuid)) {
-      toast.error("Invalid column UUID.");
-      return;
-    }
+    saveHistory(); // Save the current state for undo/redo
 
-    // Ensure lastRow and lastCell are properly captured
-    const lastRow = rows[rows.length - 1] || null;
-    const lastCell = lastRow?.cells.find(
-      (cell) => cell.column_uuid === column_uuid
-    );
+    let { rows } = copyData.data.processed_table;
 
-    // Create a new row if necessary
-    let newRowCreated = false;
+    // Step 2: Check if the last row exists and capture the last cell for the specified column
+    const lastRow = rows[rows.length - 1];
+    const lastCell = lastRow
+      ? lastRow.cells.find((cell) => cell.column_uuid === column_uuid)
+      : null;
+
+    // Step 3: Create a new row if adding a new cell to the last row
     let newRow = null;
-
-    let rowOperation;
-    if (lastRow && lastCell) {
+    if (lastCell) {
+      const newRowUuid = uuidv4();
       newRow = {
-        cells: columns.map((column) => ({
-          column_uuid: column?.column_uuid,
-          text: column_uuid === column.column_uuid ? lastCell.text : "",
-          actual_text:
-            column_uuid === column.column_uuid ? lastCell.actual_text : null,
-          confidence: null,
-          page_index: 0,
-          row_uuid: uuidv4(),
+        transaction_uuid: newRowUuid,
+        row_order: rows.length + 1,
+        item_master: {}, // Customize as needed
+        cells: rows[0].cells.map((cell) => ({
+          ...cell,
           cell_uuid: uuidv4(),
-          selected_column: column.selected_column
-        })),
-        row_order: (lastRow?.row_order || 0) + 1,
-        transaction_uuid: uuidv4()
+          row_uuid: newRowUuid,
+          text: cell.column_uuid === column_uuid ? lastCell.text : "",
+          actual_text: cell.column_uuid === column_uuid ? lastCell.text : ""
+        }))
       };
 
       rows.push(newRow);
-      newRowCreated = true;
-
-      // Record the operation for the created row
-      rowOperation = {
-        type: "create_row",
-        operation_order: operations?.length + 1,
-        data: {
-          transaction_uuid: newRow.transaction_uuid,
-          row_order: newRow.row_order,
-          cells: newRow.cells
-        }
-      };
-
-      // Ensure create_row operation is added first
-      let ops = JSON.parse(JSON.stringify(operations));
-      setOperations([...ops, rowOperation]);
+      combinedTableCopy.data.processed_table.rows.push(newRow);
     }
 
-    // Shift column cells downward starting from rowIndex
+    // Step 4: Shift cells down for the specified column and insert an empty cell
     for (let i = rows.length - 1; i > rowIndex; i--) {
-      const currentCell = rows[i]?.cells.find(
+      const currentCell = rows[i].cells.find(
         (cell) => cell.column_uuid === column_uuid
       );
-      const previousCell = rows[i - 1]?.cells.find(
+      const previousCell = rows[i - 1].cells.find(
         (cell) => cell.column_uuid === column_uuid
       );
 
       if (currentCell && previousCell) {
-        Object.assign(currentCell, {
-          ...previousCell,
-          cell_uuid: uuidv4() // Generate a new UUID for the shifted cell
+        // Step 4.1: Clear the current cell before shifting
+        if (i === rowIndex) {
+          currentCell.text = "";
+          currentCell.actual_text = "";
+        }
+
+        // Step 4.2: Shift the content down
+        currentCell.text = previousCell.text;
+        currentCell.actual_text = previousCell.actual_text;
+        currentCell.cell_uuid = uuidv4(); // New UUID for the shifted cell
+
+        // Update combined table
+        const combinedCell = combinedTableCopy.data.processed_table.rows[
+          i
+        ].cells.find((cell) => cell.column_uuid === column_uuid);
+        if (combinedCell) {
+          combinedCell.text = previousCell.text;
+          combinedCell.actual_text = previousCell.actual_text;
+          combinedCell.cell_uuid = uuidv4(); // New UUID for the shifted cell
+        }
+      }
+    }
+
+    // Step 5: Add an empty cell at the target position
+    const targetRow = rows[rowIndex];
+    let targetCell;
+    if (targetRow) {
+      targetCell = targetRow.cells.find(
+        (cell) => cell.column_uuid === column_uuid
+      );
+
+      if (targetCell) {
+        Object.assign(targetCell, {
+          text: "",
+          actual_text: "",
+          cell_uuid: uuidv4(),
+          bounding_box: null
         });
       }
     }
+    const createRowOperation = newRow
+      ? {
+          type: "create_row",
+          operation_order: operations?.length + 1,
+          data: {
+            transaction_uuid: newRow.transaction_uuid,
+            row_order: newRow.row_order,
+            cells: newRow.cells
+          }
+        }
+      : null;
 
-    // Clear the original cell at rowIndex
-    const targetCell = rows[rowIndex]?.cells.find(
-      (cell) => cell.column_uuid === column_uuid
-    );
-    if (targetCell) {
-      Object.assign(targetCell, {
-        text: "",
-        actual_text: null,
-        confidence: null,
-        cell_uuid: uuidv4(),
-        bounding_box: null // Reset any other properties if needed
-      });
-    }
-
-    // Record the operation for creating a new cell
-    const cellOperation = {
+    const createCellOperation = {
       type: "create_cell",
-      operation_order: operations?.length + (newRowCreated ? 2 : 1),
+      operation_order: operations?.length + (newRow ? 2 : 1),
       data: {
-        current_column_uuid: column_uuid,
         current_cell_uuid: cell_uuid,
-        current_row_uuid: rows[rowIndex]?.transaction_uuid,
+        current_column_uuid: column_uuid,
+        current_row_uuid: row_uuid,
         new_cell_uuid: targetCell?.cell_uuid
       }
     };
-    const ops = JSON.parse(JSON.stringify(operations));
-    // Ensure create_cell operation is added after the row operation
-    setOperations([...ops, rowOperation, cellOperation]);
 
-    // Update the query data
-    queryClient.setQueryData(["combined-table", document_uuid], copyData);
+    const newOperations = [...operations];
+    if (createRowOperation) newOperations.push(createRowOperation);
+    newOperations.push(createCellOperation);
 
-    // Show a success message
-    toast.success("Cell added successfully.");
+    setOperations(newOperations);
+
+    combinedTableCopy.data.processed_table.rows[rowIndex].cells.find(
+      (cell) => cell?.cell_uuid == cell_uuid
+    ).text = "";
+    queryClient.setQueryData(
+      ["combined-table", document_uuid],
+      combinedTableCopy
+    );
   };
 
   const deleteCell = (rowIndex, column_uuid, cell_uuid) => {
@@ -1059,36 +1078,56 @@ const HumanVerificationTable = ({
               Items
             </p>
             <div className="flex items-center gap-x-4">
+              <CustomTooltip content={"Highlighting"}>
               <div className="flex items-center gap-x-2">
-                <p className=" font-poppins font-normal text-xs leading-4 text-[#000000]">
-                  Highlight
-                </p>
+                <Label
+                  htmlFor="highlight"
+                  className=" cursor-pointer font-poppins font-normal text-xs leading-4 text-[#000000]"
+                >
+                  H
+                </Label>
                 <Switch
+                  id="highlight"
                   className="!bg-[#888888] data-[state=checked]:!bg-primary "
                   checked={stopHovering}
                   onCheckedChange={(v) => setStopHovering(v)}
                 />
               </div>
-              <div className="flex items-center gap-x-2">
-                <p className=" font-poppins font-normal text-xs leading-4 text-[#000000]">
-                  Highlight All
-                </p>
+              </CustomTooltip>
+             <CustomTooltip content={"Highlight All Items"}>
+             <div className="flex items-center gap-x-2">
+                <Label
+                  htmlFor="highlight-all"
+                  className=" cursor-pointer font-poppins font-normal text-xs leading-4 text-[#000000]"
+                >
+                  HA
+                </Label>
                 <Switch
+                  id="highlight-all"
                   className="!bg-[#888888] data-[state=checked]:!bg-primary "
                   checked={highlightAll}
                   onCheckedChange={(v) => setHighlightAll(v)}
                 />
               </div>
+              </CustomTooltip>
+
+              <CustomTooltip content={"Auto Calculate"}>
               <div className="flex items-center gap-x-2">
-                <p className=" font-poppins font-normal text-xs leading-4 text-[#000000]">
-                  Auto Calculate
-                </p>
+                <Label
+                  htmlFor="auto-calculate"
+                  className=" cursor-pointer font-poppins font-normal text-xs leading-4 text-[#000000]"
+                >
+                  AC
+                </Label>
                 <Switch
+                  id="auto-calculate"
                   className="!bg-[#888888] data-[state=checked]:!bg-primary "
                   checked={autoCalculate}
                   onCheckedChange={(v) => setAutoCalculate(v)}
                 />
               </div>
+                </CustomTooltip>
+              
 
               <CustomTooltip content={"Row Actions"}>
                 <div className="!relative">
@@ -1182,30 +1221,33 @@ const HumanVerificationTable = ({
             onClose={handleCloseMenu}
           />
         )}
-        <div
-          className={`flex items-center justify-between py-3 !text-[#121212] !font-poppins !font-semibold !text-base px-8 ${
-            metaData?.document_metadata?.invoice_extracted_total ==
-            calculatedsum
-              ? "bg-green-100"
-              : "bg-[#FFEEEF]"
-          }`}
-        >
-          <p>Difference</p>
-          <p>
-            ${" "}
-            {metaData?.document_metadata?.invoice_extracted_total ==
-            calculatedsum
-              ? 0
-              : (
-                  Number(metaData?.document_metadata?.invoice_extracted_total) -
-                  Number(calculatedsum)
-                ).toFixed(2)}
-          </p>
-        </div>
+        {metaData?.invoice_type !== "Summary Invoice" && (
+          <div
+            className={`flex items-center justify-between py-3 !text-[#121212] !font-poppins !font-semibold !text-base px-8 ${
+              metaData?.document_metadata?.invoice_extracted_total ==
+              calculatedsum
+                ? "bg-green-100"
+                : "bg-[#FFEEEF]"
+            }`}
+          >
+            <p>Difference</p>
+            <p>
+              ${" "}
+              {metaData?.document_metadata?.invoice_extracted_total ==
+              calculatedsum
+                ? 0
+                : (
+                    Number(
+                      metaData?.document_metadata?.invoice_extracted_total
+                    ) - Number(calculatedsum)
+                  ).toFixed(2)}
+            </p>
+          </div>
+        )}
 
         {metaData?.invoice_type !== "Summary Invoice" && (
           <div className="pb-2  overflow-hidden w-full ">
-            <Table className="w-full   overflow-auto  !min-h-[40rem] ">
+            <Table className="w-full   overflow-auto  !min-h-[40rem] mb-4 ">
               <TableBody
                 className=""
                 onMouseLeave={() => {
@@ -1260,7 +1302,7 @@ const HumanVerificationTable = ({
                   </div>
                 </div>
 
-                <div className=" flex flex-col gap-x-2   px-0.5 max-h-[30rem] ">
+                <div className=" flex flex-col gap-x-2   px-0.5 max-h-[30rem]  ">
                   {rows?.map((row, index) => {
                     return (
                       <div className="flex !relative">
@@ -1393,16 +1435,19 @@ const HumanVerificationTable = ({
                                 <img
                                   src={approved}
                                   alt=""
-                                  className="h-4 w-4 mt-[0.8px] cursor-pointer"
+                                  className="h-5 w-5 mt-[0.8px] cursor-pointer"
                                 />
                               ) : row?.item_master?.human_verified == false ? (
                                 <img
                                   src={unapproved}
                                   alt=""
-                                  className="h-4 w-4 mt-[0.8px] cursor-pointer"
+                                  className="h-5 w-5 mt-[0.8px] cursor-pointer"
                                 />
                               ) : (
-                                <ExclamationTriangleIcon className="h-4 w-4 mt-[0.8px]  cursor-pointer" />
+                                <img
+                                  className="h-5  cursor-pointer"
+                                  src={warning_mark}
+                                />
                               ))}
                             {viewDeleteColumn && (
                               <Trash2
@@ -1441,13 +1486,6 @@ const HumanVerificationTable = ({
           </div>
         )}
       </div>
-      {metaData?.invoice_type !== "Summary Invoice" && (
-        <div className="mt-8 mb-4 justify-end flex items-center">
-          <Button className=" !h-[2.4rem] rounded-sm bg-transparent hover:bg-transparent font-poppins  font-normal text-sm leading-4 shadow-none text-[#000000] border-[0.125rem] border-primary">
-            Auto Categorize
-          </Button>
-        </div>
-      )}
       {metaData?.invoice_type !== "Summary Invoice" ? (
         <>
           <div className="flex gap-x-2 items-center  justify-between px-3 mt-8 border-b pb-3 border-b-[#E0E0E0]">
@@ -1488,13 +1526,13 @@ const HumanVerificationTable = ({
                 <span className="flex gap-x-3 items-center">
                   <span>Sub Total</span> <span>:</span>{" "}
                 </span>{" "}
-                <span>$ {totalExtendedPrce}</span>
+                <span>$ {totalExtendedPrce?.toFixed(2)}</span>
               </p>
             </div>
           </div>
 
           <div className="pl-4 pr-2  flex flex-col gap-y-4 my-4 border-b pb-4 border-b-[#E0E0E0]">
-            <div className="flex justify-between items-center   h-full">
+            <div className="flex justify-between items-start   h-full">
               <p className="font-poppins font-normal text-sm text-[#121212]">
                 Taxes (+){" "}
               </p>
@@ -1647,12 +1685,12 @@ const HumanVerificationTable = ({
           <div className="my-4 flex items-center justify-between pl-4 font-poppins font-semibold text-sm text-[#121212] pr-4">
             <p>Total</p>
             <p
-              className={` ${
-                metaData?.document_metadata?.invoice_extracted_total ==
-                calculatedsum
-                  ? "text-primary fw-bolder border-success"
-                  : "text-[#F15156]"
-              }`}
+            // className={` ${
+            //   metaData?.document_metadata?.invoice_extracted_total ==
+            //   calculatedsum
+            //     ? "text-primary fw-bolder border-success"
+            //     : "text-[#F15156]"
+            // }`}
             >
               $ {calculatedsum}
             </p>

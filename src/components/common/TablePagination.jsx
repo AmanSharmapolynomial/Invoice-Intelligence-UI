@@ -52,6 +52,34 @@ const TablePagination = ({
   useEffect(() => {
     setPageIndex(currentPage);
   }, [currentPage]);
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const tagName = document.activeElement.tagName.toLowerCase();
+      const isEditable =
+        document.activeElement.isContentEditable ||
+        tagName === "input" ||
+        tagName === "textarea" ||
+        tagName === "select";
+  
+      if (!isEditable) {
+        if (e.key === "ArrowLeft" && pageIndex > 1) {
+          // Go to the previous page
+          updateParams({ page: Number(pageIndex) - 1 });
+          setPageIndex(pageIndex - 1);
+        } else if (e.key === "ArrowRight" && pageIndex < totalPages) {
+          // Go to the next page
+          updateParams({ page: Number(pageIndex) + 1 });
+          setPageIndex(pageIndex + 1);
+        }
+      }
+    };
+  
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [pageIndex, totalPages, updateParams]);
+  
   return (
     <Pagination
       className={`${className} !bg-[#1E7944] py-1.5 rounded-b-md flex items-center gap-x-4`}

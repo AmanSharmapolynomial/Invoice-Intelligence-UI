@@ -139,7 +139,8 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
                   if (
                     branchChanged ||
                     vendorChanged ||
-                    Object.keys(updatedFields)?.length > 0
+                    (currentTab == "metadata" &&
+                      Object.keys(updatedFields)?.length > 0)
                   ) {
                     setShowWarningModal(true);
                   } else {

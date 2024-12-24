@@ -80,3 +80,14 @@ body.dark {
   height: 100vh !important;
   background: #040807 !important; /* Dark mode background */
 }
+/* For most modern browsers */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* For Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}

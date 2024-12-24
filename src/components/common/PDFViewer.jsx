@@ -318,7 +318,7 @@ export const PdfViewer = ({
   };
 
   return (
-    <div className="w-full  max-h-[42rem] overflow-auto">
+    <div className="w-full  max-h-[42rem] overflow-auto ">
       {loadinMetadata && <Skeleton className={"w-[50rem] h-[60rem]"} />}
       {(pdfUrls[currentPdfIndex]?.document_source == "azure_blob" ||
         pdfUrls[currentPdfIndex]?.document_source == "clickbacon") && (
@@ -531,7 +531,7 @@ export const PdfViewer = ({
               maxWidth: "100%",
               position: "relative"
             }}
-            className="flex "
+            className="flex show-scrollbar custom-scrollbar "
           >
             {pdfUrl ? (
               <Document
@@ -557,8 +557,8 @@ export const PdfViewer = ({
                         top: Math.min(startY, endY),
                         width: Math.abs(endX - startX),
                         height: Math.abs(endY - startY),
-                        border: "2px dashed blue",
-                        backgroundColor: "rgba(0, 0, 255, 0.1)"
+                        border: "2px dashed #000000",
+                        backgroundColor: "rgba(99, 189, 255, 0.2)"
                       }}
                     />
                   )}
@@ -663,16 +663,16 @@ export const PdfViewer = ({
             <p className="font-poppins !text-[#000000] font-medium text-sm px-1">
               Extracted Text
             </p>
-            <Textarea
+            {isPending?<><Skeleton className={"w-[50rem] h-[10rem]"}/></>:<Textarea
               value={text}
               onChange={(e) => {
                 setText(e.target.value);
               }}
               className="bg-[#F6F6F6] !max-w-full font-poppins  font-normal text-xs !text-[#000000] focus:!outline-none focus:!ring-0 !relative"
               rows={10}
-            ></Textarea>
+            ></Textarea>}
 
-            <img
+           {!isPending&& <img
               src={copy}
               alt="copy icon"
               onClick={() => {
@@ -680,7 +680,7 @@ export const PdfViewer = ({
                 toast.success("Text copied to clipboard");
               }}
               className="absolute right-3  top-10 cursor-pointer h-4  z-50"
-            />
+            />}
             <div className="flex justify-center  p-2 mt-8 rounded  border-white shadow-sm">
               {image && (
                 <img

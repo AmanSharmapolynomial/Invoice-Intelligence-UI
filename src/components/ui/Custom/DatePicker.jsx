@@ -20,7 +20,7 @@ export default function DatePicker({ date, onChange }) {
         <Button
           variant={"outline"}
           className={cn(
-            "min-w-[280px] text-left dark:bg-[#000000] dark:text-textColor/200 dark:border-[#000000] bg-[#FFFFFF] hover:bg-[#FFFFFF] border-[#E0E0E0]  justify-between capitalize !shadow-none !rounded-[4px] text-[#666666] hover:text-[#666666] font-poppins font-normal text-xs    !h-[2.5rem] ",
+            "!min-w-full text-left dark:bg-[#000000] dark:text-textColor/200 dark:border-[#000000] bg-[#FFFFFF] hover:bg-[#FFFFFF] border-[#E0E0E0]  justify-between capitalize !shadow-none !rounded-[4px] !text-[#000000] hover:text-[#666666] font-poppins font-normal text-xs    !h-[2.5rem] ",
             !date && "text-muted-foreground"
           )}
         >

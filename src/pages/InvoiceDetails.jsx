@@ -18,13 +18,14 @@ import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
 import { Label } from "@/components/ui/label";
 import { Modal, ModalDescription } from "@/components/ui/Modal";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { queryClient } from "@/lib/utils";
 import useFilterStore from "@/store/filtersStore";
 import globalStore from "@/store/globalStore";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
+import { Share2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { useSearchParams } from "react-router-dom";
 
 const rejectionReasons = [
@@ -46,6 +47,8 @@ const InvoiceDetails = () => {
   const [showRejectionModal, setShowRejectionModal] = useState(false);
   const [reviewLaterComments, setReviewLaterComments] = useState("");
   const [rejectionReason, setRejectionReason] = useState("");
+  let document_uuid =
+    searchParams.get("document_uuid") || searchParams.get("document");
   const {
     updatedFields,
     branchChanged,
@@ -266,21 +269,36 @@ const InvoiceDetails = () => {
         }
       >
         <BreadCrumb
-          title={selectedInvoiceVendorName}
+          title={`${selectedInvoiceRestaurantName}  | ${selectedInvoiceVendorName} ` }
           crumbs={[
             {
               path: null,
-              label: `${selectedInvoiceVendorName} `
+              label: `Invoice Details`
             },
-            {
-              path: null,
-              label: `${selectedInvoiceRestaurantName} `
-            }
+      
           ]}
         />
 
         <div className="flex justify-end">
           <div className="flex items-center gap-x-3">
+            {!document_uuid&&<CustomTooltip content={"Click To Copy The Link."}>
+              <Button
+                onClick={() => {
+                  navigator.clipboard.writeText(
+                    `${window.location.origin}/invoice-details?document_uuid=${
+                      document_uuid ||
+                      data?.data?.[0]?.document_uuid ||
+                      data?.data?.document_uuid
+                    }`
+                  );
+                  toast.success("Link copied to clipboard");
+                }}
+                disabled={markingForReview}
+                className="bg-transparent h-[2.4rem] border-primary w-[3rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+              >
+                <Share2 />
+              </Button>
+            </CustomTooltip>}
             <CustomTooltip content={"Click To Mark It For A Review."}>
               <Button
                 onClick={() => {
@@ -293,7 +311,13 @@ const InvoiceDetails = () => {
                 Review Later
               </Button>
             </CustomTooltip>
-            <CustomTooltip content={"Click To Reject This Document."}>
+            <CustomTooltip
+              content={
+                action_controls?.reject?.disabled
+                  ? action_controls?.reject?.reason
+                  : "Click To Reject This Document."
+              }
+            >
               <Button
                 onClick={() => {
                   setShowRejectionModal(true);
@@ -304,7 +328,13 @@ const InvoiceDetails = () => {
                 Reject
               </Button>
             </CustomTooltip>
-            <CustomTooltip content={"Click To Accept This Document."}>
+            <CustomTooltip
+              content={
+                action_controls?.accept?.disabled
+                  ? action_controls?.accept?.reason
+                  : "Click To Accept This Document."
+              }
+            >
               <Button
                 onClick={handleAccept}
                 disabled={
@@ -317,9 +347,14 @@ const InvoiceDetails = () => {
             </CustomTooltip>
 
             <CustomTooltip
-              content={"Click To Mark This Document As Not Supported."}
+              content={
+                action_controls?.mark_as_not_supported?.disabled
+                  ? action_controls?.mark_as_not_supported?.reason
+                  : "Click To Mark This Document As Not Supported."
+              }
             >
               <Button
+                disabled={action_controls?.mark_as_not_supported?.disabled}
                 onClick={() => setMarkAsNotSupportedModal(true)}
                 className="bg-transparent h-[2.4rem] border-primary w-[7.25rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
               >
@@ -327,7 +362,13 @@ const InvoiceDetails = () => {
               </Button>
             </CustomTooltip>
 
-            <CustomTooltip content={"Click To Save This Document."}>
+            <CustomTooltip
+              content={
+                action_controls?.save?.disabled
+                  ? action_controls?.save?.reason
+                  : "Click To Save This Document."
+              }
+            >
               <Button
                 disabled={
                   action_controls?.save?.disabled ||
@@ -362,11 +403,13 @@ const InvoiceDetails = () => {
                 }
               ]}
             />
-            <InvoicePagination
-              totalPages={data?.total_pages}
-              currentTab={currentTab}
-              setCurrentTab={setCurrentTab}
-            />
+            {!document_uuid && (
+              <InvoicePagination
+                totalPages={data?.total_pages}
+                currentTab={currentTab}
+                setCurrentTab={setCurrentTab}
+              />
+            )}
             <CategoryWiseSum isLoading={isLoading} />
             <LastUpdateInfo
               info={

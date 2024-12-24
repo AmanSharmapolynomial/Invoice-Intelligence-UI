@@ -5,6 +5,7 @@ import App from "@/App";
 import "@/index.css";
 import { queryClient } from "./lib/utils.js";
 import { router } from "./routing/index.jsx";
+import ErrorBoundary from "./components/common/ErrorBoundaries.jsx";
 const root = document.getElementById("root");
 
 // Initialize the theme globally from localStorage
@@ -16,9 +17,12 @@ if (storedTheme === "dark") {
 }
 
 createRoot(root).render(
+  
   <QueryClientProvider client={queryClient}>
     <RouterProvider router={router}>
+    <ErrorBoundary>
       <App />
+  </ErrorBoundary>
     </RouterProvider>
   </QueryClientProvider>
 );

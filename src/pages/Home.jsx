@@ -229,7 +229,7 @@ const Home = () => {
                   searchPlaceholder="Search Vendor Name"
                 />{" "}
                 <Sheet
-                  className="!overflow-auto"
+                  className="!overflow-auto "
                   open={open}
                   onOpenChange={() => setOpen(!open)}
                 >
@@ -239,7 +239,7 @@ const Home = () => {
                       <Filter className="h-5  text-black/40" />
                     </Button>
                   </SheetTrigger>
-                  <SheetContent className="min-w-fit !overflow-auto">
+                  <SheetContent className="min-w-fit !max-w-[20rem] !overflow-auto">
                     <SheetHeader>
                       <SheetTitle>
                         <div className="flex justify-between items-center">
@@ -283,7 +283,7 @@ const Home = () => {
                           setSearchedInvoices(data?.data);
                         }
                       });
-                      setInvoiceNumber("");
+                     
                     }
                   }, 500);
                 }}
@@ -305,7 +305,7 @@ const Home = () => {
                       <X className="cursor-pointer" />
                     </span>
                   </p>
-                  <Table>
+                  <Table  >
                     <div className="w-full justify-between flex max-h-56 overflow-auto">
                       <TableBody className="w-full">
                         {searchingInvoices ? (

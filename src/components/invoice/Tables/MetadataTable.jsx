@@ -30,7 +30,10 @@ const MetadataTable = ({
   additionalData,
   loadingAdditionalData
 }) => {
-
+  const [dateRange, setDateRange] = useState({
+    from: null,
+    to: null
+  })
   const { data: vendorsData, isLoading: loadingVendors } = useGetVendorsNames();
 
   const navigate = useNavigate();
@@ -234,6 +237,7 @@ const MetadataTable = ({
             }}
           />
         </Template>
+      
         <Template title="Invoice Date">
           <div className="flex">
             <DatePicker
