@@ -96,7 +96,7 @@ const InvoicePagination = ({ totalPages,setCurrentTab }) => {
       <img src={slash} alt="" />
       <Input
         disabled
-        className="!w-[3.5rem] !h-[1.75rem] rounded-md  shadow-none focus:!ring-0 border-[#E0E0E0]  text-[#000000] font-poppins font-medium text-[0.9rem] leading-5 disabled:!bg-[#F6F6F6] disabled:!text-[#888888] disabled:!opacity-95 border-none"
+        className="!w-[4.5rem] !h-[1.75rem] rounded-md  shadow-none focus:!ring-0 border-[#E0E0E0]  text-[#000000] font-poppins font-medium text-[0.9rem] leading-5 disabled:!bg-[#F6F6F6] disabled:!text-[#888888] disabled:!opacity-95 border-none"
         value={totalPages||pageIndex}
       />
       <img
