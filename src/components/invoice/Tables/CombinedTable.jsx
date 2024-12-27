@@ -124,7 +124,7 @@ const CombinedTable = ({
   };
 
   return (
-    <div className="w-full mt-1 border border-[#F0F0F0] shadow-sm rounded-md">
+    <div className="w-full mt-1 border border-[#F0F0F0] shadow-sm rounded-md -mt-3">
       <p className="font-poppins font-semibold border-b border-[#E0E0E0] p-3 text-base leading-6 flex justify-between">
         Items
         <CustomTooltip content={"Undo"}>
@@ -145,7 +145,7 @@ const CombinedTable = ({
       <div className="py-2  !max-h-[39.7rem] overflow-auto w-full ">
         <Table className="w-full  !max-h-[30rem]">
           <TableHead className=" px-0 w-full sticky top-0">
-            <TableRow className="!w-full flex gap-x-2  border-b border-[#E0E0E0] px-0.5">
+            <TableRow className="!w-full flex gap-x-2 hide-scrollbar border-b border-[#E0E0E0] px-0.5">
               {columns?.map(
                 ({
                   column_uuid,
@@ -155,7 +155,7 @@ const CombinedTable = ({
                 }) => {
                   return (
                     <TableCell
-                      className="!w-[10rem]  !pl-3 !max-w-[12rem]  flex  items-center gap-x-2 "
+                      className="!w-[11rem]  !pl-3 !max-w-[15rem]  flex  items-center gap-x-2 "
                       key={column_uuid}
                     >
                       <Checkbox
@@ -176,7 +176,7 @@ const CombinedTable = ({
           </TableHead>
 
           <TableBody className="!max-h-[30rem] ">
-            <div className=" flex gap-x-2 overflow-auto px-0.5 !max-h-[35rem] ">
+            <div className=" flex gap-x-2 overflow-auto px-0.5 !max-h-[35rem] hide-scrollbar " >
               {columns?.map(
                 ({
                   column_uuid,
@@ -186,7 +186,7 @@ const CombinedTable = ({
                 }) => {
                   return (
                     <TableCell
-                      className="!w-[10rem] !max-w-[12rem]    flex items-center "
+                      className="!w-[11rem] !max-w-[15rem]    flex items-center "
                       key={column_uuid}
                     >
                       <div className="relative">
@@ -231,7 +231,7 @@ const CombinedTable = ({
                     {row?.cells?.map((cell, i) => {
                       return (
                         <TableCell
-                          className="!w-[10rem] font-poppins font-normal text-sm leading-4 text-[#121212] !max-w-[12rem]  justify-center   flex items-center  capitalize"
+                          className="!w-[11rem] font-poppins font-normal text-sm leading-4 text-[#121212] !max-w-[12rem]  justify-center   flex items-center  capitalize"
                           key={i}
                         >
                           {cell?.text || "--"}

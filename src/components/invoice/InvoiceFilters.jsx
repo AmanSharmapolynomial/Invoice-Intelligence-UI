@@ -127,18 +127,7 @@ const InvoiceFilters = () => {
           />
         </div>
       </div>
-      <div className="flex flex-col gap-y-2">
-        <div>
-          <CustomSelect
-            triggerClassName={"!w-full"}
-            placeholder="All"
-            value={filters.rerun_status}
-            label="Invoice Re Run Status"
-            onSelect={(val) => updateFilter("rerun_status", val)}
-            data={InvoiceReRunStatusFilterOptions}
-          />
-        </div>
-      </div>
+    
       <div className="flex flex-col gap-y-2">
         <div>
           <CustomSelect

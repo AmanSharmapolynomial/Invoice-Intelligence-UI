@@ -337,7 +337,7 @@ export const vendorConsolidationHeaders = [
 
 export const invoiceTableHeaders = [
   {
-    label: "Invoice Number",
+    label: "Invoice #",
     styling: "w-[11.11%]  justify-start"
   },
 

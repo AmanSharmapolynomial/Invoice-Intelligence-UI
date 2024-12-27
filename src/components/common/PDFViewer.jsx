@@ -318,8 +318,8 @@ export const PdfViewer = ({
   };
 
   return (
-    <div className="w-full  max-h-[42rem] overflow-auto ">
-      {loadinMetadata && <Skeleton className={"w-[50rem] h-[60rem]"} />}
+    <div className="w-full  max-h-[42rem] overflow-auto  hide-scrollbar">
+      {loadinMetadata && <Skeleton className={"w-[50rem]  h-[60rem]"} />}
       {(pdfUrls[currentPdfIndex]?.document_source == "azure_blob" ||
         pdfUrls[currentPdfIndex]?.document_source == "clickbacon") && (
         <div className="flex justify-center my-2 border-t border-t-[#E7E7E7] border-r-[#E7E7E7] border-b h-10 items-center ">
@@ -663,7 +663,7 @@ export const PdfViewer = ({
             <p className="font-poppins !text-[#000000] font-medium text-sm px-1">
               Extracted Text
             </p>
-            {isPending?<><Skeleton className={"w-[50rem] h-[10rem]"}/></>:<Textarea
+            {isPending?<><Skeleton className={"w-[50rem] bg-primary/30 h-[10rem]"}/></>:<Textarea
               value={text}
               onChange={(e) => {
                 setText(e.target.value);

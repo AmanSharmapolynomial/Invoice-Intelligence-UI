@@ -276,12 +276,12 @@ const InvoiceDetails = () => {
   }, [duplicateInvoices]);
   const myData = data?.data?.[0] || data?.data;
   return (
-    <>
+    <div className="hide-scrollbar">
       <Navbar />
 
       <Layout
         className={
-          "mx-6 rounded-md    !shadow-none flex flex-1 flex-col justify-between gap-y-4   "
+          "mx-6 rounded-md  hide-scrollbar   !shadow-none flex flex-1 flex-col justify-between gap-y-4   "
         }
       >
         <BreadCrumb
@@ -295,23 +295,50 @@ const InvoiceDetails = () => {
           ]}
         >
           <div className="flex gap-x-4 items-end">
+           {(data?.data?.restaurant || data?.data?.[0]?.restaurant) && (<>
+           <div className="flex flex-col gap-y-0.5">
+              <p className="text-[#6D6D6D] font-poppins font-medium text-sm leading-4">
+                Restaurant
+              </p>
+              <p className="capitalize text-[#121212] font-semibold font-poppins text-2xl">
+                {data?.data?.restaurant?.restaurant_name || data?.data?.[0]?.restaurant?.restaurant_name}
+              </p>
+            </div>
+            </>
+            )}
+
+           {(data?.data?.vendor || data?.data?.[0]?.vendor) && (<>
+            <p className="text-2xl">|</p>
             <div className="flex flex-col gap-y-0.5">
               <p className="text-[#6D6D6D] font-poppins font-medium text-sm leading-4">
                 Vendor
               </p>
               <p className="capitalize text-[#121212] font-semibold font-poppins text-2xl">
-                {selectedInvoiceVendorName}
+                {data?.data?.vendor?.vendor_name || 
+                   data?.data?.[0].vendor?.vendor_name
+                }
               </p>
             </div>
-            <p className="text-2xl">+</p>
-            <div className="flex flex-col gap-y-0.5">
-              <p className="text-[#6D6D6D] font-poppins font-medium text-sm leading-4">
-                Restaurant
-              </p>
-              <p className="capitalize text-[#121212] font-semibold font-poppins text-2xl">
-                {selectedInvoiceRestaurantName}
-              </p>
-            </div>
+           </>)}
+            <div>
+           <div className=" -mt-[1.78rem] -ml-3">
+           {myData?.human_verified === true && myData?.rejected === false && (
+              <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#348355] text-[#ffffff] p-1 rounded-xl px-3">
+                Accepted{" "}
+              </span>
+            )}
+            {myData?.rejected === true && (
+              <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#F15156] text-[#ffffff] p-1 rounded-xl   px-3">
+                Rejected{" "}
+              </span>
+            )}
+            {myData?.human_verified === false && myData?.rejected === false && (
+              <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#B28F10] text-[#ffffff] py-1  px-3 rounded-xl ">
+                Pending{" "}
+              </span>
+            )}
+           </div>
+          </div>
           </div>
         </BreadCrumb>
         {showDuplicateInvoicesWarning && (
@@ -336,24 +363,8 @@ const InvoiceDetails = () => {
             />
           </div>
         )}
-        <div className="flex justify-between">
-          <div>
-            {myData?.human_verified === true && myData?.rejected === false && (
-              <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#348355] text-[#ffffff] p-1 rounded-xl px-3">
-                Accepted{" "}
-              </span>
-            )}
-            {myData?.rejected === true && (
-              <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#F15156] text-[#ffffff] p-1 rounded-xl   px-3">
-                Rejected{" "}
-              </span>
-            )}
-            {myData?.human_verified === false && myData?.rejected === false && (
-              <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#B28F10] text-[#ffffff] py-1  px-3 rounded-xl ">
-                Pending{" "}
-              </span>
-            )}
-          </div>
+        <div className="flex justify-end">
+         
           <div className="flex items-center gap-x-3">
             {!document_uuid && (
               <CustomTooltip content={"Click To Copy The Link."}>
@@ -805,7 +816,7 @@ const InvoiceDetails = () => {
           </div>
         </ModalDescription>
       </Modal>
-    </>
+    </div>
   );
 };
 

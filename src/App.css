@@ -1,12 +1,42 @@
-/* Hide scrollbar for Webkit browsers (Chrome, Safari) */
+
 ::-webkit-scrollbar {
-  display: none; /* Hides the scrollbar */
+  width: 0px !important; /* Set width for the scrollbar */
+  height: 0px; /* Set height for horizontal scrollbar */
+  border-radius: 100vw !important;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* Make the track transparent */
+  /* border-radius: 10px; */
+  ::-webkit-scrollbar-thumb {
+
+    border-radius: 100vw !important;
+      }
+}
+
+::-webkit-scrollbar-thumb {
+  background: #e0e0e0; /* Light 
+  cursor: pointer;
+  border: 2px solid transparent; /* Add border to make it look more round */
+  background-clip: padding-box; /* Clips the background to the padding box */
+  border-radius: 100vw !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #c0c0c0; /* Slightly darker on hover */
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  border-radius: 100vw !important;
 }
 
 /* Hide scrollbar for Firefox */
 .scrollbar {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* Internet Explorer and Edge */
+  scrollbar-width: thin; /* Make scrollbar thin instead of none */
+  scrollbar-color: #e0e0e0 transparent; /* thumb color track color */
+  scrollbar-width: thin;
+  scrollbar-color: white #e0e0e0;
+  outline: 0 !important;
+  border-radius: 100vw !important;
 }
 
 html,
@@ -21,21 +51,18 @@ body {
   background: #000000;
 }
 /* For any element you want to hide the scrollbar */
-
-.show-scrollbar {
-  overflow-y: auto; /* Enables vertical scrolling */
-  height: 100%; /* Adjust as needed to match the container height */
-  scrollbar-width: thin; /* For Firefox: Makes the scrollbar thinner */
-  scrollbar-color: #888 #f0f0f0; /* Thumb color, track color */
-  cursor:pointer;
+::-webkit-scrollbar-thumb {
+  border-radius: 100vw !important;
 }
-.custom-scrollbar {
-  /* Firefox styles */
-  scrollbar-width: 1px !important;
+
+* {
+  scrollbar-width: thin;
   scrollbar-color: #e0e0e0 white;
- 
-}
+  outline: 0 !important;
+  
 
+  /* border-radius: 10px !important; */
+}
 /* CSS class to remove the up and down buttons from number inputs */
 .remove-number-spinner {
   -moz-appearance: textfield; /* Firefox */
@@ -85,4 +112,9 @@ body {
 .rdrDay:hover {
   /* background:red !important */
   border: 2px red solid;
+}
+
+/* Class to hide scrollbars while maintaining functionality */
+.hide-scrollbar {
+  scrollbar-width: none;
 }

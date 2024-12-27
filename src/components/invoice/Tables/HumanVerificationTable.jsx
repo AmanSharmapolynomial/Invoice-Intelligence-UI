@@ -1071,7 +1071,7 @@ const HumanVerificationTable = ({
         className={`${
           metadata?.invoice_type !== "Summary Invoice" &&
           "max-h-[42rem]   overflow-hidden"
-        } w-full mt-1 border border-[#F0F0F0] shadow-sm rounded-md  `}
+        } w-full -mt-3 border border-[#F0F0F0] shadow-sm rounded-md  `}
       >
         {metaData?.invoice_type !== "Summary Invoice" && (
           <div className="w-full flex items-center justify-between pr-[1rem] border-b border-[#E0E0E0]">
@@ -1270,7 +1270,7 @@ const HumanVerificationTable = ({
                       }) => {
                         return (
                           <TableCell
-                            className="!w-[10rem] !max-w-[12rem]     flex items-center "
+                            className="!w-[11rem] !max-w-[12rem]     flex items-center "
                             key={column_uuid}
                           >
                             <CustomDropDown
@@ -1291,7 +1291,7 @@ const HumanVerificationTable = ({
                         );
                       }
                     )}
-                  <div className="w-full sticky right-0 border  flex items-center justify-end">
+                  <div className="w-full sticky right-0   flex items-center justify-end">
                     {(viewDeleteColumn ||
                       viewShiftColumn ||
                       viewVerificationColumn) && (
@@ -1362,7 +1362,7 @@ const HumanVerificationTable = ({
                                       row_uuid: row?.transaction_uuid
                                     });
                                   }}
-                                  className="!w-[10rem] font-poppins  font-normal text-sm leading-4 text-[#121212] !max-w-[12rem]  justify-center    flex items-center  capitalize text-center pl-4"
+                                  className="!w-[11rem] font-poppins  font-normal text-sm leading-4 text-[#121212] !max-w-[12rem]  justify-center    flex items-center  capitalize text-center pl-4"
                                   key={i}
                                 >
                                   {editMode?.rowIndex === index &&
@@ -1462,7 +1462,7 @@ const HumanVerificationTable = ({
                               }
                               
                               className={
-                                "!absolute !w-[30em] !top-0 border right-16 border-[#F2F2F7]!w-[50rem] !rounded-md !bg-[#CBCBCB] !z-50"
+                                "!absolute !w-[30em] !top-0 border right-16 border-2 border-[#CBCBCB] !rounded-md !bg-[#F2F2F7] !z-50"
                               }
                             >
                               {viewVerificationColumn &&

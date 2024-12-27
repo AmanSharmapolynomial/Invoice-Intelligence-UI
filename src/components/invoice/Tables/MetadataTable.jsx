@@ -228,10 +228,11 @@ const MetadataTable = ({
   });
 
   return (
-    <div className="w-full mt-1 border border-[#F0F0F0] shadow-sm p-2 rounded-md">
+    <div className="w-full -mt-3 border border-[#F0F0F0] shadow-sm p-2 rounded-md">
       <div className="grid grid-cols-3 gap-x-4">
         <Template title="Invoice Number">
           <CustomInput
+            className={`${!document_metadata?.invoice_number ? "!border-[#F97074]" : ""}`}
             value={document_metadata?.invoice_number}
             onChange={(v) => setCachedData("invoice_number", v)}
           />
@@ -239,7 +240,7 @@ const MetadataTable = ({
         <Template title="Invoice Type">
           <CustomDropDown
             showSearch={false}
-            className={"!min-w-[300px]"}
+                className={`!min-w-[300px] ${!invoice_type ? "!border-[#F97074]" : ""}`}
             data={vendorCategories?.slice(0, 3)}
             Value={invoice_type}
             onChange={(v) => {
@@ -249,8 +250,9 @@ const MetadataTable = ({
         </Template>
 
         <Template title="Invoice Date">
-          <div className="flex">
+          <div className="flex !w-full">
             <DatePicker
+              className={`${!document_metadata?.invoice_date ? "!border-[#F97074]" : ""}`}
               date={
                 document_metadata?.invoice_date &&
                 isValid(parseISO(document_metadata.invoice_date))
@@ -275,6 +277,7 @@ const MetadataTable = ({
       <div className="grid grid-cols-3 gap-x-4 mt-4">
         <Template title="Due Date">
           <DatePicker
+          className={`${!document_metadata?.invoice_due_date ? "!border-[#F97074]" : ""}`}
             date={
               document_metadata?.invoice_due_date &&
               isValid(parseISO(document_metadata.invoice_due_date))
@@ -298,7 +301,7 @@ const MetadataTable = ({
           <div className="flex items-center gap-x-4 pr-2 w-full">
             {editVendor ? (
               <CustomInput
-                className="!text-xs text-[#666666] hover:text-[#666666]"
+                className={`${!newVendor ? "!border-[#F97074]" : ""} !text-xs text-[#666666] hover:text-[#666666]`}
                 value={newVendor}
                 placeholder="Vendor Name"
                 onChange={(v) => setNewVendor(v)}
@@ -306,8 +309,10 @@ const MetadataTable = ({
             ) : (
               <div className="w-full  flex gap-x-4">
                 <CustomDropDown
-                  Value={vendor?.vendor_id}
-                  className={"min-w-full "}
+                    Value={vendor?.vendor_id}
+     
+                  className={`min-w-full ${!vendor?.vendor_id ? "!border-[#F97074]" : ""}`}
+                   
                   triggerClassName={`${
                     editVendor ? " !min-w-[80%]" : "!min-w-full"
                   } `}
@@ -370,13 +375,14 @@ const MetadataTable = ({
             {editBranch ? (
               <CustomInput
                 value={branch?.vendor_address}
+                className={`${!newBranch ? "!border-[#F97074]" : ""}`}
                 onChange={(v) => setNewBranch(v)}
               />
             ) : (
               <div className="flex items-center gap-x-4 w-full">
                 <CustomDropDown
                   Value={branch?.branch_id}
-                  className={"min-w-[30rem]"}
+                  className={`min-w-[30rem] ${!branch?.branch_id ? "!border-[#F97074]" : ""}`}
                   triggerClassName={`${
                     editBranch ? "!min-w-[80%]" : "!min-w-full"
                   } `}
@@ -434,9 +440,10 @@ const MetadataTable = ({
       </div>
       <div className="grid grid-cols-2 gap-x-4 mt-4">
         <Template title="Document Type Prediction">
+          
           <CustomDropDown
-            value={document_type}
-            className={"min-w-[28rem]"}
+            Value={document_type}
+            className={`min-w-[28rem] ${!document_type ? "!border-[#F97074]" : ""}`}
             data={makeKeyValueFromKey(additionalData?.data?.document_types)}
             onChange={(v) => {
               setCachedData("document_type", v);
@@ -445,8 +452,8 @@ const MetadataTable = ({
         </Template>
         <Template title="QuickBooks Documents Type">
           <CustomDropDown
-            value={quick_book_document_type}
-            className={"min-w-[28rem]"}
+            Value={quick_book_document_type}
+            className={`min-w-[28rem] ${!quick_book_document_type ? "!border-[#F97074]" : ""}`}
             data={makeKeyValueFromKey(
               additionalData?.data?.vendor_invoice_document_types
             )}
@@ -460,6 +467,7 @@ const MetadataTable = ({
         <Template title="Credit Card Name">
           <CustomInput
             value={document_metadata?.credit_card_name}
+            className={`${!document_metadata?.credit_card_name ? "!border-[#F97074]" : ""}`}
             onChange={(v) => {
               setCachedData("credit_card_name", v);
             }}
@@ -468,6 +476,7 @@ const MetadataTable = ({
         <Template title="Credit Card Number">
           <CustomInput
             value={document_metadata?.credit_card_number}
+            className={`${!document_metadata?.credit_card_number ? "!border-[#F97074]" : ""}`}
             onChange={(v) => {
               setCachedData("credit_card_number", v);
             }}
@@ -479,19 +488,22 @@ const MetadataTable = ({
         <Template title="Invoice Shipped To">
           <CustomInput
             value={document_metadata?.invoice_ship_to}
+            className={`${!document_metadata?.invoice_ship_to ? "!border-[#F97074]" : ""}`}
             onChange={(v) => setCachedData("invoice_ship_to", v)}
           />
         </Template>
         <Template title="Invoice Billed To">
           <CustomInput
             value={document_metadata?.invoice_bill_to}
+            className={`${!document_metadata?.invoice_bill_to ? "!border-[#F97074]" : ""}`}
             onChange={(v) => setCachedData("invoice_bill_to", v)}
           />
         </Template>
         <Template title="Invoice Sold To">
           <CustomInput
             value={document_metadata?.invoice_sold_to}
-            onChange={(v) => setCachedData("invoice_sold_to", v)}
+            className={`${!document_metadata?.invoice_sold_to ? "!border-[#F97074]" : ""}`}
+                onChange={(v) => setCachedData("invoice_sold_to", v)}
           />
         </Template>
       </div>
@@ -556,7 +568,7 @@ const MetadataTable = ({
                   <div className="flex flex-col gap-y-2">
                     <p>Vendor Document Type</p>
                     <CustomDropDown
-                      value={types_and_categories?.document_types}
+                      Value={types_and_categories?.document_types}
                       className={"min-w-[28rem]"}
                       data={makeKeyValueFromKey(
                         additionalData?.data?.vendor_invoice_document_types
@@ -574,7 +586,7 @@ const MetadataTable = ({
                   <div className="flex flex-col gap-y-2">
                     <p>Vendor Category</p>
                     <CustomDropDown
-                      value={types_and_categories?.vendor_category}
+                      Value={types_and_categories?.vendor_category}
                       className={"min-w-[28rem] !z-50"}
                       data={makeKeyValueFromKey(
                         additionalData?.data?.vendor_invoice_categories
@@ -591,7 +603,7 @@ const MetadataTable = ({
                   <div className="flex flex-col gap-y-2">
                     <p>Vendor Account Category</p>
                     <CustomDropDown
-                      value={vendorTypesAndCategories?.data?.vendor_category}
+                      Value={vendorTypesAndCategories?.data?.vendor_category}
                       className={"min-w-[28rem]"}
                       data={categoryNamesFormatter(
                         additionalData?.data?.category_choices

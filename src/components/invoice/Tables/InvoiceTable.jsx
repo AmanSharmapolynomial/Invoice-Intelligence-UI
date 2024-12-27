@@ -117,7 +117,7 @@ const InvoiceTable = ({
   return (
     <div className="w-full overflow-auto  dark:bg-[#051C14] mb-1.5 dark:border-b dark:border-r dark:border-l dark:border-primary ">
       <Table
-        className={`flex flex-col   box-border  scrollbar max-h-[${
+        className={`flex flex-col  show-scrollbar custom-scrollbar box-border  scrollbar max-h-[${
           height - 1
         }vh]  `}
         style={{ height: `${height}vh` }}
@@ -153,11 +153,11 @@ const InvoiceTable = ({
                     )}
                   </>
                 )}
-                {label == "Invoice Number" && (
+                {label == "Invoice #" && (
                   <>
                     {document_priority == "desc" && (
                       <CustomTooltip
-                        content={"Click To Sort In Ascending Order."}
+                        content={"Click To Sort Priority In Ascending Order."}
                       >
                         <ArrowUp
                           className="h-4 cursor-pointer"
@@ -169,7 +169,7 @@ const InvoiceTable = ({
                     )}
                     {document_priority == "asc" && (
                       <CustomTooltip
-                        content={"Click To Sort In Descending Order."}
+                        content={"Click To Sort Priority In Descending Order."}
                       >
                         <ArrowDown
                           className="h-4 cursor-pointer"

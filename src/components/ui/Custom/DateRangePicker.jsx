@@ -1,15 +1,82 @@
 "use client";
+
+import React, { useState, useEffect } from "react";
+import { addMonths, format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 export function DateRangePicker({ dateRange, onChange, className }) {
+  const [month, setMonth] = useState(() => {
+    return dateRange && dateRange.from ? dateRange.from.getMonth() : new Date().getMonth();
+  });
+
+  const [year, setYear] = useState(() => {
+    return dateRange && dateRange.from ? dateRange.from.getFullYear() : new Date().getFullYear();
+  });
+
+  useEffect(() => {
+    if (dateRange && dateRange.from) {
+      setMonth(dateRange.from.getMonth());
+      setYear(dateRange.from.getFullYear());
+    }
+  }, [dateRange]);
+
+  const handleMonthChange = (value) => {
+    setMonth(parseInt(value, 10));
+  };
+
+  const handleYearChange = (value) => {
+    setYear(parseInt(value, 10));
+  };
+
+  const handleSelect = (range) => {
+    if (range && range.from) {
+      const from = new Date(range.from.getFullYear(), range.from.getMonth(), range.from.getDate(), 12, 0, 0);
+      const to = range.to ? new Date(range.to.getFullYear(), range.to.getMonth(), range.to.getDate(), 12, 0, 0) : undefined;
+      onChange({ from, to });
+    } else {
+      onChange(undefined);
+    }
+  };
+
   return (
     <div className={cn("grid gap-2", className)}>
+      <div className="flex justify-between mb-2">
+        <Select value={month.toString()} onValueChange={handleMonthChange}>
+          <SelectTrigger className="w-[120px]">
+            <SelectValue placeholder="Month" />
+          </SelectTrigger>
+          <SelectContent>
+            {Array.from({ length: 12 }, (_, i) => (
+              <SelectItem key={i} value={i.toString()}>
+                {format(new Date(0, i), "MMMM")}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={year.toString()} onValueChange={handleYearChange}>
+          <SelectTrigger className="w-[100px]">
+            <SelectValue placeholder="Year" />
+          </SelectTrigger>
+          <SelectContent>
+            {Array.from({ length: 10 }, (_, i) => {
+              const yearValue = new Date().getFullYear() - 5 + i;
+              return (
+                <SelectItem key={i} value={yearValue.toString()}>
+                  {yearValue}
+                </SelectItem>
+              );
+            })}
+          </SelectContent>
+        </Select>
+      </div>
       <Calendar
         initialFocus
         mode="range"
-        defaultMonth={dateRange?.from}
+        defaultMonth={new Date(year, month)}
         selected={dateRange}
-        onSelect={onChange}
+        onSelect={handleSelect}
         numberOfMonths={1}
         className={cn(
           "border rounded-md dark:bg-[#000000] dark:text-textColor/200 dark:border-[#000000] bg-[#FFFFFF]",
@@ -36,7 +103,7 @@ export function DateRangePicker({ dateRange, onChange, className }) {
           root: "p-3 ",
         }}
       />
-     
     </div>
   );
 }
+
