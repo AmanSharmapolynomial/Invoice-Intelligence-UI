@@ -3,7 +3,7 @@
 # Vite + React JS
 
 # Steps to set the project up
-- Create a react ptoject using viteeeeee
+- Create a react ptoject using viteeeeeee
 - Configure Tailwind CSS and
 - Install shadcn
 
