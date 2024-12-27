@@ -2,6 +2,7 @@ import warning from "@/assets/image/warning.svg";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import { PdfViewer } from "@/components/common/PDFViewer";
+import Sidebar from "@/components/common/Sidebar";
 import {
   useFindDuplicateInvoices,
   useMarkAsNotSupported,
@@ -276,13 +277,14 @@ const InvoiceDetails = () => {
   }, [duplicateInvoices]);
   const myData = data?.data?.[0] || data?.data;
   return (
-    <div className="hide-scrollbar">
-      <Navbar />
-
-      <Layout
-        className={
-          "mx-6 rounded-md  hide-scrollbar   !shadow-none flex flex-1 flex-col justify-between gap-y-4   "
-        }
+    <div className="flex w-full " id="maindiv">
+      <Sidebar />
+      <div className="w-full">
+        <Navbar />
+        <Layout
+        // className={
+        //   "mx-6 rounded-md  hide-scrollbar   !shadow-none flex flex-1 flex-col justify-between gap-y-4   "
+        // }
       >
         <BreadCrumb
           showCustom={true}
@@ -816,6 +818,7 @@ const InvoiceDetails = () => {
           </div>
         </ModalDescription>
       </Modal>
+    </div>
     </div>
   );
 };
