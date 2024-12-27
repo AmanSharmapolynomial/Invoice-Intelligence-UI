@@ -20,7 +20,7 @@ const useFilterStore = create(
         restaurant: "",
         human_verified: "all",
         assigned_to: "",
-        document_priority:"desc",
+        document_priority:"all",
         token:""
       },
       setFilters: (newFilters) =>
@@ -46,7 +46,7 @@ const useFilterStore = create(
             restaurant: "",
             human_verified: "all",
             assigned_to: "",
-            document_priority:"desc",
+            document_priority:"all",
             token:""
           }
         })

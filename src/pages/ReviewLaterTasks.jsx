@@ -65,7 +65,7 @@ const ReviewLaterTasks = () => {
   let sort_order = searchParams.get("sort_order") || "desc";
   let invoice_number = searchParams.get("invoice_number") || "";
   let assigned_to = searchParams.get("assigned_to");
-  let document_priority = searchParams.get("document_priority") || "desc";
+  let document_priority = searchParams.get("document_priority") || "all";
   const updateParams = useUpdateParams();
   const { data: restaurantsList, isLoading: restaurantsListLoading } =
     useListRestaurants();

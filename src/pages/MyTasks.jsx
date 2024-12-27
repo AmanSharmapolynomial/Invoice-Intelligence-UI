@@ -68,7 +68,7 @@ const MyTasks = () => {
   let assigned_to = searchParams.get("assigned_to");
 
   let {userId}=userStore()
-  let document_priority = searchParams.get("document_priority") || "desc";
+  let document_priority = searchParams.get("document_priority") || "all";
   const updateParams = useUpdateParams();
   const { data: restaurantsList, isLoading: restaurantsListLoading } =
     useListRestaurants();

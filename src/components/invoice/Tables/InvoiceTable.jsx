@@ -103,7 +103,7 @@ const InvoiceTable = ({
   const navigate = useNavigate();
   let page = searchParams.get("page") || 1;
   let sort_order = searchParams.get("sort_order") || "desc";
-  let document_priority = searchParams.get("document_priority") || "desc";
+  let document_priority = searchParams.get("document_priority") || "all";
   const [changePriorityModal, setChangePriorityModal] = useState({
     state: false,
     document_uuid: null,
