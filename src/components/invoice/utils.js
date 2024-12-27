@@ -86,3 +86,20 @@ export const getCombinedTable = async (document_uuid) => {
     return error?.response?.data;
   }
 };
+
+export const getVendorTypesAndCategories = async (vendor_id) => {
+  if (vendor_id) {
+    const apiUrl = `/api/vendor/${vendor_id}/type-and-categories/`;
+    const response = await axiosInstance.get(apiUrl);
+    return response;
+  }
+};
+
+export const updateVendorTypesAndCategories = async ({
+  vendor_id,
+  payload
+}) => {
+  const apiUrl = `/api/vendor/${vendor_id}/type-and-categories/`;
+  const response = await axiosInstance.put(apiUrl, { ...payload });
+  return response;
+};

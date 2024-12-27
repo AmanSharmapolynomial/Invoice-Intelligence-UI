@@ -11,7 +11,7 @@ import home from "@/assets/image/home.svg";
 import home_white from "@/assets/image/home_white.svg";
 import { ArrowLeft, MoveLeft } from "lucide-react";
 
-const BreadCrumb = ({ crumbs = [], title }) => {
+const BreadCrumb = ({ crumbs = [], title ,showCustom=false,children}) => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const navigator = () => {
@@ -35,8 +35,9 @@ const BreadCrumb = ({ crumbs = [], title }) => {
         />{" "}
         <span className="!text-xl !font-semibold font-poppins text-[#121212] dark:!text-[#FFFFFF] capitalize">
           {" "}
-          {title || crumbs?.[crumbs?.length - 1]?.["label"]}
+          {!showCustom && (title || crumbs?.[crumbs?.length - 1]?.["label"])}
         </span>
+        {showCustom && children}
       </p>
       <Breadcrumb>
         <BreadcrumbList className="flex items-center">

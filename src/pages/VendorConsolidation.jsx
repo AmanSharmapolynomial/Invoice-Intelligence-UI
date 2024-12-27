@@ -66,7 +66,7 @@ const VendorConsolidation = () => {
     createVendor(addedVendor);
     setAddedVendor("");
   };
-  
+
   const [final, setFinal] = useState(50);
   // Function to calculate the height of a div in vh
   function calculateDivHeightInVh(elementId) {
@@ -81,7 +81,7 @@ const VendorConsolidation = () => {
       // Calculate height in vh
       const heightInVh = (elementHeight / viewportHeight) * 100;
 
- 
+
       return heightInVh;
     } else {
       console.error("Element not found");
@@ -89,160 +89,161 @@ const VendorConsolidation = () => {
     }
   }
 
- 
-useEffect(()=>{
-setFinal(calculateDivHeightInVh("maindiv") -
-(calculateDivHeightInVh("bread") +
-  calculateDivHeightInVh("div1") +
-  calculateDivHeightInVh("div2") +
-  calculateDivHeightInVh("navbar") +
-  16.5))
-},[])
+
+  useEffect(() => {
+    setFinal(calculateDivHeightInVh("maindiv") -
+      (calculateDivHeightInVh("bread") +
+        calculateDivHeightInVh("div1") +
+        calculateDivHeightInVh("div2") +
+        calculateDivHeightInVh("navbar") +
+        16.5))
+  }, [])
+
   return (
     <div className="h-screen flex" id="maindiv">
-      <Sidebar/>
+      <Sidebar />
       <div className="w-full">
-      <Navbar className="" />
-      <Layout className="mx-6 box-border flex flex-col gap-y-4 mt-2  ">
-        <BreadCrumb
-          crumbs={[
-            { path: "/vendor-consolidation", label: "Vendor Consolidation" }
-          ]}
-        />
-        <div className="flex flex-col flex-grow dark:border-t  dark:rounded-b-lg dark:rounded-t-xl   dark:border-primary ">
-          <div
-            id="div1"
-            className="flex dark:bg-[#051C14] justify-between dark:border-l dark:border-r items-center  dark:border-b rounded-t-xl dark:border-primary pr-[0.625rem] "
-          >
-            <ProgressBar
-              title={"Verified Vendors"}
-              currentValue={vendorsData?.["data"]?.["verified_vendor_count"]}
-              totalValue={vendorsData?.["data"]?.["total_vendor_count"]}
-            />
-            <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
-              <AlertDialog className="!bg-white">
-                <AlertDialogTrigger>
-                  <Button className="!p-0 h-[2.50rem] w-[2.5rem]">
-                    <Plus className="h-4 w-4 text-[#FFFFFF]" />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Add New Vendor</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      <Input
-                        placeholder="Enter vendor name"
-                        className="focus:!outline-none focus:!ring-0 !outline-none"
-                        value={addedVendor}
-                        onChange={(e) => setAddedVendor(e.target.value)}
-                      />
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <div onClick={() => handleCreateVendor()}>
-                      <AlertDialogAction disabled={addedVendor?.length === 0}>
-                        Add
-                      </AlertDialogAction>
-                    </div>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+        <Navbar className="" />
+        <Layout className="mx-6 box-border flex flex-col gap-y-4 mt-2  ">
+          <BreadCrumb
+            crumbs={[
+              { path: "/vendor-consolidation", label: "Vendor Consolidation" }
+            ]}
+          />
+          <div className="flex flex-col flex-grow dark:border-t  dark:rounded-b-lg dark:rounded-t-xl   dark:border-primary ">
+            <div
+              id="div1"
+              className="flex dark:bg-[#051C14] justify-between dark:border-l dark:border-r items-center  dark:border-b rounded-t-xl dark:border-primary pr-[0.625rem] "
+            >
+              <ProgressBar
+                title={"Verified Vendors"}
+                currentValue={vendorsData?.["data"]?.["verified_vendor_count"]}
+                totalValue={vendorsData?.["data"]?.["total_vendor_count"]}
+              />
+              <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
+                <AlertDialog className="!bg-white">
+                  <AlertDialogTrigger>
+                    <Button className="!p-0 h-[2.50rem] w-[2.5rem]">
+                      <Plus className="h-4 w-4 text-[#FFFFFF]" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Add New Vendor</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        <Input
+                          placeholder="Enter vendor name"
+                          className="focus:!outline-none focus:!ring-0 !outline-none"
+                          value={addedVendor}
+                          onChange={(e) => setAddedVendor(e.target.value)}
+                        />
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <div onClick={() => handleCreateVendor()}>
+                        <AlertDialogAction disabled={addedVendor?.length === 0}>
+                          Add
+                        </AlertDialogAction>
+                      </div>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
 
-              <CustomInput
-                variant="search"
-                showIcon
-                value={searchTerm}
-                onChange={(v) => {
-                  if (v === "") {
-                    setSearchTerm("");
-                    updateParams({ vendor_name_search: undefined });
+                <CustomInput
+                  variant="search"
+                  showIcon
+                  value={searchTerm}
+                  onChange={(v) => {
+                    if (v === "") {
+                      setSearchTerm("");
+                      updateParams({ vendor_name_search: undefined });
+                    } else {
+                      setSearchTerm(v);
+                    }
+                  }}
+                  placeholder="Search Vendor Name"
+                  className="!min-w-[300px]"
+                />
+              </div>
+            </div>
+
+            <div
+              id="div2"
+              className="flex dark:border-l dark:bg-[#051C14] dark:border-r items-center gap-x-2 justify-end py-2 pr-[0.625rem] dark:border-b dark:border-primary"
+            >
+              <CustomDropDown
+                triggerClassName={"bg-gray-100"}
+                contentClassName={"bg-gray-100"}
+                className={"!min-w-fit"}
+                data={vendorCategories}
+                onChange={(val) => {
+                  if (val === "none") {
+                    updateParams({ vendor_category: undefined });
                   } else {
-                    setSearchTerm(v);
+                    updateParams({ vendor_category: val });
                   }
                 }}
-                placeholder="Search Vendor Name"
-                className="!min-w-[300px]"
+                placeholder={
+                  vendor_category !== "" ? vendor_category : "Vendor Category"
+                }
+              />
+              <CustomDropDown
+                triggerClassName={"bg-gray-100"}
+                contentClassName={"bg-gray-100"}
+                className={"!min-w-fit"}
+                data={humanVerifiedOptions}
+                onChange={(val) => {
+                  if (val === "none") {
+                    updateParams({ human_verified: undefined });
+                  } else {
+                    updateParams({ human_verified: val });
+                  }
+                }}
+                placeholder={
+                  <span className="capitalize">
+                    {human_verified === "all" || human_verified === "none"
+                      ? "Human Verified"
+                      : human_verified}
+                  </span>
+                }
+              />
+              <CustomDropDown
+                triggerClassName={"bg-gray-100"}
+                className={""}
+                contentClassName={"bg-gray-100"}
+                data={usersListLoading ? [] : formatData(usersData?.data)}
+                onChange={(val) => {
+                  if (val === "none") {
+                    updateParams({ verified_by: undefined });
+                  } else {
+                    updateParams({ verified_by: val });
+                  }
+                }}
+                placeholder={
+                  <span className="capitalize">
+                    {verified_by === undefined
+                      ? "Verified By"
+                      : usersData
+                        ? getUserNameFromId(usersData?.data, verified_by)
+                        : "Verified By"}
+                  </span>
+                }
               />
             </div>
-          </div>
-
-          <div
-            id="div2"
-            className="flex dark:border-l dark:bg-[#051C14] dark:border-r items-center gap-x-2 justify-end py-2 pr-[0.625rem] dark:border-b dark:border-primary"
-          >
-            <CustomDropDown
-              triggerClassName={"bg-gray-100"}
-              contentClassName={"bg-gray-100"}
-              className={"!min-w-fit"}
-              data={vendorCategories}
-              onChange={(val) => {
-                if (val === "none") {
-                  updateParams({ vendor_category: undefined });
-                } else {
-                  updateParams({ vendor_category: val });
-                }
-              }}
-              placeholder={
-                vendor_category !== "" ? vendor_category : "Vendor Category"
-              }
+            <VendorConsolidationTable
+              data={vendorsData?.data?.["vendors"]}
+              isLoading={vendorsDataLoading}
+              totalPages={vendorsData?.total_pages}
+              height={final}
             />
-            <CustomDropDown
-              triggerClassName={"bg-gray-100"}
-              contentClassName={"bg-gray-100"}
-              className={"!min-w-fit"}
-              data={humanVerifiedOptions}
-              onChange={(val) => {
-                if (val === "none") {
-                  updateParams({ human_verified: undefined });
-                } else {
-                  updateParams({ human_verified: val });
-                }
-              }}
-              placeholder={
-                <span className="capitalize">
-                  {human_verified === "all" || human_verified === "none"
-                    ? "Human Verified"
-                    : human_verified}
-                </span>
-              }
-            />
-            <CustomDropDown
-              triggerClassName={"bg-gray-100"}
-              className={""}
-              contentClassName={"bg-gray-100"}
-              data={usersListLoading ? [] : formatData(usersData?.data)}
-              onChange={(val) => {
-                if (val === "none") {
-                  updateParams({ verified_by: undefined });
-                } else {
-                  updateParams({ verified_by: val });
-                }
-              }}
-              placeholder={
-                <span className="capitalize">
-                  {verified_by === undefined
-                    ? "Verified By"
-                    : usersData
-                    ? getUserNameFromId(usersData?.data, verified_by)
-                    : "Verified By"}
-                </span>
-              }
+            <TablePagination
+              isFinalPage={vendorsData?.is_final_page}
+              totalPages={vendorsData?.total_pages}
+              className={"h-[5.5vh] mt-4"}
             />
           </div>
-          <VendorConsolidationTable
-            data={vendorsData?.data?.["vendors"]}
-            isLoading={vendorsDataLoading}
-            totalPages={vendorsData?.total_pages}
-            height={final}
-          />
-          <TablePagination
-            isFinalPage={vendorsData?.is_final_page}
-            totalPages={vendorsData?.total_pages}
-            className={"h-[5.5vh] mt-4"}
-          />
-        </div>
-      </Layout>
+        </Layout>
       </div>
     </div>
   );

@@ -9,7 +9,9 @@ import {
   updateDocumentPriority,
   getCombinedTable,
   markAsReviewLater,
-  getDocumentTimeline
+  getDocumentTimeline,
+  getVendorTypesAndCategories,
+  updateVendorTypesAndCategories
 } from "./utils";
 import { axiosInstance } from "@/axios/instance";
 import toast from "react-hot-toast";
@@ -104,7 +106,21 @@ export const useGetDocumentTimeLine = () => {
     }
   });
 };
+export const useGetVendorTypesAndCategories = (vendor_id) => {
+  return useQuery({
+    queryKey: ["vendor-types-and-categories", vendor_id],
+    queryFn: () => getVendorTypesAndCategories(vendor_id)
+  });
+};
 
+    export const useUpdateVendorTypesAndCategories = () => {
+  return useMutation({
+    mutationFn: ({vendor_id, payload}) => updateVendorTypesAndCategories({vendor_id, payload} ),
+    onSuccess: (data) => {
+      toast.success(data?.message);
+    }
+  });
+};
 export const useMarkReviewLater = () => {
   return useMutation({
     mutationFn: ({ document_uuid, comments }) =>

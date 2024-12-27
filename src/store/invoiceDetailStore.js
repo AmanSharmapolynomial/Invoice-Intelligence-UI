@@ -14,6 +14,8 @@ export const invoiceDetailStore = create((set, get) => ({
   reCalculateCWiseSum: false,
   added: false,
   history: [],
+  combinedTableHistory: [],
+
   highlightRow: false,
   prefetchedLinks: {},
   updatedFields: {},
@@ -24,6 +26,7 @@ export const invoiceDetailStore = create((set, get) => ({
   editBranch: false,
   editVendor: false,
   totalPages: null,
+  setCombinedTableHistory: (history) => set({ combinedTableHistory: history }),
   setTotalPages: (pages) => set({ totalPages: pages }),
   setVendorChanged: (value) => set({ vendorChanged: value }),
   setBranchChanged: (value) => set({ branchChanged: value }),

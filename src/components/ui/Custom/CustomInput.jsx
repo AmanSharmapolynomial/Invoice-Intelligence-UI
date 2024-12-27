@@ -11,8 +11,9 @@ const CustomInput = ({
   className = "",
   type = "text",
   showIcon = false,
-  variant = ""
-}) => {
+  variant = "",
+  onKeyDown,
+},...props) => {
   const searchClassName = `placeholder:!font-medium placeholder:!font-poppins placeholder:!text-[#666666] placeholder:!text-xs !px-0`;
   const [inputValue, setinputValue] = useState(value);
   const handleChange = (v) => {
@@ -35,6 +36,9 @@ const CustomInput = ({
           {showIcon && <img src={search} alt="" className="h-5   mt-1 ml-3 " />}
           <Input
             value={inputValue}
+            onKeyDown={(e)=>{
+              onKeyDown(e)
+            }}
             className={`${className} ${
               variant == "search" && searchClassName
             } rounded-md border-none shadow-none font-poppins  font-normal text-sm placeholder:text-base dark:text-[#FFFFFF] !h-[2.5rem] focus:!outline-none focus:!ring-0 `}
@@ -56,6 +60,9 @@ const CustomInput = ({
                 className={`${className} font-poppins !flex !justify-end text-end font-normal text-sm dark:!bg-[#000000] dark:text-[#FFFFFF]  focus:!outline-none  !h-[2.5rem] focus:!ring-0  !border-none shadow-none  `}
                 placeholder={placeholder}
                 type={type}
+                onKeyDown={(e)=>{
+                  onKeyDown(e)
+                }}
                 onChange={(e) => {
                   setinputValue(e.target.value);
                   handleChange(e.target.value);
@@ -79,6 +86,9 @@ const CustomInput = ({
               className={`${className} font-poppins  font-normal text-sm dark:!bg-[#000000] dark:text-[#FFFFFF]  focus:!outline-none  !h-[2.5rem] focus:!ring-0  border-[1px] border-[#E0E0E0] rounded-[4px] shadow-none `}
               placeholder={placeholder}
               type={type}
+              onKeyDown={(e)=>{
+                onKeyDown(e)
+              }}
               onChange={(e) => {
                 setinputValue(e.target.value);
                 handleChange(e.target.value);

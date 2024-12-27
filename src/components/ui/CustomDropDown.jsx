@@ -31,11 +31,11 @@ const CustomDropDown = ({
   children,
   Key = "value",
   showSearch = true,
-  onBlur=()=>{}
+  onBlur = () => {}
 }) => {
-
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(Value || "");
+  const [item, setItem] = useState(null);
   useEffect(() => {
     if (Value !== undefined) {
       setValue(Value);
@@ -46,6 +46,7 @@ const CustomDropDown = ({
     const newValue = currentValue === value ? "" : currentValue;
     setValue(newValue);
     setOpen(false);
+    setItem(item);
     onChange(getValueFromLabel(data, newValue), item);
   };
 
@@ -53,7 +54,7 @@ const CustomDropDown = ({
     <Popover
       open={open}
       onOpenChange={setOpen}
-      className={`${className} dark:!border-[#000000]`}
+      className={`${className} dark:!border-[#000000] `}
     >
       <PopoverTrigger
         asChild
@@ -65,9 +66,21 @@ const CustomDropDown = ({
           aria-expanded={open}
           className="min-w-fit border h-[2.5rem] dark:bg-[#000000] dark:text-textColor/200 dark:border-[#000000] bg-[#FFFFFF] hover:bg-[#FFFFFF] border-[#E0E0E0]  justify-between capitalize shadow-none !rounded-[4px] text-[#000000] hover:text-[#666666] font-poppins font-normal text-xs"
         >
-          {value && value !== "none" 
-            ?  data.find((item) => item?.[Key] == value)? data.find((item) => item?.[Key] == value)?.label :placeholder
-            : placeholder}
+          <div className="flex items-center gap-x-2">
+            <span>
+              {value && value !== "none"
+                ? data.find((item) => item?.[Key] == value)
+                  ? data.find((item) => item?.[Key] == value)?.label
+                  : placeholder
+                : placeholder}
+            </span>
+            <span>
+              {" "}
+              {item?.human_verified && (
+                <img src={approved} className="text-primary !h-4 !w-5  " />
+              )}
+            </span>
+          </div>
 
           {/* Chevron icon with transition */}
           <ChevronDown
@@ -78,25 +91,24 @@ const CustomDropDown = ({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className={`${className}  p-0 bg-[#FFFFFF] dark:border-[#051C14]  w-fit  !max-w-60 mr-1`}
+    
+        className={`${className}  p-0 bg-[#FFFFFF] dark:border-[#051C14]  w-fit  !max-w-60  mr-1`}
         contentClassName={`${contentClassName}   w-full`}
       >
-        
-        <Command className="dark:!border-[#051C14]    dark:bg-[#051C14] min-w-[100%] !w-full">
+        <Command className="dark:!border-[#051C14]    dark:bg-[#051C14] min-w-[100%] !w-full !z-50">
           {showSearch && (
             <CommandInput placeholder={searchPlaceholder} className="" />
           )}
-           {children}
-          <CommandList className="border dark:!border-[#000000]">
+          {children}
+          <CommandList className="border dark:!border-[#000000] !z-50">
             <CommandEmpty>No data found.</CommandEmpty>
-            <CommandGroup className="">
-             
+            <CommandGroup >
               {showCustomItems
                 ? children // Render custom items if showCustomItems is true
                 : data?.map((item) => (
                     <CommandItem
                       key={item.value}
-                      className="text-left  !pl-0 !ml-0"
+                      className="text-left   !pl-0 !ml-0"
                       onBlur={onBlur}
                       onSelect={() => handleSelect(item.value, item)}
                     >
@@ -107,7 +119,9 @@ const CustomDropDown = ({
                         )}
                       />
                       <div className="flex justify-between  w-full items-center font-poppins text-xs font-normal dark:!text-[#FFFFFF]   gap-x-4">
-                        <span className="capitalize text-left">{item.label}</span>
+                        <span className="capitalize text-left">
+                          {item.label}
+                        </span>
                         {item?.human_verified && (
                           <img
                             src={approved}

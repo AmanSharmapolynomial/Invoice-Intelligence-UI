@@ -27,7 +27,7 @@ const Modal = ({
 };
 
 const ModalDescription = ({ children }) => (
-  <DialogDescription className=" w-full">{children}</DialogDescription>
+  <DialogDescription className=" w-full ">{children}</DialogDescription>
 );
 
 export { Modal, ModalDescription };

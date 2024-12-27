@@ -6,14 +6,34 @@ import { Button } from "@/components/ui/button";
 import CustomInput from "@/components/ui/Custom/CustomInput";
 import DatePicker from "@/components/ui/Custom/DatePicker";
 import CustomDropDown from "@/components/ui/CustomDropDown";
+
 import { vendorCategories } from "@/constants";
-import { makeKeyValueFromKey, vendorNamesFormatter } from "@/lib/helpers";
+import {
+  categoryNamesFormatter,
+  makeKeyValueFromKey,
+  vendorNamesFormatter
+} from "@/lib/helpers";
 import { queryClient } from "@/lib/utils";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
 import { formatISO, isValid, parseISO } from "date-fns";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useUpdateVendorOrBranch } from "../api";
+import {
+  useGetVendorTypesAndCategories,
+  useUpdateVendorOrBranch,
+  useUpdateVendorTypesAndCategories
+} from "../api";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "@/components/ui/alert-dialog";
+import { X } from "lucide-react";
 const Template = ({ title, children, className, titleContent }) => {
   return (
     <div className={`${className} flex flex-col gap-y-2`}>
@@ -33,9 +53,10 @@ const MetadataTable = ({
   const [dateRange, setDateRange] = useState({
     from: null,
     to: null
-  })
+  });
+  const [updatingCategoriesAndTypes, setUpdatingCategoriesAndTypes] = useState(false);
   const { data: vendorsData, isLoading: loadingVendors } = useGetVendorsNames();
-
+  const { mutate: updateVendorTypesAndCategories } = useUpdateVendorTypesAndCategories();
   const navigate = useNavigate();
   const [loadingState, setLoadingState] = useState({
     savingVendor: false,
@@ -74,9 +95,10 @@ const MetadataTable = ({
     human_verification_required,
     invoice_type
   } = data?.data?.[0] || data?.data;
-  const [vendorNameSearch, setVendorNameSearch] = useState("");
-  const [vendorAddressSearch, setVendorAddressSearch] = useState("");
-
+  const [showToChangeCategoriesAndTypes, setShowToChangeCategoriesAndTypes] =
+    useState(false);
+  const [wantToChangeCategoriesAndTypes, setWantToChangeCategoriesAndTypes] =
+    useState(null);
   const setCachedData = (key, value, setFields = true) => {
     // Normalize the data structure
     let normalizedData = Array.isArray(data?.data) ? data?.data : [data?.data];
@@ -148,6 +170,7 @@ const MetadataTable = ({
           setLoadingState({ ...loadingState, savingVendor: false });
           setEditVendor(false);
           setNewVendor("");
+          setShowToChangeCategoriesAndTypes(true);
         },
         onError: () => {
           setLoadingState({ ...loadingState, savingVendor: false });
@@ -172,6 +195,7 @@ const MetadataTable = ({
           setLoadingState({ ...loadingState, savingBranch: false });
           setEditBranch(false);
           setNewBranch("");
+          setShowToChangeCategoriesAndTypes(true);
         },
         onError: () => {
           setLoadingState({ ...loadingState, savingBranch: false });
@@ -192,32 +216,21 @@ const MetadataTable = ({
       }
     );
   };
+  const { data: vendorTypesAndCategories } = useGetVendorTypesAndCategories(
+    vendor?.vendor_id
+  );
+
+  const [types_and_categories, setTypes_and_categories] = useState({
+    vendor_document_type: vendorTypesAndCategories?.data?.vendor_document_type,
+    vendor_category: vendorTypesAndCategories?.data?.vendor_category,
+    vendor_account_category:
+      vendorTypesAndCategories?.data?.vendor_account_category
+  });
 
   return (
     <div className="w-full mt-1 border border-[#F0F0F0] shadow-sm p-2 rounded-md">
       <div className="grid grid-cols-3 gap-x-4">
-        <Template
-          title="Invoice Number"
-          titleContent={
-            <>
-              {human_verified === true && rejected === false && (
-                <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#348355] text-[#ffffff] p-1 rounded-md px-2">
-                  Accepted{" "}
-                </span>
-              )}
-              {rejected === true && (
-                <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#F15156] text-[#ffffff] p-1 rounded-md px-2">
-                  Rejected{" "}
-                </span>
-              )}
-              {human_verified === false && rejected === false && (
-                <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#B28F10] text-[#ffffff] p-1 rounded-md px-2">
-                  Pending{" "}
-                </span>
-              )}
-            </>
-          }
-        >
+        <Template title="Invoice Number">
           <CustomInput
             value={document_metadata?.invoice_number}
             onChange={(v) => setCachedData("invoice_number", v)}
@@ -229,15 +242,12 @@ const MetadataTable = ({
             className={"!min-w-[300px]"}
             data={vendorCategories?.slice(0, 3)}
             Value={invoice_type}
-            onChange={(v) =>{
-              setCachedData(
-                "invoice_type",
-                v
-              )
+            onChange={(v) => {
+              setCachedData("invoice_type", v);
             }}
           />
         </Template>
-      
+
         <Template title="Invoice Date">
           <div className="flex">
             <DatePicker
@@ -303,6 +313,7 @@ const MetadataTable = ({
                   } `}
                   onChange={(v, vendor) => {
                     setVendorChanged(true);
+
                     setCachedData(
                       "vendor",
                       {
@@ -326,9 +337,9 @@ const MetadataTable = ({
             )}
             <Button
               className={`${
-                !editVendor && "!border-[#CBCBCB] "
+                !vendorChanged && "!border-[#CBCBCB] "
               } bg-transparent h-[2.4rem] border-primary w-[4.85rem] !rounded-md hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm`}
-              disabled={!editVendor}
+              disabled={!vendorChanged}
               onClick={() => {
                 if (newVendor?.length > 0) {
                   updateVendor({ vendor_name: newVendor });
@@ -357,7 +368,10 @@ const MetadataTable = ({
         <Template title="Vendor Address" className={"col-span-2"}>
           <div className="flex items-center gap-x-4 pr-2 w-full">
             {editBranch ? (
-              <CustomInput value={branch?.vendor_address} />
+              <CustomInput
+                value={branch?.vendor_address}
+                onChange={(v) => setNewBranch(v)}
+              />
             ) : (
               <div className="flex items-center gap-x-4 w-full">
                 <CustomDropDown
@@ -391,9 +405,9 @@ const MetadataTable = ({
             )}
             <Button
               className={`${
-                !editBranch && "!border-[#CBCBCB]"
+                !branchChanged && "!border-[#CBCBCB]"
               } bg-transparent h-[2.4rem] border-primary w-[4.85rem] !rounded-md hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm`}
-              disabled={!editBranch}
+              disabled={!branchChanged}
               onClick={() => {
                 if (newBranch?.length > 0) {
                   updateBranch({ vendor_address: newBranch });
@@ -481,6 +495,168 @@ const MetadataTable = ({
           />
         </Template>
       </div>
+      <AlertDialog
+        open={showToChangeCategoriesAndTypes}
+        onOpenChange={() => setShowToChangeCategoriesAndTypes(false)}
+      >
+        <AlertDialogContent className="!max-h-[40rem] !min-h-[10rem]  !min-w-[15rem]">
+          <AlertDialogHeader>
+            <AlertDialogTitle className=" relative !text-base font-poppins font-semibold leading-5 text-center  pb-3  border-b border-[#F0F0F0]">
+              Change Categories and Types
+              <X
+                onClick={() => {
+                  setShowToChangeCategoriesAndTypes(false);
+                  setWantToChangeCategoriesAndTypes(null);
+                  setTypes_and_categories({
+                    vendor_document_type: null,
+                    vendor_category: null,
+                    vendor_account_category: null
+                  });
+
+                }}
+                className="absolute  cursor-pointer -right-2 -top-0.5 text-[#000000]/80  font-thin"
+              />
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              <div className="w-full mt-2">
+                <p>
+                  Do You want to change the Categories and Types at Vendor
+                  level?
+                </p>
+                <RadioGroup
+                  className="flex gap-x-4 items-center py-4"
+                  value={wantToChangeCategoriesAndTypes}
+                  onValueChange={(v) => {
+                    setWantToChangeCategoriesAndTypes(v);
+                    if (v === false) {
+                      setTypes_and_categories({
+                        vendor_document_type: null,
+                        vendor_category: null,
+                        vendor_account_category: null
+                      });
+                      setShowToChangeCategoriesAndTypes(false);
+                    }
+                  }}
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value={true} id="true"></RadioGroupItem>
+                    <Label htmlFor="true" className="font-poppins font-normal text-sm leading-5 text-[#000000] cursor-pointer ">Yes</Label>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value={false} id="false" className="!cursor-pointer"></RadioGroupItem>
+                    <Label htmlFor="false" className="font-poppins font-normal text-sm leading-5 text-[#000000] cursor-pointer ">No</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              {wantToChangeCategoriesAndTypes && (
+                <div className="grid grid-cols-3 gap-x-4 gap-y-4 ">
+                  {/* Vendor Document Type */}
+                  <div className="flex flex-col gap-y-2">
+                    <p>Vendor Document Type</p>
+                    <CustomDropDown
+                      value={types_and_categories?.document_types}
+                      className={"min-w-[28rem]"}
+                      data={makeKeyValueFromKey(
+                        additionalData?.data?.vendor_invoice_document_types
+                      )}
+                      onChange={(v) => {
+                        setTypes_and_categories({
+                          ...types_and_categories,
+                          vendor_document_type: v
+                        });
+                      }}
+                    />
+                  </div>
+
+                  {/* Vendor Category*/}
+                  <div className="flex flex-col gap-y-2">
+                    <p>Vendor Category</p>
+                    <CustomDropDown
+                      value={types_and_categories?.vendor_category}
+                      className={"min-w-[28rem] !z-50"}
+                      data={makeKeyValueFromKey(
+                        additionalData?.data?.vendor_invoice_categories
+                      )}
+                      onChange={(v) => {
+                        setTypes_and_categories({
+                          ...types_and_categories,
+                          vendor_category: v
+                        });
+                      }}
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-y-2">
+                    <p>Vendor Account Category</p>
+                    <CustomDropDown
+                      value={vendorTypesAndCategories?.data?.vendor_category}
+                      className={"min-w-[28rem]"}
+                      data={categoryNamesFormatter(
+                        additionalData?.data?.category_choices
+                      )}
+                      onChange={(v) => {
+                        setTypes_and_categories({
+                          ...types_and_categories,
+                          vendor_account_category: v
+                        });
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+            </AlertDialogDescription>
+            {wantToChangeCategoriesAndTypes && (
+              <DialogFooter className={"!mt-4"}>
+                <Button className="bg-primary text-white font-poppins text-xs font-normal rounded-sm mt-1"
+                  onClick={() => {
+                    setUpdatingCategoriesAndTypes(true);
+                    updateVendorTypesAndCategories({
+                      vendor_id: vendor?.vendor_id,
+                      payload: types_and_categories
+                    }
+                  ,{
+                    onSuccess: () => {
+                      setUpdatingCategoriesAndTypes(false);
+                      setShowToChangeCategoriesAndTypes(false);
+                      setWantToChangeCategoriesAndTypes(null);
+                      setTypes_and_categories({
+                        vendor_document_type: null,
+                        vendor_category: null,
+                        vendor_account_category: null
+                      });
+                      setShowToChangeCategoriesAndTypes(false);
+                    },
+                    onError: () => {
+                      setUpdatingCategoriesAndTypes(false);
+                    }
+
+                  }
+                  );
+                    
+                  }}
+                >
+                  {updatingCategoriesAndTypes ? "Updating..." : "Update"}
+                </Button>
+              <Button className="bg-transparent text-[#000000]/90 font-poppins text-xs font-normal rounded-sm mt-1 shadow-none border-primary border-2 hover:bg-transparent hover:text-[#000000]"
+                onClick={() => {
+                  setShowToChangeCategoriesAndTypes(false);
+                  setWantToChangeCategoriesAndTypes(null);
+                  setTypes_and_categories({
+                    vendor_document_type: null,
+                    vendor_category: null,
+                    vendor_account_category: null
+                  });
+                }}
+              >
+                Cancel
+                </Button>
+              </DialogFooter>
+            )}
+          </AlertDialogHeader>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

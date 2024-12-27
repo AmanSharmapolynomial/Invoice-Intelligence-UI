@@ -6,7 +6,7 @@ const useFilterStore = create(
     (set) => ({
       filters: {
         page: 1,
-        page_size: 15,
+        page_size: 10,
         invoice_type: "",
         invoice_detection_status: "",
         rerun_status: "",
@@ -20,17 +20,19 @@ const useFilterStore = create(
         restaurant: "",
         human_verified: "all",
         assigned_to: "",
-        document_priority:"desc"
+        document_priority:"desc",
+        token:""
       },
       setFilters: (newFilters) =>
         set((state) => ({
           filters: { ...state.filters, ...newFilters }
         })),
+      setToken: (token) => set({ token }),
       setDefault: () =>
         set({
           filters: {
             page: 1,
-            page_size: 15,
+            page_size: 10,
             invoice_type: "",
             invoice_detection_status: "",
             rerun_status: "",
@@ -44,7 +46,8 @@ const useFilterStore = create(
             restaurant: "",
             human_verified: "all",
             assigned_to: "",
-            document_priority:"desc"
+            document_priority:"desc",
+            token:""
           }
         })
     }),

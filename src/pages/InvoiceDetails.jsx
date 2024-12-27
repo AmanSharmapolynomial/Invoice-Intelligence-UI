@@ -3,6 +3,7 @@ import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import { PdfViewer } from "@/components/common/PDFViewer";
 import {
+  useFindDuplicateInvoices,
   useMarkAsNotSupported,
   useMarkReviewLater,
   useUpdateDocumentMetadata,
@@ -19,14 +20,15 @@ import { Label } from "@/components/ui/label";
 import { Modal, ModalDescription } from "@/components/ui/Modal";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
+import { formatDateToReadable } from "@/lib/helpers";
 import { queryClient } from "@/lib/utils";
 import useFilterStore from "@/store/filtersStore";
 import globalStore from "@/store/globalStore";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
-import { Share2 } from "lucide-react";
+import { Info, Share2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 const rejectionReasons = [
   "Duplicate invoice",
@@ -41,12 +43,17 @@ const rejectionReasons = [
 const InvoiceDetails = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [data, setData] = useState({});
+
   const [currentTab, setCurrentTab] = useState("metadata");
   const [markForReviewModal, setMarkForReviewModal] = useState(false);
   const [markAsNotSupportedModal, setMarkAsNotSupportedModal] = useState(false);
   const [showRejectionModal, setShowRejectionModal] = useState(false);
   const [reviewLaterComments, setReviewLaterComments] = useState("");
   const [rejectionReason, setRejectionReason] = useState("");
+  const [showDuplicateInvoicesModal, setShowDuplicateInvoicesModal] =
+    useState(false);
+  const [showDuplicateInvoicesWarning, setShowDuplicateInvoicesWarning] =
+    useState(false);
   let document_uuid =
     searchParams.get("document_uuid") || searchParams.get("document");
   const {
@@ -75,6 +82,9 @@ const InvoiceDetails = () => {
   const { mutate: markAsNotSupported } = useMarkAsNotSupported();
   const { selectedInvoiceVendorName, selectedInvoiceRestaurantName } =
     globalStore();
+  const { data: duplicateInvoices } = useFindDuplicateInvoices(
+    data?.data?.document_uuid || data?.data?.[0]?.document_uuid
+  );
 
   const appendFiltersToUrl = () => {
     const newParams = new URLSearchParams(searchParams);
@@ -259,6 +269,12 @@ const InvoiceDetails = () => {
   let action_controls =
     metadata?.data?.[0]?.action_controls || metadata?.data?.action_controls;
 
+  useEffect(() => {
+    if (duplicateInvoices?.duplicate_documents?.length > 0) {
+      setShowDuplicateInvoicesWarning(true);
+    }
+  }, [duplicateInvoices]);
+  const myData = data?.data?.[0] || data?.data;
   return (
     <>
       <Navbar />
@@ -269,36 +285,98 @@ const InvoiceDetails = () => {
         }
       >
         <BreadCrumb
-          title={`${selectedInvoiceRestaurantName}  | ${selectedInvoiceVendorName} ` }
+          showCustom={true}
+          title={`${selectedInvoiceRestaurantName}  | ${selectedInvoiceVendorName} `}
           crumbs={[
             {
               path: null,
               label: `Invoice Details`
-            },
-      
+            }
           ]}
-        />
+        >
+          <div className="flex gap-x-4 items-end">
+            <div className="flex flex-col gap-y-0.5">
+              <p className="text-[#6D6D6D] font-poppins font-medium text-sm leading-4">
+                Vendor
+              </p>
+              <p className="capitalize text-[#121212] font-semibold font-poppins text-2xl">
+                {selectedInvoiceVendorName}
+              </p>
+            </div>
+            <p className="text-2xl">+</p>
+            <div className="flex flex-col gap-y-0.5">
+              <p className="text-[#6D6D6D] font-poppins font-medium text-sm leading-4">
+                Restaurant
+              </p>
+              <p className="capitalize text-[#121212] font-semibold font-poppins text-2xl">
+                {selectedInvoiceRestaurantName}
+              </p>
+            </div>
+          </div>
+        </BreadCrumb>
+        {showDuplicateInvoicesWarning && (
+          <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
+            <div className="flex items-center gap-x-2">
+              <Info className="h-5 w-5 text-[#FF9800]" />
+              <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
+                {duplicateInvoices?.duplicate_documents?.length} Duplicate
+                Invoices Found
+              </p>
+            </div>
 
-        <div className="flex justify-end">
+            <p
+              onClick={() => setShowDuplicateInvoicesModal(true)}
+              className="text-[#1E7944] font-poppins cursor-pointer font-medium  text-sm  leading-5 border-b border-b-[#1E7944]"
+            >
+              Check Now
+            </p>
+            <X
+              className="h-6 w-6 text-[#546E7A] absolute top-2 right-2 cursor-pointer"
+              onClick={() => setShowDuplicateInvoicesWarning(false)}
+            />
+          </div>
+        )}
+        <div className="flex justify-between">
+          <div>
+            {myData?.human_verified === true && myData?.rejected === false && (
+              <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#348355] text-[#ffffff] p-1 rounded-xl px-3">
+                Accepted{" "}
+              </span>
+            )}
+            {myData?.rejected === true && (
+              <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#F15156] text-[#ffffff] p-1 rounded-xl   px-3">
+                Rejected{" "}
+              </span>
+            )}
+            {myData?.human_verified === false && myData?.rejected === false && (
+              <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#B28F10] text-[#ffffff] py-1  px-3 rounded-xl ">
+                Pending{" "}
+              </span>
+            )}
+          </div>
           <div className="flex items-center gap-x-3">
-            {!document_uuid&&<CustomTooltip content={"Click To Copy The Link."}>
-              <Button
-                onClick={() => {
-                  navigator.clipboard.writeText(
-                    `${window.location.origin}/invoice-details?document_uuid=${
-                      document_uuid ||
-                      data?.data?.[0]?.document_uuid ||
-                      data?.data?.document_uuid
-                    }`
-                  );
-                  toast.success("Link copied to clipboard");
-                }}
-                disabled={markingForReview}
-                className="bg-transparent h-[2.4rem] border-primary w-[3rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
-              >
-                <Share2 />
-              </Button>
-            </CustomTooltip>}
+            {!document_uuid && (
+              <CustomTooltip content={"Click To Copy The Link."}>
+                <Button
+                  onClick={() => {
+                    navigator.clipboard.writeText(
+                      `${
+                        window.location.origin
+                      }/invoice-details?document_uuid=${
+                        document_uuid ||
+                        data?.data?.[0]?.document_uuid ||
+                        data?.data?.document_uuid
+                      }`
+                    );
+                    toast.success("Link copied to clipboard");
+                  }}
+                  disabled={markingForReview}
+                  className="bg-transparent h-[2.4rem] border-primary w-[3rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                >
+                  <Share2 className="dark:text-white" />
+                </Button>
+              </CustomTooltip>
+            )}
             <CustomTooltip content={"Click To Mark It For A Review."}>
               <Button
                 onClick={() => {
@@ -306,7 +384,7 @@ const InvoiceDetails = () => {
                   return;
                 }}
                 disabled={markingForReview}
-                className="bg-transparent h-[2.4rem] border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
               >
                 Review Later
               </Button>
@@ -323,7 +401,7 @@ const InvoiceDetails = () => {
                   setShowRejectionModal(true);
                 }}
                 disabled={action_controls?.reject?.disabled}
-                className="bg-transparent w-[6.5rem] h-[2.4rem] border-[#F15156]  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                className="bg-transparent w-[6.5rem] dark:text-white h-[2.4rem] border-[#F15156]  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
               >
                 Reject
               </Button>
@@ -340,7 +418,7 @@ const InvoiceDetails = () => {
                 disabled={
                   action_controls?.accept?.disabled || loadingState?.accepting
                 }
-                className="bg-transparent h-[2.4rem] border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
               >
                 {loadingState?.accepting ? "Accepting..." : "Accept"}
               </Button>
@@ -356,7 +434,7 @@ const InvoiceDetails = () => {
               <Button
                 disabled={action_controls?.mark_as_not_supported?.disabled}
                 onClick={() => setMarkAsNotSupportedModal(true)}
-                className="bg-transparent h-[2.4rem] border-primary w-[7.25rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[7.25rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
               >
                 Not Supported
               </Button>
@@ -378,7 +456,7 @@ const InvoiceDetails = () => {
                   loadingState?.accepting
                 }
                 onClick={() => handleSave()}
-                className="font-poppins h-[2.4rem] font-normal text-sm leading-5 border-2 border-primary text-[#ffffff]"
+                className="font-poppins h-[2.4rem] dark:text-white font-normal text-sm leading-5 border-2 border-primary text-[#ffffff]"
               >
                 {loadingState?.saving ? "Saving..." : "Save"}
               </Button>
@@ -434,12 +512,12 @@ const InvoiceDetails = () => {
           title={"Reason"}
           className={"!rounded-2xl"}
           titleClassName={
-            "flex justify-center  text-[#000000] font-poppins  font-medium  text-base  leading-4 pt-0.5 "
+            "flex justify-center  text-[#000000] font-poppins dark:text-white  font-medium  text-base  leading-4 pt-0.5 "
           }
         >
           <ModalDescription>
             <div className="p-2">
-              <p className="mb-1.5  font-poppins text-[0.9rem] font-normal text-[#000000] ">
+              <p className="mb-1.5  font-poppins text-[0.9rem] dark:text-white font-normal text-[#000000] ">
                 Why are you marking this document for review later?
               </p>
               <Textarea
@@ -449,7 +527,7 @@ const InvoiceDetails = () => {
                 onChange={(e) => {
                   setReviewLaterComments(e.target.value);
                 }}
-                className="p-2.5  focus:!outline-none focus:!ring-0 "
+                className="p-2.5 dark:text-white  focus:!outline-none focus:!ring-0 "
               />
             </div>
             <div className="flex justify-center">
@@ -485,7 +563,7 @@ const InvoiceDetails = () => {
                     }
                   );
                 }}
-                className="mt-8 text-[#FFFFFF] font-poppins  !font-normal text-xs rounded-sm leading-4 "
+                className="mt-8 text-[#FFFFFF] dark:text-white font-poppins  !font-normal text-xs rounded-sm leading-4 "
               >
                 {loadingState?.markingForReview
                   ? "Marking...."
@@ -618,6 +696,115 @@ const InvoiceDetails = () => {
           </ModalDescription>
         </Modal>
       </Layout>
+
+      <Modal
+        iconCN={"top-[28px]"}
+        open={showDuplicateInvoicesModal}
+        setOpen={setShowDuplicateInvoicesModal}
+        title={"Duplicate Invoices Found"}
+        className={"!px-0  !min-w-[40rem]"}
+        titleClassName={
+          "text-[#000000] !font-medium  flex justify-center border-b border-b-[#E0E0E0] pb-4 pt-3 font-poppins !text-base  leading-6  pt-0.5"
+        }
+      >
+        <ModalDescription>
+          <div className="flex flex-col gap-y-4 px-4  top">
+            <p className="font-poppins  font-semibold text-sm leading-5 text-[#222222]">
+              Current Invoice
+            </p>
+
+            <div className="grid grid-cols-3 gap-x-4 mt-1">
+              <div className="flex flex-col gap-y-3 items-center">
+                <p className="font-poppins font-medium text-sm leading-5 text-[#222222]">
+                  Upload Date
+                </p>
+                <p className="font-poppins font-normal text-xs leading-4 text-[#6D6D6D]">
+                  {formatDateToReadable(
+                    duplicateInvoices?.current_document?.date_uploaded
+                  ) +
+                    " " +
+                    " " +
+                    duplicateInvoices?.current_document?.date_uploaded
+                      ?.split("T")[1]
+                      ?.split(".")[0]}
+                </p>
+              </div>
+              <div className="flex flex-col gap-y-3 items-center">
+                <p className="font-poppins font-medium text-sm leading-5 text-[#222222]">
+                  Human Verified
+                </p>
+                <p className="font-poppins font-normal text-xs leading-4 text-[#6D6D6D]">
+                  {duplicateInvoices?.current_document.human_verified
+                    ? "Yes"
+                    : "No"}
+                </p>
+              </div>
+              <div className="flex flex-col gap-y-3 items-center">
+                <p className="font-poppins font-medium text-sm leading-5 text-[#222222]">
+                  Rejected
+                </p>
+                <p className="font-poppins font-normal text-xs leading-4 text-[#6D6D6D]">
+                  {duplicateInvoices?.current_document.rejected ? "Yes" : "No"}
+                </p>
+              </div>
+            </div>
+
+            <div className="w-full border-b border-t py-3 grid grid-cols-4 gap-x-4">
+              <div className="flex items-center gap-x-8">
+                <p className="font-poppins font-semibold text-center text-xs text-[#222222] leading-4">
+                  #
+                </p>
+                <p className="font-poppins font-semibold text-center text-xs text-[#222222] leading-4">
+                  Invoice
+                </p>
+              </div>
+              <p className="font-poppins font-semibold text-center text-xs text-[#222222] leading-4">
+                Human Verified
+              </p>
+              <p className="font-poppins font-semibold text-center text-xs text-[#222222] leading-4">
+                Rejected
+              </p>
+              <p className="font-poppins font-semibold text-center text-xs text-[#222222] leading-4">
+                Upload Date
+              </p>
+            </div>
+
+            {duplicateInvoices?.duplicate_documents?.map((d, i) => {
+              return (
+                <div className="w-full  py-2 grid grid-cols-4 gap-x-4">
+                  <div className="flex items-center gap-x-8">
+                    <p className="font-poppins !font-normal  text-center text-xs text-[#000000] leading-4 pl-1">
+                      {i + 1}
+                    </p>
+                    <Link
+                      onClick={() => setShowDuplicateInvoicesModal(false)}
+                      to={`/invoice-details?document_uuid=${d.document_uuid}`}
+                      className="font-poppins !font-normal    pl-1 underline underline-offset-4 !text-center text-xs text-[#348355] leading-4"
+                    >
+                      View
+                    </Link>
+                  </div>
+                  <p className="font-poppins !font-normal  pl-0 !text-center text-xs text-[#222222] leading-4">
+                    {d.human_verified ? "Yes" : "No"}
+                  </p>
+                  <p className="font-poppins !font-normal text-center text-xs text-[#222222] leading-4">
+                    {d.rejected ? "Yes" : "No"}
+                  </p>
+                  <p className="font-poppins !font-normal text-center text-xs text-[#222222] leading-4">
+                    {d?.date_uploaded
+                      ? formatDateToReadable(d?.date_uploaded) +
+                        " " +
+                        " " +
+                        " " +
+                        d?.date_uploaded?.split("T")[1]?.split(".")[0]
+                      : "N/A"}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </ModalDescription>
+      </Modal>
     </>
   );
 };

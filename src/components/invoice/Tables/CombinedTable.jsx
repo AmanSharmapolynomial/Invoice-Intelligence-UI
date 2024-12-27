@@ -1,5 +1,8 @@
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
 import CustomDropDown from "@/components/ui/CustomDropDown";
+import undo from "@/assets/image/undo.svg";
 import {
   Table,
   TableBody,
@@ -9,7 +12,9 @@ import {
 } from "@/components/ui/table";
 import { headerNamesFormatter } from "@/lib/helpers";
 import { queryClient } from "@/lib/utils";
-import React, { useEffect } from "react";
+import { Trash2, X, XCircle, RotateCcw } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { invoiceDetailStore } from "@/store/invoiceDetailStore";
 
 const CombinedTable = ({
   data,
@@ -18,13 +23,16 @@ const CombinedTable = ({
   additionalData,
   loadingAdditionalData
 }) => {
-  const { columns=[], rows=[] } = data?.data?.processed_table;
+  // const {combinedTableHistory :history,setCombinedTableHistory}=invoiceDetailStore()
+  const [history, setHistory] = useState([]); // History stack for undo
+  const { columns = [], rows = [] } = data?.data?.processed_table;
+
   const setCachedData = (key, value) => {};
 
   useEffect(() => {
     if (data) {
       let copyObj = JSON.parse(JSON.stringify(data));
-      const { columns=[], rows=[] } = copyObj?.data?.processed_table;
+      const { columns = [], rows = [] } = copyObj?.data?.processed_table;
 
       // Create a mapping from column_uuid to column_order
       const columnOrderMap = columns?.reduce((acc, column) => {
@@ -45,7 +53,7 @@ const CombinedTable = ({
 
   const handleCheckboxChange = (column_uuid, val) => {
     let copyObj = JSON.parse(JSON.stringify(data));
-    const { rows=[], columns=[] } = copyObj?.data?.processed_table;
+    const { rows = [], columns = [] } = copyObj?.data?.processed_table;
     columns?.forEach((col) => {
       if (col?.column_uuid == column_uuid) {
         col.selected_column = val;
@@ -56,7 +64,7 @@ const CombinedTable = ({
 
   const handleDropdownChange = (column_uuid, col_name) => {
     let copyObj = JSON.parse(JSON.stringify(data));
-    const { rows=[], columns=[] } = copyObj?.data?.processed_table;
+    const { rows = [], columns = [] } = copyObj?.data?.processed_table;
     columns?.forEach((col) => {
       if (col?.column_uuid == column_uuid) {
         col.column_name = col_name;
@@ -64,15 +72,74 @@ const CombinedTable = ({
     });
     queryClient.setQueryData(["combined-table", document_uuid], copyObj);
   };
+
   const existingColumn_names = data?.data?.processed_table?.columns?.map(
     ({ column_uuid, selected_column, column_order, ...rest }) =>
       rest?.column_name
   );
 
+  const handleDeleteColumn = (column_uuid) => {
+    let copyObj = JSON.parse(JSON.stringify(data));
+    let { rows = [], columns = [] } = copyObj?.data?.processed_table;
+
+    // Save current state to history
+    setHistory((prev) => [
+      ...prev,
+      {
+        columns: JSON.parse(JSON.stringify(columns)),
+        rows: JSON.parse(JSON.stringify(rows))
+      }
+    ]);
+
+    // Remove the column from the columns array
+    columns = columns.filter((column) => column.column_uuid !== column_uuid);
+
+    // Remove the corresponding cell from each row
+    rows.forEach((row) => {
+      row.cells = row.cells.filter((cell) => cell.column_uuid !== column_uuid);
+    });
+
+    copyObj.data.processed_table.columns = columns;
+    copyObj.data.processed_table.rows = rows;
+
+    // Update the query data
+    queryClient.setQueryData(["combined-table", document_uuid], copyObj);
+  };
+
+  const handleUndo = () => {
+    if (history.length > 0) {
+      // Retrieve the last state from the history
+      const lastState = history[history.length - 1];
+
+      // Update the query data with the last state
+      const copyObj = JSON.parse(JSON.stringify(data));
+      copyObj.data.processed_table.columns = lastState.columns;
+      copyObj.data.processed_table.rows = lastState.rows;
+
+      queryClient.setQueryData(["combined-table", document_uuid], copyObj);
+
+      // Remove the last state from the history
+      setHistory((prev) => prev.slice(0, -1));
+    }
+  };
+
   return (
     <div className="w-full mt-1 border border-[#F0F0F0] shadow-sm rounded-md">
-      <p className="font-poppins font-semibold border-b border-[#E0E0E0] p-3 text-base leading-6">
+      <p className="font-poppins font-semibold border-b border-[#E0E0E0] p-3 text-base leading-6 flex justify-between">
         Items
+        <CustomTooltip content={"Undo"}>
+          <Button
+            disabled={history?.length == 0}
+            className="bg-transparent border-none shadow-none hover:bg-transparent"
+          >
+            <img
+              src={undo}
+              alt=""
+              className="h-[1.25rem] ml-1 cursor-pointer"
+              onClick={handleUndo}
+            />
+          </Button>
+        </CustomTooltip>
       </p>
 
       <div className="py-2  !max-h-[39.7rem] overflow-auto w-full ">
@@ -88,7 +155,7 @@ const CombinedTable = ({
                 }) => {
                   return (
                     <TableCell
-                      className="!w-[10rem]  !max-w-[12rem]  flex  items-center gap-x-2 "
+                      className="!w-[10rem]  !pl-3 !max-w-[12rem]  flex  items-center gap-x-2 "
                       key={column_uuid}
                     >
                       <Checkbox
@@ -108,7 +175,7 @@ const CombinedTable = ({
             </TableRow>
           </TableHead>
 
-            <TableBody  className="!max-h-[30rem] ">
+          <TableBody className="!max-h-[30rem] ">
             <div className=" flex gap-x-2 overflow-auto px-0.5 !max-h-[35rem] ">
               {columns?.map(
                 ({
@@ -122,24 +189,32 @@ const CombinedTable = ({
                       className="!w-[10rem] !max-w-[12rem]    flex items-center "
                       key={column_uuid}
                     >
-                      <CustomDropDown
-                        Value={column_name}
-                        className={"!w-[rem]"}
-                        triggerClassName={"!max-w-[10rem] !h-[2.25rem] !min-w-[9.5rem]  "}
-                        data={headerNamesFormatter(
-                          additionalData?.data
-                            ?.processed_table_header_candidates
-                        )?.filter(
-                          (c) =>
-                            !(
-                              existingColumn_names?.includes(c?.label) &&
-                              c.label !== column_name
-                            )
-                        )}
-                        onChange={(c, item) => {
-                          handleDropdownChange(column_uuid, c);
-                        }}
-                      />
+                      <div className="relative">
+                        <CustomDropDown
+                          Value={column_name}
+                          className={"!w-[rem] "}
+                          triggerClassName={
+                            "!max-w-[10rem]!relative  !h-[2.25rem] !min-w-[9.5rem]  "
+                          }
+                          data={headerNamesFormatter(
+                            additionalData?.data
+                              ?.processed_table_header_candidates
+                          )?.filter(
+                            (c) =>
+                              !(
+                                existingColumn_names?.includes(c?.label) &&
+                                c.label !== column_name
+                              )
+                          )}
+                          onChange={(c, item) => {
+                            handleDropdownChange(column_uuid, c);
+                          }}
+                        />
+                        <X
+                          onClick={() => handleDeleteColumn(column_uuid)}
+                          className="absolute h-4 w-4 bg-[#F15156] p-0.5 cursor-pointer  text-white rounded-full -right-1 !z-50 -top-1.5"
+                        />
+                      </div>
                     </TableCell>
                   );
                 }

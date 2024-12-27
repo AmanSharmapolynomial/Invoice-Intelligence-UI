@@ -30,6 +30,7 @@ import { Textarea } from "@/components/ui/textarea";
 import CustomInput from "@/components/ui/Custom/CustomInput";
 import { useAutoCalculate } from "../api";
 import { Label } from "@/components/ui/label";
+import CustomToolTip from "@/components/ui/CustomToolTip";
 
 const HumanVerificationTable = ({
   data,
@@ -1070,7 +1071,7 @@ const HumanVerificationTable = ({
         className={`${
           metadata?.invoice_type !== "Summary Invoice" &&
           "max-h-[42rem]   overflow-hidden"
-        } w-full mt-1 border border-[#F0F0F0] shadow-sm rounded-md `}
+        } w-full mt-1 border border-[#F0F0F0] shadow-sm rounded-md  `}
       >
         {metaData?.invoice_type !== "Summary Invoice" && (
           <div className="w-full flex items-center justify-between pr-[1rem] border-b border-[#E0E0E0]">
@@ -1079,55 +1080,54 @@ const HumanVerificationTable = ({
             </p>
             <div className="flex items-center gap-x-4">
               <CustomTooltip content={"Highlighting"}>
-              <div className="flex items-center gap-x-2">
-                <Label
-                  htmlFor="highlight"
-                  className=" cursor-pointer font-poppins font-normal text-xs leading-4 text-[#000000]"
-                >
-                  H
-                </Label>
-                <Switch
-                  id="highlight"
-                  className="!bg-[#888888] data-[state=checked]:!bg-primary "
-                  checked={stopHovering}
-                  onCheckedChange={(v) => setStopHovering(v)}
-                />
-              </div>
+                <div className="flex items-center gap-x-2">
+                  <Label
+                    htmlFor="highlight"
+                    className=" cursor-pointer font-poppins font-normal text-xs leading-4 text-[#000000]"
+                  >
+                    H
+                  </Label>
+                  <Switch
+                    id="highlight"
+                    className="!bg-[#888888] data-[state=checked]:!bg-primary "
+                    checked={stopHovering}
+                    onCheckedChange={(v) => setStopHovering(v)}
+                  />
+                </div>
               </CustomTooltip>
-             <CustomTooltip content={"Highlight All Items"}>
-             <div className="flex items-center gap-x-2">
-                <Label
-                  htmlFor="highlight-all"
-                  className=" cursor-pointer font-poppins font-normal text-xs leading-4 text-[#000000]"
-                >
-                  HA
-                </Label>
-                <Switch
-                  id="highlight-all"
-                  className="!bg-[#888888] data-[state=checked]:!bg-primary "
-                  checked={highlightAll}
-                  onCheckedChange={(v) => setHighlightAll(v)}
-                />
-              </div>
+              <CustomTooltip content={"Highlight All Items"}>
+                <div className="flex items-center gap-x-2">
+                  <Label
+                    htmlFor="highlight-all"
+                    className=" cursor-pointer font-poppins font-normal text-xs leading-4 text-[#000000]"
+                  >
+                    HA
+                  </Label>
+                  <Switch
+                    id="highlight-all"
+                    className="!bg-[#888888] data-[state=checked]:!bg-primary "
+                    checked={highlightAll}
+                    onCheckedChange={(v) => setHighlightAll(v)}
+                  />
+                </div>
               </CustomTooltip>
 
               <CustomTooltip content={"Auto Calculate"}>
-              <div className="flex items-center gap-x-2">
-                <Label
-                  htmlFor="auto-calculate"
-                  className=" cursor-pointer font-poppins font-normal text-xs leading-4 text-[#000000]"
-                >
-                  AC
-                </Label>
-                <Switch
-                  id="auto-calculate"
-                  className="!bg-[#888888] data-[state=checked]:!bg-primary "
-                  checked={autoCalculate}
-                  onCheckedChange={(v) => setAutoCalculate(v)}
-                />
-              </div>
-                </CustomTooltip>
-              
+                <div className="flex items-center gap-x-2">
+                  <Label
+                    htmlFor="auto-calculate"
+                    className=" cursor-pointer font-poppins font-normal text-xs leading-4 text-[#000000]"
+                  >
+                    AC
+                  </Label>
+                  <Switch
+                    id="auto-calculate"
+                    className="!bg-[#888888] data-[state=checked]:!bg-primary "
+                    checked={autoCalculate}
+                    onCheckedChange={(v) => setAutoCalculate(v)}
+                  />
+                </div>
+              </CustomTooltip>
 
               <CustomTooltip content={"Row Actions"}>
                 <div className="!relative">
@@ -1246,8 +1246,8 @@ const HumanVerificationTable = ({
         )}
 
         {metaData?.invoice_type !== "Summary Invoice" && (
-          <div className="pb-2  overflow-hidden w-full ">
-            <Table className="w-full   overflow-auto  !min-h-[40rem] mb-4 ">
+          <div className="pb-2  overflow-hidden w-full  ">
+            <Table className="w-full   overflow-auto      ">
               <TableBody
                 className=""
                 onMouseLeave={() => {
@@ -1291,11 +1291,11 @@ const HumanVerificationTable = ({
                         );
                       }
                     )}
-                  <div className="w-full sticky right-0  flex items-center justify-end">
+                  <div className="w-full sticky right-0 border  flex items-center justify-end">
                     {(viewDeleteColumn ||
                       viewShiftColumn ||
                       viewVerificationColumn) && (
-                      <TableCell className=" !border-l  sticky w-[120px]   flex justify-center items-center font-poppins font-normal text-xs  !p-0 h-full bg-white/90 !z-30 !right-[0px]">
+                      <TableCell className=" !border-l  sticky w-[120px]   flex justify-center items-center font-poppins font-normal text-xs !p-0 h-full bg-white/90  !right-[0px]">
                         Actions
                       </TableCell>
                     )}
@@ -1362,7 +1362,7 @@ const HumanVerificationTable = ({
                                       row_uuid: row?.transaction_uuid
                                     });
                                   }}
-                                  className="!w-[10rem] font-poppins  font-normal text-sm leading-4 text-[#121212] !max-w-[12rem]  justify-center !z-10   flex items-center  capitalize text-center pl-4"
+                                  className="!w-[10rem] font-poppins  font-normal text-sm leading-4 text-[#121212] !max-w-[12rem]  justify-center    flex items-center  capitalize text-center pl-4"
                                   key={i}
                                 >
                                   {editMode?.rowIndex === index &&
@@ -1429,26 +1429,64 @@ const HumanVerificationTable = ({
                         {(viewDeleteColumn ||
                           viewShiftColumn ||
                           viewVerificationColumn) && (
-                          <TableCell className="sticky min-w-[120px] border-l gap-x-4 flex justify-center items-center font-poppins font-normal text-xs leading-4 bg-white/90  right-0 !z-10">
-                            {viewVerificationColumn &&
-                              (row?.item_master?.human_verified ? (
-                                <img
-                                  src={approved}
-                                  alt=""
-                                  className="h-5 w-5 mt-[0.8px] cursor-pointer"
-                                />
-                              ) : row?.item_master?.human_verified == false ? (
-                                <img
-                                  src={unapproved}
-                                  alt=""
-                                  className="h-5 w-5 mt-[0.8px] cursor-pointer"
-                                />
-                              ) : (
-                                <img
-                                  className="h-5  cursor-pointer"
-                                  src={warning_mark}
-                                />
-                              ))}
+                          <TableCell className="sticky min-w-[120px] border-l gap-x-4 flex  justify-center  items-center font-poppins font-normal text-xs leading-4 bg-white/90  right-0 !z-10">
+                            <CustomTooltip
+                              content={
+                                <div className="flex flex-col gap-x-2 items-start gap-y-2">
+                                  
+                                   <div className="flex items-center gap-x-2"   >
+                                      <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">Category : </p>
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">{row?.item_master?.category || "NA"}</p> 
+                                   </div>
+                                   <div className="flex items-center gap-x-2"     >
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">Vendor :</p>
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">{row?.item_master?.vendor || "NA"}</p>
+                                   </div>
+                                   <div className="flex items-center gap-x-2"     >
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">Branch :</p>
+                                      <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">{row?.item_master?.branch || "NA"}</p>
+                                   </div>
+                                   <div className="flex items-center gap-x-2"       >
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">Item Code : </p>
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">{row?.item_master?.item_code || "NA"}</p>
+                                   </div>
+                                   <div className="flex items-center gap-x-2"       >
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">Item Description :</p>
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">{row?.item_master?.item_description || "NA"  }</p>
+                                   </div>
+                                
+                  
+                                   
+                            
+                                </div>
+                              }
+                              
+                              className={
+                                "!absolute !w-[30em] !top-0 border right-16 border-[#F2F2F7]!w-[50rem] !rounded-md !bg-[#CBCBCB] !z-50"
+                              }
+                            >
+                              {viewVerificationColumn &&
+                                (row?.item_master?.human_verified ? (
+                                  <img
+                                    src={approved}
+                                    alt=""
+                                    className="h-5 w-5 mt-[0.8px] cursor-pointer"
+                                  />
+                                ) : row?.item_master?.human_verified ==
+                                  false ? (
+                                  <img
+                                    src={unapproved}
+                                    alt=""
+                                    className="h-5 w-5 mt-[0.8px] cursor-pointer"
+                                  />
+                                ) : (
+                                  <img
+                                    className="h-5  cursor-pointer"
+                                    src={warning_mark}
+                                  />
+                                ))}
+                            </CustomTooltip>
+
                             {viewDeleteColumn && (
                               <Trash2
                                 className="h-4 w-4 text-[#1C1C1E] cursor-pointer"

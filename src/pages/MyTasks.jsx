@@ -49,7 +49,7 @@ const MyTasks = () => {
   const [showResults, setShowResults] = useState(false);
   const { setVendorNames: setVendorsList } = persistStore();
   let page = searchParams.get("page") || 1;
-  let page_size = searchParams.get("page_size") || 15;
+  let page_size = searchParams.get("page_size") || 10;
   let invoice_type = searchParams.get("invoice_type") || "";
   let human_verification = searchParams.get("human_verification") || "";
   let human_verified = searchParams.get("human_verified") || "";

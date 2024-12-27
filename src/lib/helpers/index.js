@@ -160,7 +160,11 @@ export function formatDateToReadable(dateString) {
     "December"
   ];
 
-  const [year, month, day] = dateString.split("-");
+  if(!dateString){
+    return
+  }
+
+  const [year, month, day] = dateString?.split("-");
   const monthName = months[parseInt(month, 10) - 1];
 
   return `${monthName.slice(0, 3)} ${parseInt(day, 10)}, ${year}`;

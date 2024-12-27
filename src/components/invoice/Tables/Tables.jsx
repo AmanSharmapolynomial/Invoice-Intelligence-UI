@@ -100,7 +100,8 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
     setHistory,
     operations,
     page,
-    combinedTableData
+    combinedTableData,
+    data
   ]);
   let length = invoiceDetailsTabs?.filter(({ value }) => {
     if (value == "combined-table") {
@@ -136,12 +137,7 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
               <div
                 key={value}
                 onClick={() => {
-                  if (
-                    branchChanged ||
-                    vendorChanged ||
-                    (currentTab == "metadata" &&
-                      Object.keys(updatedFields)?.length > 0)
-                  ) {
+                  if (branchChanged || vendorChanged) {
                     setShowWarningModal(true);
                   } else {
                     setCurrentTab(value);
@@ -162,9 +158,18 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
                 key={i}
                 className="grid grid-cols-3 items-center gap-y-8 gap-x-8"
               >
-                <Skeleton key={i} className={"w-[19rem] h-[2rem]"} />
-                <Skeleton key={i} className={"w-[19rem] h-[2rem]"} />
-                <Skeleton key={i} className={"w-[19rem] h-[2rem]"} />
+                <Skeleton
+                  key={i}
+                  className={"max-w-[19rem] min-w-full h-[2rem]"}
+                />
+                <Skeleton
+                  key={i}
+                  className={"max-w-[19rem] min-w-full h-[2rem]"}
+                />
+                <Skeleton
+                  key={i}
+                  className={"max-w-[19rem] min-w-full h-[2rem]"}
+                />
               </div>
             );
           })}

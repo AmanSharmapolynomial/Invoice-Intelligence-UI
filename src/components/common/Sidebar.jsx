@@ -80,9 +80,9 @@ const Sidebar = () => {
     expanded === undefined ? "18rem" : expanded ? "18rem" : "3.75rem";
 
   return (
-    <div className="relative">
+    <div className="relative ">
       <div
-        className="border h-screen w-full  overflow-y-auto sticky z top-0  transition-all z-50 duration-300 ease-in-out"
+        className="border h-screen w-full dark:border-white/10  overflow-y-auto sticky z top-0 dark:!bg-[#051C14]  transition-all z-50 duration-300 ease-in-out"
         style={{
           width: width,
           boxShadow: "0px 2px 8px 0px rgba(0, 0, 0, 0.08)"
@@ -93,7 +93,7 @@ const Sidebar = () => {
             onClick={() => setExpanded()}
             className="cursor-pointer flex justify-end w-full"
           >
-            <Menu className="cursor-pointer absolute right-2 top-5" />
+            <Menu className="cursor-pointer absolute right-2 top-5 dark:text-white" />
           </div>
         ) : null}
 
@@ -135,7 +135,7 @@ const Sidebar = () => {
                 <span
                   className={`transition-opacity duration-300 ease-in-out ${
                     expanded ? "opacity-100" : "opacity-0"
-                  }`}
+                  } dark:text-white`}
                   style={{
                     whiteSpace: "nowrap",
                     overflow: "hidden",

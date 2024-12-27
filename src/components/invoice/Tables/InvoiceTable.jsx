@@ -260,7 +260,7 @@ const InvoiceTable = ({
                         );
                         navigate(
                           `/invoice-details/?page_number=${
-                            (page - 1) * 15 + (index + 1)
+                            (page - 1) * 10 + (index + 1)
                           }`
                         );
                       }}

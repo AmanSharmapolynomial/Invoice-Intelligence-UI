@@ -2,13 +2,16 @@ import React from "react";
 import { Table, TableBody, TableHead, TableRow } from "../ui/table";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
 import { Skeleton } from "../ui/skeleton";
+import { useSearchParams } from "react-router-dom";
 
 const CategoryWiseSum = ({ isLoading }) => {
+  const [searchParams] = useSearchParams();
+  const document_uuid = searchParams.get("document_uuid");
   const { categoryWiseSum } = invoiceDetailStore();
 
   return (
     <div
-      className="w-full   border-[#F0F0F0]  rounded-md max-h-[20rem] relative overflow-auto my-4 px-2"
+      className={`${document_uuid &&"mt-16"} w-full   border-[#F0F0F0]  rounded-md max-h-[20rem] relative overflow-auto my-4 px-2`}
       style={{ boxShadow: "0px 0px 8px 0px #0000001F" }}
     >
       <Table >

@@ -44,7 +44,7 @@ const Home = () => {
   const [showResults, setShowResults] = useState(false);
   const { setVendorNames: setVendorsList } = persistStore();
   let page = searchParams.get("page") || 1;
-  let page_size = searchParams.get("page_size") || 15;
+  let page_size = searchParams.get("page_size") || 10;
   let invoice_type = searchParams.get("invoice_type") || "";
   let human_verification = searchParams.get("human_verification") || "";
   let human_verified = searchParams.get("human_verified") || "";
@@ -61,7 +61,7 @@ const Home = () => {
   let sort_order = searchParams.get("sort_order") || "desc";
   let invoice_number = searchParams.get("invoice_number") || "";
   let assigned_to = searchParams.get("assigned_to");
-  let document_priority = searchParams.get("document_priority")||"desc";
+  let document_priority = searchParams.get("document_priority") || "desc";
   const updateParams = useUpdateParams();
   const { data: restaurantsList, isLoading: restaurantsListLoading } =
     useListRestaurants();
@@ -142,6 +142,14 @@ const Home = () => {
       calculateDivHeightInVh("pagination") +
       8.5);
   let timer;
+  let token = searchParams.get("token");
+  let user_id = searchParams.get("user_id");
+  let refresh_token = searchParams.get("refresh_token");
+  let username = searchParams.get("username");
+  let role = searchParams.get("role");
+  let user_email = searchParams.get("user_email");
+  let first_name = searchParams.get("first_name");
+  let last_name = searchParams.get("last_name");
   return (
     <div className="h-screen  flex w-full " id="maindiv">
       <Sidebar />
@@ -166,27 +174,31 @@ const Home = () => {
             <div className="flex items-baseline gap-x-4">
               <div className="flex gap-x-2 items-center">
                 <img src={clock} alt="" className="-mt-[1px] h-3 w-3" />
-                <span className="font-poppins font-medium text-[1rem] leading-5 text-[#222222]">
+                <span className="font-poppins font-medium dark:text-white text-[1rem] leading-5 text-[#222222]">
                   Out
                 </span>
               </div>
               <Switch className="!bg-[#888888]" />
               <div className="flex  items-center gap-x-2">
                 <span className="h-3 w-3 rounded-full bg-primary" />
-                <span className="font-poppins font-medium text-[1rem] leading-5 text-[#222222]">
+                <span className="font-poppins font-medium  dark:text-white text-[1rem] leading-5 text-[#222222]">
                   In
                 </span>
               </div>
             </div>
             <div className="flex  items-center space-x-2 ">
               <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
-              <Button
-                // onClick={() => navigate("/vendor-consolidation")}
-                className="border border-primary dark:bg-[#000000] bg-transparent hover:bg-transparent dark:text-[#E7E7E7] text-[#0F172A] font-poppins font-normal text-sm rounded-sm h-[2.5rem]"
-              >
-                Vendor Consolidation 
-              </Button>
-             
+                <Button
+                  onClick={() => {
+                    if (token) {
+                      window.open(`${import.meta.env.VITE_APP_OLD_UI_STAGING_UI}/vendor-consolidation-v2/?token=${token}&user_id=${user_id}&refresh_token=${refresh_token}&username=${username}&role=${role}&user_email=${user_email}&first_name=${first_name}&last_name=${last_name}`, "_blank");
+                    }
+                  }}
+                  className="border border-primary dark:bg-[#000000] bg-transparent hover:bg-transparent dark:text-[#E7E7E7] text-[#0F172A] font-poppins font-normal text-sm rounded-sm h-[2.5rem]"
+                >
+                  Vendor Consolidation
+                </Button>
+
                 <CustomDropDown
                   triggerClassName={"bg-gray-100"}
                   contentClassName={"bg-gray-100"}
@@ -236,7 +248,7 @@ const Home = () => {
                   <SheetTrigger>
                     {" "}
                     <Button className="bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000]  ">
-                      <Filter className="h-5  text-black/40" />
+                      <Filter className="h-5  text-black/40 dark:text-white/50" />
                     </Button>
                   </SheetTrigger>
                   <SheetContent className="min-w-fit !max-w-[20rem] !overflow-auto">
@@ -260,7 +272,7 @@ const Home = () => {
                   </SheetContent>
                 </Sheet>
               </div>
-            
+
 
               <CustomInput
                 showIcon={true}
@@ -270,23 +282,27 @@ const Home = () => {
                 onChange={(value) => {
                   setInvoiceNumber(value);
 
-                  clearTimeout(timer);
-                  if (value?.length == 0) {
-                    setShowResults(false);
-                    return;
-                  }
-                  timer = setTimeout(() => {
-                    if (value?.length !== 0) {
-                      setShowResults(true);
-                      searchInvoices(value, {
-                        onSuccess: (data) => {
-                          setSearchedInvoices(data?.data);
-                        }
-                      });
-                     
-                    }
-                  }, 500);
                 }}
+                onKeyDown={
+                  (e) => {
+                    // alert(e.key)
+                    if (e.key == "Enter") {
+                      if (invoiceNumber?.length == 0) {
+                        setShowResults(false);
+                        return;
+                      }
+                      if (invoiceNumber?.length !== 0) {
+                        setShowResults(true);
+                        searchInvoices(invoiceNumber, {
+                          onSuccess: (data) => {
+                            setSearchedInvoices(data?.data);
+                          }
+                        });
+
+                      }
+                    }
+                  }
+                }
                 className="min-w-72 max-w-96 border border-gray-200 relative  focus:!ring-0 focus:!outline-none remove-number-spinner"
               />
 
