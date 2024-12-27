@@ -114,9 +114,10 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
     }
     return true;
   })?.length;
+
   return (
-    <div className="w-full">
-      <div className={`grid grid-cols-${length} border-b border-b-[#F0F0F0]`}>
+    <div className="w-full box-border ">
+      <div className={`grid grid-cols-${length} !max-w-full border-b border-b-[#F0F0F0] mt-2`}>
         {invoiceDetailsTabs
           ?.filter(({ value }) => {
             if (value == "combined-table") {

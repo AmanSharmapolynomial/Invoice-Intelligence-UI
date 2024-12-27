@@ -168,32 +168,13 @@ const MyTasks = () => {
           />
 
           <div
-            className="w-full flex items-center relative justify-between dark:bg-[#051C14] py-3 rounded-t-xl dark:border-primary dark:border px-4 "
+            className="w-full flex items-center relative justify-end dark:bg-[#051C14] py-3 rounded-t-xl dark:border-primary dark:border px-4 "
             id="vendor-consolidation"
           >
-            <div className="flex items-baseline gap-x-4">
-              <div className="flex gap-x-2 items-center">
-                <img src={clock} alt="" className="-mt-[1px] h-3 w-3" />
-                <span className="font-poppins font-medium text-[1rem] leading-5 text-[#222222]">
-                  Out
-                </span>
-              </div>
-              <Switch className="!bg-[#888888]" />
-              <div className="flex  items-center gap-x-2">
-                <span className="h-3 w-3 rounded-full bg-primary" />
-                <span className="font-poppins font-medium text-[1rem] leading-5 text-[#222222]">
-                  In
-                </span>
-              </div>
-            </div>
+            
             <div className="flex  items-center space-x-2 ">
               <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
-                <Button
-                  onClick={() => navigate("/vendor-consolidation")}
-                  className="border border-primary dark:bg-[#000000] bg-transparent hover:bg-transparent dark:text-[#E7E7E7] text-[#0F172A] font-poppins font-normal text-sm rounded-sm h-[2.5rem]"
-                >
-                  Vendor Consolidation
-                </Button>
+              
                 <CustomDropDown
                   triggerClassName={"bg-gray-100"}
                   contentClassName={"bg-gray-100"}

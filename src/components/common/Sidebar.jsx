@@ -38,6 +38,13 @@ const Sidebar = () => {
       text: "Review Later Invoices",
       image: theme === "light" ? review_later_black : review_later_white,
       hoverImage: review_later_white
+    },
+    {
+      path: null,
+      icon: null,
+      text: "Vendor Consolidation",
+      image: theme === "light" ? review_later_black : review_later_white,
+      hoverImage: review_later_white
     }
     // {
     //   path: "/custom",
@@ -75,14 +82,14 @@ const Sidebar = () => {
     //   hoverImage: image_white
     // }
   ];
-
+  
   const width =
     expanded === undefined ? "18rem" : expanded ? "18rem" : "3.75rem";
 
   return (
     <div className="relative ">
       <div
-        className="border h-screen w-full dark:border-white/10  overflow-y-auto sticky z top-0 dark:!bg-[#051C14]  transition-all z-50 duration-300 ease-in-out"
+        className="border h-screen w-full dark:border-white/10  overflow-y-auto sticky z top-0 dark:!bg-[#051C14] bg-white  transition-all z-50 duration-300 ease-in-out"
         style={{
           width: width,
           boxShadow: "0px 2px 8px 0px rgba(0, 0, 0, 0.08)"

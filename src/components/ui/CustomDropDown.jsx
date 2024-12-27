@@ -14,9 +14,10 @@ import {
 } from "@/components/ui/popover";
 import { getValueFromLabel } from "@/lib/helpers";
 import { cn } from "@/lib/utils";
-import { Check, ChevronDown, Verified } from "lucide-react";
+import { Check, ChevronDown, Link2, Verified } from "lucide-react";
 import { useEffect, useState } from "react";
 import approved from "@/assets/image/approved.svg";
+import { Link } from "react-router-dom";
 
 const CustomDropDown = ({
   data = [],
@@ -31,7 +32,9 @@ const CustomDropDown = ({
   children,
   Key = "value",
   showSearch = true,
-  onBlur = () => {}
+  onBlur = () => {},
+  showVendorAsLink = false,
+  showBranchAsLink = false
 }) => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(Value || "");
@@ -66,22 +69,49 @@ const CustomDropDown = ({
           aria-expanded={open}
           className="min-w-fit border h-[2.5rem] dark:bg-[#000000] dark:text-textColor/200 dark:border-[#000000] bg-[#FFFFFF] hover:bg-[#FFFFFF] border-[#E0E0E0]  justify-between capitalize shadow-none !rounded-[4px] text-[#000000] hover:text-[#666666] font-poppins font-normal text-xs"
         >
-          <div className="flex items-center gap-x-2">
-            <span>
-              {value && value !== "none"
-                ? data.find((item) => item?.[Key] == value)
-                  ? data.find((item) => item?.[Key] == value)?.label
-                  : placeholder
-                : placeholder}
-            </span>
-            <span>
-              {" "}
-              {item?.human_verified && (
-                <img src={approved} className="text-primary !h-4 !w-5  " />
-              )}
-            </span>
-          </div>
-
+          {showBranchAsLink || showVendorAsLink ? (
+            <>
+              {showBranchAsLink ? (
+                <Link to={null} className="flex items-center gap-x-2">
+                  <Link2 className="text-[#348355] !h-4 !w-4" />
+                  <span className="text-[#348355] underline underline-offset-1 text-sm font-poppins font-normal">
+                    {value && value !== "none"
+                      ? data.find((item) => item?.[Key] == value)
+                        ? data.find((item) => item?.[Key] == value)?.label
+                        : placeholder
+                      : placeholder}
+                  </span>
+                </Link>
+              ) : showVendorAsLink ? (
+                <Link to={null} className="flex items-center gap-x-2">
+                  <Link2 className="text-[#348355] !h-4 !w-4" />
+                  <span className="text-[#348355] underline underline-offset-1 text-sm font-poppins font-normal">
+                    {value && value !== "none"
+                      ? data.find((item) => item?.[Key] == value)
+                        ? data.find((item) => item?.[Key] == value)?.label
+                        : placeholder
+                      : placeholder}
+                  </span>
+                </Link>
+              ) : null}
+            </>
+          ) : (
+            <div className="flex items-center gap-x-2">
+              <span>
+                {value && value !== "none"
+                  ? data.find((item) => item?.[Key] == value)
+                    ? data.find((item) => item?.[Key] == value)?.label
+                    : placeholder
+                  : placeholder}
+              </span>
+              <span>
+                {" "}
+                {item?.human_verified && (
+                  <img src={approved} className="text-primary !h-4 !w-5  " />
+                )}
+              </span>
+            </div>
+          )}
           {/* Chevron icon with transition */}
           <ChevronDown
             className={`ml-2 h-4 font-bold w-4 shrink-0 !text-[#666666] dark:text-textColor/200 transition-transform duration-300 ${
@@ -91,7 +121,6 @@ const CustomDropDown = ({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-    
         className={`${className}  p-0 bg-[#FFFFFF] dark:border-[#051C14]  w-fit  !max-w-60  mr-1`}
         contentClassName={`${contentClassName}   w-full`}
       >
@@ -102,7 +131,7 @@ const CustomDropDown = ({
           {children}
           <CommandList className="border dark:!border-[#000000] !z-50">
             <CommandEmpty>No data found.</CommandEmpty>
-            <CommandGroup >
+            <CommandGroup>
               {showCustomItems
                 ? children // Render custom items if showCustomItems is true
                 : data?.map((item) => (

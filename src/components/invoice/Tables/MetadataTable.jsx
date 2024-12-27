@@ -34,6 +34,7 @@ import {
   AlertDialogTitle
 } from "@/components/ui/alert-dialog";
 import { X } from "lucide-react";
+import toast from "react-hot-toast";
 const Template = ({ title, children, className, titleContent }) => {
   return (
     <div className={`${className} flex flex-col gap-y-2`}>
@@ -54,9 +55,11 @@ const MetadataTable = ({
     from: null,
     to: null
   });
-  const [updatingCategoriesAndTypes, setUpdatingCategoriesAndTypes] = useState(false);
+  const [updatingCategoriesAndTypes, setUpdatingCategoriesAndTypes] =
+    useState(false);
   const { data: vendorsData, isLoading: loadingVendors } = useGetVendorsNames();
-  const { mutate: updateVendorTypesAndCategories } = useUpdateVendorTypesAndCategories();
+  const { mutate: updateVendorTypesAndCategories } =
+    useUpdateVendorTypesAndCategories();
   const navigate = useNavigate();
   const [loadingState, setLoadingState] = useState({
     savingVendor: false,
@@ -145,6 +148,10 @@ const MetadataTable = ({
         });
       }
     }
+
+    if (key === "invoice_type" || key === "document_type") {
+      setShowToChangeCategoriesAndTypes(true);
+    }
   };
   useEffect(() => {
     setUpdatedFields([]);
@@ -170,7 +177,6 @@ const MetadataTable = ({
           setLoadingState({ ...loadingState, savingVendor: false });
           setEditVendor(false);
           setNewVendor("");
-          setShowToChangeCategoriesAndTypes(true);
         },
         onError: () => {
           setLoadingState({ ...loadingState, savingVendor: false });
@@ -195,7 +201,6 @@ const MetadataTable = ({
           setLoadingState({ ...loadingState, savingBranch: false });
           setEditBranch(false);
           setNewBranch("");
-          setShowToChangeCategoriesAndTypes(true);
         },
         onError: () => {
           setLoadingState({ ...loadingState, savingBranch: false });
@@ -224,27 +229,71 @@ const MetadataTable = ({
     vendor_document_type: vendorTypesAndCategories?.data?.vendor_document_type,
     vendor_category: vendorTypesAndCategories?.data?.vendor_category,
     vendor_account_category:
-      vendorTypesAndCategories?.data?.vendor_account_category
+      vendorTypesAndCategories?.data?.vendor_account_category?.category_id
   });
+
+  useEffect(() => {
+    setTypes_and_categories({
+      vendor_document_type:
+        vendorTypesAndCategories?.data?.vendor_document_type,
+      vendor_category: vendorTypesAndCategories?.data?.vendor_category,
+      vendor_account_category:
+        vendorTypesAndCategories?.data?.vendor_account_category?.category_id
+    });
+  }, [vendorTypesAndCategories]);
 
   return (
     <div className="w-full -mt-3 border border-[#F0F0F0] shadow-sm p-2 rounded-md">
       <div className="grid grid-cols-3 gap-x-4">
         <Template title="Invoice Number">
           <CustomInput
-            className={`${!document_metadata?.invoice_number ? "!border-[#F97074]" : ""}`}
+            className={`${
+              !document_metadata?.invoice_number ? "!border-[#F97074]" : ""
+            }`}
             value={document_metadata?.invoice_number}
-            onChange={(v) => setCachedData("invoice_number", v)}
+            onChange={(v) => {
+              if (branchChanged || vendorChanged) {
+                if (branchChanged) {
+                  toast.error(
+                    "Please Update the Vendor Address before proceeding for other changes."
+                  );
+                  return;
+                } else {
+                  toast.error(
+                    "Please Update the Vendor Name before proceeding for other changes."
+                  );
+                  return;
+                }
+              } else {
+                setCachedData("invoice_number", v);
+              }
+            }}
           />
         </Template>
         <Template title="Invoice Type">
           <CustomDropDown
             showSearch={false}
-                className={`!min-w-[300px] ${!invoice_type ? "!border-[#F97074]" : ""}`}
+            className={`!min-w-[300px] ${
+              !invoice_type ? "!border-[#F97074]" : ""
+            }`}
             data={vendorCategories?.slice(0, 3)}
             Value={invoice_type}
             onChange={(v) => {
-              setCachedData("invoice_type", v);
+              if (branchChanged || vendorChanged) {
+                if (branchChanged) {
+                  toast.error(
+                    "Please Update the Vendor Address before proceeding for other changes."
+                  );
+                  return;
+                } else {
+                  toast.error(
+                    "Please Update the Vendor Name before proceeding for other changes."
+                  );
+                  return;
+                }
+              } else {
+                setCachedData("invoice_type", v);
+              }
             }}
           />
         </Template>
@@ -252,7 +301,9 @@ const MetadataTable = ({
         <Template title="Invoice Date">
           <div className="flex !w-full">
             <DatePicker
-              className={`${!document_metadata?.invoice_date ? "!border-[#F97074]" : ""}`}
+              className={`${
+                !document_metadata?.invoice_date ? "!border-[#F97074]" : ""
+              }`}
               date={
                 document_metadata?.invoice_date &&
                 isValid(parseISO(document_metadata.invoice_date))
@@ -260,6 +311,19 @@ const MetadataTable = ({
                   : null
               }
               onChange={(date) => {
+                if (branchChanged || vendorChanged) {
+                  if (branchChanged) {
+                    toast.error(
+                      "Please Update the Vendor Address before proceeding for other changes."
+                    );
+                    return;
+                  } else {
+                    toast.error(
+                      "Please Update the Vendor Name before proceeding for other changes."
+                    );
+                    return;
+                  }
+                }
                 if (date && isValid(date)) {
                   // Store date as ISO string in UTC format
                   setCachedData(
@@ -277,7 +341,9 @@ const MetadataTable = ({
       <div className="grid grid-cols-3 gap-x-4 mt-4">
         <Template title="Due Date">
           <DatePicker
-          className={`${!document_metadata?.invoice_due_date ? "!border-[#F97074]" : ""}`}
+            className={`${
+              !document_metadata?.invoice_due_date ? "!border-[#F97074]" : ""
+            }`}
             date={
               document_metadata?.invoice_due_date &&
               isValid(parseISO(document_metadata.invoice_due_date))
@@ -285,14 +351,28 @@ const MetadataTable = ({
                 : null
             }
             onChange={(date) => {
-              if (date && isValid(date)) {
-                // Store date as ISO string in UTC format
-                setCachedData(
-                  "invoice_due_date",
-                  formatISO(date, { representation: "date" })
-                );
+              if (branchChanged || vendorChanged) {
+                if (branchChanged) {
+                  toast.error(
+                    "Please Update the Vendor Address before proceeding for other changes."
+                  );
+                  return;
+                } else {
+                  toast.error(
+                    "Please Update the Vendor Name before proceeding for other changes."
+                  );
+                  return;
+                }
               } else {
-                setCachedData("invoice_due_date", null);
+                if (date && isValid(date)) {
+                  // Store date as ISO string in UTC format
+                  setCachedData(
+                    "invoice_due_date",
+                    formatISO(date, { representation: "date" })
+                  );
+                } else {
+                  setCachedData("invoice_due_date", null);
+                }
               }
             }}
           />
@@ -301,33 +381,66 @@ const MetadataTable = ({
           <div className="flex items-center gap-x-4 pr-2 w-full">
             {editVendor ? (
               <CustomInput
-                className={`${!newVendor ? "!border-[#F97074]" : ""} !text-xs text-[#666666] hover:text-[#666666]`}
+                className={`${
+                  !newVendor ? "!border-[#F97074]" : ""
+                } !text-xs text-[#666666] hover:text-[#666666]`}
                 value={newVendor}
                 placeholder="Vendor Name"
-                onChange={(v) => setNewVendor(v)}
+                onChange={(v) => {
+                  if (branchChanged || vendorChanged) {
+                    if (branchChanged) {
+                      toast.error(
+                        "Please Update the Vendor Address before proceeding for other changes."
+                      );
+                      return;
+                    } else {
+                      toast.error(
+                        "Please Update the Vendor Name before proceeding for other changes."
+                      );
+                      return;
+                    }
+                  } else {
+                    setNewVendor(v);
+                  }
+                }}
               />
             ) : (
               <div className="w-full  flex gap-x-4">
                 <CustomDropDown
-                    Value={vendor?.vendor_id}
-     
-                  className={`min-w-full ${!vendor?.vendor_id ? "!border-[#F97074]" : ""}`}
-                   
+                  Value={vendor?.vendor_id}
+                  className={`min-w-full ${
+                    !vendor?.vendor_id ? "!border-[#F97074]" : ""
+                  }`}
                   triggerClassName={`${
                     editVendor ? " !min-w-[80%]" : "!min-w-full"
                   } `}
+                  showVendorAsLink={true}
                   onChange={(v, vendor) => {
-                    setVendorChanged(true);
+                    if (branchChanged || vendorChanged) {
+                      if (branchChanged) {
+                        toast.error(
+                          "Please Update the Vendor Address before proceeding for other changes."
+                        );
+                        return;
+                      } else {
+                        toast.error(
+                          "Please Update the Vendor Name before proceeding for other changes."
+                        );
+                        return;
+                      }
+                    } else {
+                      setVendorChanged(true);
 
-                    setCachedData(
-                      "vendor",
-                      {
-                        vendor_name: vendor?.label,
-                        vendor_id: vendor?.value,
-                        human_verified: vendor?.human_verified
-                      },
-                      false
-                    );
+                      setCachedData(
+                        "vendor",
+                        {
+                          vendor_name: vendor?.label,
+                          vendor_id: vendor?.value,
+                          human_verified: vendor?.human_verified
+                        },
+                        false
+                      );
+                    }
                   }}
                   data={vendorNamesFormatter(vendorsData?.vendor_names)}
                 >
@@ -376,27 +489,59 @@ const MetadataTable = ({
               <CustomInput
                 value={branch?.vendor_address}
                 className={`${!newBranch ? "!border-[#F97074]" : ""}`}
-                onChange={(v) => setNewBranch(v)}
+                onChange={(v) => {
+                  if (branchChanged || vendorChanged) {
+                    if (branchChanged) {
+                      toast.error(
+                        "Please Update the Vendor Address before proceeding for other changes."
+                      );
+                      return;
+                    } else {
+                      toast.error(
+                        "Please Update the Vendor Name before proceeding for other changes."
+                      );
+                      return;
+                    }
+                  } else {
+                    setNewBranch(v);
+                  }
+                }}
               />
             ) : (
               <div className="flex items-center gap-x-4 w-full">
                 <CustomDropDown
                   Value={branch?.branch_id}
-                  className={`min-w-[30rem] ${!branch?.branch_id ? "!border-[#F97074]" : ""}`}
+                  className={`min-w-[30rem] ${
+                    !branch?.branch_id ? "!border-[#F97074]" : ""
+                  }`}
                   triggerClassName={`${
                     editBranch ? "!min-w-[80%]" : "!min-w-full"
                   } `}
                   onChange={(v, branch) => {
-                    setCachedData(
-                      "branch",
-                      {
-                        vendor_address: branch?.label,
-                        branch_id: branch?.value,
-                        human_verified: branch?.human_verified
-                      },
-                      false
-                    );
-                    setBranchChanged(true);
+                    if (branchChanged || vendorChanged) {
+                      if (branchChanged) {
+                        toast.error(
+                          "Please Update the Vendor Address before proceeding for other changes."
+                        );
+                        return;
+                      } else {
+                        toast.error(
+                          "Please Update the Vendor Name before proceeding for other changes."
+                        );
+                        return;
+                      }
+                    } else {
+                      setCachedData(
+                        "branch",
+                        {
+                          vendor_address: branch?.label,
+                          branch_id: branch?.value,
+                          human_verified: branch?.human_verified
+                        },
+                        false
+                      );
+                      setBranchChanged(true);
+                    }
                   }}
                   data={vendorAddressFormatter(vendorAddress?.branches)}
                 >
@@ -440,25 +585,56 @@ const MetadataTable = ({
       </div>
       <div className="grid grid-cols-2 gap-x-4 mt-4">
         <Template title="Document Type Prediction">
-          
           <CustomDropDown
             Value={document_type}
-            className={`min-w-[28rem] ${!document_type ? "!border-[#F97074]" : ""}`}
+            className={`min-w-[28rem] ${
+              !document_type ? "!border-[#F97074]" : ""
+            }`}
             data={makeKeyValueFromKey(additionalData?.data?.document_types)}
             onChange={(v) => {
-              setCachedData("document_type", v);
+              if (branchChanged || vendorChanged) {
+                if (branchChanged) {
+                  toast.error(
+                    "Please Update the Vendor Address before proceeding for other changes."
+                  );
+                  return;
+                } else {
+                  toast.error(
+                    "Please Update the Vendor Name before proceeding for other changes."
+                  );
+                  return;
+                }
+              } else {
+                setCachedData("document_type", v);
+              }
             }}
           />
         </Template>
         <Template title="QuickBooks Documents Type">
           <CustomDropDown
             Value={quick_book_document_type}
-            className={`min-w-[28rem] ${!quick_book_document_type ? "!border-[#F97074]" : ""}`}
+            className={`min-w-[28rem] ${
+              !quick_book_document_type ? "!border-[#F97074]" : ""
+            }`}
             data={makeKeyValueFromKey(
               additionalData?.data?.vendor_invoice_document_types
             )}
             onChange={(v) => {
-              setCachedData("quick_book_document_type", v);
+              if (branchChanged || vendorChanged) {
+                if (branchChanged) {
+                  toast.error(
+                    "Please Update the Vendor Address before proceeding for other changes."
+                  );
+                  return;
+                } else {
+                  toast.error(
+                    "Please Update the Vendor Name before proceeding for other changes."
+                  );
+                  return;
+                }
+              } else {
+                setCachedData("quick_book_document_type", v);
+              }
             }}
           />
         </Template>
@@ -467,18 +643,50 @@ const MetadataTable = ({
         <Template title="Credit Card Name">
           <CustomInput
             value={document_metadata?.credit_card_name}
-            className={`${!document_metadata?.credit_card_name ? "!border-[#F97074]" : ""}`}
+            className={`${
+              !document_metadata?.credit_card_name ? "!border-[#F97074]" : ""
+            }`}
             onChange={(v) => {
-              setCachedData("credit_card_name", v);
+              if (branchChanged || vendorChanged) {
+                if (branchChanged) {
+                  toast.error(
+                    "Please Update the Vendor Address before proceeding for other changes."
+                  );
+                  return;
+                } else {
+                  toast.error(
+                    "Please Update the Vendor Name before proceeding for other changes."
+                  );
+                  return;
+                }
+              } else {
+                setCachedData("credit_card_name", v);
+              }
             }}
           />
         </Template>
         <Template title="Credit Card Number">
           <CustomInput
             value={document_metadata?.credit_card_number}
-            className={`${!document_metadata?.credit_card_number ? "!border-[#F97074]" : ""}`}
+            className={`${
+              !document_metadata?.credit_card_number ? "!border-[#F97074]" : ""
+            }`}
             onChange={(v) => {
-              setCachedData("credit_card_number", v);
+              if (branchChanged || vendorChanged) {
+                if (branchChanged) {
+                  toast.error(
+                    "Please Update the Vendor Address before proceeding for other changes."
+                  );
+                  return;
+                } else {
+                  toast.error(
+                    "Please Update the Vendor Name before proceeding for other changes."
+                  );
+                  return;
+                }
+              } else {
+                setCachedData("credit_card_number", v);
+              }
             }}
           />
         </Template>
@@ -488,22 +696,76 @@ const MetadataTable = ({
         <Template title="Invoice Shipped To">
           <CustomInput
             value={document_metadata?.invoice_ship_to}
-            className={`${!document_metadata?.invoice_ship_to ? "!border-[#F97074]" : ""}`}
-            onChange={(v) => setCachedData("invoice_ship_to", v)}
+            className={`${
+              !document_metadata?.invoice_ship_to ? "!border-[#F97074]" : ""
+            }`}
+            onChange={(v) => {
+              if (branchChanged || vendorChanged) {
+                if (branchChanged) {
+                  toast.error(
+                    "Please Update the Vendor Address before proceeding for other changes."
+                  );
+                  return;
+                } else {
+                  toast.error(
+                    "Please Update the Vendor Name before proceeding for other changes."
+                  );
+                  return;
+                }
+              } else {
+                setCachedData("invoice_ship_to", v);
+              }
+            }}
           />
         </Template>
         <Template title="Invoice Billed To">
           <CustomInput
             value={document_metadata?.invoice_bill_to}
-            className={`${!document_metadata?.invoice_bill_to ? "!border-[#F97074]" : ""}`}
-            onChange={(v) => setCachedData("invoice_bill_to", v)}
+            className={`${
+              !document_metadata?.invoice_bill_to ? "!border-[#F97074]" : ""
+            }`}
+            onChange={(v) => {
+              if (branchChanged || vendorChanged) {
+                if (branchChanged) {
+                  toast.error(
+                    "Please Update the Vendor Address before proceeding for other changes."
+                  );
+                  return;
+                } else {
+                  toast.error(
+                    "Please Update the Vendor Name before proceeding for other changes."
+                  );
+                  return;
+                }
+              } else {
+                setCachedData("invoice_bill_to", v);
+              }
+            }}
           />
         </Template>
         <Template title="Invoice Sold To">
           <CustomInput
             value={document_metadata?.invoice_sold_to}
-            className={`${!document_metadata?.invoice_sold_to ? "!border-[#F97074]" : ""}`}
-                onChange={(v) => setCachedData("invoice_sold_to", v)}
+            className={`${
+              !document_metadata?.invoice_sold_to ? "!border-[#F97074]" : ""
+            }`}
+            onChange={(v) => {
+              if (branchChanged || vendorChanged) {
+                if (branchChanged) {
+                  toast.error(
+                    "Please Update the Vendor Address before proceeding for other changes."
+                  );
+                  return;
+                } else {
+                  toast.error(
+                    "Please Update the Vendor Name before proceeding for other changes."
+                  );
+                  return;
+                }
+              } else {
+                setCachedData("invoice_sold_to", v);
+              }
+            }}
           />
         </Template>
       </div>
@@ -524,7 +786,6 @@ const MetadataTable = ({
                     vendor_category: null,
                     vendor_account_category: null
                   });
-
                 }}
                 className="absolute  cursor-pointer -right-2 -top-0.5 text-[#000000]/80  font-thin"
               />
@@ -552,12 +813,26 @@ const MetadataTable = ({
                 >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value={true} id="true"></RadioGroupItem>
-                    <Label htmlFor="true" className="font-poppins font-normal text-sm leading-5 text-[#000000] cursor-pointer ">Yes</Label>
+                    <Label
+                      htmlFor="true"
+                      className="font-poppins font-normal text-sm leading-5 text-[#000000] cursor-pointer "
+                    >
+                      Yes
+                    </Label>
                   </div>
 
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value={false} id="false" className="!cursor-pointer"></RadioGroupItem>
-                    <Label htmlFor="false" className="font-poppins font-normal text-sm leading-5 text-[#000000] cursor-pointer ">No</Label>
+                    <RadioGroupItem
+                      value={false}
+                      id="false"
+                      className="!cursor-pointer"
+                    ></RadioGroupItem>
+                    <Label
+                      htmlFor="false"
+                      className="font-poppins font-normal text-sm leading-5 text-[#000000] cursor-pointer "
+                    >
+                      No
+                    </Label>
                   </div>
                 </RadioGroup>
               </div>
@@ -603,7 +878,10 @@ const MetadataTable = ({
                   <div className="flex flex-col gap-y-2">
                     <p>Vendor Account Category</p>
                     <CustomDropDown
-                      Value={vendorTypesAndCategories?.data?.vendor_category}
+                      Value={
+                        vendorTypesAndCategories?.data?.vendor_account_category
+                          ?.category_id
+                      }
                       className={"min-w-[28rem]"}
                       data={categoryNamesFormatter(
                         additionalData?.data?.category_choices
@@ -621,48 +899,49 @@ const MetadataTable = ({
             </AlertDialogDescription>
             {wantToChangeCategoriesAndTypes && (
               <DialogFooter className={"!mt-4"}>
-                <Button className="bg-primary text-white font-poppins text-xs font-normal rounded-sm mt-1"
+                <Button
+                  className="bg-primary text-white font-poppins text-xs font-normal rounded-sm mt-1"
                   onClick={() => {
                     setUpdatingCategoriesAndTypes(true);
-                    updateVendorTypesAndCategories({
-                      vendor_id: vendor?.vendor_id,
-                      payload: types_and_categories
-                    }
-                  ,{
-                    onSuccess: () => {
-                      setUpdatingCategoriesAndTypes(false);
-                      setShowToChangeCategoriesAndTypes(false);
-                      setWantToChangeCategoriesAndTypes(null);
-                      setTypes_and_categories({
-                        vendor_document_type: null,
-                        vendor_category: null,
-                        vendor_account_category: null
-                      });
-                      setShowToChangeCategoriesAndTypes(false);
-                    },
-                    onError: () => {
-                      setUpdatingCategoriesAndTypes(false);
-                    }
-
-                  }
-                  );
-                    
+                    updateVendorTypesAndCategories(
+                      {
+                        vendor_id: vendor?.vendor_id,
+                        payload: types_and_categories
+                      },
+                      {
+                        onSuccess: () => {
+                          setUpdatingCategoriesAndTypes(false);
+                          setShowToChangeCategoriesAndTypes(false);
+                          setWantToChangeCategoriesAndTypes(null);
+                          setTypes_and_categories({
+                            vendor_document_type: null,
+                            vendor_category: null,
+                            vendor_account_category: null
+                          });
+                          setShowToChangeCategoriesAndTypes(false);
+                        },
+                        onError: () => {
+                          setUpdatingCategoriesAndTypes(false);
+                        }
+                      }
+                    );
                   }}
                 >
                   {updatingCategoriesAndTypes ? "Updating..." : "Update"}
                 </Button>
-              <Button className="bg-transparent text-[#000000]/90 font-poppins text-xs font-normal rounded-sm mt-1 shadow-none border-primary border-2 hover:bg-transparent hover:text-[#000000]"
-                onClick={() => {
-                  setShowToChangeCategoriesAndTypes(false);
-                  setWantToChangeCategoriesAndTypes(null);
-                  setTypes_and_categories({
-                    vendor_document_type: null,
-                    vendor_category: null,
-                    vendor_account_category: null
-                  });
-                }}
-              >
-                Cancel
+                <Button
+                  className="bg-transparent text-[#000000]/90 font-poppins text-xs font-normal rounded-sm mt-1 shadow-none border-primary border-2 hover:bg-transparent hover:text-[#000000]"
+                  onClick={() => {
+                    setShowToChangeCategoriesAndTypes(false);
+                    setWantToChangeCategoriesAndTypes(null);
+                    setTypes_and_categories({
+                      vendor_document_type: null,
+                      vendor_category: null,
+                      vendor_account_category: null
+                    });
+                  }}
+                >
+                  Cancel
                 </Button>
               </DialogFooter>
             )}

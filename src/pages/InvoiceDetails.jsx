@@ -1,8 +1,8 @@
+import receipt_long from "@/assets/image/receipt_long.svg";
 import warning from "@/assets/image/warning.svg";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import { PdfViewer } from "@/components/common/PDFViewer";
-import Sidebar from "@/components/common/Sidebar";
 import {
   useFindDuplicateInvoices,
   useMarkAsNotSupported,
@@ -26,10 +26,32 @@ import { queryClient } from "@/lib/utils";
 import useFilterStore from "@/store/filtersStore";
 import globalStore from "@/store/globalStore";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
-import { Info, Share2, X } from "lucide-react";
+
+import all_invoices_black from "@/assets/image/all_invoices_black.svg";
+import all_invoices_white from "@/assets/image/all_invoices_white.svg";
+import my_tasks_black from "@/assets/image/check_book_black.svg";
+import my_tasks_white from "@/assets/image/check_book_white.svg";
+import review_later_black from "@/assets/image/review_later_black.svg";
+import review_later_white from "@/assets/image/review_later_white.svg";
+
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetTrigger
+} from "@/components/ui/sheet";
+import useThemeStore from "@/store/themeStore";
+import {
+  ChevronRight,
+  Info,
+  Menu,
+  MessageCircleMore,
+  Share2,
+  X
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 
 const rejectionReasons = [
   "Duplicate invoice",
@@ -65,6 +87,8 @@ const InvoiceDetails = () => {
     metaData,
     operations,
     setOperations,
+    setBranchChanged,
+    setVendorChanged,
     metadata
   } = invoiceDetailStore();
   const [isLoading, setIsLoading] = useState(true);
@@ -115,6 +139,8 @@ const InvoiceDetails = () => {
             setLoadingState({ ...loadingState, saving: false });
             queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
             clearUpdatedFields();
+            setBranchChanged(false);
+            setVendorChanged(false);
           },
           onError: () => {
             setLoadingState({ ...loadingState, saving: false });
@@ -137,6 +163,8 @@ const InvoiceDetails = () => {
                 queryKey: ["document-metadata"]
               });
               clearUpdatedFields();
+              setBranchChanged(false);
+              setVendorChanged(false);
             },
             onError: () => {
               setLoadingState({ ...loadingState, saving: false });
@@ -276,15 +304,148 @@ const InvoiceDetails = () => {
     }
   }, [duplicateInvoices]);
   const myData = data?.data?.[0] || data?.data;
+  const { pathname } = useLocation();
+  const { theme } = useThemeStore();
+  const options = [
+    {
+      path: "/home",
+      icon: null,
+      text: "All Invoices",
+      image: theme === "light" ? all_invoices_black : all_invoices_white,
+      hoverImage: all_invoices_white
+    },
+    {
+      path: "/my-tasks",
+      icon: null,
+      text: "My Tasks",
+      image: theme === "light" ? my_tasks_black : my_tasks_white,
+      hoverImage: my_tasks_white
+    },
+    {
+      path: "/review-later-tasks",
+      icon: null,
+      text: "Review Later Invoices",
+      image: theme === "light" ? review_later_black : review_later_white,
+      hoverImage: review_later_white
+    },
+    {
+      path: null,
+      icon: null,
+      text: "Vendor Consolidation",
+      image: theme === "light" ? review_later_black : review_later_white,
+      hoverImage: review_later_white
+    }
+    // {
+    //   path: "/custom",
+    //   icon: null,
+    //   text: "All Items",
+    //   image: theme === "light" ? image : image_white,
+    //   hoverImage: image_white
+    // },
+    // {
+    //   path: "/custom",
+    //   icon: null,
+    //   text: "My Statistics",
+    //   image: theme === "light" ? image : image_white,
+    //   hoverImage: image_white
+    // },
+    // {
+    //   path: "/custom",
+    //   icon: null,
+    //   text: "Calendar Management",
+    //   image: theme === "light" ? image : image_white,
+    //   hoverImage: image_white
+    // },
+    // {
+    //   path: "/custom",
+    //   icon: null,
+    //   text: "Communication",
+    //   image: theme === "light" ? image : image_white,
+    //   hoverImage: image_white
+    // },
+    // {
+    //   path: "/custom",
+    //   icon: null,
+    //   text: "Issue Reporting",
+    //   image: theme === "light" ? image : image_white,
+    //   hoverImage: image_white
+    // }
+  ];
+
   return (
-    <div className="flex w-full " id="maindiv">
-      <Sidebar />
-      <div className="w-full">
-        <Navbar />
-        <Layout
-        // className={
-        //   "mx-6 rounded-md  hide-scrollbar   !shadow-none flex flex-1 flex-col justify-between gap-y-4   "
-        // }
+    <div className="hide-scrollbar relative">
+      <Navbar />
+      <Sheet>
+        <SheetTrigger asChild>
+          <div
+            className={`bg-primary w-5 h-5 rounded-r-sm cursor-pointer  fixed  mt-1 top-16 left-0 !z-50 flex justify-center items-center 
+          ${false ? "opacity-0" : "opacity-100"}
+          transition-opacity duration-300 ease-in-out`}
+          >
+            <ChevronRight className="text-white h-3.5 w-3.5" />
+          </div>
+        </SheetTrigger>
+        <SheetContent side="left" className="px-0 !max-w-[300px] pt-8 ">
+          <SheetClose asChild >
+            <Menu className="h-5 w-5 cursor-pointer absolute right-4 top-2  text-end text-[#000000] " />
+          </SheetClose>
+          {options.map((option, index) => {
+            const isActive = pathname === option.path;
+            return (
+              <Link
+                to={option.path}
+                key={index}
+                className={`group cursor-pointer overflow-hidden flex items-center px-4 gap-2 py-3 text-sm font-normal font-poppins transition-all duration-300 ease-in-out 
+                ${
+                  isActive
+                    ? "bg-primary text-white"
+                    : "text-black hover:bg-primary hover:text-white"
+                }`}
+              >
+                {option.icon ? (
+                  <option.icon
+                    className={`w-5 h-5 ${isActive ? "text-white" : ""}`}
+                  />
+                ) : (
+                  <div className="relative flex-shrink-0 w-5 h-5">
+                    <img
+                      src={option.image}
+                      alt={option.text}
+                      className="absolute inset-0 w-full h-full transition-opacity duration-300"
+                    />
+                    <img
+                      src={option.hoverImage}
+                      alt={option.text}
+                      className={`${
+                        isActive && "opacity-100"
+                      } absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity`}
+                    />
+                  </div>
+                )}
+
+                <span
+                  className={`transition-opacity duration-300 ease-in-out ${
+                    true ? "opacity-100" : "opacity-0"
+                  } dark:text-white`}
+                  style={{
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    marginLeft: true ? "0.5rem" : "0"
+                  }}
+                >
+                  {option.text}
+                </span>
+              </Link>
+            );
+          })}
+        </SheetContent>
+      </Sheet>
+
+      <Layout
+        className={
+          "mx-6 rounded-md  hide-scrollbar   !shadow-none flex flex-1 flex-col justify-between gap-y-4   "
+        }
       >
         <BreadCrumb
           showCustom={true}
@@ -297,50 +458,55 @@ const InvoiceDetails = () => {
           ]}
         >
           <div className="flex gap-x-4 items-end">
-           {(data?.data?.restaurant || data?.data?.[0]?.restaurant) && (<>
-           <div className="flex flex-col gap-y-0.5">
-              <p className="text-[#6D6D6D] font-poppins font-medium text-sm leading-4">
-                Restaurant
-              </p>
-              <p className="capitalize text-[#121212] font-semibold font-poppins text-2xl">
-                {data?.data?.restaurant?.restaurant_name || data?.data?.[0]?.restaurant?.restaurant_name}
-              </p>
-            </div>
-            </>
+            {(data?.data?.restaurant || data?.data?.[0]?.restaurant) && (
+              <>
+                <div className="flex flex-col gap-y-0">
+                  <p className="text-[#6D6D6D] font-poppins font-medium text-xs leading-4">
+                    Restaurant
+                  </p>
+                  <p className="capitalize text-[#121212] font-semibold font-poppins text-xl">
+                    {data?.data?.restaurant?.restaurant_name ||
+                      data?.data?.[0]?.restaurant?.restaurant_name}
+                  </p>
+                </div>
+              </>
             )}
 
-           {(data?.data?.vendor || data?.data?.[0]?.vendor) && (<>
-            <p className="text-2xl">|</p>
-            <div className="flex flex-col gap-y-0.5">
-              <p className="text-[#6D6D6D] font-poppins font-medium text-sm leading-4">
-                Vendor
-              </p>
-              <p className="capitalize text-[#121212] font-semibold font-poppins text-2xl">
-                {data?.data?.vendor?.vendor_name || 
-                   data?.data?.[0].vendor?.vendor_name
-                }
-              </p>
-            </div>
-           </>)}
+            {(data?.data?.vendor || data?.data?.[0]?.vendor) && (
+              <>
+                <p className="text-2xl">|</p>
+                <div className="flex flex-col gap-y-0">
+                  <p className="text-[#6D6D6D] font-poppins font-medium text-xs leading-4">
+                    Vendor
+                  </p>
+                  <p className="capitalize text-[#121212] font-semibold font-poppins text-xl">
+                    {data?.data?.vendor?.vendor_name ||
+                      data?.data?.[0].vendor?.vendor_name}
+                  </p>
+                </div>
+              </>
+            )}
             <div>
-           <div className=" -mt-[1.78rem] -ml-3">
-           {myData?.human_verified === true && myData?.rejected === false && (
-              <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#348355] text-[#ffffff] p-1 rounded-xl px-3">
-                Accepted{" "}
-              </span>
-            )}
-            {myData?.rejected === true && (
-              <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#F15156] text-[#ffffff] p-1 rounded-xl   px-3">
-                Rejected{" "}
-              </span>
-            )}
-            {myData?.human_verified === false && myData?.rejected === false && (
-              <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#B28F10] text-[#ffffff] py-1  px-3 rounded-xl ">
-                Pending{" "}
-              </span>
-            )}
-           </div>
-          </div>
+              <div className=" -mt-[1.78rem] -ml-3">
+                {myData?.human_verified === true &&
+                  myData?.rejected === false && (
+                    <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#348355] text-[#ffffff] p-1 rounded-xl px-3">
+                      Accepted{" "}
+                    </span>
+                  )}
+                {myData?.rejected === true && (
+                  <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#F15156] text-[#ffffff] p-1 rounded-xl   px-3">
+                    Rejected{" "}
+                  </span>
+                )}
+                {myData?.human_verified === false &&
+                  myData?.rejected === false && (
+                    <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#B28F10] text-[#ffffff] py-1  px-3 rounded-xl ">
+                      Pending{" "}
+                    </span>
+                  )}
+              </div>
+            </div>
           </div>
         </BreadCrumb>
         {showDuplicateInvoicesWarning && (
@@ -366,7 +532,6 @@ const InvoiceDetails = () => {
           </div>
         )}
         <div className="flex justify-end">
-         
           <div className="flex items-center gap-x-3">
             {!document_uuid && (
               <CustomTooltip content={"Click To Copy The Link."}>
@@ -390,6 +555,21 @@ const InvoiceDetails = () => {
                 </Button>
               </CustomTooltip>
             )}
+            <CustomTooltip content={"View Document Notes."}>
+              <Button className="bg-transparent !min-h-[2.4rem]  !py-0  bg-primary border-primary w-[3rem]  border-2 shadow-none text-[#000000] font-poppins font-normal text-sm">
+                <MessageCircleMore className="text-white !h-[1.25rem] !w-[1.25rem]" />
+              </Button>
+            </CustomTooltip>
+            <CustomTooltip content={"View Vendor Notes."}>
+              <Button className="bg-transparent !min-h-[2.4rem]  !py-0  bg-primary border-primary w-[3rem] px-0  border-2 shadow-none text-[#000000] font-poppins font-normal text-sm">
+                <img
+                  src={receipt_long}
+                  alt=""
+                  className="text-white !h-[20px] mx-4 "
+                />
+              </Button>
+            </CustomTooltip>
+
             <CustomTooltip content={"Click To Mark It For A Review."}>
               <Button
                 onClick={() => {
@@ -477,7 +657,7 @@ const InvoiceDetails = () => {
           </div>
         </div>
 
-        <div className="w-full flex  ">
+        <div className="w-full flex  -mt-4">
           <div className="w-1/2 flex flex-col gap-y-4 2xl:px-16 md:px-8">
             <PdfViewer
               loadinMetadata={isLoading}
@@ -818,7 +998,6 @@ const InvoiceDetails = () => {
           </div>
         </ModalDescription>
       </Modal>
-    </div>
     </div>
   );
 };
