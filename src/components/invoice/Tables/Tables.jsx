@@ -65,6 +65,7 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
     setData(data);
     setIsLoading(isLoading);
   }, [data]);
+  
   useEffect(() => {
     const categoryColNum =
       combinedTableData?.data?.processed_table?.columns?.findIndex(

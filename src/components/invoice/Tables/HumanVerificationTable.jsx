@@ -1295,7 +1295,7 @@ const HumanVerificationTable = ({
                     {(viewDeleteColumn ||
                       viewShiftColumn ||
                       viewVerificationColumn) && (
-                      <TableCell className=" !border-l  sticky w-[120px]   flex justify-center items-center font-poppins font-normal text-xs !p-0 h-full bg-white/90  !right-[0px]">
+                      <TableCell className={`${viewDeleteColumn&&viewShiftColumn&&viewVerificationColumn &&"w-[6rem]"} !border-l  sticky !max-w-[6rem] min-w-[4rem]   flex justify-center items-center font-poppins font-normal text-xs !p-0 h-full bg-white/90  !right-[0px]`}>
                         Actions
                       </TableCell>
                     )}
@@ -1362,7 +1362,7 @@ const HumanVerificationTable = ({
                                       row_uuid: row?.transaction_uuid
                                     });
                                   }}
-                                  className="!w-[11rem] font-poppins  font-normal text-sm leading-4 text-[#121212] !max-w-[12rem]  justify-center    flex items-center  capitalize text-center pl-4"
+                                  className="!w-[11rem] font-poppins  font-normal text-sm leading-4 text-[#121212] !max-w-[12rem]  justify-center    flex items-center  capitalize text-center -ml-2"
                                   key={i}
                                 >
                                   {editMode?.rowIndex === index &&
@@ -1429,7 +1429,7 @@ const HumanVerificationTable = ({
                         {(viewDeleteColumn ||
                           viewShiftColumn ||
                           viewVerificationColumn) && (
-                          <TableCell className="sticky min-w-[120px] border-l gap-x-4 flex  justify-center  items-center font-poppins font-normal text-xs leading-4 bg-white/90  right-0 !z-10">
+                          <TableCell className="sticky !max-w-[6rem] min-w-[4rem] border-l gap-x-4 flex  justify-center  items-center font-poppins font-normal text-xs leading-4 bg-white/90  right-0 !z-10">
                             <CustomTooltip
                               content={
                                 <div className="flex flex-col gap-x-2 items-start gap-y-2">

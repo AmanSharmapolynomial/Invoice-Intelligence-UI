@@ -20,7 +20,8 @@ import { queryClient } from "@/lib/utils";
 export const useGetDocumentMetadata = (payload) => {
   return useQuery({
     queryKey: ["document-metadata", payload],
-    queryFn: () => getInvoiceMetaData(payload)
+    queryFn: () => getInvoiceMetaData(payload),
+    cacheTime: 0
   });
 };
 

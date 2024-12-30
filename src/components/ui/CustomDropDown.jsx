@@ -74,34 +74,59 @@ const CustomDropDown = ({
               {showBranchAsLink ? (
                 <Link to={null} className="flex items-center gap-x-2">
                   <Link2 className="text-[#348355] !h-4 !w-4" />
-                  <span className="text-[#348355] underline underline-offset-1 text-sm font-poppins font-normal">
+                  <span className="text-[#348355]  text-sm font-poppins font-normal truncate">
                     {value && value !== "none"
                       ? data.find((item) => item?.[Key] == value)
-                        ? data.find((item) => item?.[Key] == value)?.label
+                        ? data
+                            .find((item) => item?.[Key] == value)
+                            ?.label?.slice(0, 120) +
+                            `${data.find((item) => item?.[Key] == value)?.label
+                              ?.length >
+                            120 ? ".....":""}`
                         : placeholder
                       : placeholder}
                   </span>
+                  {data.find((item) => item?.[Key] == value)
+                    ?.human_verified && (
+                    <img src={approved} className="text-primary !h-4 !w-5  " />
+                  )}
                 </Link>
               ) : showVendorAsLink ? (
                 <Link to={null} className="flex items-center gap-x-2">
                   <Link2 className="text-[#348355] !h-4 !w-4" />
-                  <span className="text-[#348355] underline underline-offset-1 text-sm font-poppins font-normal">
+                  <span className="text-[#348355]  text-sm font-poppins font-normal truncate">
                     {value && value !== "none"
                       ? data.find((item) => item?.[Key] == value)
-                        ? data.find((item) => item?.[Key] == value)?.label
+                        ? data
+                            .find((item) => item?.[Key] == value)
+                            ?.label?.slice(0, 120) +
+                            `${data.find((item) => item?.[Key] == value)?.label
+                              ?.length >
+                            120 ? ".....":""}`
                         : placeholder
                       : placeholder}
                   </span>
+                  {data.find((item) => item?.[Key] == value)
+                    ?.human_verified && (
+                    <img src={approved} className="text-primary !h-4 !w-5  " />
+                  )}
                 </Link>
               ) : null}
             </>
           ) : (
             <div className="flex items-center gap-x-2">
-              <span>
+              <span className="!truncate">
                 {value && value !== "none"
                   ? data.find((item) => item?.[Key] == value)
-                    ? data.find((item) => item?.[Key] == value)?.label
-                    : placeholder
+                    ? `${
+                        data
+                          .find((item) => item?.[Key] == value)
+                          ?.label?.slice(0, 120) +
+                          `${data.find((item) => item?.[Key] == value)?.label
+                            ?.length >
+                          120 ? ".....":""}`
+                      }`
+                    : value
                   : placeholder}
               </span>
               <span>

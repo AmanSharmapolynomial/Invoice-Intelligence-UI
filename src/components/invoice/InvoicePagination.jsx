@@ -37,13 +37,12 @@ const InvoicePagination = ({ totalPages,setCurrentTab }) => {
             queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
             setPageIndex(pageIndex - 1);
             setCurrentTab('metadata')
-            queryClient.invalidateQueries({ queryKey: ["combined-table"] });
+         
           } else if (e.key === "ArrowRight" && pageIndex < totalPages) {
             // Go to the next page
             updateParams({ page_number: Number(pageIndex) + 1 });
             setPageIndex(pageIndex + 1);
             setCurrentTab('metadata')
-            queryClient.invalidateQueries({ queryKey: ["combined-table"] });
             queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
             // queryClient.invalidateQueries({ queryKey: ["combined-table"] });
           }

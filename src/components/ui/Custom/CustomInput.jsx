@@ -41,7 +41,7 @@ const CustomInput = ({
             }}
             className={`${className} ${
               variant == "search" && searchClassName
-            } rounded-md border-none shadow-none font-poppins  font-normal text-sm placeholder:text-base dark:text-[#FFFFFF] !h-[2.5rem] focus:!outline-none focus:!ring-0 `}
+            } rounded-md border-none shadow-none font-poppins  font-normal text-sm placeholder:text-base dark:text-[#FFFFFF] !h-[2.5rem] focus:!outline-none focus:!ring-0 max-w-full `}
             placeholder={placeholder}
             type={type}
             onChange={(e) => {
@@ -83,7 +83,7 @@ const CustomInput = ({
           ) : (
             <Input
               value={inputValue}
-              className={`${className} font-poppins  font-normal text-sm dark:!bg-[#000000] dark:text-[#FFFFFF]  focus:!outline-none  !h-[2.5rem] focus:!ring-0  border-[1px] border-[#E0E0E0] rounded-[4px] shadow-none `}
+              className={`${className} font-poppins  font-normal text-sm dark:!bg-[#000000] dark:text-[#FFFFFF]  focus:!outline-none  !h-[2.5rem] focus:!ring-0  border-[1px] max-w-full border-[#E0E0E0] rounded-[4px] shadow-none `}
               placeholder={placeholder}
               type={type}
               onKeyDown={(e)=>{

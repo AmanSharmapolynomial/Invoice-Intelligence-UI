@@ -60,7 +60,7 @@ const TablePagination = ({
         tagName === "input" ||
         tagName === "textarea" ||
         tagName === "select";
-  
+
       if (!isEditable) {
         if (e.key === "ArrowLeft" && pageIndex > 1) {
           // Go to the previous page
@@ -73,13 +73,13 @@ const TablePagination = ({
         }
       }
     };
-  
+
     window.addEventListener("keydown", handleKeyDown);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [pageIndex, totalPages, updateParams]);
-  
+
   return (
     <Pagination
       className={`${className} !bg-[#1E7944] py-1.5 rounded-b-md flex items-center gap-x-4`}
@@ -111,7 +111,7 @@ const TablePagination = ({
           <Input
             disabled
             value={totalPages || pageIndex}
-            className=" !shadow-none !text-sm font-medium remove-number-spinner text-[#000000] border-none focus:!border-[#FFFFFF] focus:!outline-none focus:!ring-[#FFFFFF] bg-[#F6F6F6]  w-[3rem] max  h-[1.25rem]  disabled:!bg-[#F6F6F6] disabled:text-textColor/400"
+            className=" !shadow-none !text-sm font-medium remove-number-spinner text-[#000000] border-none focus:!border-[#FFFFFF] focus:!outline-none focus:!ring-[#FFFFFF] bg-[#F6F6F6]  !w-fit  max-w-[3.75rem] max  h-[1.25rem]  disabled:!bg-[#F6F6F6] disabled:text-textColor/400"
           />
         </PaginationItem>
         <PaginationItem className="cursor-pointer" onClick={handleNextPage}>

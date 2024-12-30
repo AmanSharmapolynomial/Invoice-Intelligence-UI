@@ -11,10 +11,12 @@ const CategoryWiseSum = ({ isLoading }) => {
 
   return (
     <div
-      className={`${document_uuid &&"mt-16"} w-full   border-[#F0F0F0]  rounded-md max-h-[20rem] relative overflow-auto my-4 px-2`}
+      className={`${
+        document_uuid && "mt-16"
+      } w-full   border-[#F0F0F0]  rounded-md max-h-[20rem] relative overflow-auto my-4 px-2`}
       style={{ boxShadow: "0px 0px 8px 0px #0000001F" }}
     >
-      <Table >
+      <Table>
         <TableRow className="border-b border-b-[#E0E0E0]  !sticky !top-0">
           <TableHead>
             <p className="font-poppins font-semibold  pl-[5rem] text-[#000000] px-4 text-base py-3 leading-6">
@@ -58,7 +60,7 @@ const CategoryWiseSum = ({ isLoading }) => {
                   </TableHead>
                   <TableHead>
                     <p className="font-poppins font-normal  2xl:pl-[16.8rem] md:pl-[16rem] text-[#000000] px-4 text-sm py-3 leading-6 capitalize">
-                     $ {sum?.toFixed(2)}
+                       {String(sum)?.includes("N") ? "NA" : `$${sum?.toFixed(2)}`}
                     </p>
                   </TableHead>
                 </TableRow>

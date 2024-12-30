@@ -1,63 +1,73 @@
+import no_data from "@/assets/image/no_notes.svg";
+import receipt_long from "@/assets/image/receipt_long.svg";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
 import { Input } from "@/components/ui/input";
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger
 } from "@/components/ui/sheet";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
 } from "@/components/ui/tooltip";
+import { useAddVendorNote } from "@/components/vendor/api";
 import { queryClient } from "@/lib/utils";
 import { ReloadIcon } from "@radix-ui/react-icons";
-import { NotebookIcon, Send } from "lucide-react";
-import { memo, useState } from "react";
+import { ArrowRight, Send, SendHorizonal } from "lucide-react";
+import { useState } from "react";
 import toast from "react-hot-toast";
-import { useAddVendorNote } from "@/components/vendor/api";
-import { Skeleton } from "@/components/ui/skeleton";
-import no_data from "@/assets/image/no-data.svg";
-import receipt from "@/assets/image/receipt_long.svg";
 
 const VendorNotes = ({ data = [], vendor_id, isLoading }) => {
   const [note, setNote] = useState("");
   const { mutate, isPending } = useAddVendorNote();
+  console.log(data);
   return (
-    <Sheet className="relative">
+    <Sheet className="">
       <SheetTrigger>
-        {" "}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger>
-              {" "}
-              <Button className={" bg-primary !w-fit  px-2 rounded-sm"}>
-                <img src={receipt} alt="" className="h-5 w-5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent className=" bg-[#FFFFFF] font-semibold text-primary !text-sm">
-              <p>View Vendor Notes</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <CustomTooltip content={"View Vendor Notes."}>
+          <Button className="bg-transparent !min-h-[2.4rem]  !py-0  bg-primary border-primary w-[3rem] px-0  border-2 shadow-none text-[#000000] font-poppins font-normal text-sm">
+            <img
+              src={receipt_long}
+              alt=""
+              className="text-white !h-[20px] mx-4 "
+            />
+          </Button>
+        </CustomTooltip>
       </SheetTrigger>
-      <SheetContent>
-        <SheetHeader>
-          <SheetTitle className="!text-lg">Vendor Notes</SheetTitle>
 
-          <SheetDescription className="!h-full">
-            {data?.length == 0 ? (
-              <div className="w-full flex h-[80vh] justify-center items-center">
+      <SheetContent
+        style={{ boxShadow: "-4px 4px 8px 0px rgba(0, 0, 0, 0.12)" }}
+        className="h-full  max-h-[60rem]"
+      >
+        <SheetHeader>
+          <SheetTitle className="!text-[#222222] font-semibold font-poppins text-base leading-6 flex justify-between">
+            <span>Vendor Notes</span>
+            <SheetClose className="flex items-center gap-x-1 cursor-pointer">
+              <span className="text-[#222222]  font-poppins font-normal text-sm leading-5">
+                Collapse
+              </span>
+              <ArrowRight className="h-4 w-4" />
+            </SheetClose>
+          </SheetTitle>
+
+          <SheetDescription className="!h-full flex justify-center items-center flex-1  ">
+            {Object.keys(data)?.length == 0 ? (
+              <div className="w-full flex  justify-center items-center min-h-[40rem]">
                 <img src={no_data} alt="" />
               </div>
             ) : (
-              <div className="flex-1 !h-[80vh] flex-col gap-y-4  flex items-center justify-between">
-                <div className="flex-1  2xl:min-h-[86vh]   lg:min-h-[80vh]  overflow-auto flex-col w-full ">
+              <div className="flex-1 flex-col gap-y-4  flex items-center justify-between">
+                <div className="flex-1 overflow-auto flex-col w-full mt-2">
                   {isLoading
                     ? [1, 2, 3, 4, 5, 6, 7, 8, 9].map((_, ind) => (
                         <div
@@ -77,8 +87,8 @@ const VendorNotes = ({ data = [], vendor_id, isLoading }) => {
                           </Card>
                         </div>
                       ))
-                    : data?.data?.length > 0 &&
-                      data?.data?.map(
+                    : data?.length > 0 &&
+                      data?.map(
                         ({
                           note_uuid,
                           created_user,
@@ -88,30 +98,30 @@ const VendorNotes = ({ data = [], vendor_id, isLoading }) => {
                         }) => (
                           <div
                             key={note_uuid}
-                            className="w-full flex justify-end mt-4 overflow-auto gap-y-4"
+                            className="w-full flex justify-start items-center pr-[2em]"
                           >
-                            <Card className="flex flex-col justify-end items-end min-w-1/2">
-                              <CardHeader className="!py-2 flex justify-end !w-fit flex-row">
-                                <CardTitle className="capitalize">
-                                  {note}
-                                </CardTitle>
-                              </CardHeader>
-                              <CardContent className="!pb-2 flex justify-end !w-fit flex-row">
-                                <p className="text-xs">
-                                  {created_date
-                                    ?.split(".")?.[0]
-                                    ?.split("T")
-                                    ?.join(" ")}
-                                </p>
-                              </CardContent>
-                            </Card>
+                            <div className=" rounded-md py-3 px-3 bg-[#F2F2F7] w-full  flex flex-col gap-y-1 ">
+                              <p className="text-xs font-poppins  leading-4 text-[#2C2C2E] capitalize">
+                                {created_user?.username || "Unknown"}
+                              </p>
+                              <p className="text-[0.9rem] text-[#2C2C2E] font-poppins leading-4 capitalize">
+                                {" "}
+                                {note}
+                              </p>
+                              <div className="flex justify-end items-center text-[#666668] text-[0.7rem] font-poppins font-normal">
+                                {created_date
+                                  ?.split(".")?.[0]
+                                  ?.split("T")
+                                  ?.join(" ")}
+                              </div>
+                            </div>
                           </div>
                         )
                       )}
                 </div>
               </div>
             )}
-            <div className="flex w-full max-w-sm items-center space-x-2 lg:h-[15vh] 2xl:h-[20vh]    ">
+            <div className="flex w-full max-w-sm items-center space-x-2 py-1  absolute bottom-[4rem] border-t border-t-[#E5E5EA] ">
               <Input
                 type="text"
                 value={note}
@@ -123,8 +133,8 @@ const VendorNotes = ({ data = [], vendor_id, isLoading }) => {
                     setNote(e.target.value);
                   }
                 }}
-                placeholder="Type a message..."
-                className="min-w- max-w-96 border border-gray-200  focus:!ring-0 focus:!outline-none"
+                placeholder="Start Typing..."
+                className="min-w- max-w-96 border border-b-0 placeholder:!text-[#666668] placeholder:!font-poppins border-gray-200 border-none focus:!ring-0 focus:!outline-none font-poppins font-normal text-[0.9rem] text-[#666668]"
               />
               <Button
                 type="submit"
@@ -145,11 +155,12 @@ const VendorNotes = ({ data = [], vendor_id, isLoading }) => {
                     }
                   );
                 }}
+                className="shadow-none bg-transparent hover:bg-transparent border-none outline-none"
               >
                 {isPending ? (
                   <ReloadIcon className="h-5 w-5 animate-spin" />
                 ) : (
-                  <Send />
+                  <SendHorizonal className="text-[#8E8E93] h-5 w-5" />
                 )}
               </Button>
             </div>

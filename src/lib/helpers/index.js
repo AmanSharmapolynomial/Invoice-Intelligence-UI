@@ -169,6 +169,46 @@ export function formatDateToReadable(dateString) {
 
   return `${monthName.slice(0, 3)} ${parseInt(day, 10)}, ${year}`;
 }
+export function formatDateTimeToReadable(dateTimeString) {
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
+  ];
+
+  if (!dateTimeString) {
+    return;
+  }
+
+  const date = new Date(dateTimeString);
+
+  if (isNaN(date.getTime())) {
+    return "Invalid date";
+  }
+
+  const year = date.getFullYear();
+  const monthName = months[date.getMonth()];
+  const day = date.getDate();
+
+  let hours = date.getHours();
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+  const amPm = hours >= 12 ? "PM" : "AM";
+
+  // Convert to 12-hour format
+  hours = hours % 12 || 12;
+
+  return `${monthName.slice(0, 3)} ${day}, ${year} ${hours}:${minutes} ${amPm}`;
+}
+
 
 export function calculateTimeDifference(dueDate) {
   const now = new Date();

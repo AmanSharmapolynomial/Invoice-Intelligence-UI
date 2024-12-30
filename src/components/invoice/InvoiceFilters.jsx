@@ -10,32 +10,30 @@ import {
   HumanVerificationFilterOptions,
   InvoiceDetectionStatusFilterOptions,
   InvoiceReRunStatusFilterOptions,
-  InvoiceTypeFilterOptions,
+  InvoiceTypeFilterOptions
 } from "@/constants";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { DateRangePicker } from "../ui/Custom/DateRangePicker";
+import useFilterStore from "@/store/filtersStore";
 
 const InvoiceFilters = () => {
   const [searchParams] = useSearchParams();
 
   // Centralized state for filters
-  const [filters, setFilters] = useState({
-    human_verified: searchParams.get("human_verified") || "all",
-    human_verification: searchParams.get("human_verification") || "all",
-    invoice_type: searchParams.get("invoice_type") || "all",
-    clickbacon_status: searchParams.get("clickbacon_status") || "all",
-    rerun_status: searchParams.get("rerun_status") || "all",
-    detected: searchParams.get("detected") || "all",
-    auto_accepted: searchParams.get("auto_accepted") || "all",
-    start_date: searchParams.get("start_date") || "",
-    end_date: searchParams.get("end_date") || "",
-  });
-
+  const { filters, setFilters } = useFilterStore();
+  let human_verification = searchParams.get("human_verification") || "all";
+  let human_verified = searchParams.get("human_verified") || "all";
+  let invoice_type = searchParams.get("invoice_type") || "all";
+  let clickbacon_status = searchParams.get("clickbacon_status") || "all";
+  let auto_accepted = searchParams.get("auto_accepted") || "all";
+  let start_date = searchParams.get("start_date") || "";
+  let end_date = searchParams.get("end_date") || "";
+  
   const [selectionRange, setSelectionRange] = useState({
     from: filters?.start_date ? new Date(filters?.start_date) : null,
-    to: filters?.end_date ? new Date(filters?.end_date) : null,
+    to: filters?.end_date ? new Date(filters?.end_date) : null
   });
 
   const updateParams = useUpdateParams();
@@ -43,7 +41,7 @@ const InvoiceFilters = () => {
 
   // Update individual filter state and query params
   const updateFilter = (key, value) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
+    setFilters({ ...filters, [key]: value });
     updateParams({ [key]: value, page: 1 });
   };
 
@@ -58,7 +56,7 @@ const InvoiceFilters = () => {
 
     setSelectionRange({
       from: startDate,
-      to: endDate,
+      to: endDate
     });
 
     updateParams({ start_date: startDate, end_date: endDate });
@@ -73,7 +71,7 @@ const InvoiceFilters = () => {
       clickbacon_status: "all",
       rerun_status: "all",
       detected: "all",
-      auto_accepted: "all",
+      auto_accepted: "all"
     };
 
     setFilters(defaultFilters);
@@ -85,7 +83,7 @@ const InvoiceFilters = () => {
       vendor: "",
       restaurant: "",
       assigned_to: "",
-      sort_order: "desc",
+      sort_order: "desc"
     });
 
     setRestaurantFilter("none");
@@ -101,7 +99,7 @@ const InvoiceFilters = () => {
             triggerClassName={"!w-full"}
             label="Human Verification"
             placeholder="All"
-            value={filters.human_verification}
+            value={human_verification}
             onSelect={(val) => updateFilter("human_verification", val)}
             data={HumanVerificationFilterOptions}
           />
@@ -111,8 +109,10 @@ const InvoiceFilters = () => {
             triggerClassName={"!w-full"}
             label="Human Verified"
             placeholder="All"
-            value={filters.human_verified}
-            onSelect={(val) => updateFilter("human_verified", val)}
+            value={human_verified}
+            onSelect={(val) => {
+              updateFilter("human_verified", val);
+            }}
             data={AutoAcceptedFilterFilterOptions}
           />
         </div>
@@ -121,19 +121,19 @@ const InvoiceFilters = () => {
             triggerClassName={"!w-full"}
             label="Invoice Type"
             placeholder="All"
-            value={filters.invoice_type}
+            value={invoice_type}
             onSelect={(val) => updateFilter("invoice_type", val)}
             data={InvoiceTypeFilterOptions}
           />
         </div>
       </div>
-    
+
       <div className="flex flex-col gap-y-2">
         <div>
           <CustomSelect
             placeholder="All"
             triggerClassName={"!w-full"}
-            value={filters.auto_accepted}
+            value={auto_accepted}
             label="Auto Accepted Filter"
             onSelect={(val) => updateFilter("auto_accepted", val)}
             data={AutoAcceptedFilterFilterOptions}
@@ -144,7 +144,7 @@ const InvoiceFilters = () => {
             placeholder="All"
             triggerClassName={"!w-full"}
             label="clickBACON Status"
-            value={filters.clickbacon_status}
+            value={clickbacon_status}
             onSelect={(val) => updateFilter("clickbacon_status", val)}
             data={clickBACONStatusFilterOptions}
           />
@@ -152,10 +152,10 @@ const InvoiceFilters = () => {
       </div>
       <Label>Date Range</Label>
       <DateRangePicker
-      className={"!w-fit"}
+        className={"!w-fit"}
         dateRange={{
           from: selectionRange.from ? new Date(selectionRange.from) : null,
-          to: selectionRange.to ? new Date(selectionRange.to) : null,
+          to: selectionRange.to ? new Date(selectionRange.to) : null
         }}
         onChange={handleDateRangeChange}
       />

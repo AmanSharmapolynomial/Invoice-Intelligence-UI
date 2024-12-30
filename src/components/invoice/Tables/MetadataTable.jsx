@@ -483,12 +483,13 @@ const MetadataTable = ({
         </Template>
       </div>
       <div className="grid grid-cols-1 gap-x-4 mt-4">
-        <Template title="Vendor Address" className={"col-span-2"}>
+        <Template title="Vendor Address" className={"col-span-2 "}>
           <div className="flex items-center gap-x-4 pr-2 w-full">
             {editBranch ? (
               <CustomInput
                 value={branch?.vendor_address}
-                className={`${!newBranch ? "!border-[#F97074]" : ""}`}
+                className={`${!newBranch ? "!border-[#F97074]" : ""} !max-w-[10rem]`}
+                
                 onChange={(v) => {
                   if (branchChanged || vendorChanged) {
                     if (branchChanged) {
@@ -516,7 +517,7 @@ const MetadataTable = ({
                   }`}
                   triggerClassName={`${
                     editBranch ? "!min-w-[80%]" : "!min-w-full"
-                  } `}
+                  } !max-w-[10rem] `}
                   onChange={(v, branch) => {
                     if (branchChanged || vendorChanged) {
                       if (branchChanged) {

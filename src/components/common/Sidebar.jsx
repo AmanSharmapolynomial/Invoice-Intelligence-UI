@@ -9,7 +9,8 @@ import all_invoices_black from "@/assets/image/all_invoices_black.svg";
 import all_invoices_white from "@/assets/image/all_invoices_white.svg";
 import my_tasks_white from "@/assets/image/check_book_white.svg";
 import my_tasks_black from "@/assets/image/check_book_black.svg";
-
+import book_user_white from "@/assets/image/book_user_white.svg";
+import book_user_black from "@/assets/image/book_user_black.svg";
 import useThemeStore from "@/store/themeStore";
 
 const Sidebar = () => {
@@ -43,8 +44,8 @@ const Sidebar = () => {
       path: null,
       icon: null,
       text: "Vendor Consolidation",
-      image: theme === "light" ? review_later_black : review_later_white,
-      hoverImage: review_later_white
+      image: theme === "light" ?  book_user_black : book_user_white ,
+      hoverImage: book_user_white
     }
     // {
     //   path: "/custom",

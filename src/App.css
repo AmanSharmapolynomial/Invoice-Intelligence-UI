@@ -38,6 +38,13 @@
   outline: 0 !important;
   border-radius: 100vw !important;
 }
+.clip-triangle {
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+.clip-left-triangle {
+  clip-path: polygon(100% 0, 100% 100%, 0 0);
+}
 
 html,
 body {

@@ -39,11 +39,11 @@ export const HumanVerificationFilterOptions = [
   },
   {
     label: "Human Verification Required",
-    value: true
+    value: 'true'
   },
   {
     label: "Human Verification Not Required",
-    value: false
+    value: 'false'
   }
 ];
 export const InvoiceTypeFilterOptions = [
@@ -90,11 +90,11 @@ export const InvoiceReRunStatusFilterOptions = [
   },
   {
     label: "Rerun",
-    value: true
+    value: 'true'
   },
   {
     label: "Not Rerun",
-    value: false
+    value: 'false'
   }
 ];
 export const AutoAcceptedFilterFilterOptions = [
@@ -104,11 +104,11 @@ export const AutoAcceptedFilterFilterOptions = [
   },
   {
     label: "True",
-    value: true
+    value: 'true'
   },
   {
     label: "False",
-    value: false
+    value: 'false'
   }
 ];
 export const clickBACONStatusFilterOptions = [

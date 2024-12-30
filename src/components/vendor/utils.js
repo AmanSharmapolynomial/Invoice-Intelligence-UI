@@ -54,8 +54,9 @@ export const getVendorBranchDetails = async (branch_id) => {
 };
 export const getVendorNotes = async (vendor_id) => {
   const apiUrl = `/api/vendor/${vendor_id}/note/`;
+  if(vendor_id){
   const response = await axiosInstance.get(apiUrl);
-  return response;
+  return response;}
 };
 export const addVendorNote = async (payload) => {
   const { vendor_id, note } = payload;

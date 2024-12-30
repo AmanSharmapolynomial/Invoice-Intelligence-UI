@@ -5,6 +5,7 @@ import Navbar from "@/components/common/Navbar";
 import { PdfViewer } from "@/components/common/PDFViewer";
 import {
   useFindDuplicateInvoices,
+  useGetDocumentNotes,
   useMarkAsNotSupported,
   useMarkReviewLater,
   useUpdateDocumentMetadata,
@@ -52,6 +53,9 @@ import {
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
+import VendorNotes from "@/components/vendor/notes/VendorNotes";
+import { useGetVendorNotes } from "@/components/vendor/api";
+import DocumentNotes from "@/components/vendor/notes/DocumentNotes";
 
 const rejectionReasons = [
   "Duplicate invoice",
@@ -296,16 +300,27 @@ const InvoiceDetails = () => {
   };
 
   let action_controls =
-    metadata?.data?.[0]?.action_controls || metadata?.data?.action_controls;
+    data?.data?.[0]?.action_controls || data?.data?.action_controls;
 
   useEffect(() => {
-    if (duplicateInvoices?.duplicate_documents?.length > 0) {
+
+    if (duplicateInvoices?.duplicate_count> 0) {
       setShowDuplicateInvoicesWarning(true);
     }
   }, [duplicateInvoices]);
   const myData = data?.data?.[0] || data?.data;
   const { pathname } = useLocation();
   const { theme } = useThemeStore();
+
+  const {data:vendorNotes,isLoading:loadingVendorNotes}=useGetVendorNotes(
+    data?.data?.vendor?.vendor_id || data?.data?.[0]?.vendor?.vendor_id
+  )
+  const  { 
+    data: documentNotes,
+    isLoading: loadingDocumentNotes
+  } = useGetDocumentNotes(
+    data?.data?.document_uuid || data?.data?.[0]?.document_uuid
+  )
   const options = [
     {
       path: "/home",
@@ -335,41 +350,7 @@ const InvoiceDetails = () => {
       image: theme === "light" ? review_later_black : review_later_white,
       hoverImage: review_later_white
     }
-    // {
-    //   path: "/custom",
-    //   icon: null,
-    //   text: "All Items",
-    //   image: theme === "light" ? image : image_white,
-    //   hoverImage: image_white
-    // },
-    // {
-    //   path: "/custom",
-    //   icon: null,
-    //   text: "My Statistics",
-    //   image: theme === "light" ? image : image_white,
-    //   hoverImage: image_white
-    // },
-    // {
-    //   path: "/custom",
-    //   icon: null,
-    //   text: "Calendar Management",
-    //   image: theme === "light" ? image : image_white,
-    //   hoverImage: image_white
-    // },
-    // {
-    //   path: "/custom",
-    //   icon: null,
-    //   text: "Communication",
-    //   image: theme === "light" ? image : image_white,
-    //   hoverImage: image_white
-    // },
-    // {
-    //   path: "/custom",
-    //   icon: null,
-    //   text: "Issue Reporting",
-    //   image: theme === "light" ? image : image_white,
-    //   hoverImage: image_white
-    // }
+
   ];
 
   return (
@@ -441,6 +422,8 @@ const InvoiceDetails = () => {
           })}
         </SheetContent>
       </Sheet>
+
+     
 
       <Layout
         className={
@@ -555,28 +538,27 @@ const InvoiceDetails = () => {
                 </Button>
               </CustomTooltip>
             )}
-            <CustomTooltip content={"View Document Notes."}>
-              <Button className="bg-transparent !min-h-[2.4rem]  !py-0  bg-primary border-primary w-[3rem]  border-2 shadow-none text-[#000000] font-poppins font-normal text-sm">
-                <MessageCircleMore className="text-white !h-[1.25rem] !w-[1.25rem]" />
-              </Button>
-            </CustomTooltip>
-            <CustomTooltip content={"View Vendor Notes."}>
-              <Button className="bg-transparent !min-h-[2.4rem]  !py-0  bg-primary border-primary w-[3rem] px-0  border-2 shadow-none text-[#000000] font-poppins font-normal text-sm">
-                <img
-                  src={receipt_long}
-                  alt=""
-                  className="text-white !h-[20px] mx-4 "
-                />
-              </Button>
-            </CustomTooltip>
+           
+       <DocumentNotes
+       data={documentNotes?.data}
+        document_uuid={
+          data?.data?.document_uuid || data?.data?.[0]?.document_uuid
+        }
+        isLoading={loadingDocumentNotes}
+      />
 
-            <CustomTooltip content={"Click To Mark It For A Review."}>
+            <VendorNotes  data={vendorNotes?.data} isLoading={loadingVendorNotes} vendor_id={
+              data?.data?.vendor?.vendor_id || data?.data?.[0]?.vendor?.vendor_id
+            }/>
+
+            <CustomTooltip content={  action_controls?.review_later?.disabled
+                  ? action_controls?.review_later?.reason:"Click To Mark It For A Review."}>
               <Button
                 onClick={() => {
                   setMarkForReviewModal(true);
                   return;
                 }}
-                disabled={markingForReview}
+                disabled={ action_controls?.review_later?.disabled||markingForReview}
                 className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
               >
                 Review Later
@@ -643,7 +625,6 @@ const InvoiceDetails = () => {
               <Button
                 disabled={
                   action_controls?.save?.disabled ||
-                  currentTab == "combined-table" ||
                   loadingState?.saving ||
                   loadingState?.rejecting ||
                   loadingState?.accepting
