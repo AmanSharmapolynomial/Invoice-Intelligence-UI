@@ -32,7 +32,7 @@ export const useGetVendorAddresses = (vendor_id) => {
   return useQuery({
     queryKey: ["vendor-addresses", vendor_id],
     queryFn: async () => {
-      console.log(vendor_id);
+    
       if (vendor_id) {
         try {
           const response = await axiosInstance.get(

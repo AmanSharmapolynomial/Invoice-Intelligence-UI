@@ -36,7 +36,7 @@ const DocumentNotes = ({ data = [], document_uuid, isLoading }) => {
   const [note, setNote] = useState("");
 
   const { mutate, isPending } = useCreateDocumentNote();
-  console.log(data);
+
   return (
     <Sheet>
       <SheetTrigger>
@@ -117,10 +117,10 @@ const DocumentNotes = ({ data = [], document_uuid, isLoading }) => {
                                 dangerouslySetInnerHTML={{
                                   __html: notes
                                 }}
-                                className="!break-words leading-5 capitalize  !font-poppins  !font-normal !text-[0.9rem] "
+                                className="!break-words leading-5 capitalize max-w-[20rem] max-h-[15rem] overflow-hidden  !font-poppins  !font-normal !text-[0.9rem] "
                               />
 
-                             <div className="flex items-center justify-end">
+                             <div className="flex items-center justify-end mt-2">
                              <p className="text-xs">
                                
                                   {formatDateTimeToReadable(createdAt)}

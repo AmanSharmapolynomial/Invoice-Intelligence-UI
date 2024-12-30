@@ -30,7 +30,7 @@ import toast from "react-hot-toast";
 const VendorNotes = ({ data = [], vendor_id, isLoading }) => {
   const [note, setNote] = useState("");
   const { mutate, isPending } = useAddVendorNote();
-  console.log(data);
+ 
   return (
     <Sheet className="">
       <SheetTrigger>

@@ -31,6 +31,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 export const PdfViewer = ({
   pdfUrls = [],
   children,
+  image_rotations=[],
   showViewInvoiceItems,
   single = true,
   showIsBounding = false,
@@ -122,67 +123,126 @@ export const PdfViewer = ({
     }
   }, [bounding_box, pageNum, bounding_boxes]);
 
-  const getBoundingBoxStyle = (width, height, bb, showBorderr) => {
+  const getBoundingBoxStyle = (width, height, bb, showBorder) => {
+    let rotation = 0;
+    
+    if (image_rotations?.[`image_${pageNum - 1}`]?.image_rotated) {
+      rotation = image_rotations?.[`image_${pageNum - 1}`]?.rotation_angle;
+    }
+  
     if (!bb?.box?.polygon || bb.box.polygon.length !== 4) return {};
-
-    const topLeft = {
-      x: bb.box.polygon[0].X * width * pdfScale,
-      y: bb.box.polygon[0].Y * height * pdfScale
-    };
-    const bottomRight = {
-      x: bb.box.polygon[2].X * width * pdfScale,
-      y: bb.box.polygon[2].Y * height * pdfScale
-    };
-
+  
+    // Original points of the bounding box in normalized coordinates (0 to 1)
+    const points = bb.box.polygon.map(point => ({
+      x: point.X * width,
+      y: point.Y * height,
+    }));
+  
+    // Apply scaling factor to coordinates
+    const scaledPoints = points.map(point => ({
+      x: point.x * pdfScale,
+      y: point.y * pdfScale,
+    }));
+  
+    
+    // Center of the image (rotation origin)
+    const centerX = width * pdfScale / 2 - (rotation==-90 ? 123 :0)
+    const centerY = height * pdfScale / 2 + (rotation==90 ?122:0);
+  
+    // Rotate the points around the center of the page (this step needs to be correct)
+    const rotatedPoints = scaledPoints.map(point => {
+      const x = point.x - centerX;
+      const y = point.y - centerY;
+  
+      const rotatedX = x * Math.cos((-rotation * Math.PI) / 180) - y * Math.sin((-rotation * Math.PI) / 180);
+      const rotatedY = x * Math.sin((-rotation * Math.PI) / 180) + y * Math.cos((-rotation * Math.PI) / 180);
+  
+      return {
+        x: rotatedX + centerX,
+        y: rotatedY + centerY,
+      };
+    });
+  
+    // Get new bounding box coordinates (top-left and bottom-right)
+    const topLeft = rotatedPoints[0];
+    const bottomRight = rotatedPoints[2];
+  
     const calculatedWidth = bottomRight.x - topLeft.x;
     const calculatedHeight = bottomRight.y - topLeft.y;
-
+  
     return {
       position: "absolute",
-      top: `${topLeft.y - 1}px`,
+      top: `${topLeft.y}px`, // Use the exact value here, without offset
       left: `${topLeft.x}px`,
       width: `${calculatedWidth}px`,
-      height: `${calculatedHeight + 4}px`,
+      height: `${calculatedHeight}px`, // Ensure exact height without margin for now
       background: "rgba(144,238,144,0.4)",
       zIndex: 9999,
       borderRadius: 5,
       paddingLeft: 10,
       paddingRight: 5,
-      border: showBorderr && showBorder ? "1.5px solid red" : undefined
+      border: showBorder ? "1.5px solid red" : undefined,
     };
   };
-
+  
+  
   const zoomToBoundingBox = (width, height, bb) => {
+    let rotation = 0;
+    if (image_rotations?.[`image_${pageNum - 1}`]?.image_rotated) {
+      rotation = image_rotations?.[`image_${pageNum - 1}`]?.rotation_angle;
+    }
+  
     const viewerElement = document.getElementById("react-pdf__Wrapper");
     if (!bb?.box?.polygon || bb?.box?.polygon?.length !== 4) {
       if (!lockZoomAndScroll && pdfScale === 1.0) {
         setPdfScale(1.0);
-        viewerElement.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+        viewerElement?.scrollTo({ top: 0, left: 0, behavior: "smooth" });
       }
       return;
     }
-
+  
     const viewerWidth = viewerElement.clientWidth;
     const viewerHeight = viewerElement.clientHeight;
-
+  
+    // Calculate the width and height of the bounding box in the original coordinates
     const boxWidth = (bb.box.polygon[2].X - bb.box.polygon[0].X) * width;
     const boxHeight = (bb.box.polygon[2].Y - bb.box.polygon[0].Y) * height;
-
+  
+    // Calculate the target scale based on the bounding box size and viewer size
     const targetScale = lockZoomAndScroll
       ? pdfScale
       : Math.min(viewerWidth / boxWidth, viewerHeight / boxHeight, 3.0) * 0.7;
-
+  
     setPdfScale(targetScale < 0 ? 1 : targetScale);
-
+  
+    // Calculate the top-left position of the bounding box in the scaled viewer coordinates
     const topLeftX = bb.box.polygon[0].X * width * targetScale;
     const topLeftY = bb.box.polygon[0].Y * height * targetScale;
-
+  
+    // Center of the image (rotation origin) after scaling
+    const centerX = width * targetScale / 2;
+    const centerY = height * targetScale / 2;
+  
+    // Rotate the top-left point back to its original position based on the rotation angle
+    const adjustedTopLeftX =
+      Math.cos((-rotation * Math.PI) / 180) * (topLeftX - centerX) -
+      Math.sin((-rotation * Math.PI) / 180) * (topLeftY - centerY) +
+      centerX;
+    const adjustedTopLeftY =
+      Math.sin((-rotation * Math.PI) / 180) * (topLeftX - centerX) +
+      Math.cos((-rotation * Math.PI) / 180) * (topLeftY - centerY) +
+      centerY;
+  
+    // Calculate the new scroll position to center the bounding box in the viewer
+    const scrollLeft = adjustedTopLeftX - viewerWidth / 2 + (boxWidth * targetScale) / 2;
+    const scrollTop = adjustedTopLeftY - viewerHeight / 2 + (boxHeight * targetScale) / 2;
+  
+    // Scroll to the calculated position with smooth behavior
     viewerElement.scrollTo({
-      left: topLeftX - viewerWidth / 2 + (boxWidth * targetScale) / 2,
-      top: topLeftY - viewerHeight / 2 + (boxHeight * targetScale) / 2,
-      behavior: "smooth"
+      left: scrollLeft,
+      top: scrollTop,
+      behavior: "smooth",
     });
-    // setPdfScale(1.0)
   };
   let page = searchParams.get("page_number");
 
@@ -316,7 +376,44 @@ export const PdfViewer = ({
     setEndX(0);
     setEndY(0);
   };
-
+  useEffect(() => {
+    
+    if(image_rotations){
+      
+      const currentImageKey = `image_${pageNum - 1}`;
+      const currentImage = image_rotations[currentImageKey];
+  
+      if (currentImage) {
+        if( currentImage.image_rotated){
+  
+          let rotatedAngle = currentImage.rotation_angle;
+          // Normalize rotation angle to the range [0, 360)
+          const normalizedAngle = ((rotatedAngle % 360) + 360) % 360;
+          
+          // Determine the rotation to make the page upright (portrait)
+          let portraitRotation;
+          switch (normalizedAngle) {
+            case 90:
+            portraitRotation = 270; // Rotate clockwise to upright
+            break;
+            case 270:
+              portraitRotation = 90; // Rotate counterclockwise to upright
+              break;
+          case 180:
+            portraitRotation = 180; // Flip upside down
+            break;
+            default:
+              portraitRotation = 0; // Already upright
+            }
+            
+            setRotation(portraitRotation);
+          } else {
+            setRotation(0); // Default to no rotation
+            
+          }
+          }
+    }
+    }, [pageNum, image_rotations,setPageNum]);
   return (
     <div className="w-full  max-h-[42rem] overflow-auto  hide-scrollbar">
       {loadinMetadata && <Skeleton className={"w-[50rem]  h-[60rem]"} />}

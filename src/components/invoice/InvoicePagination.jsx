@@ -9,11 +9,11 @@ import slash from "@/assets/image/slash_black.svg";
 import { Input } from "../ui/input";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
 import { queryClient } from "@/lib/utils";
-const InvoicePagination = ({ totalPages,setCurrentTab }) => {
+const InvoicePagination = ({ totalPages, setCurrentTab }) => {
   const [searchParams] = useSearchParams();
   const updateParams = useUpdateParams();
   let page = searchParams.get("page_number") || 1;
-  const {isModalOpen}=invoiceDetailStore()
+  const { isModalOpen } = invoiceDetailStore();
   const [pageIndex, setPageIndex] = useState(page);
   useEffect(() => {
     setPageIndex(page);
@@ -28,7 +28,7 @@ const InvoicePagination = ({ totalPages,setCurrentTab }) => {
           tagName === "input" ||
           tagName === "textarea" ||
           tagName === "select";
-  
+
         if (!isEditable) {
           if (e.key === "ArrowLeft" && pageIndex > 1) {
             // Go to the previous page
@@ -36,33 +36,32 @@ const InvoicePagination = ({ totalPages,setCurrentTab }) => {
             queryClient.invalidateQueries({ queryKey: ["combined-table"] });
             queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
             setPageIndex(pageIndex - 1);
-            setCurrentTab('metadata')
-         
+            setCurrentTab("metadata");
           } else if (e.key === "ArrowRight" && pageIndex < totalPages) {
             // Go to the next page
             updateParams({ page_number: Number(pageIndex) + 1 });
-            setPageIndex(pageIndex + 1);
-            setCurrentTab('metadata')
+            setPageIndex(Number(pageIndex) + 1);
+            setCurrentTab("metadata");
             queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
             // queryClient.invalidateQueries({ queryKey: ["combined-table"] });
           }
         }
       };
-  
+
       window.addEventListener("keydown", handleKeyDown);
       return () => {
         window.removeEventListener("keydown", handleKeyDown);
       };
     }
   }, [pageIndex, totalPages, updateParams, isModalOpen]);
-  
+
   return (
     <div className="flex gap-x-6 py-2 mt-2 justify-center items-center  ">
       <img
         src={navigate_end}
         onClick={() => {
           updateParams({ page_number: 1 });
-          setCurrentTab("metadata")
+          setCurrentTab("metadata");
           setPageIndex(1);
         }}
         alt=""
@@ -74,7 +73,7 @@ const InvoicePagination = ({ totalPages,setCurrentTab }) => {
         onClick={() => {
           if (pageIndex >= 1) {
             setPageIndex((prev) => Number(prev) - 1);
-            setCurrentTab("metadata")
+            setCurrentTab("metadata");
             updateParams({ page_number: Number(pageIndex) - 1 });
           }
         }}
@@ -84,11 +83,11 @@ const InvoicePagination = ({ totalPages,setCurrentTab }) => {
         min={1}
         type="number"
         value={pageIndex}
-        onChange={(e)=>{
-          setPageIndex(e.target.value)
+        onChange={(e) => {
+          setPageIndex(e.target.value);
         }}
-        onBlur={()=>{
-          updateParams({page_number:pageIndex})
+        onBlur={() => {
+          updateParams({ page_number: pageIndex });
         }}
         className="!w-[3rem] !h-[1.75rem] rounded-md  shadow-none focus:!ring-0 border-[#E0E0E0] text-[#000000] font-poppins font-medium text-[0.9rem] text-center  !p-0 !pl-1.5 !pr-0 leading-5 border-[0.125rem]"
       />
@@ -96,7 +95,7 @@ const InvoicePagination = ({ totalPages,setCurrentTab }) => {
       <Input
         disabled
         className="!w-[4.5rem] !h-[1.75rem] rounded-md  shadow-none focus:!ring-0 border-[#E0E0E0]  text-[#000000] font-poppins font-medium text-[0.9rem] leading-5 disabled:!bg-[#F6F6F6] disabled:!text-[#888888] disabled:!opacity-95 border-none"
-        value={totalPages||pageIndex}
+        value={totalPages || pageIndex}
       />
       <img
         src={navigate_next}
@@ -105,7 +104,7 @@ const InvoicePagination = ({ totalPages,setCurrentTab }) => {
         onClick={() => {
           if (pageIndex < totalPages) {
             setPageIndex((prev) => Number(prev) + 1);
-            setCurrentTab("metadata")
+            setCurrentTab("metadata");
             updateParams({ page_number: Number(pageIndex) + 1 });
           }
         }}
@@ -114,7 +113,7 @@ const InvoicePagination = ({ totalPages,setCurrentTab }) => {
         onClick={() => {
           updateParams({ page_number: totalPages });
           setPageIndex(totalPages);
-          setCurrentTab("metadata")
+          setCurrentTab("metadata");
         }}
         src={navigate_end}
         alt=""

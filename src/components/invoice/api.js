@@ -130,7 +130,7 @@ export const useMarkReviewLater = () => {
       toast.success(data?.message);
     },
     onError: (err) => {
-      console.log(err);
+      
       toast.error(err?.message);
     }
   });
@@ -284,7 +284,7 @@ export const useUpdateVendorOrBranch = () => {
       return response;
     },
     onSuccess: (data) => {
-      console.log(data);
+      
       toast.success(data?.message);
     }
   });

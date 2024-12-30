@@ -303,8 +303,8 @@ const InvoiceDetails = () => {
     data?.data?.[0]?.action_controls || data?.data?.action_controls;
 
   useEffect(() => {
-
-    if (duplicateInvoices?.duplicate_count> 0) {
+    setShowDuplicateInvoicesWarning(false);
+    if (duplicateInvoices?.duplicate_count > 0) {
       setShowDuplicateInvoicesWarning(true);
     }
   }, [duplicateInvoices]);
@@ -312,15 +312,14 @@ const InvoiceDetails = () => {
   const { pathname } = useLocation();
   const { theme } = useThemeStore();
 
-  const {data:vendorNotes,isLoading:loadingVendorNotes}=useGetVendorNotes(
-    data?.data?.vendor?.vendor_id || data?.data?.[0]?.vendor?.vendor_id
-  )
-  const  { 
-    data: documentNotes,
-    isLoading: loadingDocumentNotes
-  } = useGetDocumentNotes(
-    data?.data?.document_uuid || data?.data?.[0]?.document_uuid
-  )
+  const { data: vendorNotes, isLoading: loadingVendorNotes } =
+    useGetVendorNotes(
+      data?.data?.vendor?.vendor_id || data?.data?.[0]?.vendor?.vendor_id
+    );
+  const { data: documentNotes, isLoading: loadingDocumentNotes } =
+    useGetDocumentNotes(
+      data?.data?.document_uuid || data?.data?.[0]?.document_uuid
+    );
   const options = [
     {
       path: "/home",
@@ -350,7 +349,6 @@ const InvoiceDetails = () => {
       image: theme === "light" ? review_later_black : review_later_white,
       hoverImage: review_later_white
     }
-
   ];
 
   return (
@@ -367,7 +365,7 @@ const InvoiceDetails = () => {
           </div>
         </SheetTrigger>
         <SheetContent side="left" className="px-0 !max-w-[300px] pt-8 ">
-          <SheetClose asChild >
+          <SheetClose asChild>
             <Menu className="h-5 w-5 cursor-pointer absolute right-4 top-2  text-end text-[#000000] " />
           </SheetClose>
           {options.map((option, index) => {
@@ -422,8 +420,6 @@ const InvoiceDetails = () => {
           })}
         </SheetContent>
       </Sheet>
-
-     
 
       <Layout
         className={
@@ -538,27 +534,39 @@ const InvoiceDetails = () => {
                 </Button>
               </CustomTooltip>
             )}
-           
-       <DocumentNotes
-       data={documentNotes?.data}
-        document_uuid={
-          data?.data?.document_uuid || data?.data?.[0]?.document_uuid
-        }
-        isLoading={loadingDocumentNotes}
-      />
 
-            <VendorNotes  data={vendorNotes?.data} isLoading={loadingVendorNotes} vendor_id={
-              data?.data?.vendor?.vendor_id || data?.data?.[0]?.vendor?.vendor_id
-            }/>
+            <DocumentNotes
+              data={documentNotes?.data}
+              document_uuid={
+                data?.data?.document_uuid || data?.data?.[0]?.document_uuid
+              }
+              isLoading={loadingDocumentNotes}
+            />
 
-            <CustomTooltip content={  action_controls?.review_later?.disabled
-                  ? action_controls?.review_later?.reason:"Click To Mark It For A Review."}>
+            <VendorNotes
+              data={vendorNotes?.data}
+              isLoading={loadingVendorNotes}
+              vendor_id={
+                data?.data?.vendor?.vendor_id ||
+                data?.data?.[0]?.vendor?.vendor_id
+              }
+            />
+
+            <CustomTooltip
+              content={
+                action_controls?.review_later?.disabled
+                  ? action_controls?.review_later?.reason
+                  : "Click To Mark It For A Review."
+              }
+            >
               <Button
                 onClick={() => {
                   setMarkForReviewModal(true);
                   return;
                 }}
-                disabled={ action_controls?.review_later?.disabled||markingForReview}
+                disabled={
+                  action_controls?.review_later?.disabled || markingForReview
+                }
                 className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
               >
                 Review Later
@@ -642,6 +650,11 @@ const InvoiceDetails = () => {
           <div className="w-1/2 flex flex-col gap-y-4 2xl:px-16 md:px-8">
             <PdfViewer
               loadinMetadata={isLoading}
+              
+image_rotations={
+  data?.data?.document_metadata?.image_rotations ||
+  data?.data?.[0]?.document_metadata?.image_rotations
+}
               pdfUrls={[
                 {
                   document_link: `${

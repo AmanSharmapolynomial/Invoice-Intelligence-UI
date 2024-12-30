@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { X } from "lucide-react";
 import toast from "react-hot-toast";
+import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
 const Template = ({ title, children, className, titleContent }) => {
   return (
     <div className={`${className} flex flex-col gap-y-2`}>
@@ -241,7 +242,8 @@ const MetadataTable = ({
         vendorTypesAndCategories?.data?.vendor_account_category?.category_id
     });
   }, [vendorTypesAndCategories]);
-
+  let action_controls= data?.data?.[0]?.action_controls||data?.data?.action_controls
+ 
   return (
     <div className="w-full -mt-3 border border-[#F0F0F0] shadow-sm p-2 rounded-md">
       <div className="grid grid-cols-3 gap-x-4">
@@ -453,11 +455,14 @@ const MetadataTable = ({
                 </CustomDropDown>
               </div>
             )}
+            <CustomTooltip
+            
+            content={action_controls?.update_vendor?.disabled&& action_controls?.update_vendor?.reason}>
             <Button
               className={`${
                 !vendorChanged && "!border-[#CBCBCB] "
               } bg-transparent h-[2.4rem] border-primary w-[4.85rem] !rounded-md hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm`}
-              disabled={!vendorChanged}
+              disabled={action_controls?.update_vendor?.disabled||!vendorChanged}
               onClick={() => {
                 if (newVendor?.length > 0) {
                   updateVendor({ vendor_name: newVendor });
@@ -468,6 +473,7 @@ const MetadataTable = ({
             >
               {loadingState?.savingVendor ? "Updating.." : "Update"}
             </Button>
+            </CustomTooltip>
             {editVendor && (
               <Button
                 className="bg-transparent h-[2.4rem] border-primary w-[4.85rem] !rounded-md hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
@@ -555,11 +561,14 @@ const MetadataTable = ({
                 </CustomDropDown>
               </div>
             )}
-            <Button
+          <CustomTooltip
+          content={action_controls?.update_branch?.disabled&& action_controls?.update_branch?.reason}
+          >
+          <Button
               className={`${
                 !branchChanged && "!border-[#CBCBCB]"
               } bg-transparent h-[2.4rem] border-primary w-[4.85rem] !rounded-md hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm`}
-              disabled={!branchChanged}
+              disabled={action_controls?.update_branch?.disabled||!branchChanged}
               onClick={() => {
                 if (newBranch?.length > 0) {
                   updateBranch({ vendor_address: newBranch });
@@ -570,6 +579,7 @@ const MetadataTable = ({
             >
               {loadingState?.savingBranch ? "Updating.." : "Update"}
             </Button>
+          </CustomTooltip>
             {editBranch && (
               <Button
                 className="bg-transparent h-[2.4rem] border-primary w-[4.85rem] !rounded-md hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
