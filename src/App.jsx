@@ -18,6 +18,7 @@ import {
 import { usePersistStore } from "./components/vendor/store/persisitStore";
 import useFilterStore from "./store/filtersStore";
 import useThemeStore from "./store/themeStore";
+import { invoiceDetailStore } from "./store/invoiceDetailStore";
 
 function App() {
   const { data: vendorNamesList, isLoading: vendorNamesLoading } =
@@ -31,6 +32,7 @@ function App() {
     setFilteredVendors(vendorNamesList?.data?.vendor_names);
   }, [vendorNamesList]);
   const { theme } = useThemeStore();
+  const {clearStore}=invoiceDetailStore()
 
   const navigate = useNavigate();
 
@@ -40,6 +42,7 @@ function App() {
   const { setDefault } = useFilterStore();
   useEffect(() => {
     setDefault();
+    clearStore()
   }, []);
 
   return (

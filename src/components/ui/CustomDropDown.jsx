@@ -18,6 +18,7 @@ import { Check, ChevronDown, Link2, Verified } from "lucide-react";
 import { useEffect, useState } from "react";
 import approved from "@/assets/image/approved.svg";
 import { Link } from "react-router-dom";
+import { Checkbox } from "./checkbox";
 
 const CustomDropDown = ({
   data = [],
@@ -34,11 +35,13 @@ const CustomDropDown = ({
   showSearch = true,
   onBlur = () => {},
   showVendorAsLink = false,
-  showBranchAsLink = false
+  showBranchAsLink = false,
+  multiSelect = false
 }) => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(Value || "");
   const [item, setItem] = useState(null);
+  const [itemsArray, setItemsArray] = useState([]);
   useEffect(() => {
     if (Value !== undefined) {
       setValue(Value);
@@ -50,7 +53,9 @@ const CustomDropDown = ({
     setValue(newValue);
     setOpen(false);
     setItem(item);
-    onChange(getValueFromLabel(data, newValue), item);
+    !multiSelect
+      ? onChange(getValueFromLabel(data, newValue), item)
+      : onChange(itemsArray, item);
   };
 
   return (
@@ -69,74 +74,87 @@ const CustomDropDown = ({
           aria-expanded={open}
           className="min-w-fit border h-[2.5rem] dark:bg-[#000000] dark:text-textColor/200 dark:border-[#000000] bg-[#FFFFFF] hover:bg-[#FFFFFF] border-[#E0E0E0]  justify-between capitalize shadow-none !rounded-[4px] text-[#000000] hover:text-[#666666] font-poppins font-normal text-xs"
         >
-          {showBranchAsLink || showVendorAsLink ? (
-            <>
-              {showBranchAsLink ? (
-                <Link to={null} className="flex items-center gap-x-2">
-                  <Link2 className="text-[#348355] !h-4 !w-4" />
-                  <span className="text-[#348355]  text-sm font-poppins font-normal truncate">
-                    {value && value !== "none"
-                      ? data.find((item) => item?.[Key] == value)
-                        ? data
+          {
+            multiSelect?<>
+            {placeholder}
+            </>:<>{showBranchAsLink || showVendorAsLink ? (
+              <>
+                {showBranchAsLink ? (
+                  <Link to={null} className="flex items-center gap-x-2">
+                    <Link2 className="text-[#348355] !h-4 !w-4" />
+                    <span className="text-[#348355]  text-sm font-poppins font-normal truncate">
+                      {value && value !== "none"
+                        ? data.find((item) => item?.[Key] == value)
+                          ? data
+                              .find((item) => item?.[Key] == value)
+                              ?.label?.slice(0, 120) +
+                            `${
+                              data.find((item) => item?.[Key] == value)?.label
+                                ?.length > 120
+                                ? "....."
+                                : ""
+                            }`
+                          : placeholder
+                        : placeholder}
+                    </span>
+                    {data.find((item) => item?.[Key] == value)
+                      ?.human_verified && (
+                      <img src={approved} className="text-primary !h-4 !w-5  " />
+                    )}
+                  </Link>
+                ) : showVendorAsLink ? (
+                  <Link to={null} className="flex items-center gap-x-2">
+                    <Link2 className="text-[#348355] !h-4 !w-4" />
+                    <span className="text-[#348355]  text-sm font-poppins font-normal truncate">
+                      {value && value !== "none"
+                        ? data.find((item) => item?.[Key] == value)
+                          ? data
+                              .find((item) => item?.[Key] == value)
+                              ?.label?.slice(0, 120) +
+                            `${
+                              data.find((item) => item?.[Key] == value)?.label
+                                ?.length > 120
+                                ? "....."
+                                : ""
+                            }`
+                          : placeholder
+                        : placeholder}
+                    </span>
+                    {data.find((item) => item?.[Key] == value)
+                      ?.human_verified && (
+                      <img src={approved} className="text-primary !h-4 !w-5  " />
+                    )}
+                  </Link>
+                ) : null}
+              </>
+            ) : (
+              <div className="flex items-center gap-x-2">
+                <span className="!truncate">
+                  {value && value !== "none"
+                    ? data.find((item) => item?.[Key] == value)
+                      ? `${
+                          data
                             .find((item) => item?.[Key] == value)
                             ?.label?.slice(0, 120) +
-                            `${data.find((item) => item?.[Key] == value)?.label
-                              ?.length >
-                            120 ? ".....":""}`
-                        : placeholder
-                      : placeholder}
-                  </span>
-                  {data.find((item) => item?.[Key] == value)
-                    ?.human_verified && (
+                          `${
+                            data.find((item) => item?.[Key] == value)?.label
+                              ?.length > 120
+                              ? "....."
+                              : ""
+                          }`
+                        }`
+                      : typeof value === "string"?value: Value?.vendor_address
+                    : placeholder}
+                </span>
+                <span>
+                  {" "}
+                  {item?.human_verified && (
                     <img src={approved} className="text-primary !h-4 !w-5  " />
                   )}
-                </Link>
-              ) : showVendorAsLink ? (
-                <Link to={null} className="flex items-center gap-x-2">
-                  <Link2 className="text-[#348355] !h-4 !w-4" />
-                  <span className="text-[#348355]  text-sm font-poppins font-normal truncate">
-                    {value && value !== "none"
-                      ? data.find((item) => item?.[Key] == value)
-                        ? data
-                            .find((item) => item?.[Key] == value)
-                            ?.label?.slice(0, 120) +
-                            `${data.find((item) => item?.[Key] == value)?.label
-                              ?.length >
-                            120 ? ".....":""}`
-                        : placeholder
-                      : placeholder}
-                  </span>
-                  {data.find((item) => item?.[Key] == value)
-                    ?.human_verified && (
-                    <img src={approved} className="text-primary !h-4 !w-5  " />
-                  )}
-                </Link>
-              ) : null}
-            </>
-          ) : (
-            <div className="flex items-center gap-x-2">
-              <span className="!truncate">
-                {value && value !== "none"
-                  ? data.find((item) => item?.[Key] == value)
-                    ? `${
-                        data
-                          .find((item) => item?.[Key] == value)
-                          ?.label?.slice(0, 120) +
-                          `${data.find((item) => item?.[Key] == value)?.label
-                            ?.length >
-                          120 ? ".....":""}`
-                      }`
-                    : value
-                  : placeholder}
-              </span>
-              <span>
-                {" "}
-                {item?.human_verified && (
-                  <img src={approved} className="text-primary !h-4 !w-5  " />
-                )}
-              </span>
-            </div>
-          )}
+                </span>
+              </div>
+            )}</>
+          }
           {/* Chevron icon with transition */}
           <ChevronDown
             className={`ml-2 h-4 font-bold w-4 shrink-0 !text-[#666666] dark:text-textColor/200 transition-transform duration-300 ${
@@ -164,7 +182,9 @@ const CustomDropDown = ({
                       key={item.value}
                       className="text-left   !pl-0 !ml-0"
                       onBlur={onBlur}
-                      onSelect={() => handleSelect(item.value, item)}
+                      onSelect={() => {
+                        !multiSelect && handleSelect(item.value, item);
+                      }}
                     >
                       <Check
                         className={cn(
@@ -180,6 +200,23 @@ const CustomDropDown = ({
                           <img
                             src={approved}
                             className="text-primary !h-4 !w-5  "
+                          />
+                        )}
+
+                        {multiSelect && (
+                          <Checkbox
+                            checked={itemsArray.includes(item.value)}
+                            onCheckedChange={(checked) => {
+                              setItemsArray((prev) => {
+                                const updatedArray = checked
+                                  ? [...prev, item.value] // Add item
+                                  : prev.filter((i) => i !== item.value); // Remove item
+                        
+                                onChange(updatedArray, item); // Call onChange with updated array
+                                return updatedArray;
+                              });
+                            }}
+                            
                           />
                         )}
                       </div>

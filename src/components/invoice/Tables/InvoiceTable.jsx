@@ -264,7 +264,7 @@ const InvoiceTable = ({
                           }`
                         );
                       }}
-                      className="flex gap-y-4  !font-poppins !text-sm w-[100%]  !text-[#1C1C1E] items-center  !border-none "
+                      className="flex gap-y-4  !font-poppins !text-sm w-[100%]  !text-[#1C1C1E] items-center  !border-b !border-b-[#E0E0E0]/50 "
                     >
                       <TableCell
                         className={`flex dark:!text-[#F6F6F6] font-poppins cursor-pointer!text-left break-word items-center  justify-start gap-x-2  !font-normal ${
