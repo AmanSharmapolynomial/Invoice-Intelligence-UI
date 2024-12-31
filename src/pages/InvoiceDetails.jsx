@@ -1,4 +1,5 @@
 import receipt_long from "@/assets/image/receipt_long.svg";
+import approved from "@/assets/image/approved.svg";
 import warning from "@/assets/image/warning.svg";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
@@ -458,9 +459,15 @@ const InvoiceDetails = () => {
                   <p className="text-[#6D6D6D] font-poppins font-medium text-xs leading-4">
                     Vendor
                   </p>
-                  <p className="capitalize text-[#121212] font-semibold font-poppins text-xl">
+                  <p className="capitalize text-[#121212] font-semibold font-poppins text-xl flex gap-x-2 items-center">
                     {data?.data?.vendor?.vendor_name ||
                       data?.data?.[0].vendor?.vendor_name}
+
+                      {
+                        data?.data?.vendor?.human_verified||data?.data?.[0].vendor?.human_verified
+                        &&
+                        <img src={approved} />
+                      }
                   </p>
                 </div>
               </>
@@ -650,11 +657,10 @@ const InvoiceDetails = () => {
           <div className="w-1/2 flex flex-col gap-y-4 2xl:px-16 md:px-8">
             <PdfViewer
               loadinMetadata={isLoading}
-              
-image_rotations={
-  data?.data?.document_metadata?.image_rotations ||
-  data?.data?.[0]?.document_metadata?.image_rotations
-}
+              image_rotations={
+                data?.data?.document_metadata?.image_rotations ||
+                data?.data?.[0]?.document_metadata?.image_rotations
+              }
               pdfUrls={[
                 {
                   document_link: `${

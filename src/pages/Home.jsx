@@ -34,9 +34,11 @@ import persistStore from "@/store/persistStore";
 import { ArrowRight, Filter, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { invoiceDetailStore } from "@/store/invoiceDetailStore";
 
 const Home = () => {
   const [searchParams] = useSearchParams();
+  const {clearStore} = invoiceDetailStore();
   const navigate = useNavigate();
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [searchedInvoices, setSearchedInvoices] = useState([]);
@@ -141,15 +143,10 @@ const Home = () => {
       calculateDivHeightInVh("div2") +
       calculateDivHeightInVh("pagination") +
       8.5);
-  let timer;
-  let token = searchParams.get("token");
-  let user_id = searchParams.get("user_id");
-  let refresh_token = searchParams.get("refresh_token");
-  let username = searchParams.get("username");
-  let role = searchParams.get("role");
-  let user_email = searchParams.get("user_email");
-  let first_name = searchParams.get("first_name");
-  let last_name = searchParams.get("last_name");
+
+  useEffect(() => {
+clearStore()
+  }, []);
   return (
     <div className="h-screen  flex w-full " id="maindiv">
       <Sidebar />
@@ -173,43 +170,50 @@ const Home = () => {
           >
             <div className="flex  items-center space-x-2 ">
               <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
-              
                 <CustomDropDown
                   triggerClassName={"bg-gray-100"}
                   contentClassName={"bg-gray-100"}
                   Value={restaurantFilterValue}
                   placeholder="All Restaurants"
+                  multiSelect={true}
                   className={"!max-w-fit"}
                   data={formatRestaurantsList(
                     restaurantsList && restaurantsList?.data
                   )}
                   searchPlaceholder="Search Restaurant"
                   onChange={(val) => {
-                    if (val == "none") {
-                      updateParams({ restaurant: undefined });
-                      setRestaurantFilter("none");
+                    if (typeof val == "object") {
+                      let restaurant = val.map((item) => item).join(",");
+                      updateParams({ restaurant:restaurant });
                     } else {
-                      setRestaurantFilter(val);
-                      updateParams({ restaurant: val });
+                      if (val == "none") {
+                        updateParams({ restaurant: undefined });
+                      } else {
+                        updateParams({ restaurant: val });
+                      }
                     }
                   }}
                 />{" "}
                 <CustomDropDown
                   Value={vendorFilterValue}
-                  // className="!min-w-56"
+              
                   className={"!max-w-56"}
                   triggerClassName={"bg-gray-100"}
                   contentClassName={"bg-gray-100"}
                   data={vendorNamesFormatter(
                     vendorNamesList?.data && vendorNamesList?.data?.vendor_names
                   )}
+                  multiSelect={true}
                   onChange={(val) => {
-                    if (val == "none") {
-                      setVendorFilter("none");
-                      updateParams({ vendor: undefined });
+                    if (typeof val == "object") {
+                      let vendor = val.map((item) => item).join(",");
+                      updateParams({ vendor: vendor });
                     } else {
-                      setVendorFilter(val);
-                      updateParams({ vendor: val });
+                      if (val == "none") {
+                        updateParams({ vendor: undefined });
+                      } else {
+                        updateParams({ vendor: val });
+                      }
                     }
                   }}
                   placeholder="All Vendors"
@@ -248,7 +252,6 @@ const Home = () => {
                 </Sheet>
               </div>
 
-
               <CustomInput
                 showIcon={true}
                 variant="search"
@@ -256,28 +259,24 @@ const Home = () => {
                 value={invoiceNumber}
                 onChange={(value) => {
                   setInvoiceNumber(value);
-
                 }}
-                onKeyDown={
-                  (e) => {
-                    // alert(e.key)
-                    if (e.key == "Enter") {
-                      if (invoiceNumber?.length == 0) {
-                        setShowResults(false);
-                        return;
-                      }
-                      if (invoiceNumber?.length !== 0) {
-                        setShowResults(true);
-                        searchInvoices(invoiceNumber, {
-                          onSuccess: (data) => {
-                            setSearchedInvoices(data?.data);
-                          }
-                        });
-
-                      }
+                onKeyDown={(e) => {
+                  // alert(e.key)
+                  if (e.key == "Enter") {
+                    if (invoiceNumber?.length == 0) {
+                      setShowResults(false);
+                      return;
+                    }
+                    if (invoiceNumber?.length !== 0) {
+                      setShowResults(true);
+                      searchInvoices(invoiceNumber, {
+                        onSuccess: (data) => {
+                          setSearchedInvoices(data?.data);
+                        }
+                      });
                     }
                   }
-                }
+                }}
                 className="min-w-72 max-w-96 border border-gray-200 relative  focus:!ring-0 focus:!outline-none remove-number-spinner"
               />
 
@@ -296,7 +295,7 @@ const Home = () => {
                       <X className="cursor-pointer" />
                     </span>
                   </p>
-                  <Table  >
+                  <Table>
                     <div className="w-full justify-between flex max-h-56 overflow-auto">
                       <TableBody className="w-full">
                         {searchingInvoices ? (
