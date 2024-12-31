@@ -332,7 +332,7 @@ const InvoiceTable = ({
                         className={`${
                           review_later
                             ? "!w-[10%] !pl-[0rem]"
-                            : "!w-[11.11%] pl-[2rem]"
+                            : "!w-[11.11%] pl-[0rem]"
                         } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm !text-left items-center justify-start  !font-normal !text-[#1C1C1E]  `}
                       >
                         {assignment_details

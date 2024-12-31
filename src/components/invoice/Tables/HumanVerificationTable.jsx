@@ -41,6 +41,7 @@ const HumanVerificationTable = ({
   metadata,
   payload
 }) => {
+
   if (isLoading) {
     return (
       <div className="flex flex-col gap-y-8">
@@ -1073,7 +1074,7 @@ const HumanVerificationTable = ({
           "max-h-[42rem]   overflow-hidden"
         } w-full -mt-3 border border-[#F0F0F0] shadow-sm rounded-md  `}
       >
-        {metaData?.invoice_type !== "Summary Invoice" && (
+        {metadata?.invoice_type !== "Summary Invoice" && (
           <div className="w-full flex items-center justify-between pr-[1rem] border-b border-[#E0E0E0]">
             <p className="font-poppins font-semibold  p-3 text-base leading-6">
               Items
@@ -1221,7 +1222,7 @@ const HumanVerificationTable = ({
             onClose={handleCloseMenu}
           />
         )}
-        {metaData?.invoice_type !== "Summary Invoice" && (
+        {metadata?.invoice_type !== "Summary Invoice" && (
           <div
             className={`flex items-center justify-between py-3 !text-[#121212] !font-poppins !font-semibold !text-base px-8 ${
               metaData?.document_metadata?.invoice_extracted_total ==
@@ -1245,7 +1246,7 @@ const HumanVerificationTable = ({
           </div>
         )}
 
-        {metaData?.invoice_type !== "Summary Invoice" && (
+        {metadata?.invoice_type !== "Summary Invoice" && (
           <div className="pb-2  overflow-hidden w-full  ">
             <Table className="w-full   overflow-auto      ">
               <TableBody
@@ -1270,14 +1271,14 @@ const HumanVerificationTable = ({
                       }) => {
                         return (
                           <TableCell
-                            className="!min-w-[11rem] !max-w-full     flex items-center "
+                            className="!min-w-[12rem] !max-w-full     flex items-center "
                             key={column_uuid}
                           >
                             <CustomDropDown
                               Value={column_name}
                               className={"!w-[rem]"}
                               triggerClassName={
-                                "!max-w-[10rem] !h-[2.25rem] !min-w-[9.5rem]  "
+                                "!max-w-[10rem] !h-[2.25rem] !min-w-[10.5rem]  "
                               }
                               data={headerNamesFormatter(
                                 additionalData?.data
@@ -1309,7 +1310,7 @@ const HumanVerificationTable = ({
                         <TableRow
                           bordered
                           key={index}
-                          className="flex w-full gap-x-2  mb-2 border-b !border-b-[#F5F5F5]     justify-between "
+                          className="flex w-full gap-x-2  mb-2 border-b !border-b-[#F5F5F5]      justify-between "
                         >
                           {row?.cells
                             ?.filter((c) =>
@@ -1362,9 +1363,9 @@ const HumanVerificationTable = ({
                                       row_uuid: row?.transaction_uuid
                                     });
                                   }}
-                                  className="!min-w-[11rem] font-poppins  font-normal text-sm leading-4 text-[#121212] !max-w-full  justify-center    flex items-center  capitalize text-center -ml-2"
+                                  className="!w-[12rem] font-poppins  font-normal text-sm leading-4 text-[#121212] !max-w-full  justify-center    flex items-center  capitalize  text-left"
                                   key={i}
-                                >
+                                > 
                                   {editMode?.rowIndex === index &&
                                   editMode?.cellIndex == i ? (
                                     <>
@@ -1524,7 +1525,7 @@ const HumanVerificationTable = ({
           </div>
         )}
       </div>
-      {metaData?.invoice_type !== "Summary Invoice" ? (
+      {metadata?.invoice_type !== "Summary Invoice" ? (
         <>
           <div className="flex gap-x-2 items-center  justify-between px-3 mt-8 border-b pb-3 border-b-[#E0E0E0]">
             <div className="flex  items-center gap-x-2 ">
@@ -1768,7 +1769,7 @@ const HumanVerificationTable = ({
               value={metaData?.document_metadata?.invoice_extracted_total}
             />
           </div>
-          {metaData?.invoice_type !== "Summary Invoice" && (
+          {metadata?.invoice_type !== "Summary Invoice" && (
             <div
               className={`flex items-center justify-between py-3 !text-[#121212] !font-poppins  my-4 !font-semibold !text-base px-4 ${
                 metaData?.document_metadata?.invoice_extracted_total ==
@@ -1796,7 +1797,7 @@ const HumanVerificationTable = ({
         <>
           <div
             className={`${
-              metaData?.invoice_type == "Summary Invoice"
+              metadata?.invoice_type == "Summary Invoice"
                 ? "py-4 mx-2 my-4 rounded-xl border-[#D9D9D9]"
                 : "my-4"
             } flex items-center justify-between pl-4 font-poppins font-normal text-sm text-[#121212] pr-2 border`}
