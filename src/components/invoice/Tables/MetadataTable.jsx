@@ -595,32 +595,7 @@ const MetadataTable = ({
         </Template>
       </div>
       <div className="grid grid-cols-2 gap-x-4 mt-4">
-        <Template title="Document Type Prediction">
-          <CustomDropDown
-            Value={document_type}
-            className={`min-w-[28rem] ${
-              !document_type ? "!border-[#F97074]" : ""
-            }`}
-            data={makeKeyValueFromKey(additionalData?.data?.document_types)}
-            onChange={(v) => {
-              if (branchChanged || vendorChanged) {
-                if (branchChanged) {
-                  toast.error(
-                    "Please Update the Vendor Address before proceeding for other changes."
-                  );
-                  return;
-                } else {
-                  toast.error(
-                    "Please Update the Vendor Name before proceeding for other changes."
-                  );
-                  return;
-                }
-              } else {
-                setCachedData("document_type", v);
-              }
-            }}
-          />
-        </Template>
+        
         <Template title="QuickBooks Documents Type">
           <CustomDropDown
             Value={quick_book_document_type}
