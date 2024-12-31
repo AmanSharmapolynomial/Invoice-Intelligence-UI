@@ -145,7 +145,7 @@ const CombinedTable = ({
       <div className="py-2  !max-h-[39.7rem] overflow-auto w-full ">
         <Table className="w-full  !max-h-[30rem]">
           <TableHead className=" px-0 w-full sticky top-0">
-            <TableRow className="!w-full flex gap-x-2 hide-scrollbar border-b border-[#E0E0E0] px-0.5">
+            <TableRow className="!w-full flex gap-x-2 hide-scrollbar  justify-between border-b border-[#E0E0E0] px-0.5">
               {columns?.map(
                 ({
                   column_uuid,
@@ -155,7 +155,7 @@ const CombinedTable = ({
                 }) => {
                   return (
                     <TableCell
-                      className="!w-[11rem]  !pl-3 !max-w-[15rem]  flex  items-center gap-x-2 "
+                      className="!min-w-[11rem]  !pl-3 !max-w-full    flex  items-center gap-x-2 "
                       key={column_uuid}
                     >
                       <Checkbox
@@ -175,8 +175,8 @@ const CombinedTable = ({
             </TableRow>
           </TableHead>
 
-          <TableBody className="!max-h-[30rem] ">
-            <div className=" flex gap-x-2 overflow-auto px-0.5 !max-h-[35rem] hide-scrollbar " >
+          <TableBody className="!max-h-[30rem] hide-scrollbar  ">
+            <div className=" flex gap-x-2 overflow-auto px-0.5 !max-h-[35rem] hide-scrollbar justify-between " >
               {columns?.map(
                 ({
                   column_uuid,
@@ -194,7 +194,7 @@ const CombinedTable = ({
                           Value={column_name}
                           className={"!w-[rem] "}
                           triggerClassName={
-                            "!max-w-[10rem]!relative  !h-[2.25rem] !min-w-[9.5rem]  "
+                            "!max-w-[10rem] !relative  !h-[2.25rem] !min-w-[9.5rem]  "
                           }
                           data={headerNamesFormatter(
                             additionalData?.data
@@ -220,7 +220,7 @@ const CombinedTable = ({
                 }
               )}
             </div>
-            <div className=" flex flex-col gap-4 overflow-auto max-h-[30rem] px-0.5">
+            <div className=" flex flex-col gap-4 overflow-auto max-h-[30rem] px-0.5 hide-scrollbar">
               {rows?.map((row, index) => {
                 return (
                   <TableRow
@@ -231,7 +231,7 @@ const CombinedTable = ({
                     {row?.cells?.map((cell, i) => {
                       return (
                         <TableCell
-                          className="!w-[11rem] font-poppins font-normal text-sm leading-4 text-[#121212] !max-w-[12rem]  justify-center   flex items-center  capitalize"
+                          className="!min-w-[11rem] font-poppins font-normal text-sm leading-4 text-[#121212] !max-w-full  justify-center   flex items-center  capitalize"
                           key={i}
                         >
                           {cell?.text || "--"}

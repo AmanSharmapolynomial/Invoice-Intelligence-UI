@@ -1258,7 +1258,7 @@ const HumanVerificationTable = ({
                   }
                 }}
               >
-                <div className=" flex gap-x-2  px-0.5 sticky top-0 bg-white/80 z-20">
+                <div className=" flex justify-between hide-scrollbar gap-x-2  px-0.5 sticky top-0 bg-white/80 z-20">
                   {columns
                     ?.filter((c) => c.selected_column)
                     ?.map(
@@ -1270,7 +1270,7 @@ const HumanVerificationTable = ({
                       }) => {
                         return (
                           <TableCell
-                            className="!w-[11rem] !max-w-[12rem]     flex items-center "
+                            className="!min-w-[11rem] !max-w-full     flex items-center "
                             key={column_uuid}
                           >
                             <CustomDropDown
@@ -1309,7 +1309,7 @@ const HumanVerificationTable = ({
                         <TableRow
                           bordered
                           key={index}
-                          className="flex w-full gap-x-2  mb-2 border-b !border-b-[#F5F5F5]     "
+                          className="flex w-full gap-x-2  mb-2 border-b !border-b-[#F5F5F5]     justify-between "
                         >
                           {row?.cells
                             ?.filter((c) =>
@@ -1362,7 +1362,7 @@ const HumanVerificationTable = ({
                                       row_uuid: row?.transaction_uuid
                                     });
                                   }}
-                                  className="!w-[11rem] font-poppins  font-normal text-sm leading-4 text-[#121212] !max-w-[12rem]  justify-center    flex items-center  capitalize text-center -ml-2"
+                                  className="!min-w-[11rem] font-poppins  font-normal text-sm leading-4 text-[#121212] !max-w-full  justify-center    flex items-center  capitalize text-center -ml-2"
                                   key={i}
                                 >
                                   {editMode?.rowIndex === index &&

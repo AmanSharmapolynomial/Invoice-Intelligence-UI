@@ -21,7 +21,7 @@ export const useGetDocumentMetadata = (payload) => {
   return useQuery({
     queryKey: ["document-metadata", payload],
     queryFn: () => getInvoiceMetaData(payload),
-    cacheTime: 0
+    gcTime: 0
   });
 };
 
@@ -183,7 +183,8 @@ export const useFindDuplicateInvoices = (document_uuid) => {
 export const useGetCombinedTable = (document_uuid) => {
   return useQuery({
     queryKey: ["combined-table", document_uuid],
-    queryFn: () => getCombinedTable(document_uuid)
+    queryFn: () => getCombinedTable(document_uuid),
+    gcTime:0
   });
 };
 
