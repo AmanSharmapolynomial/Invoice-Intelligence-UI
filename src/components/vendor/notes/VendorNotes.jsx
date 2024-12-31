@@ -67,7 +67,7 @@ const VendorNotes = ({ data = [], vendor_id, isLoading }) => {
               </div>
             ) : (
               <div className="flex-1 flex-col gap-y-4  flex items-center justify-between">
-                <div className="flex-1 overflow-auto flex-col w-full mt-2">
+                <div className="flex overflow-auto flex-col gap-y-4 w-full mt-2">
                   {isLoading
                     ? [1, 2, 3, 4, 5, 6, 7, 8, 9].map((_, ind) => (
                         <div
@@ -98,7 +98,7 @@ const VendorNotes = ({ data = [], vendor_id, isLoading }) => {
                         }) => (
                           <div
                             key={note_uuid}
-                            className="w-full flex justify-start items-center pr-[2em]"
+                            className="w-full flex justify-start items-center pr-[2em] gap"
                           >
                             <div className=" rounded-md py-3 px-3 bg-[#F2F2F7] w-full  flex flex-col gap-y-1 ">
                               <p className="text-xs font-poppins  leading-4 text-[#2C2C2E] capitalize">

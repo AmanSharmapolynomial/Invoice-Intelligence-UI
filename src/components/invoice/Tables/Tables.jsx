@@ -187,7 +187,9 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
       {currentTab == "human-verification" && !isLoading && (
         <HumanVerificationTable
           data={combinedTableData}
-          metadata={data}
+          metadata={ data?.data?.[0]||data?.data 
+
+          }
           payload={{
             ...filters,
             page,

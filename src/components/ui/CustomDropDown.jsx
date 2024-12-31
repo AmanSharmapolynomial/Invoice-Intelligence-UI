@@ -72,7 +72,7 @@ const CustomDropDown = ({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="min-w-fit border h-[2.5rem] dark:bg-[#000000] dark:text-textColor/200 dark:border-[#000000] bg-[#FFFFFF] hover:bg-[#FFFFFF] border-[#E0E0E0]  justify-between capitalize shadow-none !rounded-[4px] text-[#000000] hover:text-[#666666] font-poppins font-normal text-xs"
+          className={`${multiSelect&& itemsArray?.length>0 && "!border-primary !text-primary"} min-w-fit border h-[2.5rem] dark:bg-[#000000 ] dark:text-textColor/200 dark:border-[#000000] bg-[#FFFFFF] hover:bg-[#FFFFFF] border-[#E0E0E0]  justify-between capitalize shadow-none !rounded-[4px] text-[#000000] hover:text-[#666666] font-poppins font-normal text-xs`}
         >
           {
             multiSelect?<>

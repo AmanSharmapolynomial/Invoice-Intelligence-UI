@@ -72,6 +72,7 @@ const MetadataTable = ({
     setVendorChanged,
     branchChanged,
     setBranchChanged,
+    setMetadata,
     newVendor,
     setNewVendor,
     newBranch,
@@ -815,6 +816,7 @@ const MetadataTable = ({
                         vendor_account_category: null
                       });
                       setShowToChangeCategoriesAndTypes(false);
+                      setMetadata(data)
                     }
                   }}
                 >

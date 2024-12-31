@@ -495,6 +495,23 @@ const InvoiceDetails = () => {
             </div>
           </div>
         </BreadCrumb>
+        {(branchChanged||vendorChanged) && (
+          <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
+            <div className="flex items-center gap-x-2">
+              <Info className="h-5 w-5 text-[#FF9800]" />
+              <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
+                
+                {vendorChanged ?" Please Save the Vendor Address before proceeding.":"Please Save the Branch Address before proceeding."}
+              </p>
+            </div>
+
+    
+            <X
+              className="h-6 w-6 text-[#546E7A] absolute top-2 right-2 cursor-pointer"
+              onClick={() => setShowDuplicateInvoicesWarning(false)}
+            />
+          </div>
+        )}
         {showDuplicateInvoicesWarning && (
           <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
             <div className="flex items-center gap-x-2">
