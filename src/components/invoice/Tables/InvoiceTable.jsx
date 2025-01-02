@@ -43,7 +43,7 @@ function getPropertyIcon(priority) {
         }
         top={2}
       >
-        <ChevronsUp className="w-6 object-fill  text-red-500 cursor-pointer" />
+        <ChevronsUp className="w-4 object-fill  text-red-500 cursor-pointer" />
       </CustomTooltip>
     );
   }
@@ -51,7 +51,7 @@ function getPropertyIcon(priority) {
   if (priority == "LOWEST") {
     return (
       <CustomTooltip content={"LOWEST"} top={2}>
-        <ChevronsDown className=" object-fill h-6  text-blue-500 cursor-pointer" />
+        <ChevronsDown className=" object-fill h-4  text-blue-500 cursor-pointer" />
       </CustomTooltip>
     );
   }
@@ -59,7 +59,7 @@ function getPropertyIcon(priority) {
   if (priority == "HIGH") {
     return (
       <CustomTooltip content={"HIGH"} top={2}>
-        <ChevronUp className="w-4 object-fill h-10  text-orange-400 cursor-pointer" />
+        <ChevronUp className="w-4 object-fill h-4  text-orange-400 cursor-pointer" />
       </CustomTooltip>
     );
   }
@@ -67,7 +67,7 @@ function getPropertyIcon(priority) {
   if (priority == "LOW") {
     return (
       <CustomTooltip content={"LOW"} top={2}>
-        <ChevronDown className=" object-fill h-10  text-orange-400 cursor-pointer" />
+        <ChevronDown className=" object-fill h-4  text-orange-400 cursor-pointer" />
       </CustomTooltip>
     );
   }
@@ -75,7 +75,7 @@ function getPropertyIcon(priority) {
   if (priority == "MEDIUM") {
     return (
       <CustomTooltip content={"MEDIUM"} top={2}>
-        <Equal className=" object-fill h-10  text-orange-700 cursor-pointer" />
+        <Equal className=" object-fill h-4  text-orange-700 cursor-pointer" />
       </CustomTooltip>
     );
   }
@@ -83,7 +83,7 @@ function getPropertyIcon(priority) {
   if (priority == "COMPLETED") {
     return (
       <CustomTooltip content={"COMPLETED"}>
-        <CheckCheck className=" object-fill h-5 !z-50  text-primary cursor-pointer" />
+        <CheckCheck className=" object-fill h-4 !z-50  text-primary cursor-pointer" />
       </CustomTooltip>
     );
   }
