@@ -50,7 +50,8 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
     human_verified: filters?.human_verified,
     vendor_id,
     document_uuid,
-    assigned_to
+    assigned_to,
+    review_later: filters?.review_later
   };
 
   const { data, isLoading, isPending, isFetched } =
@@ -65,7 +66,6 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
     setData(data);
     setIsLoading(isLoading);
   }, [data]);
-  
   useEffect(() => {
     const categoryColNum =
       combinedTableData?.data?.processed_table?.columns?.findIndex(
@@ -75,25 +75,29 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
       combinedTableData?.data?.processed_table?.columns?.findIndex(
         (col) => col.column_name == "Extended Price"
       );
-
+  
     const categorySum = combinedTableData?.data?.processed_table?.rows?.reduce(
       (acc, row) => {
-        const category = row?.cells[categoryColNum]?.text;
+        const category = categoryColNum !== -1
+          ? row?.cells[categoryColNum]?.text || "-"
+          : "-"; // Default to "-" if no category column
         const price = Number(row?.cells[extPriceColNum]?.text || 0);
-        if (category) {
+        if (price > 0) { // Only consider rows with a valid price
           acc[category] = (acc[category] || 0) + price;
         }
         return acc;
       },
       {}
     );
+  
     if (!categorySum) {
       return;
     }
-    const categorySumArray = Object?.entries(categorySum).map(
+  
+    const categorySumArray = Object.entries(categorySum).map(
       ([category, sum]) => ({ category, sum })
     );
-
+  
     setCategoryWiseSum(categorySumArray);
   }, [
     reCalculateCWiseSum,
@@ -104,6 +108,7 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
     combinedTableData,
     data
   ]);
+  
   let length = invoiceDetailsTabs?.filter(({ value }) => {
     if (value == "combined-table") {
       if (
@@ -139,11 +144,9 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
               <div
                 key={value}
                 onClick={() => {
-                  if (branchChanged || vendorChanged) {
-                    setShowWarningModal(true);
-                  } else {
+                 
                     setCurrentTab(value);
-                  }
+                 
                 }}
                 className={`text-center h-[3.2rem] cursor-pointer   ${styling} items-center  font-poppins font-medium text-sm leading-4 flex justify-center `}
               >
@@ -218,32 +221,7 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
             }
           />
         )}
-      <Modal
-        open={showWarningModal}
-        setOpen={setShowWarningModal}
-        title={""}
-        showXicon={false}
-        className={"h-[18rem] w-[25rem] !rounded-3xl"}
-      >
-        <ModalDescription className="h-[50rem]">
-          <div className="w-full flex  flex-col justify-center h-full items-center -ml-4">
-            <img src={warning} alt="" className="h-16 w-16" />
-            <p className="font-poppins font-semibold text-base leading-6 text-[#000000]">
-              Warning
-            </p>
-            <p className="px-8 text-center mt-2 text-[#666667] font-poppins font-medium  text-sm leading-5">
-              Please save{" "}
-              {branchChanged
-                ? "the vendor"
-                : vendorChanged
-                ? "the branch "
-                : "the updated fields"}{" "}
-              before proceeding to the next step to avoid losing your changes or
-              encountering errors.
-            </p>
-          </div>
-        </ModalDescription>
-      </Modal>
+     
     </div>
   );
 };

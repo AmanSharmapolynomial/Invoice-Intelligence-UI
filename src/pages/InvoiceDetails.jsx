@@ -210,6 +210,22 @@ const InvoiceDetails = () => {
     payload["rejected"] = true;
 
     payload["rejection_reason"] = rejectionReason;
+    updateTable(
+      {
+        document_uuid: metaData?.document_uuid,
+        data: { ...payload, ...updatedFields }
+      },
+      {
+        onSuccess: () => {
+          setLoadingState({ ...loadingState, rejecting: false });
+          // queryClient.invalidateQueries({ queryKey: ["combined-table"] });
+          setRejectionReason("");
+          setShowRejectionModal(false);
+          queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
+        },
+        onError: () => setLoadingState({ ...loadingState, rejecting: false })
+      }
+    );
     if (operations?.length !== 0) {
       setLoadingState({ ...loadingState, saving: true });
 
@@ -234,27 +250,31 @@ const InvoiceDetails = () => {
         }
       );
     }
-    updateTable(
-      {
-        document_uuid: metaData?.document_uuid,
-        data: { ...payload, ...updatedFields }
-      },
-      {
-        onSuccess: () => {
-          setLoadingState({ ...loadingState, rejecting: false });
-          // queryClient.invalidateQueries({ queryKey: ["combined-table"] });
-          setRejectionReason("");
-          setShowRejectionModal(false);
-          queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
-        },
-        onError: () => setLoadingState({ ...loadingState, rejecting: false })
-      }
-    );
+    
   };
 
   const handleAccept = () => {
     setLoadingState({ ...loadingState, accepting: true });
     metaData["human_verified"] = true;
+    updateTable(
+      {
+        document_uuid: metaData?.document_uuid,
+        data: { human_verified: true, ...updatedFields }
+      },
+      {
+        onSuccess: () => {
+          setLoadingState({ ...loadingState, saving: false });
+          queryClient.invalidateQueries({ queryKey: ["combined-table"] });
+
+          queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
+          clearUpdatedFields();
+        },
+        onError: () => {
+          setLoadingState({ ...loadingState, saving: false });
+          queryClient.invalidateQueries({ queryKey: ["combined-table"] });
+        }
+      }
+    );
     if (operations?.length !== 0) {
       setLoadingState({ ...loadingState, saving: true });
 
@@ -279,25 +299,7 @@ const InvoiceDetails = () => {
     }
     setLoadingState({ ...loadingState, saving: true });
 
-    updateTable(
-      {
-        document_uuid: metaData?.document_uuid,
-        data: { human_verified: true, ...updatedFields }
-      },
-      {
-        onSuccess: () => {
-          setLoadingState({ ...loadingState, saving: false });
-          queryClient.invalidateQueries({ queryKey: ["combined-table"] });
-
-          queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
-          clearUpdatedFields();
-        },
-        onError: () => {
-          setLoadingState({ ...loadingState, saving: false });
-          queryClient.invalidateQueries({ queryKey: ["combined-table"] });
-        }
-      }
-    );
+   
   };
 
   let action_controls =
@@ -351,7 +353,13 @@ const InvoiceDetails = () => {
       hoverImage: review_later_white
     }
   ];
+  const [showWarningForBranchAndVendor, setShowWarningForBranchAndVendor] =useState(true);
 
+  useEffect(()=>{
+    if(branchChanged || vendorChanged){
+      setShowWarningForBranchAndVendor(true);
+    }
+  },[branchChanged,vendorChanged])
   return (
     <div className="hide-scrollbar relative">
       <Navbar />
@@ -463,11 +471,10 @@ const InvoiceDetails = () => {
                     {data?.data?.vendor?.vendor_name ||
                       data?.data?.[0].vendor?.vendor_name}
 
-                      {
-                        data?.data?.vendor?.human_verified||data?.data?.[0].vendor?.human_verified
-                        &&
+                    {data?.data?.vendor?.human_verified ||
+                      (data?.data?.[0].vendor?.human_verified && (
                         <img src={approved} />
-                      }
+                      ))}
                   </p>
                 </div>
               </>
@@ -495,20 +502,22 @@ const InvoiceDetails = () => {
             </div>
           </div>
         </BreadCrumb>
-        {(branchChanged||vendorChanged) && (
+        {(branchChanged || vendorChanged) && showWarningForBranchAndVendor && (
           <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
             <div className="flex items-center gap-x-2">
               <Info className="h-5 w-5 text-[#FF9800]" />
               <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
-                
-                {vendorChanged ?" Please Save the Vendor Address before proceeding.":"Please Save the Branch Address before proceeding."}
+                {vendorChanged&&branchChanged? "Please Save the Vendor Name and Branch Address before proceeding." : vendorChanged
+                  ? " Please Save the Vendor Name before proceeding."
+                  : "Please Save the Branch Address before proceeding."}
               </p>
             </div>
 
-    
             <X
               className="h-6 w-6 text-[#546E7A] absolute top-2 right-2 cursor-pointer"
-              onClick={() => setShowDuplicateInvoicesWarning(false)}
+              onClick={() => {
+setShowWarningForBranchAndVendor(false);
+              }}
             />
           </div>
         )}
@@ -763,6 +772,7 @@ const InvoiceDetails = () => {
                         });
                         setReviewLaterComments("");
                         setMarkForReviewModal(false);
+                        window.location.reload();
                       },
                       onError: () => {
                         setLoadingState({
@@ -785,7 +795,7 @@ const InvoiceDetails = () => {
         {/* Mark As Not Supported */}
         <Modal
           open={markAsNotSupportedModal}
-          showXicon={false}
+          showXicon={true}
           className={"max-w-[25rem] !rounded-xl"}
           setOpen={setMarkAsNotSupportedModal}
         >
@@ -820,6 +830,7 @@ const InvoiceDetails = () => {
                             ...loadingState,
                             markingAsNotSupported: false
                           });
+                          window.location.reload();
                         },
                         onError: () => {
                           setLoadingState({

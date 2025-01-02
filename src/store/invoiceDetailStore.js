@@ -26,6 +26,8 @@ export const invoiceDetailStore = create((set, get) => ({
   editBranch: false,
   editVendor: false,
   totalPages: null,
+  review_later: false,
+  setReviewLater: (val) => set({ review_later: val }),
   setCombinedTableHistory: (history) => set({ combinedTableHistory: history }),
   setTotalPages: (pages) => set({ totalPages: pages }),
   setVendorChanged: (value) => set({ vendorChanged: value }),

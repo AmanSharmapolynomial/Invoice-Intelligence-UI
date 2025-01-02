@@ -22,7 +22,7 @@ export const getInvoiceMetaData = async (payload) => {
       payload?.restaurant
     }&human_verification_required=${payload?.human_verification}&assigned_to=${
       payload?.assigned_to || ""
-    }`;
+    }&review_later=${payload?.review_later}`;
   }
 
   const response = await axiosInstance.get(apiUrl);
@@ -40,11 +40,11 @@ export const getMasterItemPdfs = async (item_uuid) => {
   return response;
 };
 export const getDocumentNotes = async (document_uuid) => {
-   if(document_uuid){
+  if (document_uuid) {
     const apiUrl = `/api/document/${document_uuid}/clickbacon-notes/`;
     const response = await axiosInstance.get(apiUrl);
     return response;
-   }
+  }
 };
 export const getRawTable = async (document_uuid) => {
   const apiUrl = `/api/document/${document_uuid}/items/`;

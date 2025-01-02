@@ -181,6 +181,9 @@ const MetadataTable = ({
           queryClient.invalidateQueries({
             queryKey: ["document-metadata", payload]
           });
+          queryClient.invalidateQueries({
+              queryKey:['combined-table',document_uuid] 
+          })
           setNewVendor("");
         },
         onError: () => {
@@ -207,6 +210,9 @@ const MetadataTable = ({
           queryClient.invalidateQueries({
             queryKey: ["document-metadata", payload]
           });
+          queryClient.invalidateQueries({
+            queryKey:['combined-table',document_uuid] 
+        })
           setEditBranch(false);
           setNewBranch("");
         },
@@ -411,8 +417,8 @@ const MetadataTable = ({
             }}
           />
         </Template>
-        <Template title="Vendor Name" className="col-span-2">
-          <div className="flex items-center gap-x-4 pr-2 w-full">
+        <Template title="Vendor Name" className="col-span-2 w-full">
+          <div className="flex items-center gap-x-4 pr-2  !min-w-full">
             {editVendor ? (
               <CustomInput
                 className={`${
@@ -425,15 +431,15 @@ const MetadataTable = ({
                 }}
               />
             ) : (
-              <div className="w-full  flex gap-x-4">
+              <div className="!w-full overflow-auto    flex gap-x-4">
                 <CustomDropDown
                   Value={vendor?.vendor_id}
-                  className={`min-w-full ${
+                  className={`!max-w-full !min-w-full ${
                     !vendor?.vendor_id ? "!border-[#F97074]" : ""
                   }`}
                   triggerClassName={`${
-                    editVendor ? " !min-w-[80%]" : "!min-w-full"
-                  } `}
+                    editVendor ? " !min-w-[80%]" : "!min-w-fit"
+                  }  md:max-w-[15rem] xl:!min-w-full`}
                   showVendorAsLink={true}
                   onChange={(v, vendor) => {
                     setVendorChanged(true);
@@ -529,6 +535,7 @@ const MetadataTable = ({
                     setNewBranch(v);
                   }
                 }}
+          
               />
             ) : (
               <div className="flex items-center gap-x-4 w-full">
@@ -552,6 +559,7 @@ const MetadataTable = ({
                     );
                     setBranchChanged(true);
                   }}
+                  showBranchAsLink={true}
                   data={vendorAddressFormatter(vendorAddress?.branches)}
                 >
                   <p
