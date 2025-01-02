@@ -187,7 +187,7 @@ const CustomDropDown = ({
           )}
           {/* Chevron icon with transition */}
           <ChevronDown
-            className={`ml-2 h-4 font-bold w-4 absolute right-1 shrink-0 !text-[#666666] dark:text-textColor/200 transition-transform duration-300 ${
+            className={`ml-2 h-4 font-bold w-4  shrink-0 !text-[#666666] dark:text-textColor/200 transition-transform duration-300 ${
               open ? "rotate-180" : "rotate-0"
             } ${multiSelect && itemsArray?.length > 0 && "!text-white"}`}
           />
