@@ -227,8 +227,8 @@ clearStore()
                 >
                   <SheetTrigger>
                     {" "}
-                    <Button className="bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000]  ">
-                      <Filter className="h-5  text-black/40 dark:text-white/50" />
+                    <Button className={`bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000] ${open?"!bg-primary !text-white":"!bg-white"}   `}>
+                      <Filter className={`${open?"!text-white":""} h-5  text-black/40 dark:text-white/50`} />
                     </Button>
                   </SheetTrigger>
                   <SheetContent className="min-w-fit !max-w-[20rem] !overflow-auto">

@@ -176,6 +176,7 @@ const ReviewLaterTasks = () => {
                   triggerClassName={"bg-gray-100"}
                   contentClassName={"bg-gray-100"}
                   Value={restaurantFilterValue}
+                  multiSelect={true}
                   placeholder="All Restaurants"
                   className={"!max-w-fit"}
                   data={formatRestaurantsList(
@@ -195,6 +196,7 @@ const ReviewLaterTasks = () => {
                 <CustomDropDown
                   Value={vendorFilterValue}
                   // className="!min-w-56"
+                  multiSelect={true}
                   className={"!max-w-56"}
                   triggerClassName={"bg-gray-100"}
                   contentClassName={"bg-gray-100"}
@@ -220,8 +222,8 @@ const ReviewLaterTasks = () => {
                 >
                   <SheetTrigger>
                     {" "}
-                    <Button className="bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000]  ">
-                      <Filter className="h-5  text-black/40" />
+                    <Button className={`bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000] ${open?"!bg-primary !text-white":"!bg-white"}   `}>
+                      <Filter className={`${open?"!text-white":""} h-5  text-black/40 dark:text-white/50`} />
                     </Button>
                   </SheetTrigger>
                   <SheetContent className="min-w-fit !overflow-auto">

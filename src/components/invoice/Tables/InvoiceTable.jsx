@@ -123,11 +123,11 @@ const InvoiceTable = ({
         style={{ height: `${height}vh` }}
       >
         <TableHeader className="sticky top-0">
-          <TableRow className="flex  text-base border-none !sticky top-0 py-2 ">
-            {invoiceTableHeaders?.map(({ label, styling }) => (
+          <TableRow className="flex  text-base  !sticky top-0 pt-2 !border-0 !border-b-0 !h-14">
+            {invoiceTableHeaders?.map(({ label, styling },i) => (
               <TableHead
                 key={label}
-                className={`flex  dark:text-[#F6F6F6] flex-wrap break-words  text-[#000000] font-poppins  items-center !justify-start gap-x-1 ${styling} !font-semibold text-sm w-[11.11%]   `}
+                className={`flex ${review_later ?"!w-[10%] !pl-[0.9rem]":"!w-[11.1111111%]"} !h-full dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  items-center !justify-start gap-x-1 ${!review_later&&styling} !font-semibold text-sm   ${ (data && Object?.keys(data)?.length > 0 )?"!border-b-0":"border-b "}  border ${i!==invoiceTableHeaders?.length-1?"!border-r-0":"!"}`}
               >
                 {label == "Load Date" && (
                   <>
@@ -186,7 +186,7 @@ const InvoiceTable = ({
             ))}
             {review_later && (
               <TableHead
-                className={`flex  dark:text-[#F6F6F6] flex-wrap break-words  text-[#000000] font-poppins  items-center !justify-center gap-x-1  !font-semibold text-sm w-[11.11%]   `}
+                className={`flex  dark:text-[#F6F6F6] flex-wrap break-words  border-t border-r text-[#000000] font-poppins  items-center !justify-start !pl-[0.7rem] gap-x-1  !font-semibold text-sm !w-[10%]   `}
               >
                 Comments
               </TableHead>
@@ -194,7 +194,7 @@ const InvoiceTable = ({
           </TableRow>
         </TableHeader>
         <TableBody
-          className="flex-1 !w-[100%] !overflow-auto"
+          className="flex-1 !w-[100%] "
           style={{ height: `${height}vh` }}
         >
           {isLoading ? (
@@ -208,7 +208,7 @@ const InvoiceTable = ({
                     return (
                       <TableHead
                         key={i}
-                        className="flex  !text-left items-center justify-start  pb-4 !font-semibold !text-[#1C1C1E] !min-w-[11.11%] border-b  "
+                        className="flex  !text-left items-center justify-start  pb-4 !font-semibold !text-[#1C1C1E] !min-w-[11.1111111%] border-b  "
                       >
                         {" "}
                         <Skeleton className={"w-28 h-5"} />
@@ -264,11 +264,11 @@ const InvoiceTable = ({
                           }`
                         );
                       }}
-                      className="flex gap-y-4  !font-poppins !text-sm w-[100%]  !text-[#1C1C1E] items-center  !border-b !border-b-[#E0E0E0]/50 "
+                      className={`${index==0?"!border-t":"!border-t-0"}  flex !py-0 !h-16 !font-poppins !text-sm w-[100%]  !text-[#1C1C1E] items-center  !border   ${index==data?.length-1 ?"!border-b":"!border-b-0"} w-full`}
                     >
                       <TableCell
-                        className={`flex dark:!text-[#F6F6F6] font-poppins cursor-pointer!text-left break-word items-center  justify-start gap-x-2  !font-normal ${
-                          review_later ? "!w-[10%]" : "!w-[11.11%] pl-2"
+                        className={`flex dark:!text-[#F6F6F6] font-poppins !h-full cursor-pointer !text-left break-word items-center  justify-start gap-x-2  !font-normal ${
+                          review_later ? "!w-[10%]" : "!w-[11.1111111%] pl-2 border-r"
                         }  text-sm  `}
                       >
                         <div
@@ -287,8 +287,8 @@ const InvoiceTable = ({
                       </TableCell>
 
                       <TableCell
-                        className={`flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-10 !text-left items-center justify-start   !font-normal !text-[#1C1C1E] ${
-                          review_later ? "!w-[10%]" : "!w-[11.11%]"
+                        className={` dark:!text-[#F6F6F6] border-r-0  !h-full flex font-poppins cursor-pointer !text-left items-center justify-start   !font-normal !text-[#1C1C1E] ${
+                          review_later ? "!w-[10%] border-l" : "!w-[11.1111111%] "
                         } text-sm `}
                       >
                         {restaurant?.restaurant_name !== null
@@ -298,8 +298,8 @@ const InvoiceTable = ({
 
                       <TableCell
                         className={` ${
-                          review_later ? "!w-[10%]" : "!w-[11.11%]"
-                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-10  !text-left items-center gap-x-2 justify-between  !font-normal !text-[#1C1C1E]   !capitalize  text-sm break-words  `}
+                          review_later ? "!w-[10%]" : "!w-[11.1111111%] "
+                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !h-full border-l  !text-left items-center gap-x-2 justify-start  !font-normal !text-[#1C1C1E]   !capitalize  text-sm break-words  `}
                       >
                         <span
                           className={`${
@@ -320,10 +320,10 @@ const InvoiceTable = ({
                       </TableCell>
 
                       <TableCell
-                        className={`flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm  !text-left items-center justify-start  !font-normal !text-[#1C1C1E] ${
+                        className={`flex dark:!text-[#F6F6F6] font-poppins !h-full  border-l cursor-pointer text-sm  !text-left items-center justify-start  !font-normal !text-[#1C1C1E] ${
                           review_later
-                            ? "!w-[10%] pl-[3.1%]"
-                            : "!w-[11.11%] pl-[4.12rem]"
+                            ? "!w-[10%] pl-[0.9rem]"
+                            : "!w-[11.1111111%] pl-[1.05rem]"
                         }   `}
                       >
                         {formatDateToReadable(date_uploaded?.split("T")[0])}
@@ -331,9 +331,9 @@ const InvoiceTable = ({
                       <TableCell
                         className={`${
                           review_later
-                            ? "!w-[10%] !pl-[0rem]"
-                            : "!w-[11.11%] pl-[0rem]"
-                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm !text-left items-center justify-start  !font-normal !text-[#1C1C1E]  `}
+                            ? "!w-[10%] !pl-[0.9rem]"
+                            : "!w-[11.2%] pl-[1rem]"
+                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm  border-l h-full !text-left items-center justify-start  !font-normal !text-[#1C1C1E]  `}
                       >
                         {assignment_details
                           ? timeRemaining?.split("-").join("")
@@ -353,8 +353,8 @@ const InvoiceTable = ({
                           }
                         }}
                         className={`${
-                          review_later ? "!w-[10%]" : "!w-[11.11%]"
-                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm   items-center justify-center pr-[7.25rem] !text-center  capitalize  !font-normal !text-[#1C1C1E] `}
+                          review_later ? "!w-[10%] pl-[0.9rem]" : "!w-[11.1111111%] pl-[1rem]"
+                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm border-l h-full  items-center justify-start text-left pr-[7.25rem]   capitalize  !font-normal !text-[#1C1C1E] `}
                       >
                         {auto_accepted === true
                           ? "Auto Accepted"
@@ -379,24 +379,24 @@ const InvoiceTable = ({
                         }}
                         className={` ${
                           review_later
-                            ? "!w-[8%] pl-[2%]"
-                            : "!w-[11.11%] !pl-[3.4%]"
-                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm !text-left items-center justify-start  !font-normal !text-[#1C1C1E]  `}
+                            ? "!w-[10%] !pl-[0.8rem]"
+                            : "!w-[11.1111111%] !pl-[0.9rem]"
+                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm border-l h-full !text-left items-center !justify-start  !font-normal !text-[#1C1C1E]  `}
                       >
                         {clickbacon_status}
                       </TableCell>
 
                       <TableCell
                         className={`${
-                          review_later ? "!w-[10%] pl-[0.8%] " : "!w-[11.11%]"
-                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer  text-sm !text-left items-center justify-start !font-normal !text-[#1C1C1E]   `}
+                          review_later ? "!w-[10%] pl-[0.9rem] " : "!w-[11.1111111%] pl-[0.9rem]"
+                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer border-l h-full  text-sm !text-left items-center justify-start !font-normal !text-[#1C1C1E]   `}
                       >
                         {invoice_type}
                       </TableCell>
                       <TableCell
                         className={`${
-                          review_later ? "!w-[10%] pl-[4%]" : "!w-[11.11%]"
-                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm !text-left items-center justify-center !font-normal !text-[#1C1C1E] `}
+                          review_later ? "!w-[10%] pl-[0.9rem]" : "!w-[11.1111111%] pl-[0.9rem]"
+                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer border-l h-full text-sm !text-left items-center justify-start !font-normal !text-[#1C1C1E] `}
                       >
                         {!human_verified_date
                           ? "NA"
@@ -405,7 +405,7 @@ const InvoiceTable = ({
                             ) || "NA"}
                       </TableCell>
                       {review_later && (
-                        <TableCell className="flex capitalize dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm !text-left items-center justify-center pl-[4.5%] !font-normal !text-[#1C1C1E] !w-[10%] ">
+                        <TableCell className="flex capitalize dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm !text-left items-center justify-start border-l h-full  !font-normal !text-[#1C1C1E] !w-[10%] ">
                           {review_later_details?.comments}
                         </TableCell>
                       )}
@@ -516,8 +516,8 @@ const InvoiceTable = ({
               }
             )
           ) : (
-            <div className="flex justify-center items-center h-[40vh] !w-[95vw] !overflow-hidden">
-              <img src={no_data} alt="" className="flex-1 h-full" />
+            <div className="flex justify-center items-center h-full !w-full !overflow-hidden">
+              <img src={no_data} alt="" className="flex-1 h-96 overflow-hidden" />
             </div>
           )}
         </TableBody>

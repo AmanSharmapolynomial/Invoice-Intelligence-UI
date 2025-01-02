@@ -72,7 +72,7 @@ const CustomDropDown = ({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={`${multiSelect&& itemsArray?.length>0 && "!border-primary !text-primary"} min-w-fit border h-[2.5rem] dark:bg-[#000000 ] dark:text-textColor/200 dark:border-[#000000] bg-[#FFFFFF] hover:bg-[#FFFFFF] border-[#E0E0E0]  justify-between capitalize shadow-none !rounded-[4px] text-[#000000] hover:text-[#666666] font-poppins font-normal text-xs`}
+          className={`${multiSelect&& itemsArray?.length>0 && "!bg-primary !text-white"} min-w-fit border h-[2.5rem] dark:bg-[#000000 ] dark:text-textColor/200 dark:border-[#000000] bg-[#FFFFFF] hover:bg-[#FFFFFF] border-[#E0E0E0]  justify-between capitalize shadow-none !rounded-[4px] text-[#000000] hover:text-[#666666] font-poppins font-normal text-xs`}
         >
           {
             multiSelect?<>
@@ -163,7 +163,7 @@ const CustomDropDown = ({
           <ChevronDown
             className={`ml-2 h-4 font-bold w-4 shrink-0 !text-[#666666] dark:text-textColor/200 transition-transform duration-300 ${
               open ? "rotate-180" : "rotate-0"
-            }`}
+            } ${multiSelect && itemsArray?.length>0 && "!text-white"}`}
           />
         </Button>
       </PopoverTrigger>
