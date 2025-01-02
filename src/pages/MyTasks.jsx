@@ -1,5 +1,4 @@
 import "@/App.css";
-import clock from "@/assets/image/clock.svg";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import {
@@ -26,17 +25,12 @@ import BreadCrumb from "@/components/ui/Custom/BreadCrumb";
 import CustomInput from "@/components/ui/Custom/CustomInput";
 import CustomDropDown from "@/components/ui/CustomDropDown";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { useGetVendorNames } from "@/components/vendor/api";
 import { formatRestaurantsList, vendorNamesFormatter } from "@/lib/helpers";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import persistStore from "@/store/persistStore";
-import {
-  ArrowRight,
-  Filter,
-  X
-} from "lucide-react";
+import { ArrowRight, Filter, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
@@ -67,7 +61,7 @@ const MyTasks = () => {
   let invoice_number = searchParams.get("invoice_number") || "";
   let assigned_to = searchParams.get("assigned_to");
 
-  let {userId}=userStore()
+  let { userId } = userStore();
   let document_priority = searchParams.get("document_priority") || "all";
   const updateParams = useUpdateParams();
   const { data: restaurantsList, isLoading: restaurantsListLoading } =
@@ -96,9 +90,8 @@ const MyTasks = () => {
     page,
     sort_order,
     human_verified,
-    assigned_to:userId,
-    document_priority,
-    
+    assigned_to: userId,
+    document_priority
   };
   const { data, isLoading } = useListInvoices(payload);
   useEffect(() => {
@@ -158,11 +151,11 @@ const MyTasks = () => {
         <Navbar />
         <Layout>
           <BreadCrumb
-            title={"Review Later Invoices"}
+            title={"My Tasks"}
             crumbs={[
               {
                 path: null,
-                label: "Review Later Invoices"
+                label: "My Tasks"
               }
             ]}
           />
@@ -171,11 +164,10 @@ const MyTasks = () => {
             className="w-full flex items-center relative justify-end dark:bg-[#051C14] py-3 rounded-t-xl dark:border-primary dark:border px-4 "
             id="vendor-consolidation"
           >
-            
             <div className="flex  items-center space-x-2 ">
               <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
-              
                 <CustomDropDown
+                  multiSelect={true}
                   triggerClassName={"bg-gray-100"}
                   contentClassName={"bg-gray-100"}
                   Value={restaurantFilterValue}
@@ -198,6 +190,7 @@ const MyTasks = () => {
                 <CustomDropDown
                   Value={vendorFilterValue}
                   // className="!min-w-56"
+                  multiSelect={true}
                   className={"!max-w-56"}
                   triggerClassName={"bg-gray-100"}
                   contentClassName={"bg-gray-100"}
@@ -223,8 +216,16 @@ const MyTasks = () => {
                 >
                   <SheetTrigger>
                     {" "}
-                    <Button className="bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000]  ">
-                      <Filter className="h-5  text-black/40" />
+                    <Button
+                      className={`bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000] ${
+                        open ? "!bg-primary !text-white" : "!bg-white"
+                      }   `}
+                    >
+                      <Filter
+                        className={`${
+                          open ? "!text-white" : ""
+                        } h-5  text-black/40 dark:text-white/50`}
+                      />
                     </Button>
                   </SheetTrigger>
                   <SheetContent className="min-w-fit !overflow-auto">

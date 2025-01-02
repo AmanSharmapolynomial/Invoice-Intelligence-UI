@@ -21,7 +21,8 @@ const useFilterStore = create(
         human_verified: "all",
         assigned_to: "",
         document_priority:"all",
-        token:""
+        token:"",
+        review_later:"false"
       },
       setFilters: (newFilters) =>
         set((state) => ({
@@ -47,7 +48,8 @@ const useFilterStore = create(
             human_verified: "all",
             assigned_to: "",
             document_priority:"all",
-            token:""
+            token:"",
+            review_later:"false"
           }
         })
     }),

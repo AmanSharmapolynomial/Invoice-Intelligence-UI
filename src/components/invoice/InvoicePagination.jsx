@@ -13,7 +13,7 @@ const InvoicePagination = ({ totalPages, setCurrentTab }) => {
   const [searchParams] = useSearchParams();
   const updateParams = useUpdateParams();
   let page = searchParams.get("page_number") || 1;
-  const { isModalOpen } = invoiceDetailStore();
+  const { isModalOpen ,clearStore} = invoiceDetailStore();
   const [pageIndex, setPageIndex] = useState(page);
   useEffect(() => {
     setPageIndex(page);
@@ -37,13 +37,15 @@ const InvoicePagination = ({ totalPages, setCurrentTab }) => {
             queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
             setPageIndex(pageIndex - 1);
             setCurrentTab("metadata");
+            clearStore()
           } else if (e.key === "ArrowRight" && pageIndex < totalPages) {
             // Go to the next page
             updateParams({ page_number: Number(pageIndex) + 1 });
             setPageIndex(Number(pageIndex) + 1);
             setCurrentTab("metadata");
+            clearStore()
             queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
-            // queryClient.invalidateQueries({ queryKey: ["combined-table"] });
+            queryClient.invalidateQueries({ queryKey: ["combined-table"] });
           }
         }
       };

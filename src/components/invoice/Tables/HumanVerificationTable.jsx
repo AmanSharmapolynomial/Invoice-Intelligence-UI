@@ -1250,7 +1250,7 @@ const HumanVerificationTable = ({
           <div className="pb-2  overflow-hidden w-full  ">
             <Table className="w-full   overflow-auto      ">
               <TableBody
-                className=""
+                className="w-full "
                 onMouseLeave={() => {
                   if (stopHovering) {
                     setBoundingBox({});
@@ -1259,7 +1259,8 @@ const HumanVerificationTable = ({
                   }
                 }}
               >
-                <div className=" flex justify-between hide-scrollbar gap-x-2  px-0.5 sticky top-0 bg-white/80 z-20">
+                <div className=" flex  min-w-full hide-scrollbar   sticky top-0 bg-white/80 z-20">
+                  <div className="flex justify-between items-center gap-x-4 w-full ">
                   {columns
                     ?.filter((c) => c.selected_column)
                     ?.map(
@@ -1271,14 +1272,14 @@ const HumanVerificationTable = ({
                       }) => {
                         return (
                           <TableCell
-                            className="!min-w-[12rem] !max-w-full     flex items-center "
+                            className="!min-w-[12rem] !max-w-full      flex items-center justify-center "
                             key={column_uuid}
                           >
                             <CustomDropDown
                               Value={column_name}
                               className={"!w-[rem]"}
                               triggerClassName={
-                                "!max-w-[10rem] !h-[2.25rem] !min-w-[10.5rem]  "
+                                "!max-w-full !h-[2.25rem] !min-w-[10.5rem]  "
                               }
                               data={headerNamesFormatter(
                                 additionalData?.data
@@ -1292,11 +1293,12 @@ const HumanVerificationTable = ({
                         );
                       }
                     )}
-                  <div className="w-full sticky right-0   flex items-center justify-end">
+                  </div>
+                  <div className="w-full sticky right-0   flex items-center ">
                     {(viewDeleteColumn ||
                       viewShiftColumn ||
                       viewVerificationColumn) && (
-                      <TableCell className={`${viewDeleteColumn&&viewShiftColumn&&viewVerificationColumn &&"w-[6rem]"} !border-l  sticky !max-w-[6rem] min-w-[4rem]   flex justify-center items-center font-poppins font-normal text-xs !p-0 h-full bg-white/90  !right-[0px]`}>
+                      <TableCell className={`${viewDeleteColumn&&viewShiftColumn&&viewVerificationColumn &&"w-[6.2rem]"} !border-l  sticky !max-w-[6.2rem] min-w-[6.2rem]   flex justify-center items-center font-poppins font-normal text-xs !p-0 h-full bg-white/90  !right-[0px]`}>
                         Actions
                       </TableCell>
                     )}
@@ -1363,7 +1365,7 @@ const HumanVerificationTable = ({
                                       row_uuid: row?.transaction_uuid
                                     });
                                   }}
-                                  className="!w-[12rem] font-poppins  font-normal text-sm leading-4 text-[#121212] !max-w-full  justify-center    flex items-center  capitalize  text-left"
+                                  className="!w-[12rem]  font-poppins   font-normal text-sm leading-4 text-[#121212] !max-w-full  justify-center    flex items-center  capitalize  text-left"
                                   key={i}
                                 > 
                                   {editMode?.rowIndex === index &&
@@ -1430,7 +1432,7 @@ const HumanVerificationTable = ({
                         {(viewDeleteColumn ||
                           viewShiftColumn ||
                           viewVerificationColumn) && (
-                          <TableCell className="sticky !max-w-[6rem] min-w-[4rem] border-l gap-x-4 flex  justify-center  items-center font-poppins font-normal text-xs leading-4 bg-white/90  right-0 !z-10">
+                          <TableCell className="sticky !max-w-full min-w-[6.2rem] border-l gap-x-4 flex  justify-center  items-center font-poppins font-normal text-xs leading-4 bg-white/90  right-0 !z-10">
                             <CustomTooltip
                               content={
                                 <div className="flex flex-col gap-x-2 items-start gap-y-2">
@@ -1463,7 +1465,7 @@ const HumanVerificationTable = ({
                               }
                               
                               className={
-                                "!absolute !w-[30em] !top-0 border right-16 border-2 border-[#CBCBCB] !rounded-md !bg-[#F2F2F7] !z-50"
+                                "!absolute !w-[30em] !top-0 right-16  border-[#CBCBCB] !rounded-md !bg-[#F2F2F7] !z-50"
                               }
                             >
                               {viewVerificationColumn &&
