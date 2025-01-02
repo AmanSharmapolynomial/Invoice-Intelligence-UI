@@ -45,7 +45,7 @@ const Sidebar = () => {
       path: null,
       icon: null,
       text: "Vendor Consolidation",
-      image: theme === "light" ?  book_user_black : book_user_white ,
+      image: theme === "light" ? book_user_black : book_user_white,
       hoverImage: book_user_white
     }
     // {
@@ -84,7 +84,7 @@ const Sidebar = () => {
     //   hoverImage: image_white
     // }
   ];
-  
+
   const width =
     expanded === undefined ? "18rem" : expanded ? "18rem" : "3.75rem";
 
@@ -106,57 +106,57 @@ const Sidebar = () => {
           </div>
         ) : null}
 
-        <div className="mt-24 space-y-2">
+        <div className="mt-24 space-y-2 flex flex-col">
           {options.map((option, index) => {
             const isActive = pathname === option.path;
             return (
-              <CustomTooltip content={option?.text} key={index} right={"-20%"} >
-              <Link
-                to={option.path}
-                // key={index}
-                className={`group cursor-pointer overflow-hidden flex items-center px-4 gap-2 py-3 text-sm font-normal font-poppins transition-all duration-300 ease-in-out 
+              <CustomTooltip content={!expanded&&option?.text} key={index} right={"-20%"}>
+                <Link
+                  to={option.path}
+                  // key={index}
+                  className={`group cursor-pointer overflow-hidden flex items-center px-4 gap-2 py-3 text-sm font-normal font-poppins transition-all duration-300 ease-in-out 
                 ${
                   isActive
                     ? "bg-primary text-white"
                     : "text-black hover:bg-primary hover:text-white"
                 }`}
-              >
-                {option.icon ? (
-                  <option.icon
-                    className={`w-5 h-5 ${isActive ? "text-white" : ""}`}
-                  />
-                ) : (
-                  <div className="relative flex-shrink-0 w-5 h-5">
-               <img
-                      src={option.image}
-                      alt={option.text}
-                      className="absolute inset-0 w-full h-full transition-opacity duration-300"
+                >
+                  {option.icon ? (
+                    <option.icon
+                      className={`w-5 h-5 ${isActive ? "text-white" : ""}`}
                     />
-                    <img
-                      src={option.hoverImage}
-                      alt={option.text}
-                      className={`${
-                        isActive && "opacity-100"
-                      } absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity`}
-                    />
-                  </div>
-                )}
+                  ) : (
+                    <div className="relative flex-shrink-0 w-5 h-5">
+                      <img
+                        src={option.image}
+                        alt={option.text}
+                        className="absolute inset-0 w-full h-full transition-opacity duration-300"
+                      />
+                      <img
+                        src={option.hoverImage}
+                        alt={option.text}
+                        className={`${
+                          isActive && "opacity-100"
+                        } absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity`}
+                      />
+                    </div>
+                  )}
 
-                <span
-                  className={`transition-opacity duration-300 ease-in-out ${
-                    expanded ? "opacity-100" : "opacity-0"
-                  } dark:text-white`}
-                  style={{
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    marginLeft: expanded ? "0.5rem" : "0"
-                  }}
+                  <span
+                    className={`transition-opacity duration-300 ease-in-out ${
+                      expanded ? "opacity-100" : "opacity-0"
+                    } dark:text-white`}
+                    style={{
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      marginLeft: expanded ? "0.5rem" : "0"
+                    }}
                   >
-                  {option.text}
-                </span>
-              </Link>
-                  </CustomTooltip>
+                    {option.text}
+                  </span>
+                </Link>
+              </CustomTooltip>
             );
           })}
         </div>

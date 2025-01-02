@@ -43,7 +43,7 @@ function getPropertyIcon(priority) {
         }
         top={2}
       >
-        <ChevronsUp className="w-6 object-fill  text-red-500 cursor-pointer" />
+        <ChevronsUp className="w-4 object-fill  text-red-500 cursor-pointer" />
       </CustomTooltip>
     );
   }
@@ -51,7 +51,7 @@ function getPropertyIcon(priority) {
   if (priority == "LOWEST") {
     return (
       <CustomTooltip content={"LOWEST"} top={2}>
-        <ChevronsDown className=" object-fill h-6  text-blue-500 cursor-pointer" />
+        <ChevronsDown className=" object-fill h-4  text-blue-500 cursor-pointer" />
       </CustomTooltip>
     );
   }
@@ -59,7 +59,7 @@ function getPropertyIcon(priority) {
   if (priority == "HIGH") {
     return (
       <CustomTooltip content={"HIGH"} top={2}>
-        <ChevronUp className="w-4 object-fill h-10  text-orange-400 cursor-pointer" />
+        <ChevronUp className="w-4 object-fill h-4  text-orange-400 cursor-pointer" />
       </CustomTooltip>
     );
   }
@@ -67,7 +67,7 @@ function getPropertyIcon(priority) {
   if (priority == "LOW") {
     return (
       <CustomTooltip content={"LOW"} top={2}>
-        <ChevronDown className=" object-fill h-10  text-orange-400 cursor-pointer" />
+        <ChevronDown className=" object-fill h-4  text-orange-400 cursor-pointer" />
       </CustomTooltip>
     );
   }
@@ -75,7 +75,7 @@ function getPropertyIcon(priority) {
   if (priority == "MEDIUM") {
     return (
       <CustomTooltip content={"MEDIUM"} top={2}>
-        <Equal className=" object-fill h-10  text-orange-700 cursor-pointer" />
+        <Equal className=" object-fill h-4  text-orange-700 cursor-pointer" />
       </CustomTooltip>
     );
   }
@@ -83,7 +83,7 @@ function getPropertyIcon(priority) {
   if (priority == "COMPLETED") {
     return (
       <CustomTooltip content={"COMPLETED"}>
-        <CheckCheck className=" object-fill h-5 !z-50  text-primary cursor-pointer" />
+        <CheckCheck className=" object-fill h-4 !z-50  text-primary cursor-pointer" />
       </CustomTooltip>
     );
   }
@@ -274,15 +274,15 @@ const InvoiceTable = ({
                       }}
                       className={`${
                         index == 0 ? "!border-t" : "!border-t-0"
-                      }  flex !py-0 !h-16 !font-poppins !text-sm w-[100%]  !text-[#1C1C1E] items-center  !border   ${
+                      }  flex !py-0  !font-poppins  !min-h-16 !max-h-44  !text-sm w-[100%]  !text-[#1C1C1E] items-center  !border   ${
                         index == data?.length - 1 ? "!border-b" : "!border-b-0"
                       } w-full`}
                     >
                       <TableCell
-                        className={`flex dark:!text-[#F6F6F6] font-poppins !h-full cursor-pointer !text-left break-word items-center  justify-start gap-x-2  !font-normal ${
+                        className={`flex dark:!text-[#F6F6F6] !h-full !min-h-16 !max-h-44 font-poppins  cursor-pointer !text-left break-word items-center  justify-start gap-x-2  !font-normal ${
                           review_later
                             ? "!w-[10%]"
-                            : "!w-[11.1111111%] pl-2 border-r"
+                            : "!w-[11.1111111%] pl-2 border-r "
                         }  text-sm  `}
                       >
                         <div
@@ -301,7 +301,7 @@ const InvoiceTable = ({
                       </TableCell>
 
                       <TableCell
-                        className={` dark:!text-[#F6F6F6] border-r-0  !h-full flex font-poppins cursor-pointer !text-left items-center justify-start   !font-normal !text-[#1C1C1E] ${
+                        className={` dark:!text-[#F6F6F6] border-r-0  !min-h-16 !max-h-44  flex font-poppins cursor-pointer !text-left items-center justify-start   !font-normal !text-[#1C1C1E] ${
                           review_later
                             ? "!w-[10%] border-l"
                             : "!w-[11.1111111%] "
@@ -315,7 +315,7 @@ const InvoiceTable = ({
                       <TableCell
                         className={` ${
                           review_later ? "!w-[10%]" : "!w-[11.1111111%] "
-                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !h-full border-l  !text-left items-center gap-x-2 justify-start  !font-normal !text-[#1C1C1E]   !capitalize  text-sm break-words  `}
+                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-16 !max-h-44 !h-full border-l  !text-left items-center gap-x-2 justify-start  !font-normal !text-[#1C1C1E]   !capitalize  text-sm break-words  `}
                       >
                         <span
                           className={`${
@@ -336,7 +336,7 @@ const InvoiceTable = ({
                       </TableCell>
 
                       <TableCell
-                        className={`flex dark:!text-[#F6F6F6] font-poppins !h-full  border-l cursor-pointer text-sm  !text-left items-center justify-start  !font-normal !text-[#1C1C1E] ${
+                        className={`flex dark:!text-[#F6F6F6] font-poppins !min-h-16 !max-h-44 !h-full  border-l cursor-pointer text-sm  !text-left items-center justify-start  !font-normal !text-[#1C1C1E] ${
                           review_later
                             ? "!w-[10%] pl-[0.9rem]"
                             : "!w-[11.1111111%] pl-[1.05rem]"
@@ -349,7 +349,7 @@ const InvoiceTable = ({
                           review_later
                             ? "!w-[10%] !pl-[0.9rem]"
                             : "!w-[11.2%] pl-[1rem]"
-                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm  border-l h-full !text-left items-center justify-start  !font-normal !text-[#1C1C1E]  `}
+                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-16 !max-h-44 text-sm  border-l h-full !text-left items-center justify-start  !font-normal !text-[#1C1C1E]  `}
                       >
                         {assignment_details
                           ? timeRemaining?.split("-").join("")
@@ -372,7 +372,7 @@ const InvoiceTable = ({
                           review_later
                             ? "!w-[10%] pl-[0.9rem]"
                             : "!w-[11.1111111%] pl-[1rem]"
-                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm border-l h-full  items-center justify-start text-left pr-[7.25rem]   capitalize  !font-normal !text-[#1C1C1E] 
+                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-16 !max-h-44 text-sm border-l h-full  items-center justify-start text-left pr-[7.25rem]   capitalize  !font-normal !text-[#1C1C1E] 
                         ${auto_accepted ? '!text-[#348355]'
                           : rejected === true
                           ? "!text-[#F15156]"
@@ -407,7 +407,7 @@ const InvoiceTable = ({
                           review_later
                             ? "!w-[10%] !pl-[0.8rem]"
                             : "!w-[11.1111111%] !pl-[0.9rem]"
-                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm border-l h-full !text-left items-center !justify-start  !font-normal !text-[#1C1C1E]  `}
+                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-16 !max-h-44 text-sm border-l h-full !text-left items-center !justify-start  !font-normal !text-[#1C1C1E]  `}
                       >
                         {clickbacon_status}
                       </TableCell>
@@ -417,7 +417,7 @@ const InvoiceTable = ({
                           review_later
                             ? "!w-[10%] pl-[0.9rem] "
                             : "!w-[11.1111111%] pl-[0.9rem]"
-                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer border-l h-full  text-sm !text-left items-center justify-start !font-normal !text-[#1C1C1E]   `}
+                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-16 !max-h-44 border-l h-full  text-sm !text-left items-center justify-start !font-normal !text-[#1C1C1E]   `}
                       >
                         {invoice_type}
                       </TableCell>
@@ -426,7 +426,7 @@ const InvoiceTable = ({
                           review_later
                             ? "!w-[10%] pl-[0.9rem]"
                             : "!w-[11.1111111%] pl-[0.9rem]"
-                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer border-l h-full text-sm !text-left items-center justify-start !font-normal !text-[#1C1C1E] `}
+                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-16 !max-h-44 border-l h-full text-sm !text-left items-center justify-start !font-normal !text-[#1C1C1E] `}
                       >
                         {!human_verified_date
                           ? "NA"
@@ -435,7 +435,7 @@ const InvoiceTable = ({
                             ) || "NA"}
                       </TableCell>
                       {review_later && (
-                        <TableCell className="flex capitalize dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm !text-left items-center justify-start border-l h-full  !font-normal !text-[#1C1C1E] !w-[10%] ">
+                        <TableCell className="flex capitalize dark:!text-[#F6F6F6]  !min-h-16 !max-h-44 font-poppins cursor-pointer text-sm !text-left items-center justify-start border-l h-full  !font-normal !text-[#1C1C1E] !w-[10%] ">
                           {review_later_details?.comments}
                         </TableCell>
                       )}

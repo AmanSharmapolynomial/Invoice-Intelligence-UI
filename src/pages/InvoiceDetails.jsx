@@ -469,10 +469,10 @@ const InvoiceDetails = () => {
                   </p>
                   <p className="capitalize text-[#121212] font-semibold font-poppins text-xl flex gap-x-2 items-center">
                     {data?.data?.vendor?.vendor_name ||
-                      data?.data?.[0].vendor?.vendor_name}
+                      data?.data?.[0]?.vendor?.vendor_name}
 
                     {data?.data?.vendor?.human_verified ||
-                      (data?.data?.[0].vendor?.human_verified && (
+                      (data?.data?.[0]?.vendor?.human_verified && (
                         <img src={approved} />
                       ))}
                   </p>
