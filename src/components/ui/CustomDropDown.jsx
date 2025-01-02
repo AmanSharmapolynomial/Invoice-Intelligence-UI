@@ -57,7 +57,14 @@ const CustomDropDown = ({
       ? onChange(getValueFromLabel(data, newValue), item)
       : onChange(itemsArray, item);
   };
-
+  useEffect(()=>{
+    if(multiSelect && Value!=="none"){
+      console.log(Value)
+      if(Value){
+        setItemsArray([...(Value?.split(","))])
+      }
+    }
+  },[multiSelect,Value])
   return (
     <Popover
       open={open}
@@ -66,7 +73,7 @@ const CustomDropDown = ({
     >
       <PopoverTrigger
         asChild
-        className={`${triggerClassName} dark:!border-[#000000]`}
+        className={`${triggerClassName} dark:!border-[#000000] !relative`}
       >
         <Button
           variant="outline"
@@ -90,7 +97,7 @@ const CustomDropDown = ({
                           ? data.find((item) => item?.[Key] == value?.branch_id)
                             ? data
                                 .find((item) => item?.[Key] == value?.branch_id)
-                                ?.label?.slice(0, 100) +
+                                ?.label?.slice(0, 50) +
                               `${
                                 data.find(
                                   (item) => item?.[Key] == value?.branch_id
@@ -124,7 +131,7 @@ const CustomDropDown = ({
                           ? data.find((item) => item?.[Key] == value)
                             ? data
                                 .find((item) => item?.[Key] == value)
-                                ?.label?.slice(0, 100) +
+                                ?.label?.slice(0, 50) +
                               `${
                                 data.find((item) => item?.[Key] == value)?.label
                                   ?.length > 100
@@ -152,7 +159,7 @@ const CustomDropDown = ({
                         ? `${
                             data
                               .find((item) => item?.[Key] == value)
-                              ?.label?.slice(0, 100) +
+                              ?.label?.slice(0, 50) +
                             `${
                               data.find((item) => item?.[Key] == value)?.label
                                 ?.length > 100
@@ -180,7 +187,7 @@ const CustomDropDown = ({
           )}
           {/* Chevron icon with transition */}
           <ChevronDown
-            className={`ml-2 h-4 font-bold w-4 shrink-0 !text-[#666666] dark:text-textColor/200 transition-transform duration-300 ${
+            className={`ml-2 h-4 font-bold w-4 absolute right-1 shrink-0 !text-[#666666] dark:text-textColor/200 transition-transform duration-300 ${
               open ? "rotate-180" : "rotate-0"
             } ${multiSelect && itemsArray?.length > 0 && "!text-white"}`}
           />
