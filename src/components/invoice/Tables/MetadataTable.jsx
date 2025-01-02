@@ -511,7 +511,7 @@ const MetadataTable = ({
                 value={branch?.vendor_address}
                 className={`${
                   !newBranch ? "!border-[#F97074]" : ""
-                } !max-w-[10rem]`}
+                } !max-w-full`}
                 onChange={(v) => {
                   if (branchChanged || vendorChanged) {
                     if (branchChanged) {

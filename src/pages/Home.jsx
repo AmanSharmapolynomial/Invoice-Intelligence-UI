@@ -35,11 +35,13 @@ import { ArrowRight, Filter, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
+import useFilterStore from "@/store/filtersStore";
 
 const Home = () => {
   const [searchParams] = useSearchParams();
   const {clearStore} = invoiceDetailStore();
   const navigate = useNavigate();
+  const {filters,setFilters}=useFilterStore()
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [searchedInvoices, setSearchedInvoices] = useState([]);
   const [open, setOpen] = useState(false);
@@ -174,7 +176,7 @@ clearStore()
                 <CustomDropDown
                   triggerClassName={"bg-gray-100"}
                   contentClassName={"bg-gray-100"}
-                  Value={restaurantFilterValue}
+                  Value={searchParams.get("restaurant") || restaurantFilterValue}
                   placeholder="All Restaurants"
                   multiSelect={true}
                   className={"!max-w-fit"}
@@ -185,18 +187,21 @@ clearStore()
                   onChange={(val) => {
                     if (typeof val == "object") {
                       let restaurant = val.map((item) => item).join(",");
+                      setFilters({ ...filters, "restaurant":restaurant });
                       updateParams({ restaurant:restaurant });
                     } else {
                       if (val == "none") {
                         updateParams({ restaurant: undefined });
+                        setFilters({...filters,"restaurant":undefined})
                       } else {
                         updateParams({ restaurant: val });
+                         setFilters({...filters,"restaurant":val})
                       }
                     }
                   }}
                 />{" "}
                 <CustomDropDown
-                  Value={vendorFilterValue}
+                  Value={searchParams.get("vendor")||vendorFilterValue}
               
                   className={"!max-w-56"}
                   triggerClassName={"bg-gray-100"}
@@ -209,11 +214,13 @@ clearStore()
                     if (typeof val == "object") {
                       let vendor = val.map((item) => item).join(",");
                       updateParams({ vendor: vendor });
+                      setFilters({...filters,"vendor":vendor})
                     } else {
                       if (val == "none") {
                         updateParams({ vendor: undefined });
+                        setFilters({...filters,"vendor":undefined})
                       } else {
-                        updateParams({ vendor: val });
+                        setFilters({...filters,"vendor":val})
                       }
                     }
                   }}

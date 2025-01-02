@@ -507,7 +507,9 @@ const InvoiceDetails = () => {
             <div className="flex items-center gap-x-2">
               <Info className="h-5 w-5 text-[#FF9800]" />
               <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
-                {vendorChanged&&branchChanged? "Please Save the Vendor Name and Branch Address before proceeding." : vendorChanged
+                {vendorChanged && branchChanged
+                  ? "Please Save the Vendor Name and Branch Address before proceeding."
+                  : vendorChanged
                   ? " Please Save the Vendor Name before proceeding."
                   : "Please Save the Branch Address before proceeding."}
               </p>
@@ -516,7 +518,7 @@ const InvoiceDetails = () => {
             <X
               className="h-6 w-6 text-[#546E7A] absolute top-2 right-2 cursor-pointer"
               onClick={() => {
-setShowWarningForBranchAndVendor(false);
+                setShowWarningForBranchAndVendor(false);
               }}
             />
           </div>
@@ -707,7 +709,10 @@ setShowWarningForBranchAndVendor(false);
                 setCurrentTab={setCurrentTab}
               />
             )}
-            <CategoryWiseSum isLoading={isLoading} />
+            {(data?.data?.invoice_type !== "Summary Invoice" ||
+              data?.data?.[0]?.invoice_type !== "Summary Invoice") && (
+              <CategoryWiseSum isLoading={isLoading} />
+            )}
             <LastUpdateInfo
               info={
                 data?.data?.latest_update_info ||
