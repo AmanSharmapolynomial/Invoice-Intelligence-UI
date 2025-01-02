@@ -72,47 +72,85 @@ const CustomDropDown = ({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={`${multiSelect&& itemsArray?.length>0 && "!bg-primary !text-white"} min-w-fit border h-[2.5rem] dark:bg-[#000000 ] dark:text-textColor/200 dark:border-[#000000] bg-[#FFFFFF] hover:bg-[#FFFFFF] border-[#E0E0E0]  justify-between capitalize shadow-none !rounded-[4px] text-[#000000] hover:text-[#666666] font-poppins font-normal text-xs`}
+          className={`${
+            multiSelect && itemsArray?.length > 0 && "!bg-primary !text-white"
+          } min-w-fit border h-[2.5rem] dark:bg-[#000000 ] dark:text-textColor/200 dark:border-[#000000] bg-[#FFFFFF] hover:bg-[#FFFFFF] border-[#E0E0E0]  justify-between capitalize shadow-none !rounded-[4px] text-[#000000] hover:text-[#666666] font-poppins font-normal text-xs`}
         >
-          {
-            multiSelect?<>
-            {placeholder}
-            </>:<>{showBranchAsLink || showVendorAsLink ? (
-              <>
-                {showBranchAsLink ? (
-                  <Link to={null} className="flex items-center gap-x-2">
-                    <Link2 className="text-[#348355] !h-4 !w-4" />
-                    <span className="text-[#348355]  text-sm font-poppins font-normal truncate">
-                      {value && value !== "none"
-                        ? data.find((item) => item?.[Key] == value?.branch_id)
-                          ? data
-                              .find((item) => item?.[Key] == value?.branch_id)
-                              ?.label?.slice(0, 100) +
-                            `${
-                              data.find((item) => item?.[Key] == value?.branch_id)?.vendor_address
-                                ?.length > 100
-                                ? "....."
-                                : ""
-                            }`
-                          : placeholder
-                        : placeholder}
-                    </span>
-                    {data.find((item) => item?.[Key] == value)
-                      ?.human_verified && (
-                      <img src={approved} className="text-primary !h-4 !w-5  " />
-                    )}
-                    {data.find((item) => item?.[Key] == value?.branch_id)
-                      ?.human_verified && (
-                      <img src={approved} className="text-primary !h-4 !w-5  " />
-                    )}
-                  </Link>
-                ) : showVendorAsLink ? (
-                  <Link to={null} className="flex items-center gap-x-2">
-                    <Link2 className="text-[#348355] !h-4 !w-4" />
-                    <span className="text-[#348355]  text-sm font-poppins font-normal truncate">
-                      {value && value !== "none"
-                        ? data.find((item) => item?.[Key] == value)
-                          ? data
+          {multiSelect ? (
+            <>{placeholder}</>
+          ) : (
+            <>
+              {showBranchAsLink || showVendorAsLink ? (
+                <>
+                  {showBranchAsLink ? (
+                    <Link to={null} className="flex items-center gap-x-2">
+                      <Link2 className="text-[#348355] !h-4 !w-4" />
+                      <span className="text-[#348355]  text-sm font-poppins font-normal truncate">
+                        {value && value !== "none"
+                          ? data.find((item) => item?.[Key] == value?.branch_id)
+                            ? data
+                                .find((item) => item?.[Key] == value?.branch_id)
+                                ?.label?.slice(0, 100) +
+                              `${
+                                data.find(
+                                  (item) => item?.[Key] == value?.branch_id
+                                )?.vendor_address?.length > 100
+                                  ? "....."
+                                  : ""
+                              }`
+                            : placeholder
+                          : placeholder}
+                      </span>
+                      {data.find((item) => item?.[Key] == value)
+                        ?.human_verified && (
+                        <img
+                          src={approved}
+                          className="text-primary !h-4 !w-5  "
+                        />
+                      )}
+                      {data.find((item) => item?.[Key] == value?.branch_id)
+                        ?.human_verified && (
+                        <img
+                          src={approved}
+                          className="text-primary !h-4 !w-5  "
+                        />
+                      )}
+                    </Link>
+                  ) : showVendorAsLink ? (
+                    <Link to={null} className="flex items-center gap-x-2">
+                      <Link2 className="text-[#348355] !h-4 !w-4" />
+                      <span className="text-[#348355]  text-sm font-poppins font-normal truncate">
+                        {value && value !== "none"
+                          ? data.find((item) => item?.[Key] == value)
+                            ? data
+                                .find((item) => item?.[Key] == value)
+                                ?.label?.slice(0, 100) +
+                              `${
+                                data.find((item) => item?.[Key] == value)?.label
+                                  ?.length > 100
+                                  ? "....."
+                                  : ""
+                              }`
+                            : placeholder
+                          : placeholder}
+                      </span>
+                      {data.find((item) => item?.[Key] == value)
+                        ?.human_verified && (
+                        <img
+                          src={approved}
+                          className="text-primary !h-4 !w-5  "
+                        />
+                      )}
+                    </Link>
+                  ) : null}
+                </>
+              ) : (
+                <div className="flex items-center gap-x-2">
+                  <span className="!truncate">
+                    {value && value !== "none"
+                      ? data.find((item) => item?.[Key] == value)
+                        ? `${
+                            data
                               .find((item) => item?.[Key] == value)
                               ?.label?.slice(0, 100) +
                             `${
@@ -121,49 +159,30 @@ const CustomDropDown = ({
                                 ? "....."
                                 : ""
                             }`
-                          : placeholder
-                        : placeholder}
-                    </span>
-                    {data.find((item) => item?.[Key] == value)
-                      ?.human_verified && (
-                      <img src={approved} className="text-primary !h-4 !w-5  " />
-                    )}
-                  </Link>
-                ) : null}
-              </>
-            ) : (
-              <div className="flex items-center gap-x-2">
-                <span className="!truncate">
-                  {value && value !== "none"
-                    ? data.find((item) => item?.[Key] == value)
-                      ? `${
-                          data
-                            .find((item) => item?.[Key] == value)
-                            ?.label?.slice(0, 100) +
-                          `${
-                            data.find((item) => item?.[Key] == value)?.label
-                              ?.length > 100
-                              ? "....."
-                              : ""
                           }`
-                        }`
-                      : typeof value === "string"?value: Value?.vendor_address
-                    : placeholder}
-                </span>
-                <span>
-                  {" "}
-                  {item?.human_verified && (
-                    <img src={approved} className="text-primary !h-4 !w-5  " />
-                  )}
-                </span>
-              </div>
-            )}</>
-          }
+                        : typeof value === "string"
+                        ? value
+                        : Value?.vendor_address
+                      : placeholder}
+                  </span>
+                  <span>
+                    {" "}
+                    {item?.human_verified && (
+                      <img
+                        src={approved}
+                        className="text-primary !h-4 !w-5  "
+                      />
+                    )}
+                  </span>
+                </div>
+              )}
+            </>
+          )}
           {/* Chevron icon with transition */}
           <ChevronDown
             className={`ml-2 h-4 font-bold w-4 shrink-0 !text-[#666666] dark:text-textColor/200 transition-transform duration-300 ${
               open ? "rotate-180" : "rotate-0"
-            } ${multiSelect && itemsArray?.length>0 && "!text-white"}`}
+            } ${multiSelect && itemsArray?.length > 0 && "!text-white"}`}
           />
         </Button>
       </PopoverTrigger>
@@ -215,12 +234,11 @@ const CustomDropDown = ({
                                 const updatedArray = checked
                                   ? [...prev, item.value] // Add item
                                   : prev.filter((i) => i !== item.value); // Remove item
-                        
+
                                 onChange(updatedArray, item); // Call onChange with updated array
                                 return updatedArray;
                               });
                             }}
-                            
                           />
                         )}
                       </div>

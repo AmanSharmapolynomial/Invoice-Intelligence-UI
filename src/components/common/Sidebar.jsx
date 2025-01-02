@@ -12,6 +12,7 @@ import my_tasks_black from "@/assets/image/check_book_black.svg";
 import book_user_white from "@/assets/image/book_user_white.svg";
 import book_user_black from "@/assets/image/book_user_black.svg";
 import useThemeStore from "@/store/themeStore";
+import CustomTooltip from "../ui/Custom/CustomTooltip";
 
 const Sidebar = () => {
   const { expanded, setExpanded } = useSidebarStore();
@@ -109,9 +110,10 @@ const Sidebar = () => {
           {options.map((option, index) => {
             const isActive = pathname === option.path;
             return (
+              <CustomTooltip content={option?.text} key={index} right={"-20%"} >
               <Link
                 to={option.path}
-                key={index}
+                // key={index}
                 className={`group cursor-pointer overflow-hidden flex items-center px-4 gap-2 py-3 text-sm font-normal font-poppins transition-all duration-300 ease-in-out 
                 ${
                   isActive
@@ -125,7 +127,7 @@ const Sidebar = () => {
                   />
                 ) : (
                   <div className="relative flex-shrink-0 w-5 h-5">
-                    <img
+               <img
                       src={option.image}
                       alt={option.text}
                       className="absolute inset-0 w-full h-full transition-opacity duration-300"
@@ -150,17 +152,18 @@ const Sidebar = () => {
                     textOverflow: "ellipsis",
                     marginLeft: expanded ? "0.5rem" : "0"
                   }}
-                >
+                  >
                   {option.text}
                 </span>
               </Link>
+                  </CustomTooltip>
             );
           })}
         </div>
       </div>
       <div
         onClick={() => setExpanded()}
-        className={`bg-primary w-5 h-5 rounded-r-sm cursor-pointer  fixed  mt-1 top-16 left-[3.05%] !z-50 flex justify-center items-center 
+        className={`bg-primary w-5 h-5 rounded-r-sm cursor-pointer  fixed  mt-1 top-16 left-[3.05%] !z-20 flex justify-center items-center 
           ${expanded ? "opacity-0" : "opacity-100"}
           transition-opacity duration-300 ease-in-out`}
       >
