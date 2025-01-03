@@ -427,23 +427,26 @@ export const PdfViewer = ({
     }
   };
   const handleDragStart = useCallback((e) => {
-    if (e.button === 0) { // Left mouse button
+    if (e.button === 0) {
+      // Left mouse button
       setIsDragging(true);
       setStartDragPosition({ x: e.clientX, y: e.clientY });
     }
   }, []);
 
-  const handleDragMove = useCallback((e) => {
-    if (isDragging && pdfWrapperRef.current) {
-      const dx = e.clientX - startDragPosition.x;
-      const dy = e.clientY - startDragPosition.y;
-      pdfWrapperRef.current.scrollLeft -= dx;
-      pdfWrapperRef.current.scrollTop -= dy;
-      setStartDragPosition({ x: e.clientX, y: e.clientY });
-    }
-  }, [isDragging, startDragPosition]);
+  const handleDragMove = useCallback(
+    (e) => {
+      if (isDragging && pdfWrapperRef.current) {
+        const dx = e.clientX - startDragPosition.x;
+        const dy = e.clientY - startDragPosition.y;
+        pdfWrapperRef.current.scrollLeft -= dx;
+        pdfWrapperRef.current.scrollTop -= dy;
+        setStartDragPosition({ x: e.clientX, y: e.clientY });
+      }
+    },
+    [isDragging, startDragPosition]
+  );
   const pdfWrapperRef = useRef(null);
-
 
   const handleDragEnd = useCallback(() => {
     setIsDragging(false);
@@ -463,7 +466,7 @@ export const PdfViewer = ({
         window.removeEventListener("mouseup", handleDragEnd);
       };
     }
-  }, [ handleDragStart, handleDragMove, handleDragEnd]);
+  }, [handleDragStart, handleDragMove, handleDragEnd,pdfUrls]);
 
   useEffect(() => {
     const pdfWrapper = document.getElementById("react-pdf__Wrapper");
