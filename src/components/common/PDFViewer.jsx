@@ -700,7 +700,7 @@ export const PdfViewer = ({
                 onWheel={handleWheel}
                 file={pdfUrls[currentPdfIndex]?.document_link}
                 onLoadSuccess={onDocumentLoadSuccess}
-                className={""}
+                className={"active:cursor-grabbing"}
               >
                 <Page
                   pageNumber={pageNum}
