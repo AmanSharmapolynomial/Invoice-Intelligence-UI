@@ -1,3 +1,4 @@
+// import userStore from "@/components/auth/store/userStore";
 import { BACKEND_URL } from "@/config";
 import axios from "axios";
 
@@ -5,14 +6,29 @@ export const axiosInstance = axios.create({
   baseURL: BACKEND_URL
 });
 
-axiosInstance.interceptors.response.use(
-  response => response.data, // Return the data on success
+
+axiosInstance.interceptors.request.use(
+  config => {
+    
+    const token = localStorage.getItem("token");
+    
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`; 
+    }
+    return config;
+  },
   error => {
-    // Check if the error response exists and reject with it
+    return Promise.reject(error); 
+  }
+);
+
+axiosInstance.interceptors.response.use(
+  response => response.data, 
+  error => {
     if (error.response) {
-      return Promise.reject(error.response.data); // Reject with the response data
+      return Promise.reject(error.response.data); 
     } else {
-      return Promise.reject({ message: 'Network Error' }); // Handle network errors
+      return Promise.reject({ message: "Network Error" }); 
     }
   }
 );
