@@ -31,11 +31,7 @@ import { useGetVendorNames } from "@/components/vendor/api";
 import { formatRestaurantsList, vendorNamesFormatter } from "@/lib/helpers";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import persistStore from "@/store/persistStore";
-import {
-  ArrowRight,
-  Filter,
-  X
-} from "lucide-react";
+import { ArrowRight, Filter, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import useFilterStore from "@/store/filtersStore";
@@ -43,7 +39,7 @@ import useFilterStore from "@/store/filtersStore";
 const ReviewLaterTasks = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const {filters,setFilters} = useFilterStore();
+  const { filters, setFilters } = useFilterStore();
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [searchedInvoices, setSearchedInvoices] = useState([]);
   const [open, setOpen] = useState(false);
@@ -97,7 +93,7 @@ const ReviewLaterTasks = () => {
     human_verified,
     assigned_to,
     document_priority,
-    review_later:true
+    review_later: true
   };
   const { data, isLoading } = useListInvoices(payload);
   useEffect(() => {
@@ -170,14 +166,14 @@ const ReviewLaterTasks = () => {
             className="w-full flex items-center relative justify-end dark:bg-[#051C14] py-3 rounded-t-xl dark:border-primary dark:border px-4 "
             id="vendor-consolidation"
           >
-        
             <div className="flex  items-center space-x-2 ">
               <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
-             
                 <CustomDropDown
                   triggerClassName={"bg-gray-100"}
                   contentClassName={"bg-gray-100"}
-                  Value={searchParams.get("restaurant") || restaurantFilterValue}
+                  Value={
+                    searchParams.get("restaurant") || restaurantFilterValue
+                  }
                   multiSelect={true}
                   placeholder="All Restaurants"
                   className={"!max-w-fit"}
@@ -188,21 +184,21 @@ const ReviewLaterTasks = () => {
                   onChange={(val) => {
                     if (typeof val == "object") {
                       let restaurant = val.map((item) => item).join(",");
-                      setFilters({ ...filters, "restaurant":restaurant });
-                      updateParams({ restaurant:restaurant });
+                      setFilters({ ...filters, restaurant: restaurant });
+                      updateParams({ restaurant: restaurant });
                     } else {
                       if (val == "none") {
                         updateParams({ restaurant: undefined });
-                        setFilters({...filters,"restaurant":undefined})
+                        setFilters({ ...filters, restaurant: undefined });
                       } else {
                         updateParams({ restaurant: val });
-                         setFilters({...filters,"restaurant":val})
+                        setFilters({ ...filters, restaurant: val });
                       }
                     }
                   }}
                 />{" "}
                 <CustomDropDown
-                      Value={searchParams.get("vendor")||vendorFilterValue}
+                  Value={searchParams.get("vendor") || vendorFilterValue}
                   // className="!min-w-56"
                   multiSelect={true}
                   className={"!max-w-56"}
@@ -215,13 +211,13 @@ const ReviewLaterTasks = () => {
                     if (typeof val == "object") {
                       let vendor = val.map((item) => item).join(",");
                       updateParams({ vendor: vendor });
-                      setFilters({...filters,"vendor":vendor})
+                      setFilters({ ...filters, vendor: vendor });
                     } else {
                       if (val == "none") {
                         updateParams({ vendor: undefined });
-                        setFilters({...filters,"vendor":undefined})
+                        setFilters({ ...filters, vendor: undefined });
                       } else {
-                        setFilters({...filters,"vendor":val})
+                        setFilters({ ...filters, vendor: val });
                       }
                     }
                   }}
@@ -235,8 +231,34 @@ const ReviewLaterTasks = () => {
                 >
                   <SheetTrigger>
                     {" "}
-                    <Button className={`bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000] ${open?"!bg-primary !text-white":"!bg-white"}   `}>
-                      <Filter className={`${open?"!text-white":""} h-5  text-black/40 dark:text-white/50`} />
+                    <Button
+                      className={`bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000] ${
+                        open ||
+                        filters?.human_verified !== "all" ||
+                        filters?.human_verification !== "all" ||
+                        filters?.invoice_type !== "" ||
+                        filters?.start_date !== "" ||
+                        filters?.end_date !== "" ||
+                        filters?.clickbacon_status !== "" ||
+                        filters?.auto_accepted !== ""
+                          ? "!bg-primary !text-white"
+                          : "!bg-white"
+                      }   `}
+                    >
+                      <Filter
+                        className={`${
+                          open ||
+                          filters?.human_verified !== "all" ||
+                          filters?.human_verification !== "all" ||
+                          filters?.invoice_type !== "" ||
+                          filters?.start_date !== "" ||
+                          filters?.end_date !== "" ||
+                          filters?.clickbacon_status !== "" ||
+                          filters?.auto_accepted !== ""
+                            ? "!text-white"
+                            : ""
+                        } h-5  text-black/40 dark:text-white/50`}
+                      />
                     </Button>
                   </SheetTrigger>
                   <SheetContent className="min-w-fit !overflow-auto">
@@ -360,7 +382,7 @@ const ReviewLaterTasks = () => {
           </div>
 
           <InvoiceTable
-          review_later={true}
+            review_later={true}
             data={data?.data}
             isLoading={isLoading}
             height={final}

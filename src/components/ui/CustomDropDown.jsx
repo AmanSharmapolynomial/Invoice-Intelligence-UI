@@ -209,21 +209,28 @@ const CustomDropDown = ({
             <CommandGroup>
               {showCustomItems
                 ? children // Render custom items if showCustomItems is true
-                : data?.map((item) => (
+                : data?.sort((a,b)=>{
+                  // i want to sort the items which are in the items array
+                  if(itemsArray.includes(a.value)){
+                    return -1
+                  }else if(itemsArray.includes(b.value)){
+                    return 1
+                  }
+                })?.map((item) => (
                     <CommandItem
                       key={item.value}
-                      className="text-left   !pl-0 !ml-0"
+                      className={`text-left ${multiSelect && "!pl-2"}    !ml-0`}
                       onBlur={onBlur}
                       onSelect={() => {
                         !multiSelect && handleSelect(item.value, item);
                       }}
                     >
-                      <Check
+                      {!multiSelect&&<Check
                         className={cn(
                           "mr-2 h-4 w-4 dark:text-[#FFFFFF]",
                           value === item.value ? "opacity-100" : "opacity-0"
                         )}
-                      />
+                      />}
                       <div className="flex justify-between  w-full items-center font-poppins text-xs font-normal dark:!text-[#FFFFFF]   gap-x-4">
                         <span className="capitalize text-left">
                           {item.label}

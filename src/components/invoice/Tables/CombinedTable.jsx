@@ -226,7 +226,7 @@ const CombinedTable = ({
                   <TableRow
                     bordered
                     key={index}
-                    className="flex w-full gap-x-2 border-none"
+                    className="flex w-full gap-x-2 border-none justify-between"
                   >
                     {row?.cells?.map((cell, i) => {
                       return (

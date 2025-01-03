@@ -231,14 +231,22 @@ const MyTasks = () => {
                     {" "}
                     <Button
                       className={`bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000] ${
-                        open ? "!bg-primary !text-white" : "!bg-white"
+                        open ||
+                        filters?.human_verified !== "all" ||
+                        filters?.human_verification !== "all" ||
+                        filters?.invoice_type !== ""||filters?.start_date!==""||filters?.end_date!==""||filters?.clickbacon_status!==""||filters?.auto_accepted!==""
+                          ? "!bg-primary !text-white"
+                          : "!bg-white"
                       }   `}
                     >
-                      <Filter
+                          <Filter
                         className={`${
-                          open ? "!text-white" : ""
+                          (  open ||
+                            filters?.human_verified !== "all" ||
+                            filters?.human_verification !== "all" ||
+                            filters?.invoice_type !== ""||filters?.start_date!==""||filters?.end_date!==""||filters?.clickbacon_status!==""||filters?.auto_accepted!=="") ? "!text-white" : ""
                         } h-5  text-black/40 dark:text-white/50`}
-                      />
+                        />
                     </Button>
                   </SheetTrigger>
                   <SheetContent className="min-w-fit !overflow-auto">

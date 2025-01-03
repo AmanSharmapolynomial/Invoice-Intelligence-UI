@@ -709,8 +709,7 @@ const InvoiceDetails = () => {
                 setCurrentTab={setCurrentTab}
               />
             )}
-            {(data?.data?.invoice_type !== "Summary Invoice" ||
-              data?.data?.[0]?.invoice_type !== "Summary Invoice") && (
+            {myData?.invoice_type!=="Summary Invoice" && (
               <CategoryWiseSum isLoading={isLoading} />
             )}
             <LastUpdateInfo
