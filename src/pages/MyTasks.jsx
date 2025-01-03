@@ -33,6 +33,7 @@ import persistStore from "@/store/persistStore";
 import { ArrowRight, Filter, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import useFilterStore from "@/store/filtersStore";
 
 const MyTasks = () => {
   const [searchParams] = useSearchParams();
@@ -112,7 +113,7 @@ const MyTasks = () => {
     vendorNamesLoading,
     restaurantsListLoading
   ]);
-
+  const {filters,setFilters} = useFilterStore();
   const {
     mutate: searchInvoices,
     isPending: searchingInvoices,
@@ -170,7 +171,7 @@ const MyTasks = () => {
                   multiSelect={true}
                   triggerClassName={"bg-gray-100"}
                   contentClassName={"bg-gray-100"}
-                  Value={restaurantFilterValue}
+                  Value={searchParams.get("restaurant") || restaurantFilterValue}
                   placeholder="All Restaurants"
                   className={"!max-w-fit"}
                   data={formatRestaurantsList(
@@ -178,17 +179,24 @@ const MyTasks = () => {
                   )}
                   searchPlaceholder="Search Restaurant"
                   onChange={(val) => {
-                    if (val == "none") {
-                      updateParams({ restaurant: undefined });
-                      setRestaurantFilter("none");
+                    if (typeof val == "object") {
+                      let restaurant = val.map((item) => item).join(",");
+                      setFilters({ ...filters, "restaurant":restaurant });
+                      updateParams({ restaurant:restaurant });
                     } else {
-                      setRestaurantFilter(val);
-                      updateParams({ restaurant: val });
+                      if (val == "none") {
+                        updateParams({ restaurant: undefined });
+                        setFilters({...filters,"restaurant":undefined})
+                      } else {
+                        updateParams({ restaurant: val });
+                         setFilters({...filters,"restaurant":val})
+                      }
                     }
                   }}
                 />{" "}
                 <CustomDropDown
-                  Value={vendorFilterValue}
+                 Value={searchParams.get("vendor")||vendorFilterValue}
+              
                   // className="!min-w-56"
                   multiSelect={true}
                   className={"!max-w-56"}
@@ -198,12 +206,17 @@ const MyTasks = () => {
                     vendorNamesList?.data && vendorNamesList?.data?.vendor_names
                   )}
                   onChange={(val) => {
-                    if (val == "none") {
-                      setVendorFilter("none");
-                      updateParams({ vendor: undefined });
+                    if (typeof val == "object") {
+                      let vendor = val.map((item) => item).join(",");
+                      updateParams({ vendor: vendor });
+                      setFilters({...filters,"vendor":vendor})
                     } else {
-                      setVendorFilter(val);
-                      updateParams({ vendor: val });
+                      if (val == "none") {
+                        updateParams({ vendor: undefined });
+                        setFilters({...filters,"vendor":undefined})
+                      } else {
+                        setFilters({...filters,"vendor":val})
+                      }
                     }
                   }}
                   placeholder="All Vendors"
