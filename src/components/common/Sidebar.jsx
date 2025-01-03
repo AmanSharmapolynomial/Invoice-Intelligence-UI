@@ -163,7 +163,7 @@ const Sidebar = () => {
       </div>
       <div
         onClick={() => setExpanded()}
-        className={`bg-primary w-5 h-5 rounded-r-sm cursor-pointer  fixed  mt-1 top-16 left-[3.05%] !z-20 flex justify-center items-center 
+        className={`bg-primary w-5 h-5 rounded-r-sm cursor-pointer  fixed  mt-1 top-16 left-[3.75rem] !z-20 flex justify-center items-center 
           ${expanded ? "opacity-0" : "opacity-100"}
           transition-opacity duration-300 ease-in-out`}
       >
