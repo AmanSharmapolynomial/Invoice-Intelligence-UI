@@ -39,9 +39,9 @@ import useFilterStore from "@/store/filtersStore";
 
 const Home = () => {
   const [searchParams] = useSearchParams();
-  const {clearStore} = invoiceDetailStore();
+  const { clearStore } = invoiceDetailStore();
   const navigate = useNavigate();
-  const {filters,setFilters}=useFilterStore()
+  const { filters, setFilters } = useFilterStore();
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [searchedInvoices, setSearchedInvoices] = useState([]);
   const [open, setOpen] = useState(false);
@@ -95,7 +95,7 @@ const Home = () => {
     human_verified,
     assigned_to,
     document_priority,
-    review_later:'false'
+    review_later: "false"
   };
   const { data, isLoading } = useListInvoices(payload);
   useEffect(() => {
@@ -148,7 +148,7 @@ const Home = () => {
       8.5);
 
   useEffect(() => {
-clearStore()
+    clearStore();
   }, []);
   return (
     <div className="h-screen  flex w-full " id="maindiv">
@@ -176,7 +176,9 @@ clearStore()
                 <CustomDropDown
                   triggerClassName={"bg-gray-100"}
                   contentClassName={"bg-gray-100"}
-                  Value={searchParams.get("restaurant") || restaurantFilterValue}
+                  Value={
+                    searchParams.get("restaurant") || restaurantFilterValue
+                  }
                   placeholder="All Restaurants"
                   multiSelect={true}
                   className={"!max-w-fit"}
@@ -187,22 +189,21 @@ clearStore()
                   onChange={(val) => {
                     if (typeof val == "object") {
                       let restaurant = val.map((item) => item).join(",");
-                      setFilters({ ...filters, "restaurant":restaurant });
-                      updateParams({ restaurant:restaurant });
+                      setFilters({ ...filters, restaurant: restaurant });
+                      updateParams({ restaurant: restaurant });
                     } else {
                       if (val == "none") {
                         updateParams({ restaurant: undefined });
-                        setFilters({...filters,"restaurant":undefined})
+                        setFilters({ ...filters, restaurant: undefined });
                       } else {
                         updateParams({ restaurant: val });
-                         setFilters({...filters,"restaurant":val})
+                        setFilters({ ...filters, restaurant: val });
                       }
                     }
                   }}
                 />{" "}
                 <CustomDropDown
-                  Value={searchParams.get("vendor")||vendorFilterValue}
-              
+                  Value={searchParams.get("vendor") || vendorFilterValue}
                   className={"!max-w-56"}
                   triggerClassName={"bg-gray-100"}
                   contentClassName={"bg-gray-100"}
@@ -214,13 +215,13 @@ clearStore()
                     if (typeof val == "object") {
                       let vendor = val.map((item) => item).join(",");
                       updateParams({ vendor: vendor });
-                      setFilters({...filters,"vendor":vendor})
+                      setFilters({ ...filters, vendor: vendor });
                     } else {
                       if (val == "none") {
                         updateParams({ vendor: undefined });
-                        setFilters({...filters,"vendor":undefined})
+                        setFilters({ ...filters, vendor: undefined });
                       } else {
-                        setFilters({...filters,"vendor":val})
+                        setFilters({ ...filters, vendor: val });
                       }
                     }
                   }}
@@ -234,8 +235,24 @@ clearStore()
                 >
                   <SheetTrigger>
                     {" "}
-                    <Button className={`bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000] ${open?"!bg-primary !text-white":"!bg-white"}   `}>
-                      <Filter className={`${open?"!text-white":""} h-5  text-black/40 dark:text-white/50`} />
+                    <Button
+                      className={`bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000] ${
+                        open ||
+                        filters?.human_verified !== "all" ||
+                        filters?.human_verification !== "all" ||
+                        filters?.invoice_type !== ""||filters?.start_date!==""||filters?.end_date!==""||filters?.clickbacon_status!==""||filters?.auto_accepted!==""
+                          ? "!bg-primary !text-white"
+                          : "!bg-white"
+                      }   `}
+                    >
+                      <Filter
+                        className={`${
+                          (  open ||
+                            filters?.human_verified !== "all" ||
+                            filters?.human_verification !== "all" ||
+                            filters?.invoice_type !== ""||filters?.start_date!==""||filters?.end_date!==""||filters?.clickbacon_status!==""||filters?.auto_accepted!=="") ? "!text-white" : ""
+                        } h-5  text-black/40 dark:text-white/50`}
+                      />
                     </Button>
                   </SheetTrigger>
                   <SheetContent className="min-w-fit !max-w-[20rem] !overflow-auto">

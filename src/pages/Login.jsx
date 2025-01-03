@@ -65,6 +65,8 @@ const Login = () => {
           user_id
         } = data["data"];
 
+        localStorage.setItem("token", access_token);
+        localStorage.setItem("refresh_token", refresh_token);
         setRole(role);
         setEmail(email);
         setUsername(username);
