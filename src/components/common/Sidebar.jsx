@@ -13,6 +13,7 @@ import book_user_white from "@/assets/image/book_user_white.svg";
 import book_user_black from "@/assets/image/book_user_black.svg";
 import useThemeStore from "@/store/themeStore";
 import CustomTooltip from "../ui/Custom/CustomTooltip";
+import useFilterStore from "@/store/filtersStore";
 
 const Sidebar = () => {
   const { expanded, setExpanded } = useSidebarStore();
@@ -87,7 +88,7 @@ const Sidebar = () => {
 
   const width =
     expanded === undefined ? "18rem" : expanded ? "18rem" : "3.75rem";
-
+const {setDefault}=useFilterStore()
   return (
     <div className="relative ">
       <div
@@ -113,6 +114,9 @@ const Sidebar = () => {
               <CustomTooltip content={!expanded&&option?.text} key={index} right={"-20%"}>
                 <Link
                   to={option.path}
+                  onClick={()=>{
+                    setDefault()
+                  }}
                   // key={index}
                   className={`group cursor-pointer overflow-hidden flex items-center px-4 gap-2 py-3 text-sm font-normal font-poppins transition-all duration-300 ease-in-out 
                 ${

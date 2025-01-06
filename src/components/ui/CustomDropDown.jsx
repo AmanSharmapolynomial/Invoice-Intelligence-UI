@@ -47,7 +47,7 @@ const CustomDropDown = ({
       setValue(Value);
     }
   }, [Value]);
-
+console.log(Value)
   const handleSelect = (currentValue, item) => {
     const newValue = currentValue === value ? "" : currentValue;
     setValue(newValue);
@@ -63,7 +63,9 @@ const CustomDropDown = ({
       if(Value?.includes(",")){
         setItemsArray([...(Value?.split(","))])
       }else{
-        setValue(Value)
+       if(Value?.length>0 && Value!==undefined){
+        setItemsArray([...itemsArray,(Value)])
+       }
       }
     }
   },[multiSelect,Value])

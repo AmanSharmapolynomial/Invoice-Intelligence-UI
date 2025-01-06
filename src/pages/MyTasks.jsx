@@ -113,7 +113,7 @@ const MyTasks = () => {
     vendorNamesLoading,
     restaurantsListLoading
   ]);
-  const {filters,setFilters} = useFilterStore();
+  const { filters, setFilters } = useFilterStore();
   const {
     mutate: searchInvoices,
     isPending: searchingInvoices,
@@ -144,6 +144,10 @@ const MyTasks = () => {
       calculateDivHeightInVh("pagination") +
       8.5);
   let timer;
+
+  useEffect(()=>{
+   setFilters({...filters,assigned_to:userId})
+  },[])
   return (
     <div className="h-screen  flex w-full " id="maindiv">
       <Sidebar />
@@ -171,7 +175,9 @@ const MyTasks = () => {
                   multiSelect={true}
                   triggerClassName={"bg-gray-100"}
                   contentClassName={"bg-gray-100"}
-                  Value={searchParams.get("restaurant") || restaurantFilterValue}
+                  Value={
+                    searchParams.get("restaurant") || restaurantFilterValue
+                  }
                   placeholder="All Restaurants"
                   className={"!max-w-fit"}
                   data={formatRestaurantsList(
@@ -181,22 +187,21 @@ const MyTasks = () => {
                   onChange={(val) => {
                     if (typeof val == "object") {
                       let restaurant = val.map((item) => item).join(",");
-                      setFilters({ ...filters, "restaurant":restaurant });
-                      updateParams({ restaurant:restaurant });
+                      setFilters({ ...filters, restaurant: restaurant });
+                      updateParams({ restaurant: restaurant });
                     } else {
                       if (val == "none") {
                         updateParams({ restaurant: undefined });
-                        setFilters({...filters,"restaurant":undefined})
+                        setFilters({ ...filters, restaurant: undefined });
                       } else {
                         updateParams({ restaurant: val });
-                         setFilters({...filters,"restaurant":val})
+                        setFilters({ ...filters, restaurant: val });
                       }
                     }
                   }}
                 />{" "}
                 <CustomDropDown
-                 Value={searchParams.get("vendor")||vendorFilterValue}
-              
+                  Value={searchParams.get("vendor") || vendorFilterValue}
                   // className="!min-w-56"
                   multiSelect={true}
                   className={"!max-w-56"}
@@ -209,13 +214,13 @@ const MyTasks = () => {
                     if (typeof val == "object") {
                       let vendor = val.map((item) => item).join(",");
                       updateParams({ vendor: vendor });
-                      setFilters({...filters,"vendor":vendor})
+                      setFilters({ ...filters, vendor: vendor });
                     } else {
                       if (val == "none") {
                         updateParams({ vendor: undefined });
-                        setFilters({...filters,"vendor":undefined})
+                        setFilters({ ...filters, vendor: undefined });
                       } else {
-                        setFilters({...filters,"vendor":val})
+                        setFilters({ ...filters, vendor: val });
                       }
                     }
                   }}
@@ -234,19 +239,29 @@ const MyTasks = () => {
                         open ||
                         filters?.human_verified !== "all" ||
                         filters?.human_verification !== "all" ||
-                        filters?.invoice_type !== ""||filters?.start_date!==""||filters?.end_date!==""||filters?.clickbacon_status!==""||filters?.auto_accepted!==""
+                        filters?.invoice_type !== "" ||
+                        filters?.start_date !== "" ||
+                        filters?.end_date !== "" ||
+                        filters?.clickbacon_status !== "" ||
+                        filters?.auto_accepted !== ""
                           ? "!bg-primary !text-white"
                           : "!bg-white"
                       }   `}
                     >
-                          <Filter
+                      <Filter
                         className={`${
-                          (  open ||
-                            filters?.human_verified !== "all" ||
-                            filters?.human_verification !== "all" ||
-                            filters?.invoice_type !== ""||filters?.start_date!==""||filters?.end_date!==""||filters?.clickbacon_status!==""||filters?.auto_accepted!=="") ? "!text-white" : ""
+                          open ||
+                          filters?.human_verified !== "all" ||
+                          filters?.human_verification !== "all" ||
+                          filters?.invoice_type !== "" ||
+                          filters?.start_date !== "" ||
+                          filters?.end_date !== "" ||
+                          filters?.clickbacon_status !== "" ||
+                          filters?.auto_accepted !== ""
+                            ? "!text-white"
+                            : ""
                         } h-5  text-black/40 dark:text-white/50`}
-                        />
+                      />
                     </Button>
                   </SheetTrigger>
                   <SheetContent className="min-w-fit !overflow-auto">

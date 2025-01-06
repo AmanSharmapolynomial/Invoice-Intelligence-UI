@@ -51,7 +51,7 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
     vendor_id,
     document_uuid,
     assigned_to,
-    review_later: filters?.review_later
+    review_later: filters?.review_later||"false"
   };
 
   const { data, isLoading, isPending, isFetched } =

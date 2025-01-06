@@ -6,7 +6,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator
 } from "@/components/ui/breadcrumb";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import home from "@/assets/image/home.svg";
 import home_white from "@/assets/image/home_white.svg";
 import { ArrowLeft, MoveLeft } from "lucide-react";
@@ -14,11 +14,12 @@ import { ArrowLeft, MoveLeft } from "lucide-react";
 const BreadCrumb = ({ crumbs = [], title ,showCustom=false,children}) => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const [searchParams]=useSearchParams()
   const navigator = () => {
     if (pathname == "/home") {
       navigate("/");
     } else if (pathname == "/invoice-details/") {
-      navigate("/home");
+       window.history.back()
     } else {
       window.history.back();
     }
