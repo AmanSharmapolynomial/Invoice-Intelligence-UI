@@ -15,7 +15,7 @@ import { calculateTimeDifference, formatDateToReadable } from "@/lib/helpers";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import globalStore from "@/store/globalStore";
 import { ArrowDown, ArrowUp } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useGetDocumentTimeLine, useUpdateDocumentPriority } from "../api";
 import Timeline from "../Timeline";
@@ -31,6 +31,7 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import useFilterStore from "@/store/filtersStore";
 function getPropertyIcon(priority) {
   if (priority == "HIGHEST") {
     return (
@@ -113,6 +114,13 @@ const InvoiceTable = ({
   const { mutate, isPending } = useGetDocumentTimeLine();
   const { mutate: updatePriority, isPending: updatingPriority } =
     useUpdateDocumentPriority();
+    const {filters,setFilters}=useFilterStore()
+
+    useEffect(()=>{
+ if(review_later){
+  setFilters({...filters,review_later:"true"})
+ }
+    },[review_later])
 
   return (
     <div className="w-full overflow-auto  dark:bg-[#051C14] mb-1.5 dark:border-b dark:border-r dark:border-l dark:border-primary ">

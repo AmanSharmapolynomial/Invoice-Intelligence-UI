@@ -39,7 +39,7 @@ import useFilterStore from "@/store/filtersStore";
 const ReviewLaterTasks = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { filters, setFilters } = useFilterStore();
+  const { filters, setFilters ,setDefault} = useFilterStore();
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [searchedInvoices, setSearchedInvoices] = useState([]);
   const [open, setOpen] = useState(false);
@@ -145,6 +145,10 @@ const ReviewLaterTasks = () => {
       calculateDivHeightInVh("pagination") +
       8.5);
   let timer;
+  // useEffect(()=>{
+    
+  //   setDefault()
+  // },[])
   return (
     <div className="h-screen  flex w-full " id="maindiv">
       <Sidebar />
