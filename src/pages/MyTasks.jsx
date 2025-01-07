@@ -36,6 +36,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import useFilterStore from "@/store/filtersStore";
 
 const MyTasks = () => {
+  const { filters, setFilters } = useFilterStore();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [invoiceNumber, setInvoiceNumber] = useState("");
@@ -46,14 +47,20 @@ const MyTasks = () => {
   let page = searchParams.get("page") || 1;
   let page_size = searchParams.get("page_size") || 10;
   let invoice_type = searchParams.get("invoice_type") || "";
-  let human_verification = searchParams.get("human_verification") || "";
-  let human_verified = searchParams.get("human_verified") || "";
-  let detected = searchParams.get("invoice_detection_status") || "";
-  let rerun_status = searchParams.get("rerun_status") || "";
-  let auto_accepted = searchParams.get("auto_accepted") || "";
-  let start_date = searchParams.get("start_date") || "";
-  let end_date = searchParams.get("end_date") || "";
-  let clickbacon_status = searchParams.get("clickbacon_status") || "";
+  let human_verification =
+    searchParams.get("human_verification") || filters?.human_verification;
+  let human_verified =
+    searchParams.get("human_verified") || filters?.human_verified;
+  let detected =
+    searchParams.get("invoice_detection_status") || filters?.detected;
+  let rerun_status =
+    searchParams.get("rerun_status") || filters?.human_verified;
+  let auto_accepted =
+    searchParams.get("auto_accepted") || filters?.auto_accepted;
+  let start_date = searchParams.get("start_date") || filters?.start_date;
+  let end_date = searchParams.get("end_date") || filters?.end_date;
+  let clickbacon_status =
+    searchParams.get("clickbacon_status") || filters?.clickbacon_status;
   let restaurant =
     searchParams.get("restaurant_id") || searchParams.get("restaurant") || "";
   let vendor =
@@ -113,7 +120,7 @@ const MyTasks = () => {
     vendorNamesLoading,
     restaurantsListLoading
   ]);
-  const { filters, setFilters } = useFilterStore();
+
   const {
     mutate: searchInvoices,
     isPending: searchingInvoices,
@@ -145,9 +152,9 @@ const MyTasks = () => {
       8.5);
   let timer;
 
-  useEffect(()=>{
-   setFilters({...filters,assigned_to:userId})
-  },[])
+  useEffect(() => {
+    setFilters({ ...filters, assigned_to: userId });
+  }, []);
   return (
     <div className="h-screen  flex w-full " id="maindiv">
       <Sidebar />

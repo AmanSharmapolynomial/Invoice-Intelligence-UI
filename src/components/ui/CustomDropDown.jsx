@@ -63,6 +63,10 @@ console.log(Value)
       if(Value?.includes(",")){
         setItemsArray([...(Value?.split(","))])
       }else{
+        if(!Value){
+          setItemsArray([])
+          return
+        }
        if(Value?.length>0 && Value!==undefined){
         setItemsArray([...itemsArray,(Value)])
        }
