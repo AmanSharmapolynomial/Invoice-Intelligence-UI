@@ -16,10 +16,14 @@ import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import globalStore from "@/store/globalStore";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useGetDocumentTimeLine, useUpdateDocumentPriority } from "../api";
 import Timeline from "../Timeline";
 
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import useFilterStore from "@/store/filtersStore";
 import {
   CheckCheck,
   ChevronDown,
@@ -28,10 +32,6 @@ import {
   ChevronUp,
   Equal
 } from "lucide-react";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import useFilterStore from "@/store/filtersStore";
 function getPropertyIcon(priority) {
   if (priority == "HIGHEST") {
     return (
@@ -105,6 +105,7 @@ const InvoiceTable = ({
   let page = searchParams.get("page") || 1;
   let sort_order = searchParams.get("sort_order") || "desc";
   let document_priority = searchParams.get("document_priority") || "all";
+
   const [changePriorityModal, setChangePriorityModal] = useState({
     state: false,
     document_uuid: null,
@@ -114,14 +115,15 @@ const InvoiceTable = ({
   const { mutate, isPending } = useGetDocumentTimeLine();
   const { mutate: updatePriority, isPending: updatingPriority } =
     useUpdateDocumentPriority();
-    const {filters,setFilters}=useFilterStore()
+  const { filters, setFilters } = useFilterStore();
 
-    useEffect(()=>{
- if(review_later){
-  setFilters({...filters,review_later:"true"})
- }
-    },[review_later])
-
+  useEffect(() => {
+    if (review_later) {
+      setFilters({ ...filters, review_later: "true" });
+    }
+  }, [review_later]);
+  let { pathname } = useLocation();
+  console.log(pathname);
   return (
     <div className="w-full overflow-auto  dark:bg-[#051C14] mb-1.5 dark:border-b dark:border-r dark:border-l dark:border-primary ">
       <Table
@@ -141,7 +143,7 @@ const InvoiceTable = ({
                   !review_later && styling
                 } !font-semibold text-sm !border-b-0   ${
                   data && Object?.keys(data)?.length > 0 ? "" : " "
-                }  ${label==="Invoice #"&&" !pl-2"} ${
+                }  ${label === "Invoice #" && " !pl-2"} ${
                   i !== invoiceTableHeaders?.length - 1 ? "!border-r" : "!"
                 }`}
               >
@@ -198,7 +200,11 @@ const InvoiceTable = ({
                   </>
                 )}
 
-                {label=="Invoice #"&&<span className={`!mr-2  border-r h-full !min-h-16 !max-h-fit !w-[25.5%]`}/>}
+                {label == "Invoice #" && (
+                  <span
+                    className={`!mr-2  border-r h-full !min-h-16 !max-h-fit !w-[25.5%]`}
+                  />
+                )}
                 {label}
               </TableHead>
             ))}
@@ -279,6 +285,10 @@ const InvoiceTable = ({
                         navigate(
                           `/invoice-details/?page_number=${
                             (page - 1) * 10 + (index + 1)
+                          }&from_view=${
+                            pathname?.includes("review")
+                              ? "review_later"
+                              : pathname?.includes("my-tasks") ? "my-tasks":"invoice_listing"
                           }`
                         );
                       }}

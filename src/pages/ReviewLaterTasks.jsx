@@ -1,5 +1,4 @@
 import "@/App.css";
-import clock from "@/assets/image/clock.svg";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import {
@@ -25,16 +24,15 @@ import BreadCrumb from "@/components/ui/Custom/BreadCrumb";
 import CustomInput from "@/components/ui/Custom/CustomInput";
 import CustomDropDown from "@/components/ui/CustomDropDown";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { useGetVendorNames } from "@/components/vendor/api";
 import { formatRestaurantsList, vendorNamesFormatter } from "@/lib/helpers";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
+import useFilterStore from "@/store/filtersStore";
 import persistStore from "@/store/persistStore";
 import { ArrowRight, Filter, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import useFilterStore from "@/store/filtersStore";
 
 const ReviewLaterTasks = () => {
   const [searchParams] = useSearchParams();
@@ -48,14 +46,14 @@ const ReviewLaterTasks = () => {
   let page = searchParams.get("page") || 1;
   let page_size = searchParams.get("page_size") || 10;
   let invoice_type = searchParams.get("invoice_type") || "";
-  let human_verification = searchParams.get("human_verification") || "";
-  let human_verified = searchParams.get("human_verified") || "";
-  let detected = searchParams.get("invoice_detection_status") || "";
-  let rerun_status = searchParams.get("rerun_status") || "";
-  let auto_accepted = searchParams.get("auto_accepted") || "";
-  let start_date = searchParams.get("start_date") || "";
-  let end_date = searchParams.get("end_date") || "";
-  let clickbacon_status = searchParams.get("clickbacon_status") || "";
+  let human_verification = searchParams.get("human_verification") || filters?.human_verification;
+  let human_verified = searchParams.get("human_verified") || filters?.human_verified
+  let detected = searchParams.get("invoice_detection_status") ||  filters?.detected;
+  let rerun_status = searchParams.get("rerun_status") ||  filters?.human_verified
+  let auto_accepted = searchParams.get("auto_accepted") ||  filters?.auto_accepted
+  let start_date = searchParams.get("start_date") ||  filters?.start_date;
+  let end_date = searchParams.get("end_date") || filters?.end_date;
+  let clickbacon_status = searchParams.get("clickbacon_status") || filters?.clickbacon_status;
   let restaurant =
     searchParams.get("restaurant_id") || searchParams.get("restaurant") || "";
   let vendor =

@@ -22,19 +22,19 @@ export const listInvoices = async (payload) => {
   } = payload;
   let apiUrl;
 
+  if(human_verification=="" ){
+    return
+  }
   if (review_later) {
-    apiUrl = `/api/document/?page_size=${page_size}&page=${page}&invoice_type=${invoice_type}&end_date=${end_date}&start_date=${start_date}&auto_accepted=${auto_accepted}&human_verification=${human_verification}&invoice_detection_status=${detected}&rerun_status=${rerun_status}&clickbacon_status=${clickbacon_status}&restaurant=${restaurant}&vendor=${vendor}&sort_order=${sort_order}&human_verified=${human_verified}&assigned_to=${
+    apiUrl = `/api/document/?page_size=${page_size}&page=${page}&invoice_type=${invoice_type}&end_date=${end_date}&start_date=${start_date}&auto_accepted=${auto_accepted}&human_verification=${human_verification}&rerun_status=${rerun_status}&clickbacon_status=${clickbacon_status}&restaurant=${restaurant}&vendor=${vendor}&sort_order=${sort_order}&human_verified=${human_verified}&assigned_to=${
       assigned_to || ""
     }&document_priority=${document_priority}&review_later=${review_later}`;
   } else {
-    apiUrl = `/api/document/?page_size=${page_size}&page=${page}&invoice_type=${invoice_type}&end_date=${end_date}&start_date=${start_date}&auto_accepted=${auto_accepted}&human_verification=${human_verification}&invoice_detection_status=${detected}&rerun_status=${rerun_status}&clickbacon_status=${clickbacon_status}&restaurant=${restaurant}&vendor=${vendor}&sort_order=${sort_order}&human_verified=${human_verified}&assigned_to=${
+    apiUrl = `/api/document/?page_size=${page_size}&page=${page}&invoice_type=${invoice_type}&end_date=${end_date}&start_date=${start_date}&auto_accepted=${auto_accepted}&human_verification=${human_verification}&rerun_status=${rerun_status}&clickbacon_status=${clickbacon_status}&restaurant=${restaurant}&vendor=${vendor}&sort_order=${sort_order}&human_verified=${human_verified}&assigned_to=${
       assigned_to || ""
     }&document_priority=${document_priority}`;
   }
 
-  if(!human_verification){
-    return
-  }
   const response = await axiosInstance.get(apiUrl);
   return response;
 };
