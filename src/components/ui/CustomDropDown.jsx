@@ -47,7 +47,7 @@ const CustomDropDown = ({
       setValue(Value);
     }
   }, [Value]);
-console.log(Value)
+
   const handleSelect = (currentValue, item) => {
     const newValue = currentValue === value ? "" : currentValue;
     setValue(newValue);
@@ -59,7 +59,7 @@ console.log(Value)
   };
   useEffect(()=>{
     if(multiSelect && Value!=="none"){
-      // console.log(Value)
+      
       if(Value?.includes(",")){
         setItemsArray([...(Value?.split(","))])
       }else{

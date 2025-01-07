@@ -697,93 +697,77 @@ const HumanVerificationTable = ({
       position: { x: 0, y: 0 }
     });
   };
-
   const addNewCell = (rowIndex, column_uuid, cell_uuid, row_uuid) => {
-    // Step 1: Deep copy the data object to work with
-    let copyData = JSON.parse(JSON.stringify(data));
-    let combinedTableCopy = JSON.parse(JSON.stringify(data));
-
+    // Step 1: Deep copy the data object
+    const combinedTableCopy = JSON.parse(JSON.stringify(data));
+    const copyData = combinedTableCopy.data.processed_table;
+  
     saveHistory(); // Save the current state for undo/redo
-
-    let { rows } = copyData.data.processed_table;
-
+  
+    const { rows } = copyData;
+  
     // Step 2: Check if the last row exists and capture the last cell for the specified column
     const lastRow = rows[rows.length - 1];
     const lastCell = lastRow
       ? lastRow.cells.find((cell) => cell.column_uuid === column_uuid)
       : null;
-
-    // Step 3: Create a new row if adding a new cell to the last row
+  
+    // Step 3: Create a new row if needed
     let newRow = null;
     if (lastCell) {
       const newRowUuid = uuidv4();
       newRow = {
         transaction_uuid: newRowUuid,
         row_order: rows.length + 1,
-        item_master: {}, // Customize as needed
+        item_master: {}, // Placeholder for additional data
         cells: rows[0].cells.map((cell) => ({
           ...cell,
           cell_uuid: uuidv4(),
           row_uuid: newRowUuid,
           text: cell.column_uuid === column_uuid ? lastCell.text : "",
-          actual_text: cell.column_uuid === column_uuid ? lastCell.text : ""
-        }))
+          actual_text: cell.column_uuid === column_uuid ? lastCell.text : "",
+        })),
       };
-
+  
       rows.push(newRow);
-      combinedTableCopy.data.processed_table.rows.push(newRow);
     }
-
-    // Step 4: Shift cells down for the specified column and insert an empty cell
+  
+    // Step 4: Shift cells down for the specified column
     for (let i = rows.length - 1; i > rowIndex; i--) {
-      const currentCell = rows[i].cells.find(
+      const currentRow = rows[i];
+      const previousRow = rows[i - 1];
+  
+      const currentCell = currentRow.cells.find(
         (cell) => cell.column_uuid === column_uuid
       );
-      const previousCell = rows[i - 1].cells.find(
+      const previousCell = previousRow.cells.find(
         (cell) => cell.column_uuid === column_uuid
       );
-
+  
       if (currentCell && previousCell) {
-        // Step 4.1: Clear the current cell before shifting
-        if (i === rowIndex) {
-          currentCell.text = "";
-          currentCell.actual_text = "";
-        }
-
-        // Step 4.2: Shift the content down
         currentCell.text = previousCell.text;
         currentCell.actual_text = previousCell.actual_text;
-        currentCell.cell_uuid = uuidv4(); // New UUID for the shifted cell
-
-        // Update combined table
-        const combinedCell = combinedTableCopy.data.processed_table.rows[
-          i
-        ].cells.find((cell) => cell.column_uuid === column_uuid);
-        if (combinedCell) {
-          combinedCell.text = previousCell.text;
-          combinedCell.actual_text = previousCell.actual_text;
-          combinedCell.cell_uuid = uuidv4(); // New UUID for the shifted cell
-        }
+        currentCell.cell_uuid = uuidv4();
       }
     }
-
+  
     // Step 5: Add an empty cell at the target position
     const targetRow = rows[rowIndex];
-    let targetCell;
     if (targetRow) {
-      targetCell = targetRow.cells.find(
+      const targetCell = targetRow.cells.find(
         (cell) => cell.column_uuid === column_uuid
       );
-
       if (targetCell) {
         Object.assign(targetCell, {
           text: "",
           actual_text: "",
           cell_uuid: uuidv4(),
-          bounding_box: null
+          bounding_box: null,
         });
       }
     }
+  
+    // Step 6: Prepare operations for history/undo
     const createRowOperation = newRow
       ? {
           type: "create_row",
@@ -791,11 +775,11 @@ const HumanVerificationTable = ({
           data: {
             transaction_uuid: newRow.transaction_uuid,
             row_order: newRow.row_order,
-            cells: newRow.cells
-          }
+            cells: newRow.cells,
+          },
         }
       : null;
-
+  
     const createCellOperation = {
       type: "create_cell",
       operation_order: operations?.length + (newRow ? 2 : 1),
@@ -803,28 +787,26 @@ const HumanVerificationTable = ({
         current_cell_uuid: cell_uuid,
         current_column_uuid: column_uuid,
         current_row_uuid: row_uuid,
-        new_cell_uuid: targetCell?.cell_uuid
-      }
+        new_cell_uuid: targetRow?.cells.find(
+          (cell) => cell.column_uuid === column_uuid
+        )?.cell_uuid,
+      },
     };
-
+  
     const newOperations = [...operations];
     if (createRowOperation) newOperations.push(createRowOperation);
     newOperations.push(createCellOperation);
-
+  
     setOperations(newOperations);
-
-    combinedTableCopy.data.processed_table.rows[rowIndex].cells.find(
-      (cell) => cell?.cell_uuid == cell_uuid
-    ).text = "";
-    queryClient.setQueryData(
-      ["combined-table", document_uuid],
-      combinedTableCopy
-    );
+  
+    // Step 7: Update combined table
+    queryClient.setQueryData(["combined-table", document_uuid], combinedTableCopy);
   };
+  
 
   const deleteCell = (rowIndex, column_uuid, cell_uuid) => {
     saveHistory(); // Save the current state for undo/redo functionality
-
+  
     // Deep copy the table data to avoid mutations
     let copyData = JSON.parse(JSON.stringify(data));
     let { rows, columns } = copyData?.data?.processed_table;
@@ -834,13 +816,20 @@ const HumanVerificationTable = ({
       toast.error("Invalid row index.");
       return;
     }
-
+  
     if (!columns.some((col) => col.column_uuid === column_uuid)) {
       toast.error("Invalid column UUID.");
       return;
     }
-
-    // Identify the column's cells and start shifting data upwards
+  
+    // Find the target cell
+    const targetRow = rows[rowIndex];
+    const targetCell = targetRow?.cells.find(
+      (cell) => cell.cell_uuid === cell_uuid && cell.column_uuid === column_uuid
+    );
+  
+  
+    // Shift cells upward
     for (let i = rowIndex; i < rows.length - 1; i++) {
       const currentCell = rows[i]?.cells.find(
         (cell) => cell.column_uuid === column_uuid
@@ -848,61 +837,61 @@ const HumanVerificationTable = ({
       const nextCell = rows[i + 1]?.cells.find(
         (cell) => cell.column_uuid === column_uuid
       );
-
+  
       if (currentCell && nextCell) {
-        // Generate a new UUID for the shifted cell
-        const newCellUuid = uuidv4();
+
         Object.assign(currentCell, {
-          ...nextCell,
-          cell_uuid: newCellUuid
+          text: nextCell.text,
+          actual_text: nextCell.actual_text,
+          confidence: nextCell.confidence,
+          cell_uuid: nextCell?.cell_uuid,
+          bounding_box: nextCell.bounding_box || null,
         });
       }
     }
-
-    // Handle the last cell in the column
+  
+    // Clear the last cell
     const lastRow = rows[rows.length - 1];
     const lastCell = lastRow?.cells.find(
       (cell) => cell.column_uuid === column_uuid
     );
-
-    let newLastCellUuid = null;
+  
     if (lastCell) {
-      // Generate a new UUID for the last cell and reset it
-      newLastCellUuid = uuidv4();
       Object.assign(lastCell, {
         text: "",
         actual_text: null,
         confidence: null,
-        cell_uuid: newLastCellUuid, // Reset the last cell with a new UUID
-        bounding_box: null // Reset any bounding box or additional properties
+        cell_uuid: uuidv4(),
+        bounding_box: null,
       });
     }
-
-    // Record the delete operation for tracking
-    let operation = {
+  
+    // Record the operation
+    const operation = {
       type: "delete_cell",
       operation_order: operations.length + 1,
       data: {
-        current_cell_uuid: cell_uuid, // UUID of the cell being deleted
+        current_cell_uuid: cell_uuid,
         current_column_uuid: column_uuid,
-        current_row_uuid: rows[rowIndex]?.transaction_uuid,
-        new_cell_uuid: newLastCellUuid // New UUID of the last cell
-      }
+        current_row_uuid: targetRow?.transaction_uuid,
+        new_cell_uuid: lastCell?.cell_uuid,
+      },
     };
-
-    // Update the operations and table data
+  
     setOperations([...operations, operation]);
     queryClient.setQueryData(["combined-table", document_uuid], copyData);
-
-    // Show success toast
-    toast.success("Cell deleted and column shifted successfully.");
-
-    // Hide the context menu (if applicable)
-    setContextMenu({
-      visible: false,
-      position: { x: 0, y: 0 }
-    });
+  
+    // Validate the final state
+    const allCellUuids = rows.flatMap((row) => row.cells.map((cell) => cell.cell_uuid));
+    if (new Set(allCellUuids).size !== allCellUuids.length) {
+      console.error("Duplicate UUIDs detected in final table state.");
+      toast.error("Duplicate UUIDs found after cell deletion.");
+    }
+  
+    // Success message
+    toast.success("Cell deleted successfully.");
   };
+  
 
   const handleSaveCell = async (rowIndex, cellIndex, value) => {
     const originalValue =
