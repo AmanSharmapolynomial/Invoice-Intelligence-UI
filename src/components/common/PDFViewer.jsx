@@ -126,56 +126,54 @@ export const PdfViewer = ({
 
   const getBoundingBoxStyle = (width, height, bb, showBorder) => {
     let rotation = 0;
-
+  
     if (image_rotations?.[`image_${pageNum - 1}`]?.image_rotated) {
       rotation = image_rotations?.[`image_${pageNum - 1}`]?.rotation_angle;
     }
-
+  
     if (!bb?.box?.polygon || bb.box.polygon.length !== 4) return {};
-
+  
     // Original points of the bounding box in normalized coordinates (0 to 1)
     const points = bb.box.polygon.map((point) => ({
       x: point.X * width,
       y: point.Y * height
     }));
-
+  
     // Apply scaling factor to coordinates
     const scaledPoints = points.map((point) => ({
       x: point.x * pdfScale,
       y: point.y * pdfScale
     }));
-
+  
     // Center of the image (rotation origin)
-    const centerX =
-      (width * pdfScale) / 2 - (rotation == -90 ? 123 * pdfScale : 0);
-    const centerY =
-      (height * pdfScale) / 2 + (rotation == 90 ? 122 * pdfScale : 0);
-
+    const centerX = (width * pdfScale) / 2 - (rotation == -90 ? 123 * pdfScale : 0);
+    const centerY = (height * pdfScale) / 2 + (rotation == 90 ? 122 * pdfScale : 0);
+  
     // Rotate the points around the center of the page
     const rotatedPoints = scaledPoints.map((point) => {
       const x = point.x - centerX;
       const y = point.y - centerY;
-
+  
       const rotatedX =
         x * Math.cos((-rotation * Math.PI) / 180) -
         y * Math.sin((-rotation * Math.PI) / 180);
       const rotatedY =
         x * Math.sin((-rotation * Math.PI) / 180) +
         y * Math.cos((-rotation * Math.PI) / 180);
-
+  
       return {
         x: rotatedX + centerX,
         y: rotatedY + centerY
       };
     });
-
+  
     // Get new bounding box coordinates (top-left and bottom-right)
     const topLeft = rotatedPoints[0];
     const bottomRight = rotatedPoints[2];
-
+  
     const calculatedWidth = bottomRight.x - topLeft.x;
     const calculatedHeight = bottomRight.y - topLeft.y;
-
+  
     return {
       position: "absolute",
       top: `${topLeft.y}px`,
@@ -190,13 +188,14 @@ export const PdfViewer = ({
       border: showBorder ? "1.5px solid red" : undefined
     };
   };
-
+  
+ 
   const zoomToBoundingBox = (width, height, bb) => {
     let rotation = 0;
     if (image_rotations?.[`image_${pageNum - 1}`]?.image_rotated) {
       rotation = image_rotations?.[`image_${pageNum - 1}`]?.rotation_angle;
     }
-
+  
     const viewerElement = document.getElementById("react-pdf__Wrapper");
     if (!bb?.box?.polygon || bb?.box?.polygon?.length !== 4) {
       if (!lockZoomAndScroll && pdfScale === 1.0) {
@@ -205,29 +204,29 @@ export const PdfViewer = ({
       }
       return;
     }
-
+  
     const viewerWidth = viewerElement.clientWidth;
     const viewerHeight = viewerElement.clientHeight;
-
+  
     // Calculate the width and height of the bounding box in the original coordinates
     const boxWidth = (bb.box.polygon[2].X - bb.box.polygon[0].X) * width;
     const boxHeight = (bb.box.polygon[2].Y - bb.box.polygon[0].Y) * height;
-
+  
     // Calculate the target scale based on the bounding box size and viewer size
     const targetScale = lockZoomAndScroll
       ? pdfScale
-      : Math.min(viewerWidth / boxWidth, viewerHeight / boxHeight, 3.0) * 0.9;
-
+      : Math.min(viewerWidth / boxWidth, viewerHeight / boxHeight, 3.0) * 0.7;
+  
     setPdfScale(targetScale < 1 ? 1 : targetScale);
-
+  
     // Calculate the top-left position of the bounding box in the scaled viewer coordinates
     const topLeftX = bb.box.polygon[0].X * width * targetScale;
     const topLeftY = bb.box.polygon[0].Y * height * targetScale;
-
+  
     // Center of the image (rotation origin) after scaling
-    const centerX = (width * targetScale) / 3;
-    const centerY = (height * targetScale) / 2;
-
+    const centerX = width * targetScale /3.0;
+    const centerY = height * targetScale / 1.5;
+  
     // Rotate the top-left point back to its original position based on the rotation angle
     const adjustedTopLeftX =
       Math.cos((-rotation * Math.PI) / 180) * (topLeftX - centerX) -
@@ -237,21 +236,21 @@ export const PdfViewer = ({
       Math.sin((-rotation * Math.PI) / 180) * (topLeftX - centerX) +
       Math.cos((-rotation * Math.PI) / 180) * (topLeftY - centerY) +
       centerY;
-
+  
     // Calculate the new scroll position to center the bounding box in the viewer
-    const scrollLeft =
-      adjustedTopLeftX - viewerWidth / 2 + (boxWidth * targetScale) / 2;
-    const scrollTop =
-      adjustedTopLeftY - viewerHeight / 2 + (boxHeight * targetScale) / 2;
-
+    const scrollLeft = adjustedTopLeftX - viewerWidth / 2 + (boxWidth * targetScale) / 2;
+    const scrollTop = adjustedTopLeftY - viewerHeight / 2 + (boxHeight * targetScale) / 2;
+  
     // Scroll to the calculated position with smooth behavior
     viewerElement.scrollTo({
       left: scrollLeft,
       top: scrollTop,
-      behavior: "smooth"
+      behavior: "smooth",
     });
   };
-
+  
+  
+  
   let page = searchParams.get("page_number");
 
   useEffect(() => {
