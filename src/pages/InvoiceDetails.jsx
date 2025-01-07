@@ -70,6 +70,7 @@ const rejectionReasons = [
 
 const InvoiceDetails = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+
   const [data, setData] = useState({});
 
   const [currentTab, setCurrentTab] = useState("metadata");
@@ -94,7 +95,8 @@ const InvoiceDetails = () => {
     setOperations,
     setBranchChanged,
     setVendorChanged,
-    metadata
+    metadata,
+    setHistory
   } = invoiceDetailStore();
   const [isLoading, setIsLoading] = useState(true);
   const [loadingState, setLoadingState] = useState({
@@ -131,6 +133,11 @@ const InvoiceDetails = () => {
   }, []);
 
   const handleSave = () => {
+    if (Object.keys(updatedFields)?.length == 0 && operations?.length == 0) {
+      return toast("No Fields Updated..", {
+        icon: "⚠️"
+      });
+    }
     if (currentTab == "metadata" && updatedFields) {
       setLoadingState({ ...loadingState, saving: true });
       updateTable(
@@ -154,7 +161,7 @@ const InvoiceDetails = () => {
       );
     } else if (currentTab == "human-verification") {
       setLoadingState({ ...loadingState, saving: true });
-      if (updatedFields) {
+      if (Object.keys(updatedFields)?.length>0) {
         updateTable(
           {
             document_uuid:
@@ -189,12 +196,11 @@ const InvoiceDetails = () => {
               queryClient.invalidateQueries({ queryKey: ["combined-table"] });
               queryClient.invalidateQueries({ queryKey: ["additional-data"] });
               // queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
-              setCombinedTableCopy({});
-              if (!refreshed) {
-                refreshed = true;
-                window.location.reload();
-              }
-              setAdded(false);
+              // setCombinedTableCopy({});
+              // if (!refreshed) {
+              //   refreshed = true;
+              //   window.location.reload();
+              // }
             },
 
             onError: () => setLoadingState({ ...loadingState, saving: false })
@@ -242,15 +248,13 @@ const InvoiceDetails = () => {
             queryClient.invalidateQueries({ queryKey: ["combined-table"] });
             queryClient.invalidateQueries({ queryKey: ["additional-data"] });
             queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
-            setCombinedTableCopy({});
-            setAdded(false);
+            // setCombinedTableCopy({});
           },
 
           onError: () => setLoadingState({ ...loadingState, saving: false })
         }
       );
     }
-    
   };
 
   const handleAccept = () => {
@@ -289,8 +293,7 @@ const InvoiceDetails = () => {
             queryClient.invalidateQueries({ queryKey: ["combined-table"] });
             queryClient.invalidateQueries({ queryKey: ["additional-data"] });
             queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
-            setCombinedTableCopy({});
-            setAdded(false);
+            // setCombinedTableCopy({});
           },
 
           onError: () => setLoadingState({ ...loadingState, saving: false })
@@ -298,8 +301,6 @@ const InvoiceDetails = () => {
       );
     }
     setLoadingState({ ...loadingState, saving: true });
-
-   
   };
 
   let action_controls =
@@ -353,13 +354,14 @@ const InvoiceDetails = () => {
       hoverImage: review_later_white
     }
   ];
-  const [showWarningForBranchAndVendor, setShowWarningForBranchAndVendor] =useState(true);
+  const [showWarningForBranchAndVendor, setShowWarningForBranchAndVendor] =
+    useState(true);
 
-  useEffect(()=>{
-    if(branchChanged || vendorChanged){
+  useEffect(() => {
+    if (branchChanged || vendorChanged) {
       setShowWarningForBranchAndVendor(true);
     }
-  },[branchChanged,vendorChanged])
+  }, [branchChanged, vendorChanged]);
   return (
     <div className="hide-scrollbar relative">
       <Navbar />
@@ -709,7 +711,7 @@ const InvoiceDetails = () => {
                 setCurrentTab={setCurrentTab}
               />
             )}
-            {myData?.invoice_type!=="Summary Invoice" && (
+            {myData?.invoice_type !== "Summary Invoice" && (
               <CategoryWiseSum isLoading={isLoading} />
             )}
             <LastUpdateInfo

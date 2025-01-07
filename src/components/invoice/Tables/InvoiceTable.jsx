@@ -123,7 +123,7 @@ const InvoiceTable = ({
     }
   }, [review_later]);
   let { pathname } = useLocation();
-  console.log(pathname);
+
   return (
     <div className="w-full overflow-auto  dark:bg-[#051C14] mb-1.5 dark:border-b dark:border-r dark:border-l dark:border-primary ">
       <Table
