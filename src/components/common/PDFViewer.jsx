@@ -146,10 +146,12 @@ export const PdfViewer = ({
     }));
 
     // Center of the image (rotation origin)
-    const centerX = (width * pdfScale) / 2 - (rotation == -90 ? 123 : 0);
-    const centerY = (height * pdfScale) / 2 + (rotation == 90 ? 122 : 0);
+    const centerX =
+      (width * pdfScale) / 2 - (rotation == -90 ? 123 * pdfScale : 0);
+    const centerY =
+      (height * pdfScale) / 2 + (rotation == 90 ? 122 * pdfScale : 0);
 
-    // Rotate the points around the center of the page (this step needs to be correct)
+    // Rotate the points around the center of the page
     const rotatedPoints = scaledPoints.map((point) => {
       const x = point.x - centerX;
       const y = point.y - centerY;
@@ -176,10 +178,10 @@ export const PdfViewer = ({
 
     return {
       position: "absolute",
-      top: `${topLeft.y}px`, // Use the exact value here, without offset
+      top: `${topLeft.y}px`,
       left: `${topLeft.x}px`,
       width: `${calculatedWidth}px`,
-      height: `${calculatedHeight}px`, // Ensure exact height without margin for now
+      height: `${calculatedHeight}px`,
       background: "rgba(144,238,144,0.4)",
       zIndex: 9999,
       borderRadius: 5,
@@ -198,7 +200,7 @@ export const PdfViewer = ({
     const viewerElement = document.getElementById("react-pdf__Wrapper");
     if (!bb?.box?.polygon || bb?.box?.polygon?.length !== 4) {
       if (!lockZoomAndScroll && pdfScale === 1.0) {
-        setPdfScale(1.0);
+        setPdfScale(1);
         viewerElement?.scrollTo({ top: 0, left: 0, behavior: "smooth" });
       }
       return;
@@ -214,16 +216,16 @@ export const PdfViewer = ({
     // Calculate the target scale based on the bounding box size and viewer size
     const targetScale = lockZoomAndScroll
       ? pdfScale
-      : Math.min(viewerWidth / boxWidth, viewerHeight / boxHeight, 3.0) * 0.7;
+      : Math.min(viewerWidth / boxWidth, viewerHeight / boxHeight, 3.0) * 0.9;
 
-    setPdfScale(targetScale < 0 ? 1 : targetScale);
+    setPdfScale(targetScale < 1 ? 1 : targetScale);
 
     // Calculate the top-left position of the bounding box in the scaled viewer coordinates
     const topLeftX = bb.box.polygon[0].X * width * targetScale;
     const topLeftY = bb.box.polygon[0].Y * height * targetScale;
 
     // Center of the image (rotation origin) after scaling
-    const centerX = (width * targetScale) / 2;
+    const centerX = (width * targetScale) / 3;
     const centerY = (height * targetScale) / 2;
 
     // Rotate the top-left point back to its original position based on the rotation angle
@@ -249,6 +251,7 @@ export const PdfViewer = ({
       behavior: "smooth"
     });
   };
+
   let page = searchParams.get("page_number");
 
   useEffect(() => {
@@ -427,6 +430,10 @@ export const PdfViewer = ({
     }
   };
   const handleDragStart = useCallback((e) => {
+    if (isSelecting) {
+      setIsDragging(false);
+      return;
+    }
     if (e.button === 0) {
       // Left mouse button
       setIsDragging(true);
@@ -436,6 +443,10 @@ export const PdfViewer = ({
 
   const handleDragMove = useCallback(
     (e) => {
+      if (isSelecting) {
+        setIsDragging(false);
+        return;
+      }
       if (isDragging && pdfWrapperRef.current) {
         const dx = e.clientX - startDragPosition.x;
         const dy = e.clientY - startDragPosition.y;
@@ -449,6 +460,10 @@ export const PdfViewer = ({
   const pdfWrapperRef = useRef(null);
 
   const handleDragEnd = useCallback(() => {
+    if (isSelecting) {
+      setIsDragging(false);
+      return;
+    }
     setIsDragging(false);
   }, []);
 
@@ -466,7 +481,7 @@ export const PdfViewer = ({
         window.removeEventListener("mouseup", handleDragEnd);
       };
     }
-  }, [handleDragStart, handleDragMove, handleDragEnd,pdfUrls]);
+  }, [handleDragStart, handleDragMove, handleDragEnd, pdfUrls]);
 
   useEffect(() => {
     const pdfWrapper = document.getElementById("react-pdf__Wrapper");
@@ -570,8 +585,7 @@ export const PdfViewer = ({
               alt=""
               className="cursor-pointer h-5 w-5"
               onClick={() => {
-                if (lockZoomAndScroll || pdfScale >= 8) {
-                } else {
+                if (pdfScale <= 8) {
                   setPdfScale(pdfScale * 2);
                 }
               }}
@@ -581,8 +595,7 @@ export const PdfViewer = ({
               alt=""
               className="cursor-pointer h-5 w-5"
               onClick={() => {
-                if (lockZoomAndScroll || pdfScale <= 0.1) {
-                } else {
+                if (!pdfScale <= 0.1) {
                   setPdfScale(pdfScale / 2);
                 }
               }}
