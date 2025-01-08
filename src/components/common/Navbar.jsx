@@ -1,28 +1,25 @@
-import { ArrowLeft, LogOut, LucideHome } from "lucide-react";
+import logout from "@/assets/image/logout.svg";
+import moon from "@/assets/image/moon.svg";
+import settings from "@/assets/image/settings.svg";
+import settings_white from "@/assets/image/settings_white.svg";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+import useFilterStore from "@/store/filtersStore";
+import useThemeStore from "@/store/themeStore";
+import { useEffect } from "react";
 import {
   Link,
   useLocation,
   useNavigate,
   useSearchParams
 } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import userStore from "../auth/store/userStore";
-import settings from "@/assets/image/settings.svg";
-import settings_white from "@/assets/image/settings_white.svg";
-import logout from "@/assets/image/logout.svg";
-import moon from "@/assets/image/moon.svg";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import useThemeStore from "@/store/themeStore";
-import { useEffect } from "react";
-import useFilterStore from "@/store/filtersStore";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
 
 const Navbar = ({ children, className }) => {
   const { pathname } = useLocation();

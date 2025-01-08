@@ -155,7 +155,10 @@ const InvoiceTable = ({
                       >
                         <ArrowUp
                           className="h-4 cursor-pointer"
-                          onClick={() => updateParams({ sort_order: "asc" })}
+                          onClick={() => {
+                            updateParams({ sort_order: "asc" });
+                            setFilters({ ...filters, sort_order: "asc" });
+                          }}
                         />
                       </CustomTooltip>
                     )}
@@ -165,13 +168,16 @@ const InvoiceTable = ({
                       >
                         <ArrowDown
                           className="h-4 cursor-pointer"
-                          onClick={() => updateParams({ sort_order: "desc" })}
+                          onClick={() => {
+                            updateParams({ sort_order: "desc" });
+                            setFilters({ ...filters, sort_order: "desc" });
+                          }}
                         />
                       </CustomTooltip>
                     )}
                   </>
                 )}
-                {label === "Invoice #" && (
+                {label == "Invoice #" && (
                   <>
                     {document_priority == "desc" && (
                       <CustomTooltip
@@ -179,9 +185,13 @@ const InvoiceTable = ({
                       >
                         <ArrowUp
                           className="h-4 cursor-pointer"
-                          onClick={() =>
-                            updateParams({ document_priority: "asc" })
-                          }
+                          onClick={() => {
+                            updateParams({ document_priority: "asc" });
+                            setFilters({
+                              ...filters,
+                              document_priority: "asc"
+                            });
+                          }}
                         />
                       </CustomTooltip>
                     )}
@@ -191,9 +201,13 @@ const InvoiceTable = ({
                       >
                         <ArrowDown
                           className="h-4 cursor-pointer"
-                          onClick={() =>
-                            updateParams({ document_priority: "desc" })
-                          }
+                          onClick={() => {
+                            updateParams({ document_priority: "desc" });
+                            setFilters({
+                              ...filters,
+                              document_priority: "desc"
+                            });
+                          }}
                         />
                       </CustomTooltip>
                     )}
@@ -288,7 +302,9 @@ const InvoiceTable = ({
                           }&from_view=${
                             pathname?.includes("review")
                               ? "review_later"
-                              : pathname?.includes("my-tasks") ? "my-tasks":"invoice_listing"
+                              : pathname?.includes("my-tasks")
+                              ? "my-tasks"
+                              : "invoice_listing"
                           }`
                         );
                       }}
@@ -299,16 +315,16 @@ const InvoiceTable = ({
                       } w-full`}
                     >
                       <TableCell
-                        className={`flex dark:!text-[#F6F6F6] !h-full !min-h-16 !max-h-44 font-poppins  cursor-pointer !text-left break-word  !break-word whitespace-normal truncate justify-start gap-x-2 !p-0 !font-normal ${
+                        className={`flex dark:!text-[#F6F6F6] !h-full !min-h-16 !max-h-44 font-poppins  cursor-pointer !text-left  justify-start gap-x-2 !p-0 !font-normal ${
                           review_later
                             ? "!w-[10%]"
                             : "!w-[11.1111111%] pl-2 border-r "
                         }  text-sm  `}
                       >
-                        <div className=" w-full flex ">
-                          <div className="border-r !w-[30%] flex mr-4 justify-center !items-center h-full">
+                        <div className=" w-full flex  ">
+                          <div className="border-r !w-[30%] flex mr-4 justify-center  !items-center h-full">
                             <div
-                              className=" pt-[3px]  "
+                              className=" pt-[3px]  !break-word truncate"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setChangePriorityModal({
@@ -320,8 +336,8 @@ const InvoiceTable = ({
                               {getPropertyIcon(document_priority)}
                             </div>{" "}
                           </div>
-                          <div className="w-full flex !w-[70%] justify-start items-center">
-                            <div> {invoice_number}</div>
+                          <div className=" flex !w-[70%] justify-start items-center !break-word  whitespace-normal truncate">
+                            <div className="!break-word  whitespace-normal truncate"> {invoice_number}</div>
                           </div>
                         </div>
                       </TableCell>
