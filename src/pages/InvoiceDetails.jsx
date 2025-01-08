@@ -53,7 +53,12 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { Link, useLocation, useSearchParams } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams
+} from "react-router-dom";
 import VendorNotes from "@/components/vendor/notes/VendorNotes";
 import { useGetVendorNotes } from "@/components/vendor/api";
 import DocumentNotes from "@/components/vendor/notes/DocumentNotes";
@@ -161,7 +166,7 @@ const InvoiceDetails = () => {
       );
     } else if (currentTab == "human-verification") {
       setLoadingState({ ...loadingState, saving: true });
-      if (Object.keys(updatedFields)?.length>0) {
+      if (Object.keys(updatedFields)?.length > 0) {
         updateTable(
           {
             document_uuid:
@@ -362,6 +367,12 @@ const InvoiceDetails = () => {
       setShowWarningForBranchAndVendor(true);
     }
   }, [branchChanged, vendorChanged]);
+
+  const navigate = useNavigate();
+  let page_number = searchParams.get("page_number");
+  let from_view=searchParams.get("from_view")
+
+  const { setDefault } = useFilterStore();
   return (
     <div className="hide-scrollbar relative">
       <Navbar />
@@ -549,28 +560,24 @@ const InvoiceDetails = () => {
         )}
         <div className="flex justify-end">
           <div className="flex items-center gap-x-3">
-            {!document_uuid && (
-              <CustomTooltip content={"Click To Copy The Link."}>
-                <Button
-                  onClick={() => {
-                    navigator.clipboard.writeText(
-                      `${
-                        window.location.origin
-                      }/invoice-details?document_uuid=${
-                        document_uuid ||
-                        data?.data?.[0]?.document_uuid ||
-                        data?.data?.document_uuid
-                      }`
-                    );
-                    toast.success("Link copied to clipboard");
-                  }}
-                  disabled={markingForReview}
-                  className="bg-transparent h-[2.4rem] border-primary w-[3rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
-                >
-                  <Share2 className="dark:text-white" />
-                </Button>
-              </CustomTooltip>
-            )}
+            <CustomTooltip content={"Click To Copy The Link."}>
+              <Button
+                onClick={() => {
+                  navigator.clipboard.writeText(
+                    `${window.location.origin}/invoice-details?document_uuid=${
+                      document_uuid ||
+                      data?.data?.[0]?.document_uuid ||
+                      data?.data?.document_uuid
+                    }`
+                  );
+                  toast.success("Link copied to clipboard");
+                }}
+                disabled={markingForReview}
+                className="bg-transparent h-[2.4rem] border-primary w-[3rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+              >
+                <Share2 className="dark:text-white" />
+              </Button>
+            </CustomTooltip>
 
             <DocumentNotes
               data={documentNotes?.data}
@@ -778,6 +785,19 @@ const InvoiceDetails = () => {
                         });
                         setReviewLaterComments("");
                         setMarkForReviewModal(false);
+
+                        if (page_number == 1 && data?.totalPages == 1) {
+
+                          if(from_view=="my-tasks"){
+
+                            navigate("/my-tasks");
+                          }else if(from_view=="reviw-later"){
+                              navigate("/review-later-tasks")
+                          }else{
+                            navigate("/home")
+                          }
+                          setDefault();
+                        }
                         window.location.reload();
                       },
                       onError: () => {
@@ -1004,6 +1024,7 @@ const InvoiceDetails = () => {
                       {i + 1}
                     </p>
                     <Link
+                      target="_blank"
                       onClick={() => setShowDuplicateInvoicesModal(false)}
                       to={`/invoice-details?document_uuid=${d.document_uuid}`}
                       className="font-poppins !font-normal    pl-1 underline underline-offset-4 !text-center text-xs text-[#348355] leading-4"

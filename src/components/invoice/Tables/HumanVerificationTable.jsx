@@ -354,7 +354,7 @@ const HumanVerificationTable = ({
   const handleEditCell = (rowIndex, cellIndex, initialValue) => {
     setEditMode({ rowIndex, cellIndex });
     setCellValue(initialValue);
-    setStopHovering(false);
+    // setStopHovering(false);
   };
 
   const handleKeyPress = (event, rowIndex, cellIndex) => {
@@ -1363,12 +1363,12 @@ const HumanVerificationTable = ({
                                       {cell?.column_uuid ===
                                       categoryColumnId ? (
                                         <div
-                                          onMouseLeave={() =>
-                                            setEditMode({
-                                              rowIndex: -1,
-                                              cellIndex: -1
-                                            })
-                                          }
+                                          // onMouseLeave={() =>
+                                          //   setEditMode({
+                                          //     rowIndex: -1,
+                                          //     cellIndex: -1
+                                          //   })
+                                          // }
                                         >
                                           <CustomDropDown
                                             Value={
