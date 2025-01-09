@@ -1279,7 +1279,7 @@ const HumanVerificationTable = ({
                         }
                       )}
                   </div>
-                  <div className="w-full sticky right-0   flex items-center ">
+                  {/* <div className="w-full sticky right-0   flex items-center "> */}
                     {(viewDeleteColumn ||
                       viewShiftColumn ||
                       viewVerificationColumn) && (
@@ -1289,12 +1289,12 @@ const HumanVerificationTable = ({
                           viewShiftColumn &&
                           viewVerificationColumn &&
                           "w-[6.2rem]"
-                        } !border-l  sticky !max-w-[6.2rem] min-w-[6.2rem]   flex justify-center items-center font-poppins font-normal text-xs !p-0 h-full bg-white/90  !right-[0px]`}
+                        } !border-l  sticky !max-w-[6.2rem]  min-w-[6.3rem]   flex justify-center items-center font-poppins font-normal text-xs !p-0 min-h-full bg-white/90  !right-[0px]`}
                       >
                         Actions
                       </TableCell>
                     )}
-                  </div>
+                  {/* </div> */}
                 </div>
 
                 <div className=" flex flex-col gap-x-2   px-0.5 max-h-[30rem]  ">
