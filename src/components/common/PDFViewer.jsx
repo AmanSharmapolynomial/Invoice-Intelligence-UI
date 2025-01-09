@@ -224,8 +224,8 @@ export const PdfViewer = ({
     const topLeftY = bb.box.polygon[0].Y * height * targetScale;
   
     // Center of the image (rotation origin) after scaling
-    const centerX = width * targetScale /3.0;
-    const centerY = height * targetScale / 1.5;
+    const centerX = width * targetScale /2.0;
+    const centerY = height *targetScale/(pdfScale==2?1.25:pdfScale==1.5?1.5:2);
   
     // Rotate the top-left point back to its original position based on the rotation angle
     const adjustedTopLeftX =

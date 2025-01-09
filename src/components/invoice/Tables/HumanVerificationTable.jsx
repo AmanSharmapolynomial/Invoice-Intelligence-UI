@@ -41,7 +41,6 @@ const HumanVerificationTable = ({
   metadata,
   payload
 }) => {
-
   if (isLoading) {
     return (
       <div className="flex flex-col gap-y-8">
@@ -684,34 +683,29 @@ const HumanVerificationTable = ({
     // Update the query data with the new row
     queryClient.setQueryData(["combined-table", document_uuid], copyData);
 
-    // Show a success toast
-    toast.success(
-      rowIndex === -1
-        ? "Row added successfully at the end."
-        : `Row added successfully at position ${rowIndex + 1}.`
-    );
-
+    
     // Hide the context menu
     setContextMenu({
       visible: false,
       position: { x: 0, y: 0 }
     });
   };
+
   const addNewCell = (rowIndex, column_uuid, cell_uuid, row_uuid) => {
     // Step 1: Deep copy the data object
     const combinedTableCopy = JSON.parse(JSON.stringify(data));
     const copyData = combinedTableCopy.data.processed_table;
-  
+
     saveHistory(); // Save the current state for undo/redo
-  
+
     const { rows } = copyData;
-  
+
     // Step 2: Check if the last row exists and capture the last cell for the specified column
     const lastRow = rows[rows.length - 1];
     const lastCell = lastRow
       ? lastRow.cells.find((cell) => cell.column_uuid === column_uuid)
       : null;
-  
+
     // Step 3: Create a new row if needed
     let newRow = null;
     if (lastCell) {
@@ -725,32 +719,32 @@ const HumanVerificationTable = ({
           cell_uuid: uuidv4(),
           row_uuid: newRowUuid,
           text: cell.column_uuid === column_uuid ? lastCell.text : "",
-          actual_text: cell.column_uuid === column_uuid ? lastCell.text : "",
-        })),
+          actual_text: cell.column_uuid === column_uuid ? lastCell.text : ""
+        }))
       };
-  
+
       rows.push(newRow);
     }
-  
+
     // Step 4: Shift cells down for the specified column
     for (let i = rows.length - 1; i > rowIndex; i--) {
       const currentRow = rows[i];
       const previousRow = rows[i - 1];
-  
+
       const currentCell = currentRow.cells.find(
         (cell) => cell.column_uuid === column_uuid
       );
       const previousCell = previousRow.cells.find(
         (cell) => cell.column_uuid === column_uuid
       );
-  
+
       if (currentCell && previousCell) {
         currentCell.text = previousCell.text;
         currentCell.actual_text = previousCell.actual_text;
         currentCell.cell_uuid = uuidv4();
       }
     }
-  
+
     // Step 5: Add an empty cell at the target position
     const targetRow = rows[rowIndex];
     if (targetRow) {
@@ -762,11 +756,11 @@ const HumanVerificationTable = ({
           text: "",
           actual_text: "",
           cell_uuid: uuidv4(),
-          bounding_box: null,
+          bounding_box: null
         });
       }
     }
-  
+
     // Step 6: Prepare operations for history/undo
     const createRowOperation = newRow
       ? {
@@ -775,11 +769,11 @@ const HumanVerificationTable = ({
           data: {
             transaction_uuid: newRow.transaction_uuid,
             row_order: newRow.row_order,
-            cells: newRow.cells,
-          },
+            cells: newRow.cells
+          }
         }
       : null;
-  
+
     const createCellOperation = {
       type: "create_cell",
       operation_order: operations?.length + (newRow ? 2 : 1),
@@ -789,24 +783,26 @@ const HumanVerificationTable = ({
         current_row_uuid: row_uuid,
         new_cell_uuid: targetRow?.cells.find(
           (cell) => cell.column_uuid === column_uuid
-        )?.cell_uuid,
-      },
+        )?.cell_uuid
+      }
     };
-  
+
     const newOperations = [...operations];
     if (createRowOperation) newOperations.push(createRowOperation);
     newOperations.push(createCellOperation);
-  
+
     setOperations(newOperations);
-  
+
     // Step 7: Update combined table
-    queryClient.setQueryData(["combined-table", document_uuid], combinedTableCopy);
+    queryClient.setQueryData(
+      ["combined-table", document_uuid],
+      combinedTableCopy
+    );
   };
-  
 
   const deleteCell = (rowIndex, column_uuid, cell_uuid) => {
     saveHistory(); // Save the current state for undo/redo functionality
-  
+
     // Deep copy the table data to avoid mutations
     let copyData = JSON.parse(JSON.stringify(data));
     let { rows, columns } = copyData?.data?.processed_table;
@@ -816,19 +812,18 @@ const HumanVerificationTable = ({
       toast.error("Invalid row index.");
       return;
     }
-  
+
     if (!columns.some((col) => col.column_uuid === column_uuid)) {
       toast.error("Invalid column UUID.");
       return;
     }
-  
+
     // Find the target cell
     const targetRow = rows[rowIndex];
     const targetCell = targetRow?.cells.find(
       (cell) => cell.cell_uuid === cell_uuid && cell.column_uuid === column_uuid
     );
-  
-  
+
     // Shift cells upward
     for (let i = rowIndex; i < rows.length - 1; i++) {
       const currentCell = rows[i]?.cells.find(
@@ -837,61 +832,62 @@ const HumanVerificationTable = ({
       const nextCell = rows[i + 1]?.cells.find(
         (cell) => cell.column_uuid === column_uuid
       );
-  
-      if (currentCell && nextCell) {
 
+      if (currentCell && nextCell) {
         Object.assign(currentCell, {
           text: nextCell.text,
           actual_text: nextCell.actual_text,
           confidence: nextCell.confidence,
           cell_uuid: nextCell?.cell_uuid,
-          bounding_box: nextCell.bounding_box || null,
+          bounding_box: nextCell.bounding_box || null
         });
       }
     }
-  
+
     // Clear the last cell
     const lastRow = rows[rows.length - 1];
     const lastCell = lastRow?.cells.find(
       (cell) => cell.column_uuid === column_uuid
     );
-  
+
     if (lastCell) {
       Object.assign(lastCell, {
         text: "",
         actual_text: null,
         confidence: null,
         cell_uuid: uuidv4(),
-        bounding_box: null,
+        bounding_box: null
       });
     }
-  
+
     // Record the operation
+
     const operation = {
       type: "delete_cell",
       operation_order: operations.length + 1,
       data: {
-        current_cell_uuid: cell_uuid,
-        current_column_uuid: column_uuid,
-        current_row_uuid: targetRow?.transaction_uuid,
-        new_cell_uuid: lastCell?.cell_uuid,
-      },
+        current_cell_uuid: cell_uuid, // The UUID of the cell being deleted
+        current_column_uuid: column_uuid, // The column where the deletion occurred
+        current_row_uuid: targetRow?.transaction_uuid, // The row where the deletion occurred
+        new_cell_uuid: lastCell?.cell_uuid // The newly generated UUID for the last cell
+      }
     };
-  
+
     setOperations([...operations, operation]);
     queryClient.setQueryData(["combined-table", document_uuid], copyData);
-  
+
     // Validate the final state
-    const allCellUuids = rows.flatMap((row) => row.cells.map((cell) => cell.cell_uuid));
+    const allCellUuids = rows.flatMap((row) =>
+      row.cells.map((cell) => cell.cell_uuid)
+    );
     if (new Set(allCellUuids).size !== allCellUuids.length) {
       console.error("Duplicate UUIDs detected in final table state.");
       toast.error("Duplicate UUIDs found after cell deletion.");
     }
-  
+
     // Success message
     toast.success("Cell deleted successfully.");
   };
-  
 
   const handleSaveCell = async (rowIndex, cellIndex, value) => {
     const originalValue =
@@ -1250,48 +1246,55 @@ const HumanVerificationTable = ({
               >
                 <div className=" flex  min-w-full hide-scrollbar   sticky top-0 bg-white/80 z-20">
                   <div className="flex justify-between items-center gap-x-4 w-full ">
-                  {columns
-                    ?.filter((c) => c.selected_column)
-                    ?.map(
-                      ({
-                        column_uuid,
-                        column_name,
-                        column_order,
-                        selected_column
-                      }) => {
-                        return (
-                          <TableCell
-                            className="!min-w-[12rem] !max-w-full      flex items-center justify-center "
-                            key={column_uuid}
-                          >
-                            <CustomDropDown
-                              Value={column_name}
-                              className={"!w-[rem]"}
-                              triggerClassName={
-                                "!max-w-full !h-[2.25rem] !min-w-[10.5rem]  "
-                              }
-                              data={headerNamesFormatter(
-                                additionalData?.data
-                                  ?.processed_table_header_candidates
-                              )}
-                              onChange={(c, item) => {
-                                handleDropdownChange(column_uuid, c);
-                              }}
-                            />
-                          </TableCell>
-                        );
-                      }
-                    )}
+                    {columns
+                      ?.filter((c) => c.selected_column)
+                      ?.map(
+                        ({
+                          column_uuid,
+                          column_name,
+                          column_order,
+                          selected_column
+                        }) => {
+                          return (
+                            <TableCell
+                              className="!min-w-[12rem] !max-w-full      flex items-center justify-center "
+                              key={column_uuid}
+                            >
+                              <CustomDropDown
+                                Value={column_name}
+                                className={"!w-[rem]"}
+                                triggerClassName={
+                                  "!max-w-full !h-[2.25rem] !min-w-[10.5rem]  "
+                                }
+                                data={headerNamesFormatter(
+                                  additionalData?.data
+                                    ?.processed_table_header_candidates
+                                )}
+                                onChange={(c, item) => {
+                                  handleDropdownChange(column_uuid, c);
+                                }}
+                              />
+                            </TableCell>
+                          );
+                        }
+                      )}
                   </div>
-                  <div className="w-full sticky right-0   flex items-center ">
+                  {/* <div className="w-full sticky right-0   flex items-center "> */}
                     {(viewDeleteColumn ||
                       viewShiftColumn ||
                       viewVerificationColumn) && (
-                      <TableCell className={`${viewDeleteColumn&&viewShiftColumn&&viewVerificationColumn &&"w-[6.2rem]"} !border-l  sticky !max-w-[6.2rem] min-w-[6.2rem]   flex justify-center items-center font-poppins font-normal text-xs !p-0 h-full bg-white/90  !right-[0px]`}>
+                      <TableCell
+                        className={`${
+                          viewDeleteColumn &&
+                          viewShiftColumn &&
+                          viewVerificationColumn &&
+                          "w-[6.2rem]"
+                        } !border-l  sticky !max-w-[6.2rem]  min-w-[6.3rem]   flex justify-center items-center font-poppins font-normal text-xs !p-0 min-h-full bg-white/90  !right-[0px]`}
+                      >
                         Actions
                       </TableCell>
                     )}
-                  </div>
+                  {/* </div> */}
                 </div>
 
                 <div className=" flex flex-col gap-x-2   px-0.5 max-h-[30rem]  ">
@@ -1356,19 +1359,19 @@ const HumanVerificationTable = ({
                                   }}
                                   className="!w-[12rem]  font-poppins   font-normal text-sm leading-4 text-[#121212] !max-w-full  justify-center    flex items-center  capitalize  text-left"
                                   key={i}
-                                > 
+                                >
                                   {editMode?.rowIndex === index &&
                                   editMode?.cellIndex == i ? (
                                     <>
                                       {cell?.column_uuid ===
                                       categoryColumnId ? (
                                         <div
-                                          // onMouseLeave={() =>
-                                          //   setEditMode({
-                                          //     rowIndex: -1,
-                                          //     cellIndex: -1
-                                          //   })
-                                          // }
+                                        // onMouseLeave={() =>
+                                        //   setEditMode({
+                                        //     rowIndex: -1,
+                                        //     cellIndex: -1
+                                        //   })
+                                        // }
                                         >
                                           <CustomDropDown
                                             Value={
@@ -1425,34 +1428,49 @@ const HumanVerificationTable = ({
                             <CustomTooltip
                               content={
                                 <div className="flex flex-col gap-x-2 items-start gap-y-2">
-                                  
-                                   <div className="flex items-center gap-x-2"   >
-                                      <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">Category : </p>
-                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">{row?.item_master?.category || "NA"}</p> 
-                                   </div>
-                                   <div className="flex items-center gap-x-2"     >
-                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">Vendor :</p>
-                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">{row?.item_master?.vendor || "NA"}</p>
-                                   </div>
-                                   <div className="flex items-center gap-x-2"     >
-                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">Branch :</p>
-                                      <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">{row?.item_master?.branch || "NA"}</p>
-                                   </div>
-                                   <div className="flex items-center gap-x-2"       >
-                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">Item Code : </p>
-                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">{row?.item_master?.item_code || "NA"}</p>
-                                   </div>
-                                   <div className="flex items-center gap-x-2"       >
-                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">Item Description :</p>
-                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">{row?.item_master?.item_description || "NA"  }</p>
-                                   </div>
-                                
-                  
-                                   
-                            
+                                  <div className="flex items-center gap-x-2">
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
+                                      Category :{" "}
+                                    </p>
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
+                                      {row?.item_master?.category || "NA"}
+                                    </p>
+                                  </div>
+                                  <div className="flex items-center gap-x-2">
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
+                                      Vendor :
+                                    </p>
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
+                                      {row?.item_master?.vendor || "NA"}
+                                    </p>
+                                  </div>
+                                  <div className="flex items-center gap-x-2">
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
+                                      Branch :
+                                    </p>
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
+                                      {row?.item_master?.branch || "NA"}
+                                    </p>
+                                  </div>
+                                  <div className="flex items-center gap-x-2">
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
+                                      Item Code :{" "}
+                                    </p>
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
+                                      {row?.item_master?.item_code || "NA"}
+                                    </p>
+                                  </div>
+                                  <div className="flex items-center gap-x-2">
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
+                                      Item Description :
+                                    </p>
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
+                                      {row?.item_master?.item_description ||
+                                        "NA"}
+                                    </p>
+                                  </div>
                                 </div>
                               }
-                              
                               className={
                                 "!absolute !w-[30em] !top-0 right-16  border-[#CBCBCB] !rounded-md !bg-[#F2F2F7] !z-50"
                               }
