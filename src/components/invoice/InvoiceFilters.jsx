@@ -58,6 +58,7 @@ const InvoiceFilters = () => {
       from: startDate,
       to: endDate
     });
+    setFilters({...filters,start_date:startDate,end_date:endDate})
 
     updateParams({ start_date: startDate, end_date: endDate });
   };
