@@ -21,42 +21,37 @@ const InvoicePagination = ({ totalPages, setCurrentTab }) => {
   useEffect(() => {
     if (!isModalOpen) {
       const handleKeyDown = (e) => {
-        // Ignore key events if the target is an input, textarea, or content-editable element
         const tagName = document.activeElement.tagName.toLowerCase();
         const isEditable =
           document.activeElement.isContentEditable ||
           tagName === "input" ||
           tagName === "textarea" ||
           tagName === "select";
-
+  
         if (!isEditable) {
           if (e.key === "ArrowLeft" && pageIndex > 1) {
-            // Go to the previous page
             updateParams({ page_number: Number(pageIndex) - 1 });
-            // queryClient.invalidateQueries({ queryKey: ["combined-table"] });
-            queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
-            setPageIndex(pageIndex - 1);
+            setPageIndex((prev) => prev - 1);
             setCurrentTab("metadata");
-            clearStore()
+            clearStore();
           } else if (e.key === "ArrowRight" && pageIndex < totalPages) {
-            // Go to the next page
             updateParams({ page_number: Number(pageIndex) + 1 });
-            setPageIndex(Number(pageIndex) + 1);
+            setPageIndex((prev) => Number(prev) + 1);
             setCurrentTab("metadata");
-            clearStore()
-            queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
-            // queryClient.invalidateQueries({ queryKey: ["combined-table"] });
+            clearStore();
           }
         }
       };
-
+  
       window.addEventListener("keydown", handleKeyDown);
+  
+      // Cleanup the event listener
       return () => {
         window.removeEventListener("keydown", handleKeyDown);
       };
     }
   }, [pageIndex, totalPages, updateParams, isModalOpen]);
-
+  
   return (
     <div className="flex gap-x-6 py-2 mt-2 justify-center items-center  ">
       <img
