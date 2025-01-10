@@ -113,7 +113,7 @@ const {setDefault}=useFilterStore()
             return (
               <CustomTooltip content={!expanded&&option?.text} key={index} right={"-20%"}>
                 <Link
-                  to={option.path}
+                  to={option.path!==pathname?option.path:null}
                   onClick={()=>{
                     setDefault()
                   }}
