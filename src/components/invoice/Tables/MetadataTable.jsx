@@ -182,8 +182,8 @@ const MetadataTable = ({
             queryKey: ["document-metadata", payload]
           });
           queryClient.invalidateQueries({
-              queryKey:['combined-table',document_uuid] 
-          })
+            queryKey: ["combined-table", document_uuid]
+          });
           setNewVendor("");
         },
         onError: () => {
@@ -211,8 +211,8 @@ const MetadataTable = ({
             queryKey: ["document-metadata", payload]
           });
           queryClient.invalidateQueries({
-            queryKey:['combined-table',document_uuid] 
-        })
+            queryKey: ["combined-table", document_uuid]
+          });
           setEditBranch(false);
           setNewBranch("");
         },
@@ -235,8 +235,12 @@ const MetadataTable = ({
       }
     );
   };
+
+  const [vendorIdForTypesAndCategories, setVendorIdForTypesAndCategories] =
+    useState(null);
+
   const { data: vendorTypesAndCategories } = useGetVendorTypesAndCategories(
-    vendor?.vendor_id
+    vendorIdForTypesAndCategories
   );
 
   const [types_and_categories, setTypes_and_categories] = useState({
@@ -321,6 +325,7 @@ const MetadataTable = ({
                 }
               } else {
                 setCachedData("invoice_type", v);
+                setVendorIdForTypesAndCategories(vendor?.vendor_id);
               }
             }}
           />
@@ -535,7 +540,6 @@ const MetadataTable = ({
                     setNewBranch(v);
                   }
                 }}
-          
               />
             ) : (
               <div className="flex items-center gap-x-4 w-full">
@@ -824,7 +828,7 @@ const MetadataTable = ({
                         vendor_account_category: null
                       });
                       setShowToChangeCategoriesAndTypes(false);
-                      setMetadata(data)
+                      setMetadata(data);
                     }
                   }}
                 >

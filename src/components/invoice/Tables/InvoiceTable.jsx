@@ -1,6 +1,6 @@
 import approved from "@/assets/image/approved.svg";
 import no_data from "@/assets/image/no-data.svg";
-import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table";
+import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
 import { invoiceTableHeaders } from "@/constants";
 import { calculateTimeDifference, formatDateToReadable } from "@/lib/helpers";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
@@ -337,7 +338,10 @@ const InvoiceTable = ({
                             </div>{" "}
                           </div>
                           <div className=" flex !w-[70%] justify-start items-center !break-word  whitespace-normal truncate">
-                            <div className="!break-word  whitespace-normal truncate"> {invoice_number}</div>
+                            <div className="!break-word  whitespace-normal truncate">
+                              {" "}
+                              {invoice_number}
+                            </div>
                           </div>
                         </div>
                       </TableCell>
@@ -386,6 +390,7 @@ const InvoiceTable = ({
                       >
                         {formatDateToReadable(date_uploaded?.split("T")[0])}
                       </TableCell>
+
                       <TableCell
                         className={`${
                           review_later
@@ -393,15 +398,23 @@ const InvoiceTable = ({
                             : "!w-[11.2%] pl-[1rem]"
                         } flex dark:!text-[#F6F6F6] ${
                           (rejected || human_verified) && "!text-primary"
-                        } font-poppins cursor-pointer !min-h-16 !max-h-44 text-sm  border-l h-full !text-left items-center justify-start !break-word whitespace-normal !font-normal text-[#1C1C1E] ${
+                        } font-poppins cursor-pointer !min-h-16 !max-h-44 text-sm w-full border-l h-full !text-left items-center justify-start !break-word whitespace-normal !font-normal text-[#1C1C1E] ${
                           timeRemaining?.includes("ago") && "text-[#F15156]"
                         } `}
                       >
+                        <CustomTooltip
+                       className={"!min-w-full"}
+
+                          content={`Asssigned To :- ${assignment_details?.assigned_to?.username}`}
+                        >
+                        <div className="w-full ">
                         {assignment_details && (rejected || human_verified)
-                          ? "Completed"
-                          : (assignment_details &&
-                              timeRemaining?.split("-").join("")) ||
-                            "NA"}
+                            ? "Completed"
+                            : (assignment_details &&
+                                timeRemaining?.split("-").join("")) ||
+                              "NA"}
+                        </div>
+                        </CustomTooltip>
                       </TableCell>
 
                       <TableCell

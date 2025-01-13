@@ -1,5 +1,4 @@
 import "@/App.css";
-import clock from "@/assets/image/clock.svg";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import {
@@ -25,17 +24,16 @@ import BreadCrumb from "@/components/ui/Custom/BreadCrumb";
 import CustomInput from "@/components/ui/Custom/CustomInput";
 import CustomDropDown from "@/components/ui/CustomDropDown";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { useGetVendorNames } from "@/components/vendor/api";
 import { formatRestaurantsList, vendorNamesFormatter } from "@/lib/helpers";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
+import useFilterStore from "@/store/filtersStore";
+import { invoiceDetailStore } from "@/store/invoiceDetailStore";
 import persistStore from "@/store/persistStore";
 import { ArrowRight, Filter, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { invoiceDetailStore } from "@/store/invoiceDetailStore";
-import useFilterStore from "@/store/filtersStore";
 
 const Home = () => {
   const [searchParams] = useSearchParams();

@@ -1,4 +1,3 @@
-import receipt_long from "@/assets/image/receipt_long.svg";
 import approved from "@/assets/image/approved.svg";
 import warning from "@/assets/image/warning.svg";
 import Layout from "@/components/common/Layout";
@@ -23,7 +22,11 @@ import { Label } from "@/components/ui/label";
 import { Modal, ModalDescription } from "@/components/ui/Modal";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
-import { formatDateToReadable } from "@/lib/helpers";
+import {
+  formatDateToReadable,
+  formatRestaurantsList,
+  vendorNamesFormatter
+} from "@/lib/helpers";
 import { queryClient } from "@/lib/utils";
 import useFilterStore from "@/store/filtersStore";
 import globalStore from "@/store/globalStore";
@@ -36,18 +39,30 @@ import my_tasks_white from "@/assets/image/check_book_white.svg";
 import review_later_black from "@/assets/image/review_later_black.svg";
 import review_later_white from "@/assets/image/review_later_white.svg";
 
+import { useListRestaurants } from "@/components/home/api";
+import InvoiceFilters from "@/components/invoice/InvoiceFilters";
+import { useInvoiceStore } from "@/components/invoice/store";
+import CustomDropDown from "@/components/ui/CustomDropDown";
 import {
   Sheet,
   SheetClose,
   SheetContent,
+  SheetHeader,
+  SheetTitle,
   SheetTrigger
 } from "@/components/ui/sheet";
+import { useGetVendorNames, useGetVendorNotes } from "@/components/vendor/api";
+import DocumentNotes from "@/components/vendor/notes/DocumentNotes";
+import VendorNotes from "@/components/vendor/notes/VendorNotes";
+import useUpdateParams from "@/lib/hooks/useUpdateParams";
+import persistStore from "@/store/persistStore";
 import useThemeStore from "@/store/themeStore";
 import {
+  ArrowRight,
   ChevronRight,
+  Filter,
   Info,
   Menu,
-  MessageCircleMore,
   Share2,
   X
 } from "lucide-react";
@@ -59,9 +74,6 @@ import {
   useNavigate,
   useSearchParams
 } from "react-router-dom";
-import VendorNotes from "@/components/vendor/notes/VendorNotes";
-import { useGetVendorNotes } from "@/components/vendor/api";
-import DocumentNotes from "@/components/vendor/notes/DocumentNotes";
 
 const rejectionReasons = [
   "Duplicate invoice",
@@ -77,7 +89,7 @@ const InvoiceDetails = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [data, setData] = useState({});
-
+  const updateParams = useUpdateParams();
   const [currentTab, setCurrentTab] = useState("metadata");
   const [markForReviewModal, setMarkForReviewModal] = useState(false);
   const [markAsNotSupportedModal, setMarkAsNotSupportedModal] = useState(false);
@@ -111,7 +123,7 @@ const InvoiceDetails = () => {
     markingForReview: false,
     markingAsNotSupported: false
   });
-  const { filters } = useFilterStore();
+  const { filters, setFilters } = useFilterStore();
   const { mutate: updateTable } = useUpdateDocumentMetadata();
   const { mutate: markForReview, isPending: markingForReview } =
     useMarkReviewLater();
@@ -370,9 +382,45 @@ const InvoiceDetails = () => {
 
   const navigate = useNavigate();
   let page_number = searchParams.get("page_number");
-  let from_view=searchParams.get("from_view")
-
+  let from_view = searchParams.get("from_view");
+  const { data: restaurantsList, isLoading: restaurantsListLoading } =
+    useListRestaurants();
+  const { data: vendorNamesList, isLoading: vendorNamesLoading } =
+    useGetVendorNames();
+  const {
+    setRestaurantFilter,
+    setVendorFilter,
+    vendorFilterValue,
+    restaurantFilterValue,
+    setVendorNames
+  } = useInvoiceStore();
   const { setDefault } = useFilterStore();
+  useEffect(() => {
+    const resValue = formatRestaurantsList(
+      restaurantsList && restaurantsList?.data
+    )?.find((item) => item.value == restaurant)?.value;
+    const vendValue = vendorNamesFormatter(
+      vendorNamesList?.data && vendorNamesList?.data?.vendor_names
+    )?.find((item) => item.value == vendor)?.value;
+
+    setRestaurantFilter(resValue);
+    setVendorFilter(vendValue);
+    setVendorNames(vendorNamesList?.data?.vendor_names);
+    setVendorsList(vendorNamesList?.data?.vendor_names);
+  }, [
+    restaurantsList,
+    vendorNamesList,
+    vendorNamesLoading,
+    restaurantsListLoading
+  ]);
+  const [open, setOpen] = useState(false);
+  const { setVendorNames: setVendorsList } = persistStore();
+
+  let restaurant =
+    searchParams.get("restaurant_id") || searchParams.get("restaurant") || "";
+  let vendor =
+    searchParams.get("vendor_id") || searchParams.get("vendor") || "";
+
   return (
     <div className="hide-scrollbar relative">
       <Navbar />
@@ -467,7 +515,9 @@ const InvoiceDetails = () => {
                   </p>
                   <p className="capitalize text-[#121212] font-semibold font-poppins text-xl">
                     {data?.data?.restaurant?.restaurant_name ||
-                      data?.data?.[0]?.restaurant?.restaurant_name}
+                      data?.data?.[0]?.restaurant?.restaurant_name ||
+                      data?.data?.restaurant?.restaurant_id ||
+                      data?.data?.[0]?.restaurant?.restaurant_id}
                   </p>
                 </div>
               </>
@@ -558,7 +608,119 @@ const InvoiceDetails = () => {
             />
           </div>
         )}
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-x-2">
+          <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
+            <CustomDropDown
+              triggerClassName={"bg-gray-100"}
+              contentClassName={"bg-gray-100"}
+              Value={searchParams.get("restaurant") || restaurantFilterValue}
+              placeholder="All Restaurants"
+              multiSelect={true}
+              className={"!max-w-fit"}
+              data={formatRestaurantsList(
+                restaurantsList && restaurantsList?.data
+              )}
+              searchPlaceholder="Search Restaurant"
+              onChange={(val) => {
+                if (typeof val == "object") {
+                  let restaurant = val.map((item) => item).join(",");
+                  setFilters({ ...filters, restaurant: restaurant });
+                  updateParams({ restaurant: restaurant });
+                } else {
+                  if (val == "none") {
+                    updateParams({ restaurant: undefined });
+                    setFilters({ ...filters, restaurant: undefined });
+                  } else {
+                    updateParams({ restaurant: val });
+                    setFilters({ ...filters, restaurant: val });
+                  }
+                }
+              }}
+            />{" "}
+            <CustomDropDown
+              Value={searchParams.get("vendor") || vendorFilterValue}
+              className={"!max-w-56"}
+              triggerClassName={"bg-gray-100"}
+              contentClassName={"bg-gray-100"}
+              data={vendorNamesFormatter(
+                vendorNamesList?.data && vendorNamesList?.data?.vendor_names
+              )}
+              multiSelect={true}
+              onChange={(val) => {
+                if (typeof val == "object") {
+                  let vendor = val.map((item) => item).join(",");
+                  updateParams({ vendor: vendor });
+                  setFilters({ ...filters, vendor: vendor });
+                } else {
+                  if (val == "none") {
+                    updateParams({ vendor: undefined });
+                    setFilters({ ...filters, vendor: undefined });
+                  } else {
+                    setFilters({ ...filters, vendor: val });
+                  }
+                }
+              }}
+              placeholder="All Vendors"
+              searchPlaceholder="Search Vendor Name"
+            />{" "}
+            <Sheet
+              className="!overflow-auto "
+              open={open}
+              onOpenChange={() => setOpen(!open)}
+            >
+              <SheetTrigger>
+                {" "}
+                <Button
+                  className={`bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000] ${
+                    open ||
+                    filters?.human_verified !== "all" ||
+                    filters?.human_verification !== "all" ||
+                    filters?.invoice_type !== "" ||
+                    filters?.start_date !== "" ||
+                    filters?.end_date !== "" ||
+                    filters?.clickbacon_status !== "" ||
+                    filters?.auto_accepted !== ""
+                      ? "!bg-primary !text-white"
+                      : "!bg-white"
+                  }   `}
+                >
+                  <Filter
+                    className={`${
+                      open ||
+                      filters?.human_verified !== "all" ||
+                      filters?.human_verification !== "all" ||
+                      filters?.invoice_type !== "" ||
+                      filters?.start_date !== "" ||
+                      filters?.end_date !== "" ||
+                      filters?.clickbacon_status !== "" ||
+                      filters?.auto_accepted !== ""
+                        ? "!text-white"
+                        : ""
+                    } h-5  text-black/40 dark:text-white/50`}
+                  />
+                </Button>
+              </SheetTrigger>
+              <SheetContent className="min-w-fit !max-w-[20rem] !overflow-auto">
+                <SheetHeader>
+                  <SheetTitle>
+                    <div className="flex justify-between items-center">
+                      <p>Filters</p>
+                      <div
+                        className="flex items-center gap-x-2 cursor-pointer"
+                        onClick={() => setOpen(!open)}
+                      >
+                        <p className="text-sm font-poppins font-normal text-[#000000]">
+                          Collapse
+                        </p>
+                        <ArrowRight className="h-4 w-4 text-[#000000]" />
+                      </div>
+                    </div>
+                  </SheetTitle>
+                </SheetHeader>
+                <InvoiceFilters />
+              </SheetContent>
+            </Sheet>
+          </div>
           <div className="flex items-center gap-x-3">
             <CustomTooltip content={"Click To Copy The Link."}>
               <Button
@@ -787,14 +949,12 @@ const InvoiceDetails = () => {
                         setMarkForReviewModal(false);
 
                         if (page_number == 1 && data?.totalPages == 1) {
-
-                          if(from_view=="my-tasks"){
-
+                          if (from_view == "my-tasks") {
                             navigate("/my-tasks");
-                          }else if(from_view=="reviw-later"){
-                              navigate("/review-later-tasks")
-                          }else{
-                            navigate("/home")
+                          } else if (from_view == "reviw-later") {
+                            navigate("/review-later-tasks");
+                          } else {
+                            navigate("/home");
                           }
                           setDefault();
                         }

@@ -88,7 +88,7 @@ const Sidebar = () => {
 
   const width =
     expanded === undefined ? "18rem" : expanded ? "18rem" : "3.75rem";
-const {setDefault}=useFilterStore()
+  const { setDefault } = useFilterStore();
   return (
     <div className="relative ">
       <div
@@ -111,11 +111,15 @@ const {setDefault}=useFilterStore()
           {options.map((option, index) => {
             const isActive = pathname === option.path;
             return (
-              <CustomTooltip content={!expanded&&option?.text} key={index} right={"-20%"}>
+              <CustomTooltip
+                content={!expanded && option?.text}
+                key={index}
+                right={"-20%"}
+              >
                 <Link
-                  to={option.path!==pathname?option.path:null}
-                  onClick={()=>{
-                    setDefault()
+                  to={option.path !== pathname ? option.path : null}
+                  onClick={() => {
+                    setDefault();
                   }}
                   // key={index}
                   className={`group cursor-pointer overflow-hidden flex items-center px-4 gap-2 py-3 text-sm font-normal font-poppins transition-all duration-300 ease-in-out 

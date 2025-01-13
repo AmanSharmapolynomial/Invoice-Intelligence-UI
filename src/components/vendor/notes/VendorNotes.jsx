@@ -35,12 +35,13 @@ const VendorNotes = ({ data = [], vendor_id, isLoading }) => {
     <Sheet className="">
       <SheetTrigger>
         <CustomTooltip content={"View Vendor Notes."}>
-          <Button className="bg-transparent !min-h-[2.4rem]  !py-0  bg-primary border-primary w-[3rem] px-0  border-2 shadow-none text-[#000000] font-poppins font-normal text-sm">
+          <Button className="bg-transparent !min-h-[2.4rem]  !py-0  bg-primary border-primary w-[3rem] px-0  border-2 shadow-none text-[#000000] font-poppins font-normal text-sm relative">
             <img
               src={receipt_long}
               alt=""
               className="text-white !h-[20px] mx-4 "
             />
+              {data?.length>0 && <p className="font-poppins font-normal text-xs  absolute -top-2 -right-1 w-5 h-5 flex justify-center items-center border border-primary bg-primary rounded-full text-white">{data?.length}</p>}
           </Button>
         </CustomTooltip>
       </SheetTrigger>

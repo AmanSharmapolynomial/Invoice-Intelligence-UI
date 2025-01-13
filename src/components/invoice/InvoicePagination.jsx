@@ -1,14 +1,11 @@
-import useUpdateParams from "@/lib/hooks/useUpdateParams";
-import React, { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import navigate_back from "@/assets/image/navigate_back_black.svg";
 import navigate_end from "@/assets/image/navigate_end_black.svg";
 import navigate_next from "@/assets/image/navigate_next_black.svg";
-import navigate_start from "@/assets/image/navigate_start_black.svg";
 import slash from "@/assets/image/slash_black.svg";
-import { Input } from "../ui/input";
+import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
-import { queryClient } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { Input } from "../ui/input";
 const InvoicePagination = ({ totalPages, setCurrentTab }) => {
   const [searchParams] = useSearchParams();
   const updateParams = useUpdateParams();
