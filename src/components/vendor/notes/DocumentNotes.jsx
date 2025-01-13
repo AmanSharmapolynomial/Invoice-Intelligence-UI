@@ -42,8 +42,9 @@ const DocumentNotes = ({ data = [], document_uuid, isLoading }) => {
       <SheetTrigger>
         {" "}
         <CustomTooltip content={"View Document Notes."}>
-          <Button className="bg-transparent !min-h-[2.4rem]  !py-0  bg-primary border-primary w-[3rem]  border-2 shadow-none text-[#000000] font-poppins font-normal text-sm">
-            <MessageCircleMore className="text-white !h-[1.25rem] !w-[1.25rem]" />
+          <Button className="bg-transparent !min-h-[2.4rem]  !py-0  bg-primary border-primary w-[3rem]  border-2 shadow-none text-[#000000] font-poppins font-normal text-sm relative">
+            <MessageCircleMore className="text-white !h-[1.25rem] !w-[1.25rem] " />
+            {data?.length>0 && <p className="font-poppins font-normal text-xs  absolute -top-2 -right-1 w-5 h-5 flex justify-center items-center border border-primary bg-primary rounded-full text-white">{data?.length}</p>}
           </Button>
         </CustomTooltip>
       </SheetTrigger>

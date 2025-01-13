@@ -2,14 +2,14 @@ import { BACKEND_URL } from "@/config";
 import axios from "axios";
 
 export const axiosInstance = axios.create({
-  baseURL: BACKEND_URL,
+  baseURL: BACKEND_URL
 });
 
 let isRefreshing = false; // To prevent multiple refresh calls
 let failedQueue = []; // To queue requests while the token is being refreshed
 
 const processQueue = (error, token = null) => {
-  failedQueue.forEach(prom => {
+  failedQueue.forEach((prom) => {
     if (error) {
       prom.reject(error);
     } else {
@@ -20,33 +20,37 @@ const processQueue = (error, token = null) => {
 };
 
 axiosInstance.interceptors.request.use(
-  config => {
+  (config) => {
     const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  error => Promise.reject(error)
+  (error) => Promise.reject(error)
 );
 
 axiosInstance.interceptors.response.use(
-  response => response.data,
-  async error => {
+  (response) => response.data,
+  async (error) => {
     const originalRequest = error.config;
 
     // Check if error is due to an expired token
-    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+    if (
+      error.response &&
+      error.response.status === 401 &&
+      !originalRequest._retry
+    ) {
       if (isRefreshing) {
         // Queue requests if a refresh token request is already in progress
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
-          .then(token => {
+          .then((token) => {
             originalRequest.headers.Authorization = `Bearer ${token}`;
             return axiosInstance(originalRequest);
           })
-          .catch(err => Promise.reject(err));
+          .catch((err) => Promise.reject(err));
       }
 
       originalRequest._retry = true;
@@ -60,7 +64,7 @@ axiosInstance.interceptors.response.use(
 
         // Request new token
         const response = await axios.post(`${BACKEND_URL}/auth/refresh`, {
-          refresh_token: refreshToken,
+          refresh_token: refreshToken
         });
 
         const newToken = response.data.token;
@@ -87,6 +91,8 @@ axiosInstance.interceptors.response.use(
       }
     }
 
-    return Promise.reject(error.response ? error.response.data : { message: "Network Error" });
+    return Promise.reject(
+      error.response ? error.response.data : { message: "Network Error" }
+    );
   }
 );
