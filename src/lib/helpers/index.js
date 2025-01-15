@@ -52,11 +52,12 @@ export const vendorNamesFormatter = (data = []) => {
   let returnArray = [];
 
   data?.length > 0 &&
-    data?.forEach(({ vendor_name, vendor_id, human_verified }) => {
+    data?.forEach(({ vendor_name, vendor_id, human_verified,archive_status }) => {
       returnArray.push({
         label: vendor_name,
         value: vendor_id,
-        human_verified: human_verified
+        human_verified: human_verified,
+        archived_status:archive_status
       });
     });
   returnArray.push({
