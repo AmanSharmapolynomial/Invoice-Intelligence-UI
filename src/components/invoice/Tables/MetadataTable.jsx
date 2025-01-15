@@ -433,6 +433,7 @@ const MetadataTable = ({
                 placeholder="Vendor Name"
                 onChange={(v) => {
                   setNewVendor(v);
+                  setVendorChanged(true)
                 }}
               />
             ) : (
@@ -538,6 +539,7 @@ const MetadataTable = ({
                     }
                   } else {
                     setNewBranch(v);
+                    setBranchChanged(true)
                   }
                 }}
               />
