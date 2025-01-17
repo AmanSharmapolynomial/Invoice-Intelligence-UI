@@ -207,6 +207,9 @@ export const useMarkAsNotSupported = () => {
           autoClose: 2000
         }
       );
+    },
+    onError:(data)=>{
+      toast.error(data?.message)
     }
   });
 };
