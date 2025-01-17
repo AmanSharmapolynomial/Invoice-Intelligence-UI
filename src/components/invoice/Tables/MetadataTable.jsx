@@ -100,6 +100,7 @@ const MetadataTable = ({
     human_verification_required,
     invoice_type
   } = data?.data?.[0] || data?.data;
+
   const [showToChangeCategoriesAndTypes, setShowToChangeCategoriesAndTypes] =
     useState(false);
   const [wantToChangeCategoriesAndTypes, setWantToChangeCategoriesAndTypes] =
@@ -430,6 +431,7 @@ const MetadataTable = ({
                   !newVendor ? "!border-[#F97074]" : ""
                 } !text-xs text-[#666666] hover:text-[#666666]`}
                 value={newVendor}
+                vendor_id={vendor?.vendor_id}
                 placeholder="Vendor Name"
                 onChange={(v) => {
                   setNewVendor(v);
@@ -515,6 +517,7 @@ const MetadataTable = ({
             {editBranch ? (
               <CustomInput
                 value={branch?.vendor_address}
+              
                 className={`${
                   !newBranch ? "!border-[#F97074]" : ""
                 } !max-w-full`}
@@ -547,6 +550,7 @@ const MetadataTable = ({
               <div className="flex items-center gap-x-4 w-full">
                 <CustomDropDown
                   Value={branch}
+                  vendor_id={vendor?.vendor_id}
                   className={`min-w-[30rem] ${
                     !branch?.branch_id ? "!border-[#F97074]" : ""
                   }`}
@@ -867,6 +871,7 @@ const MetadataTable = ({
                     <p>Vendor Document Type</p>
                     <CustomDropDown
                       Value={types_and_categories?.document_types}
+
                       className={"min-w-[28rem]"}
                       data={makeKeyValueFromKey(
                         additionalData?.data?.vendor_invoice_document_types
