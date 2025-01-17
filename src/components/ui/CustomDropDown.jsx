@@ -94,7 +94,7 @@ const CustomDropDown = ({
           to={
             showVendorAsLink
               ? `${OLD_UI}/vendor-consolidation-v2/${selectedItem?.value}`
-              : showBranchAsLink ?`${OLD_UI}/vendor-v2/${vendor_id}/branch/${selectedItem?.value}`:null
+              : showBranchAsLink ?`${OLD_UI}/vendor-consolidation-v2/branches/${vendor_id}`:null
           }
           className="flex items-center gap-x-2"
         >
