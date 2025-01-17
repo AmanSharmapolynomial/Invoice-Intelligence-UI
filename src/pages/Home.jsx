@@ -202,9 +202,9 @@ const Home = () => {
                 />{" "}
                 <CustomDropDown
                   Value={searchParams.get("vendor") || vendorFilterValue}
-                  className={"!max-w-56"}
-                  triggerClassName={"bg-gray-100"}
-                  contentClassName={"bg-gray-100"}
+                  className={"!max-w-80"}
+                  triggerClassName={"bg-gray-100 "}
+                  contentClassName={"bg-gray-100 !min-w-80"}
                   data={vendorNamesFormatter(
                     vendorNamesList?.data && vendorNamesList?.data?.vendor_names
                   )}

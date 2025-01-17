@@ -90,11 +90,13 @@ const CustomDropDown = ({
       );
       return (
         <Link
-        target="_blank"
+          target="_blank"
           to={
             showVendorAsLink
               ? `${OLD_UI}/vendor-consolidation-v2/${selectedItem?.value}`
-              : showBranchAsLink ?`${OLD_UI}/vendor-consolidation-v2/branches/${vendor_id}`:null
+              : showBranchAsLink
+              ? `${OLD_UI}/vendor-consolidation-v2/branches/${vendor_id}`
+              : null
           }
           className="flex items-center gap-x-2"
         >
@@ -171,7 +173,7 @@ const CustomDropDown = ({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className={`${className} p-0 dark:border-[#051C14] w-fit !max-w-60 mr-1`}
+        className={`${className} p-0 dark:border-[#051C14] w-fit !max-w-80 mr-1`}
         contentClassName={`${contentClassName} w-full`}
       >
         <Command className="dark:!border-[#051C14] dark:bg-[#051C14] min-w-[100%] !w-full !z-50">
@@ -204,34 +206,37 @@ const CustomDropDown = ({
                           )}
                         />
                       )}
-                      <div className="flex justify-between w-full items-center !pl-0 font-poppins text-xs font-normal dark:!text-[#FFFFFF] gap-x-4">
-                        <span className="capitalize text-left flex items-center gap-x-2">
-                          {item?.archived_status && (
+                      <div className="flex justify-between w-full items-center min-w-64 !pl-0 font-poppins text-xs font-normal dark:!text-[#FFFFFF] gap-x-4">
+                      {item?.archived_status ? (
                             <Archive className="h-4 w-4 text-yellow-500" />
-                          )}
+                          ):<div className="w*-5 h-5"/>}
+                        <span className="capitalize text-left  flex items-center gap-x-2">
                           {item?.label || item?.value}
                         </span>
-                        {item?.human_verified && (
-                          <img
-                            src={approved}
-                            className="text-primary !h-4 !w-5"
-                            alt="Approved"
-                          />
-                        )}
-                        {multiSelect && (
-                          <Checkbox
-                            checked={itemsArray.includes(item.value)}
-                            onCheckedChange={(checked) => {
-                              setItemsArray((prev) => {
-                                const updatedArray = checked
-                                  ? [...prev, item.value]
-                                  : prev.filter((i) => i !== item.value);
-                                onChange(updatedArray, item);
-                                return updatedArray;
-                              });
-                            }}
-                          />
-                        )}
+                        <div className="flex gap-x-2 items-center">
+                          
+                          {item?.human_verified && (
+                            <img
+                              src={approved}
+                              className="text-primary !h-4 !w-5"
+                              alt="Approved"
+                            />
+                          )}
+                          {multiSelect && (
+                            <Checkbox
+                              checked={itemsArray.includes(item.value)}
+                              onCheckedChange={(checked) => {
+                                setItemsArray((prev) => {
+                                  const updatedArray = checked
+                                    ? [...prev, item.value]
+                                    : prev.filter((i) => i !== item.value);
+                                  onChange(updatedArray, item);
+                                  return updatedArray;
+                                });
+                              }}
+                            />
+                          )}
+                        </div>
                       </div>
                     </CommandItem>
                   ))}
