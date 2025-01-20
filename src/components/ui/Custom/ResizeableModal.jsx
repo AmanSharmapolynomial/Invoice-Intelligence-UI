@@ -1,3 +1,7 @@
+import { invoiceDetailStore } from "@/store/invoiceDetailStore";
+import { Grip, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+
 const ResizableModal = ({ isOpen, onClose, children, className }) => {
   const { allowModalDragging } = invoiceDetailStore();
   const [position, setPosition] = useState({ x: 100, y: 100 });
@@ -77,14 +81,14 @@ const ResizableModal = ({ isOpen, onClose, children, className }) => {
           transform: "none",
           pointerEvents: "auto", // Ensure modal interaction
         }}
-        className={`${className} bg-white rounded-lg shadow-lg border p-0`}
+        className={`${className} bg-white rounded-lg shadow-lg border p-0 !z-50`}
       >
         <X
           className="absolute top-4 right-4 w-6 h-6 text-black/70 cursor-pointer"
           onClick={onClose}
         />
         <div
-          className="p-4 overflow-auto"
+          className="p-4 overflow-auto Z-50"
           style={{ height: "calc(100% - 40px)" }}
         >
           {children}
@@ -98,3 +102,4 @@ const ResizableModal = ({ isOpen, onClose, children, className }) => {
     </div>
   );
 };
+export default ResizableModal
