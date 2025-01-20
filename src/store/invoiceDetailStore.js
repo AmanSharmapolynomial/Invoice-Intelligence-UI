@@ -15,6 +15,8 @@ export const invoiceDetailStore = create((set, get) => ({
   added: false,
   history: [],
   combinedTableHistory: [],
+  allowModalDragging: true,
+  setAllowModalDragging: (val) => set({ allowModalDragging: val }),
 
   highlightRow: false,
   prefetchedLinks: {},

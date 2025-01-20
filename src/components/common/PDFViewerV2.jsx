@@ -3,10 +3,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 
-import download from "@/assets/image/download.svg";
-import ocr from "@/assets/image/ocr.svg";
-import rotate_left from "@/assets/image/rotate_left.svg";
 import copy from "@/assets/image/copy.svg";
+import download from "@/assets/image/download.svg";
+import rotate_left from "@/assets/image/rotate_left.svg";
 import rotate_right from "@/assets/image/rotate_right.svg";
 import zoom_in from "@/assets/image/zoom_in.svg";
 import zoom_out from "@/assets/image/zoom_out.svg";
@@ -14,22 +13,16 @@ import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
 import { useExtractOcrText } from "./api";
 
-import {
-  Box,
-  ChevronLeft,
-  ChevronRight,
-  Copy,
-  Lock,
-  ScanSearch
-} from "lucide-react";
-import { Modal, ModalDescription } from "../ui/Modal";
-import { Textarea } from "../ui/textarea";
+import { ChevronLeft, ChevronRight, Lock, ScanSearch } from "lucide-react";
 import toast from "react-hot-toast";
+import { Modal, ModalDescription } from "../ui/Modal";
 import { Skeleton } from "../ui/skeleton";
+import { Textarea } from "../ui/textarea";
 import ResizableModal from "../ui/Custom/ResizeableModal";
+import { PdfViewer } from "./PDFViewer";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
-export const PdfViewer = ({
+export const PdfViewerV2 = ({
   pdfUrls = [],
   children,
   image_rotations = [],
@@ -40,7 +33,8 @@ export const PdfViewer = ({
   loaded = false,
   multiple = false,
   setLoaded = () => {},
-  loadinMetadata
+  loadinMetadata,
+  isInModal = false
 }) => {
   const {
     bounding_box,
@@ -49,7 +43,8 @@ export const PdfViewer = ({
     highlightRow,
     isModalOpen,
     setIsModalOpen,
-    setAllowModalDragging
+    setAllowModalDragging,
+    allowModalDragging
   } = invoiceDetailStore();
   const [currentPdfIndex, setCurrentPdfIndex] = useState(0);
 
@@ -85,8 +80,10 @@ export const PdfViewer = ({
   const [searchParams] = useSearchParams();
   const updateParams = useUpdateParams();
   const [isDragging, setIsDragging] = useState(false);
+  const [showSelectionModal, setShowSelectionModal] = useState(false);
   const [startDragPosition, setStartDragPosition] = useState({ x: 0, y: 0 });
   const { mutate, isPending } = useExtractOcrText();
+  let page = searchParams.get("page_number");
 
   const handleLoad = () => setIsLoading(false);
   const handleError = (error) => {
@@ -210,29 +207,19 @@ export const PdfViewer = ({
 
     const viewerWidth = viewerElement.clientWidth;
     const viewerHeight = viewerElement.clientHeight;
-
-    // Calculate the width and height of the bounding box in the original coordinates
     const boxWidth = (bb.box.polygon[2].X - bb.box.polygon[0].X) * width;
     const boxHeight = (bb.box.polygon[2].Y - bb.box.polygon[0].Y) * height;
-
-    // Calculate the target scale based on the bounding box size and viewer size
     const targetScale = lockZoomAndScroll
       ? pdfScale
       : Math.min(viewerWidth / boxWidth, viewerHeight / boxHeight, 3.0) * 0.7;
 
     setPdfScale(targetScale < 1 ? 1 : targetScale);
-
-    // Calculate the top-left position of the bounding box in the scaled viewer coordinates
     const topLeftX = bb.box.polygon[0].X * width * targetScale;
     const topLeftY = bb.box.polygon[0].Y * height * targetScale;
-
-    // Center of the image (rotation origin) after scaling
     const centerX = (width * targetScale) / 2.0;
     const centerY =
       (height * targetScale) /
       (pdfScale == 2 ? 1.25 : pdfScale == 1.5 ? 1.5 : 2);
-
-    // Rotate the top-left point back to its original position based on the rotation angle
     const adjustedTopLeftX =
       Math.cos((-rotation * Math.PI) / 180) * (topLeftX - centerX) -
       Math.sin((-rotation * Math.PI) / 180) * (topLeftY - centerY) +
@@ -241,22 +228,16 @@ export const PdfViewer = ({
       Math.sin((-rotation * Math.PI) / 180) * (topLeftX - centerX) +
       Math.cos((-rotation * Math.PI) / 180) * (topLeftY - centerY) +
       centerY;
-
-    // Calculate the new scroll position to center the bounding box in the viewer
     const scrollLeft =
       adjustedTopLeftX - viewerWidth / 2 + (boxWidth * targetScale) / 2;
     const scrollTop =
       adjustedTopLeftY - viewerHeight / 2 + (boxHeight * targetScale) / 2;
-
-    // Scroll to the calculated position with smooth behavior
     viewerElement.scrollTo({
       left: scrollLeft,
       top: scrollTop,
       behavior: "smooth"
     });
   };
-
-  let page = searchParams.get("page_number");
 
   useEffect(() => {
     if (bounding_boxes?.length == 0 && !lockZoomAndScroll) {
@@ -316,9 +297,12 @@ export const PdfViewer = ({
     setStartX(e.clientX - rect.left + scrollX);
     setStartY(e.clientY - rect.top + scrollY);
   };
-
+  useEffect(() => {
+    if (isSelecting) {
+      alert("eenh");
+    }
+  }, [isSelecting]);
   const handleMouseMove = (e) => {
-    e.stopPropagation();
     if (!selectPdfPortion) {
       return;
     }
@@ -382,7 +366,6 @@ export const PdfViewer = ({
         }
       });
       setIsModalOpen(true);
-      setAllowModalDragging(true);
     }, "image/png");
     setIsSelecting(false);
     setStartX(0);
@@ -436,6 +419,7 @@ export const PdfViewer = ({
     }
   };
   const handleDragStart = useCallback((e) => {
+    e.stopPropagation();
     if (isSelecting) {
       setIsDragging(false);
       return;
@@ -449,6 +433,7 @@ export const PdfViewer = ({
 
   const handleDragMove = useCallback(
     (e) => {
+      // e.stopPropagation()
       if (isSelecting) {
         setIsDragging(false);
         return;
@@ -584,8 +569,36 @@ export const PdfViewer = ({
               className={`cursor-pointer h-6 w-6 ${
                 selectPdfPortion ? "text-primary" : "text-[#000000]"
               }`}
-              onClick={() => setSelectPdfPortion(!selectPdfPortion)}
+              onClick={() => {
+                setSelectPdfPortion(!selectPdfPortion);
+                if (!selectPdfPortion) {
+                  if(!isModalOpen){
+
+                    setShowSelectionModal(true);
+                  }
+                }
+              }}
             />
+            <ResizableModal
+              className="!px-8 !pt-10"
+              isOpen={showSelectionModal}
+              onClose={() => {
+                setShowSelectionModal(false);
+                setSelectPdfPortion(!selectPdfPortion);
+                setIsSelecting(false);
+              }}
+            >
+              <div className="w-full flex gap-x-2 items-center min-h-full">
+                <div className="!w-full">
+                  <PdfViewer
+                    loadinMetadata={loadinMetadata}
+                    pdfUrls={pdfUrls}
+                    image_rotations={image_rotations}
+                    isInModal={true}
+                  />
+                </div>
+              </div>
+            </ResizableModal>
             <img
               src={zoom_in}
               alt=""
@@ -829,12 +842,8 @@ export const PdfViewer = ({
           </>
         ))}
       {/* Modal for future use */}
-
-      <ResizableModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(!isModalOpen)}
-      >
-        {/* <Modal
+      {/* 
+      <Modal
         open={isModalOpen}
         setOpen={setIsModalOpen}
         title={"Selected Area"}
@@ -843,52 +852,11 @@ export const PdfViewer = ({
         titleClassName={
           "font-poppins font-medium mt-2 flex justify-center text-base leading-5 text-[#000000]"
         }
-      > */}
-        {/* <ModalDescription className="w-full border  "> */}
-        <div className="mt-2 m-0 flex flex-col gap-y-2 relative">
-          <p className="font-poppins !text-[#000000] font-medium text-sm px-1">
-            Extracted Text
-          </p>
-          {isPending ? (
-            <>
-              <Skeleton className={"w-[50rem] bg-primary/30 h-[10rem]"} />
-            </>
-          ) : (
-            <Textarea
-              value={text}
-              onChange={(e) => {
-                setText(e.target.value);
-              }}
-              className="bg-[#F6F6F6] !max-w-full font-poppins  font-normal text-xs !text-[#000000] focus:!outline-none focus:!ring-0 !relative"
-              rows={10}
-            ></Textarea>
-          )}
-
-          {!isPending && (
-            <img
-              src={copy}
-              alt="copy icon"
-              onClick={() => {
-                navigator.clipboard.writeText(text);
-                toast.success("Text copied to clipboard");
-              }}
-              className="absolute right-3  top-10 cursor-pointer h-4  z-50"
-            />
-          )}
-          <div className="flex justify-center  p-2 mt-8 rounded  border-white shadow-sm">
-            {image && (
-              <img
-                src={image}
-                alt="selected area"
-                className="max-h-[20rem] object-center"
-                onError={() => console.error("Image failed to load")}
-              />
-            )}
-          </div>
-        </div>
-        {/* </ModalDescription> */}
-        {/* </Modal> */}
-      </ResizableModal>
+      >
+        <ModalDescription className="w-full border  ">
+       
+        </ModalDescription>
+      </Modal> */}
     </div>
   );
 };

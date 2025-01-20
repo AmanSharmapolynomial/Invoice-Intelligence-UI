@@ -88,15 +88,15 @@ export default function DatePicker({ date, onChange, className }) {
   };
 
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <div className="relative w-full">
+    <Popover className="!z-10">
+      <PopoverTrigger asChild  className="!z-10">
+        <div className="relative w-full z-10">
           <Input
             value={inputValue}
             onChange={handleInputChange}
             placeholder="MM/DD/YYYY"
             className={cn(
-              "pr-10 dark:bg-[#000000] !min-w-full dark:text-textColor/200 dark:border-[#000000] bg-[#FFFFFF] hover:bg-[#FFFFFF] border-[#E0E0E0] capitalize !shadow-none !rounded-[4px] !text-[#000000] hover:text-[#666666] font-poppins font-normal text-xs !h-[2.5rem]",
+              "pr-10 dark:bg-[#000000] !min-w-full dark:text-textColor/200 dark:border-[#000000] bg-[#FFFFFF] hover:bg-[#FFFFFF] border-[#E0E0E0] capitalize !shadow-none !rounded-[4px] !text-[#000000] hover:text-[#666666] font-poppins font-normal text-xs !h-[2.5rem] -z-10",
               className
             )}
           />
