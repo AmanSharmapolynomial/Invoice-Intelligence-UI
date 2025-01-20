@@ -1115,7 +1115,7 @@ const InvoiceDetails = () => {
         }
       >
         <ModalDescription>
-          <div className="flex flex-col gap-y-4 px-4  top">
+          <div className="flex flex-col gap-y-4 px-4  top  ">
             <p className="font-poppins  font-semibold text-sm leading-5 text-[#222222]">
               Current Invoice
             </p>
@@ -1175,41 +1175,42 @@ const InvoiceDetails = () => {
                 Upload Date
               </p>
             </div>
-
-            {duplicateInvoices?.duplicate_documents?.map((d, i) => {
-              return (
-                <div className="w-full  py-2 grid grid-cols-4 gap-x-4">
-                  <div className="flex items-center gap-x-8">
-                    <p className="font-poppins !font-normal  text-center text-xs text-[#000000] leading-4 pl-1">
-                      {i + 1}
+            <div className="max-h-72 overflow-auto">
+              {duplicateInvoices?.duplicate_documents?.map((d, i) => {
+                return (
+                  <div className="w-full  py-2 grid grid-cols-4 gap-x-4">
+                    <div className="flex items-center gap-x-8">
+                      <p className="font-poppins !font-normal  text-center text-xs text-[#000000] leading-4 pl-1">
+                        {i + 1}
+                      </p>
+                      <Link
+                        target="_blank"
+                        onClick={() => setShowDuplicateInvoicesModal(false)}
+                        to={`/invoice-details?document_uuid=${d.document_uuid}`}
+                        className="font-poppins !font-normal    pl-1 underline underline-offset-4 !text-center text-xs text-[#348355] leading-4"
+                      >
+                        View
+                      </Link>
+                    </div>
+                    <p className="font-poppins !font-normal  pl-0 !text-center text-xs text-[#222222] leading-4">
+                      {d.human_verified ? "Yes" : "No"}
                     </p>
-                    <Link
-                      target="_blank"
-                      onClick={() => setShowDuplicateInvoicesModal(false)}
-                      to={`/invoice-details?document_uuid=${d.document_uuid}`}
-                      className="font-poppins !font-normal    pl-1 underline underline-offset-4 !text-center text-xs text-[#348355] leading-4"
-                    >
-                      View
-                    </Link>
+                    <p className="font-poppins !font-normal text-center text-xs text-[#222222] leading-4">
+                      {d.rejected ? "Yes" : "No"}
+                    </p>
+                    <p className="font-poppins !font-normal text-center text-xs text-[#222222] leading-4">
+                      {d?.date_uploaded
+                        ? formatDateToReadable(d?.date_uploaded) +
+                          " " +
+                          " " +
+                          " " +
+                          d?.date_uploaded?.split("T")[1]?.split(".")[0]
+                        : "N/A"}
+                    </p>
                   </div>
-                  <p className="font-poppins !font-normal  pl-0 !text-center text-xs text-[#222222] leading-4">
-                    {d.human_verified ? "Yes" : "No"}
-                  </p>
-                  <p className="font-poppins !font-normal text-center text-xs text-[#222222] leading-4">
-                    {d.rejected ? "Yes" : "No"}
-                  </p>
-                  <p className="font-poppins !font-normal text-center text-xs text-[#222222] leading-4">
-                    {d?.date_uploaded
-                      ? formatDateToReadable(d?.date_uploaded) +
-                        " " +
-                        " " +
-                        " " +
-                        d?.date_uploaded?.split("T")[1]?.split(".")[0]
-                      : "N/A"}
-                  </p>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </ModalDescription>
       </Modal>
