@@ -38,8 +38,8 @@ import {
 } from "../api";
 const Template = ({ title, children, className, titleContent }) => {
   return (
-    <div className={`${className} flex flex-col gap-y-2`}>
-      <p className="font-poppins  font-medium text-sm leading-5 text-[#000000]">
+    <div className={`${className} flex flex-col gap-y-2 !z-12`}>
+      <p className="font-poppins  font-medium text-sm leading-5 text-[#000000] !z-10">
         {title} {titleContent}
       </p>
       {children}

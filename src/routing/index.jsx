@@ -18,12 +18,19 @@ import InvoiceProcessor from "@/pages/InvoiceProcessor";
 import FastItemVerification from "@/pages/FastItemVerification";
 import ReviewLaterTasks from "@/pages/ReviewLaterTasks";
 import MyTasks from "@/pages/MyTasks";
+import Test from "@/pages/Test";
 
 const publicRoutes = [
   {
     path: "/login",
     element: <Login />
-  }
+  },
+  
+  {
+    path: "/test",
+    element: <Test />
+  },
+
 ];
 const protectedRoutes = [
   {
