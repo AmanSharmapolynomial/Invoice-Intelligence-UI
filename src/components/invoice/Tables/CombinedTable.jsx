@@ -85,11 +85,23 @@ const CombinedTable = ({
   const handleCheckboxChange = (column_uuid, val) => {
     let copyObj = JSON.parse(JSON.stringify(data));
     const { rows = [], columns = [] } = copyObj?.data?.processed_table;
+    let col_name="";
     columns?.forEach((col) => {
       if (col?.column_uuid == column_uuid) {
         col.selected_column = val;
+        col_name=col?.column_name
       }
     });
+    let operation = {
+      type: "update_column",
+      operation_order: operations?.length+1,
+      data: {
+        column_uuid: column_uuid,
+        selected_column: val,
+        column_name: col_name
+      }
+    };
+    setOperations([...operations,operation])
     queryClient.setQueryData(["combined-table", document_uuid], copyObj);
   };
 
