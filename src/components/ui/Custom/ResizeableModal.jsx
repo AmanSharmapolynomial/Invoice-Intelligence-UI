@@ -1,8 +1,3 @@
-import { useState, useRef, useEffect } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { invoiceDetailStore } from "@/store/invoiceDetailStore";
-import { Grip, X } from "lucide-react";
-
 const ResizableModal = ({ isOpen, onClose, children, className }) => {
   const { allowModalDragging } = invoiceDetailStore();
   const [position, setPosition] = useState({ x: 100, y: 100 });
@@ -13,10 +8,13 @@ const ResizableModal = ({ isOpen, onClose, children, className }) => {
   const dragStartPos = useRef({ x: 0, y: 0 });
 
   const handleMouseDown = (e) => {
+    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") {
+      return;
+    }
     setIsDragging(true);
     dragStartPos.current = {
       x: e.clientX - position.x,
-      y: e.clientY - position.y
+      y: e.clientY - position.y,
     };
     e.preventDefault();
   };
@@ -25,14 +23,16 @@ const ResizableModal = ({ isOpen, onClose, children, className }) => {
     if (isDragging) {
       setPosition({
         x: e.clientX - dragStartPos.current.x,
-        y: e.clientY - dragStartPos.current.y
+        y: e.clientY - dragStartPos.current.y,
       });
+      e.preventDefault();
     }
     if (isResizing) {
       setSize((prev) => ({
         width: Math.max(200, e.clientX - position.x),
-        height: Math.max(200, e.clientY - position.y)
+        height: Math.max(200, e.clientY - position.y),
       }));
+      e.preventDefault();
     }
   };
 
@@ -48,7 +48,7 @@ const ResizableModal = ({ isOpen, onClose, children, className }) => {
   };
 
   useEffect(() => {
-    if (isOpen) {
+    if (isDragging || isResizing) {
       document.addEventListener("mousemove", handleMouseMove);
       document.addEventListener("mouseup", handleMouseUp);
     }
@@ -56,22 +56,13 @@ const ResizableModal = ({ isOpen, onClose, children, className }) => {
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [isOpen, isDragging, isResizing]);
+  }, [isDragging, isResizing]);
 
   return (
     <div
-      className={`${isOpen ? "flex" : "hidden"} z-50 !bg-red-500 `}
-      open={isOpen}
+      className={`${isOpen ? "flex" : "hidden"} z-50`}
       style={{
-        zIndex: 999999
-      }}
-      setIsOpen={onClose}
-      onOpenChange={(open) => {
-        if (!open) {
-          // onClose();
-          // setSize({ width: 400, height: 400 });
-          // setPosition({ x: 100, y: 100 });
-        }
+        zIndex: 999999,
       }}
     >
       <div
@@ -82,18 +73,18 @@ const ResizableModal = ({ isOpen, onClose, children, className }) => {
           height: `${size.height}px`,
           top: `${position.y}px`,
           left: `${position.x}px`,
-          position: "absolute", // Use absolute positioning for free placement
+          position: "absolute",
           transform: "none",
-          pointerEvents: "auto" // Ensure modal is interactive
+          pointerEvents: "auto", // Ensure modal interaction
         }}
-        className={`${className} !bg-white rounded-lg shadow-lg border overflow-hidden !max-w-[100rem] resize-none p-0 !z-50`}
+        className={`${className} bg-white rounded-lg shadow-lg border p-0`}
       >
         <X
-          className="absolute top-4 right-4 text-black/70 cursor-pointer"
-          onClick={() => onClose()}
+          className="absolute top-4 right-4 w-6 h-6 text-black/70 cursor-pointer"
+          onClick={onClose}
         />
         <div
-          className="p-4 overflow-auto !bg-white !z-50"
+          className="p-4 overflow-auto"
           style={{ height: "calc(100% - 40px)" }}
         >
           {children}
@@ -101,12 +92,9 @@ const ResizableModal = ({ isOpen, onClose, children, className }) => {
 
         <Grip
           onMouseDown={handleResizeMouseDown}
-          aria-hidden="true"
-          className="absolute -bottom-1 -right-1 w-6 h-6 rounded-b-full cursor-se-resize"
+          className="absolute -bottom-1 -right-1 w-6 h-6 rounded-b-full cursor-se-resize resize-handle"
         />
       </div>
     </div>
   );
 };
-
-export default ResizableModal;

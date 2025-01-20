@@ -857,9 +857,10 @@ export const PdfViewer = ({
             <Textarea
               value={text}
               onChange={(e) => {
+                e.stopPropagation()
                 setText(e.target.value);
               }}
-              className="bg-[#F6F6F6] !max-w-full font-poppins  font-normal text-xs !text-[#000000] focus:!outline-none focus:!ring-0 !relative"
+              className="bg-[#F6F6F6] !z-50 !max-w-full font-poppins  font-normal text-xs !text-[#000000] focus:!outline-none focus:!ring-0 !relative"
               rows={10}
             ></Textarea>
           )}
