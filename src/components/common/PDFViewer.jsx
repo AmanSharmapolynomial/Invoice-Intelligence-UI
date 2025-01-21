@@ -404,7 +404,6 @@ export const PdfViewer = ({
       formData.append("image", blob, "selected_area.png");
       mutate(formData, {
         onSuccess: (data) => {
-         
           setText(data?.data?.text?.split("\n")?.join(""));
         }
       });
@@ -476,10 +475,10 @@ export const PdfViewer = ({
 
   const handleDragMove = useCallback(
     (e) => {
-      if (isSelecting) {
-        setIsDragging(false);
-        return;
-      }
+      // if (isSelecting) {
+      //   setIsDragging(false);
+      //   return;
+      // }
       if (isDragging && pdfWrapperRef.current) {
         const dx = e.clientX - startDragPosition.x;
         const dy = e.clientY - startDragPosition.y;
@@ -527,19 +526,18 @@ export const PdfViewer = ({
   }, []);
 
   const handleInsertExtractedText = (setFields = true) => {
-
-    if(!text){
-      toast("Empty Extracted Text.",{
-        icon:"⚠️"
-      })
-      return
+    if (!text) {
+      toast("Empty Extracted Text.", {
+        icon: "⚠️"
+      });
+      return;
     }
 
-    if(!selectedField){
-      toast("Empty Field Name . Please select field name to insert text. ",{
-        icon:"⚠️"
-      })
-      return
+    if (!selectedField) {
+      toast("Empty Field Name . Please select field name to insert text. ", {
+        icon: "⚠️"
+      });
+      return;
     }
     let normalizedData = Array.isArray(data?.data) ? data?.data : [data?.data];
     let updated = false;
@@ -771,7 +769,7 @@ export const PdfViewer = ({
             id="react-pdf__Wrapper"
             ref={pdfWrapperRef}
             style={{
-              height: "65vh",
+              height: "58vh",
               overflow: "auto",
               maxWidth: "100%",
               position: "relative"
@@ -783,7 +781,7 @@ export const PdfViewer = ({
                 onWheel={handleWheel}
                 file={pdfUrls[currentPdfIndex]?.document_link}
                 onLoadSuccess={onDocumentLoadSuccess}
-                className={"active:cursor-grabbing"}
+                className={""}
               >
                 <Page
                   pageNumber={pageNum}
@@ -900,7 +898,7 @@ export const PdfViewer = ({
           setShowTextExtractionModal(!showTextExtractionModal);
           setText("");
           setSelectPdfPortion(!selectPdfPortion);
-          setSelectedField(null)
+          setSelectedField(null);
         }}
       >
         <div className="flex items-start gap-x-2 h-full flex-col">
@@ -935,9 +933,9 @@ export const PdfViewer = ({
               <p
                 onClick={() => {
                   setText("");
-                  setSelectedField(null)
+                  setSelectedField(null);
                 }}
-                className="font-poppins !text-[#000000] font-normal cursor-pointer underline text-xs px-1"
+                className="font-poppins !text-[#000000] font-normal cursor-pointer  text-xs px-1"
               >
                 Clear
               </p>
