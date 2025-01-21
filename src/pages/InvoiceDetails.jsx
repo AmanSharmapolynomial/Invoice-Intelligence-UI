@@ -96,6 +96,7 @@ const InvoiceDetails = () => {
   const [showRejectionModal, setShowRejectionModal] = useState(false);
   const [reviewLaterComments, setReviewLaterComments] = useState("");
   const [rejectionReason, setRejectionReason] = useState("");
+  const [showAlreadySyncedModal, setShowAlreadySyncedModal] = useState(false);
   const [showDuplicateInvoicesModal, setShowDuplicateInvoicesModal] =
     useState(false);
   const [showDuplicateInvoicesWarning, setShowDuplicateInvoicesWarning] =
@@ -420,7 +421,40 @@ const InvoiceDetails = () => {
     searchParams.get("restaurant_id") || searchParams.get("restaurant") || "";
   let vendor =
     searchParams.get("vendor_id") || searchParams.get("vendor") || "";
-
+  useEffect(() => {
+    if (
+      action_controls?.reject?.disabled ||
+      action_controls?.accept?.disabled
+    ) {
+      setShowAlreadySyncedModal(true);
+    }
+  }, [action_controls]);
+  
+  // const { filters } = useFilterStore();
+  let page = searchParams.get("page_number") || 1;
+  let vendor_id = searchParams.get("vendor") || "";
+  // let document_uuid = searchParams.get("document_uuid") || "";
+  let layout = searchParams.get("layout") || null;
+  let assigned_to = searchParams.get("assigned_to");
+  let payload = {
+    page: page,
+    page_size: filters?.page_size,
+    invoice_type: filters?.invoice_type,
+    invoice_detection_status: filters?.invoice_detection_status,
+    rerun_status: filters?.rerun_status,
+    auto_accepted: filters?.auto_accepted,
+    start_date: filters?.start_date,
+    end_date: filters?.end_date,
+    clickbacon_status: filters?.clickbacon_status,
+    human_verification: filters?.human_verification,
+    sort_order: filters?.sort_order,
+    restaurant: filters?.restaurant,
+    human_verified: filters?.human_verified,
+    vendor_id,
+    document_uuid,
+    assigned_to,
+    review_later: filters?.review_later||"false"
+  };
   return (
     <div className="hide-scrollbar relative">
       <Navbar />
@@ -582,6 +616,28 @@ const InvoiceDetails = () => {
               className="h-6 w-6 text-[#546E7A] absolute top-2 right-2 cursor-pointer"
               onClick={() => {
                 setShowWarningForBranchAndVendor(false);
+              }}
+            />
+          </div>
+        )}
+
+        {showAlreadySyncedModal && (
+          <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
+            <div className="flex items-center gap-x-2">
+              <Info className="h-5 w-5 text-[#FF9800]" />
+              <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
+                {action_controls?.reject?.disabled
+                  ? action_controls?.reject?.reason
+                  : action_controls?.accept?.disabled
+                  ? action_controls?.accept?.reason
+                  : null}
+              </p>
+            </div>
+
+            <X
+              className="h-6 w-6 text-[#546E7A] absolute top-2 right-2 cursor-pointer"
+              onClick={() => {
+                setShowAlreadySyncedModal(false);
               }}
             />
           </div>
@@ -855,6 +911,7 @@ const InvoiceDetails = () => {
         <div className="w-full flex  -mt-4">
           <div className="w-1/2 flex flex-col gap-y-4 2xl:px-16 md:px-8">
             <PdfViewer
+            payload={payload}
               loadinMetadata={isLoading}
               image_rotations={
                 data?.data?.document_metadata?.image_rotations ||

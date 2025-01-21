@@ -3,10 +3,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 
-import download from "@/assets/image/download.svg";
-import ocr from "@/assets/image/ocr.svg";
-import rotate_left from "@/assets/image/rotate_left.svg";
 import copy from "@/assets/image/copy.svg";
+import download from "@/assets/image/download.svg";
+import rotate_left from "@/assets/image/rotate_left.svg";
 import rotate_right from "@/assets/image/rotate_right.svg";
 import zoom_in from "@/assets/image/zoom_in.svg";
 import zoom_out from "@/assets/image/zoom_out.svg";
@@ -14,21 +13,41 @@ import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
 import { useExtractOcrText } from "./api";
 
-import {
-  Box,
-  ChevronLeft,
-  ChevronRight,
-  Copy,
-  Lock,
-  ScanSearch
-} from "lucide-react";
-import { Modal, ModalDescription } from "../ui/Modal";
-import { Textarea } from "../ui/textarea";
+import { ChevronLeft, ChevronRight, Lock, ScanSearch } from "lucide-react";
 import toast from "react-hot-toast";
-import { Skeleton } from "../ui/skeleton";
 import ResizableModal from "../ui/Custom/ResizeableModal";
+import { Skeleton } from "../ui/skeleton";
+import { Textarea } from "../ui/textarea";
+import CustomDropDown from "../ui/CustomDropDown";
+import { Button } from "../ui/button";
+import { queryClient } from "@/lib/utils";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
-
+const fieldOptions = [
+  {
+    label: "Invoice Number",
+    value: "invoice_number"
+  },
+  {
+    label: "Credit Card Name",
+    value: "credit_card_name"
+  },
+  {
+    label: "Credit Card Number",
+    value: "credit_card_number"
+  },
+  {
+    label: "Invoice Shipped To",
+    value: "invoice_ship_to"
+  },
+  {
+    label: "Invoice Billed To",
+    value: "invoice_bill_to"
+  },
+  {
+    label: "Invoice Sold To",
+    value: "invoice_sold_to"
+  }
+];
 export const PdfViewer = ({
   pdfUrls = [],
   children,
@@ -40,7 +59,9 @@ export const PdfViewer = ({
   loaded = false,
   multiple = false,
   setLoaded = () => {},
-  loadinMetadata
+  loadinMetadata,
+
+  payload
 }) => {
   const {
     bounding_box,
@@ -49,7 +70,11 @@ export const PdfViewer = ({
     highlightRow,
     isModalOpen,
     setIsModalOpen,
-    setAllowModalDragging
+    setAllowModalDragging,
+    showTextExtractionModal,
+    setShowTextExtractionModal,
+    setUpdatedFields,
+    metadataTableCopy: data
   } = invoiceDetailStore();
   const [currentPdfIndex, setCurrentPdfIndex] = useState(0);
 
@@ -85,6 +110,7 @@ export const PdfViewer = ({
   const [searchParams] = useSearchParams();
   const updateParams = useUpdateParams();
   const [isDragging, setIsDragging] = useState(false);
+  const [selectedField, setSelectedField] = useState(null);
   const [startDragPosition, setStartDragPosition] = useState({ x: 0, y: 0 });
   const { mutate, isPending } = useExtractOcrText();
 
@@ -499,6 +525,67 @@ export const PdfViewer = ({
     }
   }, []);
 
+  const handleInsertExtractedText = (setFields = true) => {
+
+    if(!text){
+      toast("Empty Extracted Text.",{
+        icon:"⚠️"
+      })
+      return
+    }
+
+    if(!selectedField){
+      toast("Empty Field Name . Please select field name to insert text. ",{
+        icon:"⚠️"
+      })
+      return
+    }
+    let normalizedData = Array.isArray(data?.data) ? data?.data : [data?.data];
+    let updated = false;
+    let isDocumentMetadata = false;
+    normalizedData.forEach((item, index) => {
+      if (item?.document_metadata?.hasOwnProperty(selectedField)) {
+        normalizedData[index].document_metadata[selectedField] = text;
+        isDocumentMetadata = true;
+        updated = true;
+      } else if (item?.hasOwnProperty(selectedField)) {
+        normalizedData[index][selectedField] = text;
+
+        updated = true;
+      }
+    });
+    let updatedData = Array.isArray(data?.data)
+      ? { ...data, data: normalizedData }
+      : { ...data, data: normalizedData[0] };
+    queryClient.setQueryData(["document-metadata", payload], updatedData);
+    if (updated) {
+      if (setFields) {
+        setUpdatedFields((prevFields) => {
+          if (isDocumentMetadata) {
+            return {
+              ...prevFields,
+              document_metadata: {
+                ...prevFields.document_metadata,
+                [selectedField]: text
+              }
+            };
+          }
+          return {
+            ...prevFields,
+            [selectedField]: text
+          };
+        });
+      }
+    }
+
+    // if (key === "invoice_type" || key === "document_type") {
+    //   setShowToChangeCategoriesAndTypes(true);
+    // }
+  };
+
+  useEffect(() => {
+    setUpdatedFields([]);
+  }, []);
   return (
     <div className="w-full  max-h-[42rem] overflow-auto  hide-scrollbar">
       {loadinMetadata && <Skeleton className={"w-[50rem]  h-[60rem]"} />}
@@ -582,9 +669,12 @@ export const PdfViewer = ({
             />
             <ScanSearch
               className={`cursor-pointer h-6 w-6 ${
-                selectPdfPortion ? "text-primary" : "text-[#000000]"
+                showTextExtractionModal ? "text-primary" : "text-[#000000]"
               }`}
-              onClick={() => setSelectPdfPortion(!selectPdfPortion)}
+              onClick={() => {
+                setSelectPdfPortion(!selectPdfPortion);
+                setShowTextExtractionModal(!showTextExtractionModal);
+              }}
             />
             <img
               src={zoom_in}
@@ -620,24 +710,6 @@ export const PdfViewer = ({
               className="cursor-pointer h-6 w-6"
               onClick={nextPage}
             />
-            {/* <button
-              type="button"
-              disabled={pageNum <= 1}
-              onClick={previousPage}
-              className="btn btn-sm btn-outline-secondary"
-            >
-              Previous Page
-            </button> */}
-            {/* Next page button */}
-            {/* <button
-              type="button"
-              disabled={pageNum >= numPages}
-              onClick={nextPage}
-              className="btn btn-sm btn-outline-secondary"
-            >
-              Next Page
-            </button>
-          */}
 
             <div>
               <span className="text-center font-poppins font-medium text-[0.9rem]">
@@ -655,15 +727,6 @@ export const PdfViewer = ({
               }}
             />
             <>
-              {/* <Box
-                height={20}
-                width={20}
-                className="cursor-pointer mx-2"
-                onClick={() => setSelectPdfPortion(!selectPdfPortion)}
-                style={{
-                  color: selectPdfPortion ? "green" : "black"
-                }}
-              /> */}
               {showIsBounding && (
                 <>
                   {pdfUrl?.is_bounding_box_exist ? (
@@ -831,64 +894,82 @@ export const PdfViewer = ({
       {/* Modal for future use */}
 
       <ResizableModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(!isModalOpen)}
+        isOpen={showTextExtractionModal}
+        onClose={() => {
+          setShowTextExtractionModal(!showTextExtractionModal);
+          setText("");
+          setSelectPdfPortion(!selectPdfPortion);
+          setSelectedField(null)
+        }}
       >
-        {/* <Modal
-        open={isModalOpen}
-        setOpen={setIsModalOpen}
-        title={"Selected Area"}
-        className="!max-h-[35rem] !max-w-[45rem] "
-        iconCN={"mt-1.5"}
-        titleClassName={
-          "font-poppins font-medium mt-2 flex justify-center text-base leading-5 text-[#000000]"
-        }
-      > */}
-        {/* <ModalDescription className="w-full border  "> */}
-        <div className="mt-2 m-0 flex flex-col gap-y-2 relative">
-          <p className="font-poppins !text-[#000000] font-medium text-sm px-1">
-            Extracted Text
-          </p>
-          {isPending ? (
-            <>
-              <Skeleton className={"w-[50rem] bg-primary/30 h-[10rem]"} />
-            </>
-          ) : (
-            <Textarea
-              value={text}
-              onChange={(e) => {
-                e.stopPropagation()
-                setText(e.target.value);
-              }}
-              className="bg-[#F6F6F6] !z-50 !max-w-full font-poppins  font-normal text-xs !text-[#000000] focus:!outline-none focus:!ring-0 !relative"
-              rows={10}
-            ></Textarea>
-          )}
+        <div className="flex items-start gap-x-2 h-full flex-col">
+          <div className="mt-2 m-0 flex flex-col gap-y-2 relative">
+            <div className="flex justify-between items-center">
+              <p className="font-poppins !text-[#000000] font-medium text-sm px-1">
+                Select Field To Insert The Extracted Text
+              </p>
+            </div>
 
-          {!isPending && (
-            <img
-              src={copy}
-              alt="copy icon"
-              onClick={() => {
-                navigator.clipboard.writeText(text);
-                toast.success("Text copied to clipboard");
-              }}
-              className="absolute right-3  top-10 cursor-pointer h-4  z-50"
-            />
-          )}
-          <div className="flex justify-center  p-2 mt-8 rounded  border-white shadow-sm">
-            {image && (
+            <div className="flex items-center gap-x-2">
+              <CustomDropDown
+                data={fieldOptions}
+                Value={selectedField}
+                triggerClassName={"!min-w-72"}
+                contentClassName={""}
+                onChange={(v) => setSelectedField(v)}
+              />
+              <Button
+                onClick={handleInsertExtractedText}
+                className="rounded-sm !h-[2.5rem] font-normal font-poppins text-white text-sm w-[5rem]"
+              >
+                Insert
+              </Button>
+            </div>
+          </div>
+          <div className="mt-2 m-0 w-full flex flex-col gap-y-2 relative">
+            <div className="flex justify-between items-center">
+              <p className="font-poppins !text-[#000000] font-medium text-sm px-1">
+                Extracted Text
+              </p>
+              <p
+                onClick={() => {
+                  setText("");
+                  setSelectedField(null)
+                }}
+                className="font-poppins !text-[#000000] font-normal cursor-pointer underline text-xs px-1"
+              >
+                Clear
+              </p>
+            </div>
+            {isPending ? (
+              <>
+                <Skeleton className={"min-w-full bg-primary/30 h-[10rem]"} />
+              </>
+            ) : (
+              <Textarea
+                value={text}
+                onChange={(e) => {
+                  e.stopPropagation();
+                  setText(e.target.value);
+                }}
+                className="bg-[#F6F6F6] !z-50 !max-w-full !min-h-full font-poppins  font-normal text-xs !text-[#000000] focus:!outline-none focus:!ring-0 !relative"
+                rows={15}
+              ></Textarea>
+            )}
+
+            {!isPending && (
               <img
-                src={image}
-                alt="selected area"
-                className="max-h-[20rem] object-center"
-                onError={() => console.error("Image failed to load")}
+                src={copy}
+                alt="copy icon"
+                onClick={() => {
+                  navigator.clipboard.writeText(text);
+                  toast.success("Text copied to clipboard");
+                }}
+                className="absolute right-3  top-10 cursor-pointer h-4  z-50"
               />
             )}
           </div>
         </div>
-        {/* </ModalDescription> */}
-        {/* </Modal> */}
       </ResizableModal>
     </div>
   );
