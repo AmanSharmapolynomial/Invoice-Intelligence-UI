@@ -41,6 +41,7 @@ const CustomDropDown = ({
   vendor_id,
   branch_id
 }) => {
+
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(Value || "");
   const [item, setItem] = useState(null);
@@ -151,7 +152,7 @@ const CustomDropDown = ({
     >
       <PopoverTrigger
         asChild
-        className={`${triggerClassName} dark:!border-[#000000] !relative !z-10`}
+        className={`${triggerClassName} dark:!border-[#000000] !relative !z-10 focus:!outline-none outline-none focus:!ring-0`}
       >
         <Button
           variant="outline"
@@ -173,24 +174,24 @@ const CustomDropDown = ({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className={`${className} p-0 dark:border-[#051C14] w-fit !max-w-80 mr-1`}
+        className={`${className} p-0 dark:border-[#051C14] w-fit !max-w-80 mr-1 !z-50 `}
         contentClassName={`${contentClassName} w-full`}
       >
-        <Command className="dark:!border-[#051C14] dark:bg-[#051C14] min-w-[100%] !w-full ">
+        <Command className="dark:!border-[#051C14] dark:bg-[#051C14] min-w-[100%] !w-full !z-40">
           {showSearch && (
-            <CommandInput placeholder={searchPlaceholder} className="" />
+            <CommandInput placeholder={searchPlaceholder} className="!z-40" />
           )}
           {children}
           <CommandList className="border dark:!border-[#000000] !z-50 ">
             <CommandEmpty>No data found.</CommandEmpty>
-            <CommandGroup className=" ">
+            <CommandGroup className=" !z-50 !ml-0 ">
               {showCustomItems
                 ? children
                 : sortedData.map((item) => (
                     <CommandItem
                       key={item.value}
                       className={cn(
-                        "text-left border mb-1.5 !pl-0 border-[#E0E0E0] !bg-gray-200/70 !ml-0 ",
+                        "text-left border flex items-start justify-normal  mb-1.5 !pl-0 border-[#E0E0E0] !bg-gray-200/70 !z-50  ",
                         multiSelect && "!pl-2"
                       )}
                       onBlur={onBlur}
@@ -198,23 +199,28 @@ const CustomDropDown = ({
                         !multiSelect && handleSelect(item.value, item);
                       }}
                     >
-                      {!multiSelect && (
+                     
+                      <div className="flex justify-between w-full items-center !min-w-56 !pl-0 font-poppins text-xs font-normal dark:!text-[#FFFFFF] gap-x-4   !ml-0">
+                        <div className="flex items-center gap-x-2 ">
+                      
+                          {item?.archived_status ? (
+                            <Archive className="h-4 w-4 text-yellow-500" />
+                          ) : (
+                            <div className="w-5 h-5" />
+                          )}
+                          <span className="capitalize text-left  flex items-center gap-x-2">
+                          {!multiSelect && (
                         <Check
                           className={cn(
-                            "mr-2 h-4 w-4 dark:text-[#FFFFFF]",
+                            " h-4 w-4 dark:text-[#FFFFFF] ",
                             value === item.value ? "opacity-100" : "opacity-0"
                           )}
                         />
                       )}
-                      <div className="flex justify-between w-full items-center min-w-64 !pl-0 font-poppins text-xs font-normal dark:!text-[#FFFFFF] gap-x-4">
-                      {item?.archived_status ? (
-                            <Archive className="h-4 w-4 text-yellow-500" />
-                          ):<div className="w*-5 h-5"/>}
-                        <span className="capitalize text-left  flex items-center gap-x-2">
-                          {item?.label || item?.value}
-                        </span>
+                            {item?.label || item?.value}
+                          </span>
+                        </div>
                         <div className="flex gap-x-2 items-center">
-                          
                           {item?.human_verified && (
                             <img
                               src={approved}

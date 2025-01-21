@@ -23,7 +23,8 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
     reCalculateCWiseSum,
     setHistory,
     operations,
-    setMetaData
+    setMetaData,
+    setMetadataTableCopy
   } = invoiceDetailStore();
   const { data: additionalData, isLoading: loadingAdditionalData } =
     useGetAdditionalData();
@@ -51,7 +52,7 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
     vendor_id,
     document_uuid,
     assigned_to,
-    review_later: filters?.review_later||"false"
+    review_later: filters?.review_later || "false"
   };
 
   const { data, isLoading, isPending, isFetched } =
@@ -60,6 +61,10 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
     useGetCombinedTable(
       data?.data?.[0]?.document_uuid || data?.data?.document_uuid
     );
+
+  useEffect(() => {
+    setMetadataTableCopy(data);
+  }, [data]);
   useEffect(() => {
     setMetaData(data?.data?.[0] || data?.data);
 
@@ -75,29 +80,29 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
       combinedTableData?.data?.processed_table?.columns?.findIndex(
         (col) => col.column_name == "Extended Price"
       );
-  
+
     const categorySum = combinedTableData?.data?.processed_table?.rows?.reduce(
       (acc, row) => {
-        const category = categoryColNum !== -1
-          ? row?.cells[categoryColNum]?.text || "-"
-          : "-"; // Default to "-" if no category column
+        const category =
+          categoryColNum !== -1 ? row?.cells[categoryColNum]?.text || "-" : "-"; // Default to "-" if no category column
         const price = Number(row?.cells[extPriceColNum]?.text || 0);
-        if (price > 0) { // Only consider rows with a valid price
+        if (price > 0) {
+          // Only consider rows with a valid price
           acc[category] = (acc[category] || 0) + price;
         }
         return acc;
       },
       {}
     );
-  
+
     if (!categorySum) {
       return;
     }
-  
+
     const categorySumArray = Object.entries(categorySum).map(
       ([category, sum]) => ({ category, sum })
     );
-  
+
     setCategoryWiseSum(categorySumArray);
   }, [
     reCalculateCWiseSum,
@@ -108,7 +113,7 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
     combinedTableData,
     data
   ]);
-  
+
   let length = invoiceDetailsTabs?.filter(({ value }) => {
     if (value == "combined-table") {
       if (
@@ -123,7 +128,9 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
 
   return (
     <div className="w-full box-border ">
-      <div className={`grid grid-cols-${length} !max-w-full border-b border-b-[#F0F0F0] mt-2`}>
+      <div
+        className={`grid grid-cols-${length} !max-w-full border-b border-b-[#F0F0F0] mt-2`}
+      >
         {invoiceDetailsTabs
           ?.filter(({ value }) => {
             if (value == "combined-table") {
@@ -144,9 +151,7 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
               <div
                 key={value}
                 onClick={() => {
-                 
-                    setCurrentTab(value);
-                 
+                  setCurrentTab(value);
                 }}
                 className={`text-center h-[3.2rem] cursor-pointer   ${styling} items-center  font-poppins font-medium text-sm leading-4 flex justify-center `}
               >
@@ -190,9 +195,7 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
       {currentTab == "human-verification" && !isLoading && (
         <HumanVerificationTable
           data={combinedTableData}
-          metadata={ data?.data?.[0]||data?.data 
-
-          }
+          metadata={data?.data?.[0] || data?.data}
           payload={{
             ...filters,
             page,
@@ -221,7 +224,6 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
             }
           />
         )}
-     
     </div>
   );
 };

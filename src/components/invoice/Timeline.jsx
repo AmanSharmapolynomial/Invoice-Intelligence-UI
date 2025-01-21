@@ -21,7 +21,9 @@ const Timeline = ({ timeline }) => {
           )}
 
           <CustomTooltip
-            content={`${state == "Rejected" && "Reason :- "}${note}`}
+            content={`${state == "Rejected" ? "Reason :- " : ""}${
+              note ? note : ""
+            }`}
           >
             <div className="!text-[#6F6F6F] flex flex-col !z-50 items-center font-lato text-xs font-medium">
               <div

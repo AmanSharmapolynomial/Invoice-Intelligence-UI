@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 const ResizableModal = ({ isOpen, onClose, children, className }) => {
   const { allowModalDragging } = invoiceDetailStore();
-  const [position, setPosition] = useState({ x: 100, y: 100 });
+  const [position, setPosition] = useState({ x: 300, y: 200 });
   const [size, setSize] = useState({ width: 800, height: 400 });
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -18,7 +18,7 @@ const ResizableModal = ({ isOpen, onClose, children, className }) => {
     setIsDragging(true);
     dragStartPos.current = {
       x: e.clientX - position.x,
-      y: e.clientY - position.y,
+      y: e.clientY - position.y
     };
     e.preventDefault();
   };
@@ -27,14 +27,14 @@ const ResizableModal = ({ isOpen, onClose, children, className }) => {
     if (isDragging) {
       setPosition({
         x: e.clientX - dragStartPos.current.x,
-        y: e.clientY - dragStartPos.current.y,
+        y: e.clientY - dragStartPos.current.y
       });
       e.preventDefault();
     }
     if (isResizing) {
       setSize((prev) => ({
         width: Math.max(200, e.clientX - position.x),
-        height: Math.max(200, e.clientY - position.y),
+        height: Math.max(200, e.clientY - position.y)
       }));
       e.preventDefault();
     }
@@ -66,7 +66,7 @@ const ResizableModal = ({ isOpen, onClose, children, className }) => {
     <div
       className={`${isOpen ? "flex" : "hidden"} z-50`}
       style={{
-        zIndex: 999999,
+        zIndex: 999999
       }}
     >
       <div
@@ -79,16 +79,18 @@ const ResizableModal = ({ isOpen, onClose, children, className }) => {
           left: `${position.x}px`,
           position: "absolute",
           transform: "none",
-          pointerEvents: "auto", // Ensure modal interaction
+          pointerEvents: "auto" // Ensure modal interaction
         }}
-        className={`${className} bg-white rounded-lg shadow-lg border p-0 !z-50`}
+        className={`${className} bg-white rounded-lg shadow-lg border p-0 !z-50  overflow-auto`}
       >
-        <X
-          className="absolute top-4 right-4 w-6 h-6 text-black/70 cursor-pointer"
-          onClick={onClose}
-        />
         <div
-          className="p-4 overflow-auto Z-50"
+          onClick={onClose}
+          className="cursor-pointer w-8 h-8  !z-50 flex justify-center items-center absolute top-4 right-4"
+        >
+          <X className=" w-6 h-6 text-black/70 cursor-pointer " />
+        </div>
+        <div
+          className="p-4 overflow-auto max-h-full Z-50"
           style={{ height: "calc(100% - 40px)" }}
         >
           {children}
@@ -96,10 +98,10 @@ const ResizableModal = ({ isOpen, onClose, children, className }) => {
 
         <Grip
           onMouseDown={handleResizeMouseDown}
-          className="absolute -bottom-1 -right-1 w-6 h-6 rounded-b-full cursor-se-resize resize-handle"
+          className="absolute -bottom-0 rounded-br-full -right-0 w-4 h-4 rounded-b-full cursor-se-resize resize-handle"
         />
       </div>
     </div>
   );
 };
-export default ResizableModal
+export default ResizableModal;

@@ -39,6 +39,11 @@ export const invoiceDetailStore = create((set, get) => ({
   setEditBranch: (value) => set({ editBranch: value }),
   setEditVendor: (value) => set({ editVendor: value }),
   isModalOpen: false,
+  metadataTableCopy:{},
+  setMetadataTableCopy:(cpy)=>set({metadataTableCopy:cpy}),
+
+  showTextExtractionModal:false,
+  setShowTextExtractionModal:(val)=>set({showTextExtractionModal:val}),
   setIsModalOpen: (val) => set({ isModalOpen: val }),
   setUpdatedFields: (update) =>
     set((state) => ({
@@ -82,6 +87,8 @@ export const invoiceDetailStore = create((set, get) => ({
       newVendor: "",
       newBranch: "",
       editBranch: false,
-      editVendor: false
+      editVendor: false,
+      showTextExtractionModal:false,
+      metadataTableCopy:{}
     })
 }));
