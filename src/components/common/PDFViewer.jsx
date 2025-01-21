@@ -404,7 +404,8 @@ export const PdfViewer = ({
       formData.append("image", blob, "selected_area.png");
       mutate(formData, {
         onSuccess: (data) => {
-          setText(data?.data?.text);
+         
+          setText(data?.data?.text?.split("\n")?.join(""));
         }
       });
       setIsModalOpen(true);
