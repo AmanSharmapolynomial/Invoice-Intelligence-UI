@@ -32,7 +32,6 @@ export const useGetVendorAddresses = (vendor_id) => {
   return useQuery({
     queryKey: ["vendor-addresses", vendor_id],
     queryFn: async () => {
-    
       if (vendor_id) {
         try {
           const response = await axiosInstance.get(
@@ -44,5 +43,17 @@ export const useGetVendorAddresses = (vendor_id) => {
         }
       }
     }
+  });
+};
+
+export const useGetFormatteddateFromAnyFormat = () => {
+  return useMutation({
+    mutationFn: async (date) => {
+      const response = await axiosInstance.get(
+        `/api/utils/get-standardize-date/?date=${date}`
+      );
+      return response;
+    },
+
   });
 };

@@ -11,7 +11,7 @@ import zoom_in from "@/assets/image/zoom_in.svg";
 import zoom_out from "@/assets/image/zoom_out.svg";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
-import { useExtractOcrText } from "./api";
+import { useExtractOcrText, useGetFormatteddateFromAnyFormat } from "./api";
 
 import { ChevronLeft, ChevronRight, Lock, ScanSearch } from "lucide-react";
 import toast from "react-hot-toast";
@@ -21,7 +21,9 @@ import { Textarea } from "../ui/textarea";
 import CustomDropDown from "../ui/CustomDropDown";
 import { Button } from "../ui/button";
 import { queryClient } from "@/lib/utils";
+import { formatISO, isValid, parseISO } from "date-fns";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+
 const fieldOptions = [
   {
     label: "Invoice Number",
@@ -46,6 +48,15 @@ const fieldOptions = [
   {
     label: "Invoice Sold To",
     value: "invoice_sold_to"
+  },
+
+  {
+    label: "Due Date",
+    value: "invoice_due_date"
+  },
+  {
+    label: "Invoice Date",
+    value: "invoice_date"
   }
 ];
 export const PdfViewer = ({
@@ -77,7 +88,8 @@ export const PdfViewer = ({
     metadataTableCopy: data
   } = invoiceDetailStore();
   const [currentPdfIndex, setCurrentPdfIndex] = useState(0);
-
+  const { mutate: getFormattedDate, isPending: gettingDate } =
+    useGetFormatteddateFromAnyFormat();
   const pdfUrl = pdfUrls?.[currentPdfIndex];
 
   const iframeUrl = pdfUrl
@@ -206,10 +218,10 @@ export const PdfViewer = ({
 
     return {
       position: "absolute",
-      top: `${topLeft.y}px`,
-      left: `${topLeft.x}px`,
-      width: `${calculatedWidth}px`,
-      height: `${calculatedHeight}px`,
+      top: `${topLeft.y-5}px`,
+      left: `${topLeft.x-5}px`,
+      width: `${calculatedWidth+10}px`,
+      height: `${calculatedHeight+10}px`,
       background: "rgba(144,238,144,0.4)",
       zIndex: 9999,
       borderRadius: 5,
@@ -526,6 +538,22 @@ export const PdfViewer = ({
   }, []);
 
   const handleInsertExtractedText = (setFields = true) => {
+    let isError = false;
+    if (selectedField?.includes("date")) {
+      getFormattedDate(text, {
+        onSuccess: (data) => {
+          setText(data?.data);
+        },
+        onError: (data) => {
+          toast.error(data?.message);
+          isError == true;
+        }
+      });
+    }
+    if (isError) {
+      return;
+    }
+
     if (!text) {
       toast("Empty Extracted Text.", {
         icon: "⚠️"
@@ -539,9 +567,11 @@ export const PdfViewer = ({
       });
       return;
     }
+
     let normalizedData = Array.isArray(data?.data) ? data?.data : [data?.data];
     let updated = false;
     let isDocumentMetadata = false;
+
     normalizedData.forEach((item, index) => {
       if (item?.document_metadata?.hasOwnProperty(selectedField)) {
         normalizedData[index].document_metadata[selectedField] = text;
@@ -921,7 +951,7 @@ export const PdfViewer = ({
                 onClick={handleInsertExtractedText}
                 className="rounded-sm !h-[2.5rem] font-normal font-poppins text-white text-sm w-[5rem]"
               >
-                Insert
+                {gettingDate ? "Inserting.." : "Insert"}
               </Button>
             </div>
           </div>

@@ -386,8 +386,8 @@ const MetadataTable = ({
             }`}
             date={
               document_metadata?.invoice_due_date &&
-              isValid(parseISO(document_metadata.invoice_due_date))
-                ? parseISO(document_metadata.invoice_due_date) // Parse ISO string
+              isValid(parseISO(document_metadata?.invoice_due_date))
+                ? parseISO(document_metadata?.invoice_due_date) // Parse ISO string
                 : null
             }
             onChange={(date) => {
