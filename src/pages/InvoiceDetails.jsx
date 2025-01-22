@@ -422,13 +422,17 @@ const InvoiceDetails = () => {
   let vendor =
     searchParams.get("vendor_id") || searchParams.get("vendor") || "";
   useEffect(() => {
+    if(data?.data?.rejected || data?.data?.[0]?.rejected){
+      setShowAlreadySyncedModal(true)
+      return
+    }
     if (
       action_controls?.accept?.disabled ||
       action_controls?.reject?.disabled
     ) {
       setShowAlreadySyncedModal(true);
     }
-  }, [action_controls]);
+  }, [action_controls,data]);
 
   // const { filters } = useFilterStore();
   let page = searchParams.get("page_number") || 1;
@@ -455,6 +459,10 @@ const InvoiceDetails = () => {
     assigned_to,
     review_later: filters?.review_later || "false"
   };
+
+  useEffect(()=>{
+setShowAlreadySyncedModal(false)
+  },[])
   return (
     <div className="hide-scrollbar relative">
       <Navbar />
@@ -626,7 +634,7 @@ const InvoiceDetails = () => {
             <div className="flex items-center gap-x-2">
               <Info className="h-5 w-5 text-[#FF9800]" />
               <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
-                {action_controls?.accept?.disabled
+                {(data?.data?.rejected || data?.data?.[0]?.rejected)?(data?.data?.rejection_reason || data?.data?.[0]?.rejection_reason): action_controls?.accept?.disabled 
                   ? action_controls?.accept?.reason
                   : action_controls?.reject?.disabled
                   ? action_controls?.reject?.reason
