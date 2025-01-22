@@ -21,7 +21,41 @@ import { Textarea } from "../ui/textarea";
 import CustomDropDown from "../ui/CustomDropDown";
 import { Button } from "../ui/button";
 import { queryClient } from "@/lib/utils";
+import { formatISO, isValid, parseISO } from "date-fns";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+function formatToISTDate(inputDate) {
+  let date;
+
+  // Handle different formats manually
+  if (typeof inputDate === "string") {
+    // Check for common formats like MM/DD/YYYY
+    const usFormat = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+    const match = inputDate.match(usFormat);
+    if (match) {
+      const [_, month, day, year] = match;
+      date = new Date(Date.UTC(year, month - 1, day)); // Month is zero-based
+    } else {
+      // Fallback to default Date parsing
+      date = new Date(inputDate);
+    }
+  } else if (inputDate instanceof Date) {
+    date = inputDate;
+  } else {
+    // Try to parse numbers (timestamps)
+    date = new Date(inputDate);
+  }
+
+  if (isNaN(date.getTime())) {
+    throw new Error("Invalid date format");
+  }
+
+  // Convert the date to YYYY-MM-DD
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0"); // Months are 0-based
+  const day = String(date.getUTCDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
 const fieldOptions = [
   {
     label: "Invoice Number",
@@ -46,6 +80,15 @@ const fieldOptions = [
   {
     label: "Invoice Sold To",
     value: "invoice_sold_to"
+  },
+
+  {
+    label: "Due Date",
+    value: "invoice_due_date"
+  },
+  {
+    label: "Invoice Date",
+    value: "invoice_date"
   }
 ];
 export const PdfViewer = ({
@@ -539,16 +582,23 @@ export const PdfViewer = ({
       });
       return;
     }
+
     let normalizedData = Array.isArray(data?.data) ? data?.data : [data?.data];
     let updated = false;
     let isDocumentMetadata = false;
+  
     normalizedData.forEach((item, index) => {
       if (item?.document_metadata?.hasOwnProperty(selectedField)) {
-        normalizedData[index].document_metadata[selectedField] = text;
+        normalizedData[index].document_metadata[selectedField] =
+          selectedField?.includes("date")
+            ? formatToISTDate(text?.trim())
+            : text;
         isDocumentMetadata = true;
         updated = true;
       } else if (item?.hasOwnProperty(selectedField)) {
-        normalizedData[index][selectedField] = text;
+        normalizedData[index][selectedField] = selectedField?.includes("date")
+          ? formatToISTDate(text?.trim())
+          : text;
 
         updated = true;
       }
@@ -565,13 +615,17 @@ export const PdfViewer = ({
               ...prevFields,
               document_metadata: {
                 ...prevFields.document_metadata,
-                [selectedField]: text
+                [selectedField]: selectedField?.includes("date")
+                  ? formatToISTDate(text?.trim())
+                  : text
               }
             };
           }
           return {
             ...prevFields,
-            [selectedField]: text
+            [selectedField]: selectedField?.includes("date")
+              ?formatToISTDate(text?.trim())
+              : text
           };
         });
       }

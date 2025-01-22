@@ -160,7 +160,7 @@ const CustomDropDown = ({
   const handleKeyDown = (event) => {
     // event.stopPropagation()
     if (!open) return;
-    console.log(event.key)
+
 
     if (event.key === "ArrowDown") {
       event.preventDefault();

@@ -423,13 +423,13 @@ const InvoiceDetails = () => {
     searchParams.get("vendor_id") || searchParams.get("vendor") || "";
   useEffect(() => {
     if (
-      action_controls?.reject?.disabled ||
-      action_controls?.accept?.disabled
+      action_controls?.accept?.disabled ||
+      action_controls?.reject?.disabled
     ) {
       setShowAlreadySyncedModal(true);
     }
   }, [action_controls]);
-  
+
   // const { filters } = useFilterStore();
   let page = searchParams.get("page_number") || 1;
   let vendor_id = searchParams.get("vendor") || "";
@@ -453,7 +453,7 @@ const InvoiceDetails = () => {
     vendor_id,
     document_uuid,
     assigned_to,
-    review_later: filters?.review_later||"false"
+    review_later: filters?.review_later || "false"
   };
   return (
     <div className="hide-scrollbar relative">
@@ -626,10 +626,10 @@ const InvoiceDetails = () => {
             <div className="flex items-center gap-x-2">
               <Info className="h-5 w-5 text-[#FF9800]" />
               <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
-                {action_controls?.reject?.disabled
-                  ? action_controls?.reject?.reason
-                  : action_controls?.accept?.disabled
+                {action_controls?.accept?.disabled
                   ? action_controls?.accept?.reason
+                  : action_controls?.reject?.disabled
+                  ? action_controls?.reject?.reason
                   : null}
               </p>
             </div>
@@ -911,7 +911,7 @@ const InvoiceDetails = () => {
         <div className="w-full flex  -mt-4">
           <div className="w-1/2 flex flex-col gap-y-4 2xl:px-16 md:px-8">
             <PdfViewer
-            payload={payload}
+              payload={payload}
               loadinMetadata={isLoading}
               image_rotations={
                 data?.data?.document_metadata?.image_rotations ||
