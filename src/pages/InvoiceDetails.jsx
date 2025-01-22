@@ -462,7 +462,7 @@ const InvoiceDetails = () => {
 
   useEffect(()=>{
 setShowAlreadySyncedModal(false)
-  },[])
+  },[page])
   return (
     <div className="hide-scrollbar relative">
       <Navbar />
@@ -634,7 +634,7 @@ setShowAlreadySyncedModal(false)
             <div className="flex items-center gap-x-2">
               <Info className="h-5 w-5 text-[#FF9800]" />
               <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
-                {(data?.data?.rejected || data?.data?.[0]?.rejected)?(data?.data?.rejection_reason || data?.data?.[0]?.rejection_reason): action_controls?.accept?.disabled 
+                Reason :- {(data?.data?.rejected || data?.data?.[0]?.rejected)?(data?.data?.rejection_reason || data?.data?.[0]?.rejection_reason): action_controls?.accept?.disabled 
                   ? action_controls?.accept?.reason
                   : action_controls?.reject?.disabled
                   ? action_controls?.reject?.reason

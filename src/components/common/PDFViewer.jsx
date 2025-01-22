@@ -287,6 +287,7 @@ export const PdfViewer = ({
       adjustedTopLeftY - viewerHeight / 2 + (boxHeight * targetScale) / 2;
 
     // Scroll to the calculated position with smooth behavior
+    lockZoomAndScroll && setPdfScale(pdfScale)
     viewerElement.scrollTo({
       left: scrollLeft,
       top: scrollTop,
