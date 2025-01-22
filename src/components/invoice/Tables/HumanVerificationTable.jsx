@@ -455,36 +455,50 @@ const HumanVerificationTable = ({
 
   const handleRowShifting = (rowIndex, shiftType) => {
     let copyObj = JSON.parse(JSON.stringify(data));
-    if (rowIndex == 0 && shiftType == "up") {
-      return;
+  
+    // Check if the rowIndex is valid and avoid shifting the first or last row beyond bounds
+    if (rowIndex === 0 && shiftType === "up") {
+      return; // Can't shift the first row up
     } else if (
-      rowIndex == copyObj?.data?.processed_table?.rows?.length - 1 &&
-      shiftType == "down"
+      rowIndex === copyObj?.data?.processed_table?.rows?.length - 1 &&
+      shiftType === "down"
     ) {
-      return;
+      return; // Can't shift the last row down
     }
+  
     saveHistory();
-
-    let shiftToIndex = shiftType == "up" ? rowIndex - 1 : rowIndex + 1;
+  
+    // Determine the index of the row we are shifting to
+    let shiftToIndex = shiftType === "up" ? rowIndex - 1 : rowIndex + 1;
+  
+    // Swap rows logic
     let temp;
     let newOperation = {
       type: "swap_rows",
       operation_order: operations?.length + 1,
       data: {
-        row_1_uuid:
-          copyObj.data.processed_table.rows[rowIndex]?.transaction_uuid,
-        row_2_uuid:
-          copyObj.data.processed_table.rows[shiftToIndex]?.transaction_uuid
+        row_1_uuid: copyObj.data.processed_table.rows[rowIndex]?.transaction_uuid,
+        row_2_uuid: copyObj.data.processed_table.rows[shiftToIndex]?.transaction_uuid
       }
     };
-
-    setOperations([...operations, newOperation]);
+  
+    // Swap the rows
     temp = copyObj.data.processed_table.rows[rowIndex];
-    copyObj.data.processed_table.rows[rowIndex] =
-      copyObj.data.processed_table.rows[shiftToIndex];
+    copyObj.data.processed_table.rows[rowIndex] = copyObj.data.processed_table.rows[shiftToIndex];
     copyObj.data.processed_table.rows[shiftToIndex] = temp;
+  
+    // Update the row orders after the swap
+    copyObj.data.processed_table.rows.forEach((row, index) => {
+      row.row_order = index + 1; // Recalculate the row_order based on the new index
+    });
+  
+    // Add the operation to the history
+    setOperations([...operations, newOperation]);
+  
+    // Update the query data with the modified rows
     queryClient.setQueryData(["combined-table", document_uuid], copyObj);
   };
+  
 
   const addEmptyColumn = () => {
     saveHistory();
