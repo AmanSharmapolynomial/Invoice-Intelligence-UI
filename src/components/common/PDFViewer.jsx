@@ -218,10 +218,10 @@ export const PdfViewer = ({
 
     return {
       position: "absolute",
-      top: `${topLeft.y}px`,
-      left: `${topLeft.x}px`,
-      width: `${calculatedWidth}px`,
-      height: `${calculatedHeight}px`,
+      top: `${topLeft.y-5}px`,
+      left: `${topLeft.x-5}px`,
+      width: `${calculatedWidth+10}px`,
+      height: `${calculatedHeight+10}px`,
       background: "rgba(144,238,144,0.4)",
       zIndex: 9999,
       borderRadius: 5,
