@@ -49,7 +49,7 @@ const CustomDropDown = ({
   const [item, setItem] = useState(null);
   const [itemsArray, setItemsArray] = useState([]);
   const [focusedIndex, setFocusedIndex] = useState(-1);
-
+  const [searchQuery, setSearchQuery] = useState("");
   useEffect(() => {
     if (Value !== undefined) {
       setValue(Value);
@@ -76,24 +76,30 @@ const CustomDropDown = ({
     },
     [value, multiSelect, onChange, itemsArray, data]
   );
+
   useEffect(() => {
     if (focusedIndex >= 0) {
-      const focusedItem = document.getElementById(`dropdown-item-${focusedIndex}`);
+      const focusedItem = document.getElementById(
+        `dropdown-item-${focusedIndex}`
+      );
       if (focusedItem) {
         focusedItem.scrollIntoView({
           behavior: "smooth",
-          block: "nearest",
+          block: "nearest"
         });
       }
     }
   }, [focusedIndex]);
+
   const sortedData = useMemo(() => {
     return [...data].sort((a, b) => {
       if (itemsArray.includes(a.value)) return -1;
       if (itemsArray.includes(b.value)) return 1;
       return 0;
     });
-  }, [data, itemsArray]);
+  }, [data, itemsArray])?.filter((item) =>
+    item?.label?.toLowerCase()?.includes?.(searchQuery?.toLowerCase())
+  );
 
   const renderTriggerContent = () => {
     if (multiSelect) return placeholder;
@@ -161,21 +167,23 @@ const CustomDropDown = ({
     // event.stopPropagation()
     if (!open) return;
 
-
     if (event.key === "ArrowDown") {
       event.preventDefault();
       setFocusedIndex((prevIndex) =>
-        prevIndex < sortedData.length - 1 ? Number(prevIndex) + 1 : Number(prevIndex)
+        prevIndex <
+        sortedData?.filter((item) =>
+          item?.label?.toLowerCase()?.includes?.(searchQuery?.toLowerCase())
+        )?.length -
+          1
+          ? prevIndex + 1
+          : prevIndex
       );
     } else if (event.key === "ArrowUp") {
       event.preventDefault();
-      setFocusedIndex((prevIndex) =>
-        prevIndex > 0 ? Number(prevIndex) - 1 : 0
-      );
+      setFocusedIndex((prevIndex) => (prevIndex > 0 ? prevIndex - 1 : 0));
     } else if (event.key === "Enter") {
       event.preventDefault();
       if (focusedIndex >= 0 && focusedIndex < sortedData.length) {
-       
         handleSelect(sortedData[focusedIndex].value, sortedData[focusedIndex]);
       }
     }
@@ -212,13 +220,20 @@ const CustomDropDown = ({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-      onKeyDown={handleKeyDown}
+        onKeyDown={handleKeyDown}
         className={`${className} p-0 dark:border-[#051C14] w-fit !max-w-80 mr-1 !z-50 `}
         contentClassName={`${contentClassName} w-full`}
       >
         <Command className="dark:!border-[#051C14] dark:bg-[#051C14] min-w-[100%] !w-full !z-40">
           {showSearch && (
-            <CommandInput placeholder={searchPlaceholder} className="!z-40" />
+            <CommandInput
+              placeholder={searchPlaceholder}
+              className="!z-40"
+              onChange={(v) => {
+                setSearchQuery(v);
+                setFocusedIndex(0);
+              }}
+            />
           )}
           {children}
           <CommandList className="border dark:!border-[#000000] !z-50 ">
@@ -226,20 +241,21 @@ const CustomDropDown = ({
             <CommandGroup className=" !z-50 !ml-0 ">
               {showCustomItems
                 ? children
-                : sortedData.map((item, index) => (
-                  <CommandItem
-                  key={item.value}
-                  id={`dropdown-item-${index}`}
-                  className={cn(
-                    "text-left flex items-start justify-normal mb-1.5 !pl-0 border-[#E0E0E0] !bg-gray-200/70 !z-50",
-                    multiSelect && "!pl-2",
-                    focusedIndex === index && "!border-black !border !bg-gray-300/40"
-                  )}
-                  onBlur={onBlur}
-                  onSelect={() => {
-                    if (!multiSelect) handleSelect(item.value, item);
-                  }}
-                >
+                : sortedData?.map((item, index) => (
+                    <CommandItem
+                      key={item.value}
+                      id={`dropdown-item-${index}`}
+                      className={cn(
+                        "text-left flex items-start justify-normal mb-1.5 !pl-0 border-[#E0E0E0] !bg-gray-200/70 !z-50",
+                        multiSelect && "!pl-2",
+                        focusedIndex === index &&
+                          "!border-black !border !bg-gray-300/40"
+                      )}
+                      onBlur={onBlur}
+                      onSelect={() => {
+                        if (!multiSelect) handleSelect(item.value, item);
+                      }}
+                    >
                       <div className="flex justify-between w-full items-center !min-w-56 !pl-0 font-poppins text-xs font-normal dark:!text-[#FFFFFF] gap-x-4   !ml-0">
                         <div className="flex items-center gap-x-2 ">
                           {item?.archived_status ? (
@@ -252,11 +268,13 @@ const CustomDropDown = ({
                               <Check
                                 className={cn(
                                   " h-4 w-4 dark:text-[#FFFFFF] ",
-                                  value === item.value ? "opacity-100" : "opacity-0"
+                                  value === item.value
+                                    ? "opacity-100"
+                                    : "opacity-0"
                                 )}
                               />
                             )}
-                            {item?.label || item?.value} 
+                            {item?.label || item?.value}
                           </span>
                         </div>
                         <div className="flex gap-x-2 items-center pr-2">
@@ -269,7 +287,7 @@ const CustomDropDown = ({
                           )}
                           {multiSelect && (
                             <Checkbox
-                            className=""
+                              className=""
                               checked={itemsArray.includes(item.value)}
                               onCheckedChange={(checked) => {
                                 setItemsArray((prev) => {

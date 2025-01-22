@@ -11,7 +11,7 @@ import zoom_in from "@/assets/image/zoom_in.svg";
 import zoom_out from "@/assets/image/zoom_out.svg";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
-import { useExtractOcrText } from "./api";
+import { useExtractOcrText, useGetFormatteddateFromAnyFormat } from "./api";
 
 import { ChevronLeft, ChevronRight, Lock, ScanSearch } from "lucide-react";
 import toast from "react-hot-toast";
@@ -23,39 +23,7 @@ import { Button } from "../ui/button";
 import { queryClient } from "@/lib/utils";
 import { formatISO, isValid, parseISO } from "date-fns";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
-function formatToISTDate(inputDate) {
-  let date;
 
-  // Handle different formats manually
-  if (typeof inputDate === "string") {
-    // Check for common formats like MM/DD/YYYY
-    const usFormat = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
-    const match = inputDate.match(usFormat);
-    if (match) {
-      const [_, month, day, year] = match;
-      date = new Date(Date.UTC(year, month - 1, day)); // Month is zero-based
-    } else {
-      // Fallback to default Date parsing
-      date = new Date(inputDate);
-    }
-  } else if (inputDate instanceof Date) {
-    date = inputDate;
-  } else {
-    // Try to parse numbers (timestamps)
-    date = new Date(inputDate);
-  }
-
-  if (isNaN(date.getTime())) {
-    throw new Error("Invalid date format");
-  }
-
-  // Convert the date to YYYY-MM-DD
-  const year = date.getUTCFullYear();
-  const month = String(date.getUTCMonth() + 1).padStart(2, "0"); // Months are 0-based
-  const day = String(date.getUTCDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-}
 const fieldOptions = [
   {
     label: "Invoice Number",
@@ -120,7 +88,8 @@ export const PdfViewer = ({
     metadataTableCopy: data
   } = invoiceDetailStore();
   const [currentPdfIndex, setCurrentPdfIndex] = useState(0);
-
+  const { mutate: getFormattedDate, isPending: gettingDate } =
+    useGetFormatteddateFromAnyFormat();
   const pdfUrl = pdfUrls?.[currentPdfIndex];
 
   const iframeUrl = pdfUrl
@@ -569,6 +538,22 @@ export const PdfViewer = ({
   }, []);
 
   const handleInsertExtractedText = (setFields = true) => {
+    let isError = false;
+    if (selectedField?.includes("date")) {
+      getFormattedDate(text, {
+        onSuccess: (data) => {
+          setText(data?.data);
+        },
+        onError: (data) => {
+          toast.error(data?.message);
+          isError == true;
+        }
+      });
+    }
+    if (isError) {
+      return;
+    }
+
     if (!text) {
       toast("Empty Extracted Text.", {
         icon: "⚠️"
@@ -586,19 +571,14 @@ export const PdfViewer = ({
     let normalizedData = Array.isArray(data?.data) ? data?.data : [data?.data];
     let updated = false;
     let isDocumentMetadata = false;
-  
+
     normalizedData.forEach((item, index) => {
       if (item?.document_metadata?.hasOwnProperty(selectedField)) {
-        normalizedData[index].document_metadata[selectedField] =
-          selectedField?.includes("date")
-            ? formatToISTDate(text?.trim())
-            : text;
+        normalizedData[index].document_metadata[selectedField] = text;
         isDocumentMetadata = true;
         updated = true;
       } else if (item?.hasOwnProperty(selectedField)) {
-        normalizedData[index][selectedField] = selectedField?.includes("date")
-          ? formatToISTDate(text?.trim())
-          : text;
+        normalizedData[index][selectedField] = text;
 
         updated = true;
       }
@@ -615,17 +595,13 @@ export const PdfViewer = ({
               ...prevFields,
               document_metadata: {
                 ...prevFields.document_metadata,
-                [selectedField]: selectedField?.includes("date")
-                  ? formatToISTDate(text?.trim())
-                  : text
+                [selectedField]: text
               }
             };
           }
           return {
             ...prevFields,
-            [selectedField]: selectedField?.includes("date")
-              ?formatToISTDate(text?.trim())
-              : text
+            [selectedField]: text
           };
         });
       }
@@ -975,7 +951,7 @@ export const PdfViewer = ({
                 onClick={handleInsertExtractedText}
                 className="rounded-sm !h-[2.5rem] font-normal font-poppins text-white text-sm w-[5rem]"
               >
-                Insert
+                {gettingDate ? "Inserting.." : "Insert"}
               </Button>
             </div>
           </div>

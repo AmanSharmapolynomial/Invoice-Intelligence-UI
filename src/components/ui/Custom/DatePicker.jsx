@@ -21,16 +21,20 @@ import {
 } from "@/components/ui/select";
 
 export default function DatePicker({ date, onChange, className }) {
-
   const [inputValue, setInputValue] = React.useState(
     date ? format(date, "MM/dd/yyyy") : ""
   );
-  const [month, setMonth] = React.useState(
-    date ? date.getMonth() : new Date().getMonth()
-  );
-  const [year, setYear] = React.useState(
-    date ? date.getFullYear() : new Date().getFullYear()
-  );
+  const [month, setMonth] = React.useState(date ? date.getMonth() : new Date().getMonth());
+  const [year, setYear] = React.useState(date ? date.getFullYear() : new Date().getFullYear());
+
+  // Sync input value with the date prop if it changes
+  React.useEffect(() => {
+    if (date) {
+      setInputValue(format(date, "MM/dd/yyyy"));
+      setMonth(date.getMonth());
+      setYear(date.getFullYear());
+    }
+  }, [date]);
 
   const handleInputChange = (e) => {
     const newValue = e.target.value.replace(/\D/g, "");
@@ -41,10 +45,7 @@ export default function DatePicker({ date, onChange, className }) {
     } else if (newValue.length <= 4) {
       formattedValue = `${newValue.slice(0, 2)}/${newValue.slice(2)}`;
     } else {
-      formattedValue = `${newValue.slice(0, 2)}/${newValue.slice(
-        2,
-        4
-      )}/${newValue.slice(4, 8)}`;
+      formattedValue = `${newValue.slice(0, 2)}/${newValue.slice(2, 4)}/${newValue.slice(4, 8)}`;
     }
 
     setInputValue(formattedValue);
@@ -71,26 +72,18 @@ export default function DatePicker({ date, onChange, className }) {
   const handleMonthChange = (value) => {
     const newMonth = parseInt(value, 10);
     setMonth(newMonth);
-    if (date) {
-      const newDate = new Date(date.setMonth(newMonth));
-      onChange(newDate);
-      setInputValue(format(newDate, "MM/dd/yyyy"));
-    }
+    const newDate = new Date(year, newMonth, 1); // Ensure a valid date
+    onChange(newDate);
+    setInputValue(format(newDate, "MM/dd/yyyy"));
   };
 
   const handleYearChange = (value) => {
     const newYear = parseInt(value, 10);
     setYear(newYear);
-    if (date) {
-      const newDate = new Date(date.setFullYear(newYear));
-      onChange(newDate);
-      setInputValue(format(newDate, "MM/dd/yyyy"));
-    }
+    const newDate = new Date(newYear, month, 1); // Ensure a valid date
+    onChange(newDate);
+    setInputValue(format(newDate, "MM/dd/yyyy"));
   };
-
-  React.useEffect(() => {
-    date && setInputValue(format(date, "MM/dd/yyyy"));
-  }, [date]);
 
   return (
     <Popover className="!z-10">
@@ -140,9 +133,9 @@ export default function DatePicker({ date, onChange, className }) {
         </div>
         <Calendar
           mode="single"
-          selected={date}
+          selected={date} // Make sure the calendar reflects the selected date
           onSelect={handleCalendarSelect}
-          month={new Date(year, month)}
+          month={new Date(year, month)} // Sync calendar month
           onMonthChange={(newMonth) => {
             setMonth(newMonth.getMonth());
             setYear(newMonth.getFullYear());
