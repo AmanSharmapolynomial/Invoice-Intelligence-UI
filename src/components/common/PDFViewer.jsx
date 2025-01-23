@@ -21,7 +21,7 @@ import { Textarea } from "../ui/textarea";
 import CustomDropDown from "../ui/CustomDropDown";
 import { Button } from "../ui/button";
 import { queryClient } from "@/lib/utils";
-import { formatISO, isValid, parseISO } from "date-fns";
+import { format, formatISO, isValid, parseISO } from "date-fns";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 const fieldOptions = [
@@ -540,6 +540,8 @@ export const PdfViewer = ({
 
   const handleInsertExtractedText = (setFields = true) => {
     let isError = false;
+
+  
     if (selectedField?.includes("date")) {
       getFormattedDate(text, {
         onSuccess: (data) => {
@@ -607,15 +609,22 @@ export const PdfViewer = ({
         });
       }
     }
+  
 
-    // if (key === "invoice_type" || key === "document_type") {
-    //   setShowToChangeCategoriesAndTypes(true);
-    // }
   };
 
   useEffect(() => {
     setUpdatedFields([]);
   }, []);
+
+  const formatDate=(date)=>{
+    let output='';
+    let dateArray=date?.split("-")?.reverse();
+    let mm=dateArray[1]
+    let dd=dateArray[0]
+    let yy=dateArray[2]
+    return `${mm}/${dd}/${yy}`
+  }
   return (
     <div className="w-full  max-h-[42rem] overflow-auto  hide-scrollbar">
       {loadinMetadata && <Skeleton className={"w-[50rem]  h-[60rem]"} />}
@@ -978,6 +987,7 @@ export const PdfViewer = ({
             ) : (
               <Textarea
                 value={text}
+                
                 onChange={(e) => {
                   e.stopPropagation();
                   setText(e.target.value);
