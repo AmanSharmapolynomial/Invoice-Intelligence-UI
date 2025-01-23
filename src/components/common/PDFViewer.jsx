@@ -218,10 +218,10 @@ export const PdfViewer = ({
 
     return {
       position: "absolute",
-      top: `${topLeft.y-5}px`,
-      left: `${topLeft.x-5}px`,
-      width: `${calculatedWidth+10}px`,
-      height: `${calculatedHeight+10}px`,
+      top: `${topLeft.y - 5}px`,
+      left: `${topLeft.x - 5}px`,
+      width: `${calculatedWidth + 10}px`,
+      height: `${calculatedHeight + 10}px`,
       background: "rgba(144,238,144,0.4)",
       zIndex: 9999,
       borderRadius: 5,
@@ -287,7 +287,7 @@ export const PdfViewer = ({
       adjustedTopLeftY - viewerHeight / 2 + (boxHeight * targetScale) / 2;
 
     // Scroll to the calculated position with smooth behavior
-    lockZoomAndScroll && setPdfScale(pdfScale)
+    lockZoomAndScroll && setPdfScale(pdfScale);
     viewerElement.scrollTo({
       left: scrollLeft,
       top: scrollTop,
@@ -537,15 +537,18 @@ export const PdfViewer = ({
       };
     }
   }, []);
-
+  const [dateText, setDateText] = useState(null);
+  const [toggleText,setToggleText]=useState(false)
   const handleInsertExtractedText = (setFields = true) => {
+    let date = text;
     let isError = false;
 
-  
     if (selectedField?.includes("date")) {
       getFormattedDate(text, {
         onSuccess: (data) => {
           setText(data?.data);
+          setDateText(data?.data);
+          setToggleText(!toggleText)
         },
         onError: (data) => {
           toast.error(data?.message);
@@ -609,22 +612,32 @@ export const PdfViewer = ({
         });
       }
     }
-  
-
   };
 
   useEffect(() => {
     setUpdatedFields([]);
   }, []);
-
-  const formatDate=(date)=>{
-    let output='';
-    let dateArray=date?.split("-")?.reverse();
-    let mm=dateArray[1]
-    let dd=dateArray[0]
-    let yy=dateArray[2]
-    return `${mm}/${dd}/${yy}`
-  }
+  useEffect(() => {
+    setDateText(
+      dateText
+        ?.split("-")
+        ?.map((part, index, arr) =>
+          index === 1 ? arr[2] : index === 2 ? arr[1] : part
+        )
+        ?.join("/")
+        ?.split("/")
+        ?.reverse()
+        ?.join("/")
+    );
+  }, [dateText, toggleText]);
+  const formatDate = (date) => {
+    let output = "";
+    let dateArray = date?.split("-")?.reverse();
+    let mm = dateArray[1];
+    let dd = dateArray[0];
+    let yy = dateArray[2];
+    return `${mm}/${dd}/${yy}`;
+  };
   return (
     <div className="w-full  max-h-[42rem] overflow-auto  hide-scrollbar">
       {loadinMetadata && <Skeleton className={"w-[50rem]  h-[60rem]"} />}
@@ -987,7 +1000,6 @@ export const PdfViewer = ({
             ) : (
               <Textarea
                 value={text}
-                
                 onChange={(e) => {
                   e.stopPropagation();
                   setText(e.target.value);

@@ -84,7 +84,9 @@ export default function DatePicker({ date, onChange, className }) {
     onChange(newDate);
     setInputValue(format(newDate, "MM/dd/yyyy"));
   };
-
+React.useEffect(()=>{
+   setInputValue(format(date,"MM/dd/yyyy"))
+},[])
   return (
     <Popover className="!z-10">
       <PopoverTrigger asChild className="!z-10">
