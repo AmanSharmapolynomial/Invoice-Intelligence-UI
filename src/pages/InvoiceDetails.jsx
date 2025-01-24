@@ -23,6 +23,7 @@ import { Modal, ModalDescription } from "@/components/ui/Modal";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  formatDateTime,
   formatDateToReadable,
   formatRestaurantsList,
   vendorNamesFormatter
@@ -635,7 +636,7 @@ setShowAlreadySyncedModal(false)
             <div className="flex items-center gap-x-2">
               <Info className="h-5 w-5 text-[#FF9800]" />
               <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
-               {(data?.data?.rejected || data?.data?.[0]?.rejected)&&"Rejection "} Reason :- {(data?.data?.rejected || data?.data?.[0]?.rejected)?(data?.data?.rejection_reason || data?.data?.[0]?.rejection_reason): action_controls?.accept?.disabled 
+               {(data?.data?.rejected || data?.data?.[0]?.rejected)&&"Rejection Reason :- "}  {(data?.data?.rejected || data?.data?.[0]?.rejected)?(data?.data?.rejection_reason || data?.data?.[0]?.rejection_reason): action_controls?.accept?.disabled 
                   ? action_controls?.accept?.reason
                   : action_controls?.reject?.disabled
                   ? action_controls?.reject?.reason
@@ -1192,14 +1193,10 @@ setShowAlreadySyncedModal(false)
                   Upload Date
                 </p>
                 <p className="font-poppins font-normal text-xs leading-4 text-[#6D6D6D]">
-                  {formatDateToReadable(
+                  {formatDateTime(
                     duplicateInvoices?.current_document?.date_uploaded
-                  ) +
-                    " " +
-                    " " +
-                    duplicateInvoices?.current_document?.date_uploaded
-                      ?.split("T")[1]
-                      ?.split(".")[0]}
+                  )
+                  }
                 </p>
               </div>
               <div className="flex flex-col gap-y-3 items-center">
@@ -1266,11 +1263,7 @@ setShowAlreadySyncedModal(false)
                     </p>
                     <p className="font-poppins !font-normal text-center text-xs text-[#222222] leading-4">
                       {d?.date_uploaded
-                        ? formatDateToReadable(d?.date_uploaded) +
-                          " " +
-                          " " +
-                          " " +
-                          d?.date_uploaded?.split("T")[1]?.split(".")[0]
+                        ? formatDateTime(d?.date_uploaded) 
                         : "N/A"}
                     </p>
                   </div>
