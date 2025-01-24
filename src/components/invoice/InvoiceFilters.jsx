@@ -71,7 +71,7 @@ const InvoiceFilters = () => {
       human_verification: "all",
       invoice_type: "all",
       clickbacon_status: "all",
-      rerun_status: "all",
+      // rerun_status: "all",
       detected: "all",
       auto_accepted: "all",
       auto_accepted_by_vda:"all"

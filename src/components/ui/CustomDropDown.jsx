@@ -102,8 +102,8 @@ const CustomDropDown = ({
           <Link2 className="text-[#348355] !h-4 !w-4" />
           <span className="text-[#348355] text-sm font-poppins font-normal truncate">
             {selectedItem
-              ? selectedItem.label.slice(0, 50) +
-                (selectedItem.label.length > 100 ? "....." : "")
+              ? selectedItem?.label?.slice(0, 50) +
+                (selectedItem?.label?.length > 100 ? "....." : "")
               : placeholder}
           </span>
           {selectedItem?.human_verified && (
@@ -123,8 +123,8 @@ const CustomDropDown = ({
         <span className="!truncate">
           {value && value !== "none"
             ? selectedItem
-              ? `${selectedItem.label.slice(0, 50)}${
-                  selectedItem.label.length > 100 ? "....." : ""
+              ? `${selectedItem.label?.slice(0, 50)}${
+                  selectedItem.label?.length > 100 ? "....." : ""
                 }`
               : typeof value === "string"
               ? value
