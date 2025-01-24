@@ -538,98 +538,99 @@ export const PdfViewer = ({
     }
   }, []);
   const [dateText, setDateText] = useState(null);
-  const [toggleText,setToggleText]=useState(false)
-  const handleInsertExtractedText = (setFields = true) => {
-    let date = text;
-    let isError = false;
+  const [toggleText, setToggleText] = useState(false);
 
+  const [borderColor,setBorderColor]=useState(null)
+  const handleInsertExtractedText = async (setFields = true) => {
+    let isError = false;
+    let formattedText = text; // Local variable to hold the formatted text
+
+    // Handle date formatting if the selected field includes "date"
     if (selectedField?.includes("date")) {
-      getFormattedDate(text, {
-        onSuccess: (data) => {
-          setText(data?.data);
-          setDateText(data?.data);
-          setToggleText(!toggleText)
-        },
-        onError: (data) => {
-          toast.error(data?.message);
-          isError == true;
-        }
+      await new Promise((resolve, reject) => {
+        getFormattedDate(text, {
+          onSuccess: (data) => {
+            formattedText = data?.data; // Use the formatted text directly
+            setText(formattedText); // Update state asynchronously
+            setDateText(formattedText); // Update state asynchronously
+            setToggleText((prev) => !prev);
+            setBorderColor(null)
+            resolve();
+
+          },
+          onError: (data) => {
+            toast.error(data?.message);
+            isError = true;
+            setBorderColor("red")
+            reject(data?.message);
+          }
+        });
       });
     }
+
+    // Stop execution if there was an error
     if (isError) {
       return;
     }
 
-    if (!text) {
-      toast("Empty Extracted Text.", {
-        icon: "⚠️"
-      });
+    // Validate text and selectedField
+    if (!formattedText) {
+      toast("Empty Extracted Text.", { icon: "⚠️" });
       return;
     }
 
     if (!selectedField) {
-      toast("Empty Field Name . Please select field name to insert text. ", {
+      toast("Empty Field Name. Please select a field name to insert text.", {
         icon: "⚠️"
       });
       return;
     }
 
+    // Normalize data and update the fields
     let normalizedData = Array.isArray(data?.data) ? data?.data : [data?.data];
     let updated = false;
     let isDocumentMetadata = false;
 
     normalizedData.forEach((item, index) => {
       if (item?.document_metadata?.hasOwnProperty(selectedField)) {
-        normalizedData[index].document_metadata[selectedField] = text;
+        normalizedData[index].document_metadata[selectedField] = formattedText;
         isDocumentMetadata = true;
         updated = true;
       } else if (item?.hasOwnProperty(selectedField)) {
-        normalizedData[index][selectedField] = text;
-
+        normalizedData[index][selectedField] = formattedText;
         updated = true;
       }
     });
+
     let updatedData = Array.isArray(data?.data)
       ? { ...data, data: normalizedData }
       : { ...data, data: normalizedData[0] };
+
     queryClient.setQueryData(["document-metadata", payload], updatedData);
-    if (updated) {
-      if (setFields) {
-        setUpdatedFields((prevFields) => {
-          if (isDocumentMetadata) {
-            return {
-              ...prevFields,
-              document_metadata: {
-                ...prevFields.document_metadata,
-                [selectedField]: text
-              }
-            };
-          }
+
+    if (updated && setFields) {
+      setUpdatedFields((prevFields) => {
+        if (isDocumentMetadata) {
           return {
             ...prevFields,
-            [selectedField]: text
+            document_metadata: {
+              ...prevFields.document_metadata,
+              [selectedField]: formattedText
+            }
           };
-        });
-      }
+        }
+        return {
+          ...prevFields,
+          [selectedField]: formattedText
+        };
+      });
     }
   };
 
   useEffect(() => {
     setUpdatedFields([]);
   }, []);
-  useEffect(() => {
-    setDateText(
-      dateText
-        ?.split("-")
-        ?.map((part, index, arr) =>
-          index === 1 ? arr[2] : index === 2 ? arr[1] : part
-        )
-        ?.join("/")
-        ?.split("/")
-        ?.reverse()
-        ?.join("/")
-    );
-  }, [dateText, toggleText]);
+
   const formatDate = (date) => {
     let output = "";
     let dateArray = date?.split("-")?.reverse();
@@ -638,6 +639,9 @@ export const PdfViewer = ({
     let yy = dateArray[2];
     return `${mm}/${dd}/${yy}`;
   };
+  useEffect(() => {
+    setShowTextExtractionModal(false);
+  }, [page]);
   return (
     <div className="w-full  max-h-[42rem] overflow-auto  hide-scrollbar">
       {loadinMetadata && <Skeleton className={"w-[50rem]  h-[60rem]"} />}
@@ -950,8 +954,9 @@ export const PdfViewer = ({
         onClose={() => {
           setShowTextExtractionModal(!showTextExtractionModal);
           setText("");
-          setSelectPdfPortion(!selectPdfPortion);
+          setSelectPdfPortion(false);
           setSelectedField(null);
+          setBorderColor(null)
         }}
       >
         <div className="flex items-start gap-x-2 h-full flex-col">
@@ -1004,8 +1009,8 @@ export const PdfViewer = ({
                   e.stopPropagation();
                   setText(e.target.value);
                 }}
-                className="bg-[#F6F6F6] !z-50 !max-w-full !min-h-full font-poppins  font-normal text-xs !text-[#000000] focus:!outline-none focus:!ring-0 !relative"
-                rows={15}
+                className={`${borderColor=="red"&&"border-red-500"} bg-[#F6F6F6] !z-50 !max-w-full !min-h-full font-poppins  font-normal text-xs !text-[#000000] focus:!outline-none focus:!ring-0 !relative`}
+                rows={10}
               ></Textarea>
             )}
 

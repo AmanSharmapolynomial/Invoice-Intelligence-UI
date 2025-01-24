@@ -26,6 +26,7 @@ const InvoicePagination = ({ totalPages, setCurrentTab }) => {
           tagName === "select";
   
         if (!isEditable) {
+          e.stopPropagation(); // Prevent other handlers from interfering
           if (e.key === "ArrowLeft" && pageIndex > 1) {
             updateParams({ page_number: Number(pageIndex) - 1 });
             setPageIndex((prev) => prev - 1);
@@ -40,14 +41,14 @@ const InvoicePagination = ({ totalPages, setCurrentTab }) => {
         }
       };
   
-      window.addEventListener("keydown", handleKeyDown);
+      window.addEventListener("keydown", handleKeyDown, true); // Use capture phase
   
       // Cleanup the event listener
       return () => {
-        window.removeEventListener("keydown", handleKeyDown);
+        window.removeEventListener("keydown", handleKeyDown, true);
       };
     }
-  }, [pageIndex, totalPages, updateParams, isModalOpen]);
+  }, [pageIndex, totalPages, updateParams, isModalOpen, clearStore, setCurrentTab]);
   
   return (
     <div className="flex gap-x-6 py-2 mt-2 justify-center items-center  ">

@@ -146,11 +146,11 @@ const CustomDropDown = ({
     <Popover
       open={open}
       onOpenChange={setOpen}
-      className={`${className} dark:!border-[#000000]`}
+      className={`${className} dark:!border-[#000000] !z-50`}
     >
       <PopoverTrigger
         asChild
-        className={`${triggerClassName} dark:!border-[#000000] !relative`}
+        className={`${triggerClassName} dark:!border-[#000000] !relative `}
       >
         <Button
           variant="outline"
@@ -158,7 +158,7 @@ const CustomDropDown = ({
           aria-expanded={open}
           className={cn(
             "min-w-fit border h-[2.5rem] dark:bg-[#000000] dark:text-textColor/200 dark:border-[#000000] bg-[#FFFFFF] hover:bg-[#FFFFFF] border-[#E0E0E0] justify-between capitalize shadow-none !rounded-[4px] text-[#000000] hover:text-[#666666] font-poppins font-normal text-xs",
-            multiSelect && itemsArray?.length > 0 && "!bg-primary !text-white"
+            multiSelect && itemsArray?.length > 0 && "!bg-primary !text-white "
           )}
         >
           {renderTriggerContent()}
@@ -172,7 +172,7 @@ const CustomDropDown = ({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className={`${className} p-0 dark:border-[#051C14] w-fit !max-w-60 mr-1`}
+        className={`${className} p-0 dark:border-[#051C14] w-fit !max-w-60 mr-1 !z-50`}
         contentClassName={`${contentClassName} w-full`}
       >
         <Command className="dark:!border-[#051C14] dark:bg-[#051C14] min-w-[100%] !w-full !z-50">

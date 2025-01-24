@@ -170,6 +170,24 @@ export function formatDateToReadable(dateString) {
 
   return `${monthName.slice(0, 3)} ${parseInt(day, 10)}, ${year}`;
 }
+
+export function formatDateTime(timestamp) {
+  const date = new Date(timestamp);
+
+  // Format the date part
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  const datePart = date.toLocaleDateString('en-US', options);
+
+  // Format the time part
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  const timePart = `${hours}:${minutes}:${seconds}`;
+
+  return `${datePart?.split(",")?.join("")}  ${timePart}`;
+}
+
+
 export function formatDateTimeToReadable(dateTimeString) {
   const months = [
     "January",
