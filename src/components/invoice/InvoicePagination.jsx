@@ -10,12 +10,13 @@ const InvoicePagination = ({ totalPages, setCurrentTab }) => {
   const [searchParams] = useSearchParams();
   const updateParams = useUpdateParams();
   let page = searchParams.get("page_number") || 1;
-  const { isModalOpen ,clearStore} = invoiceDetailStore();
+  const { isModalOpen ,clearStore,showTextExtractionModal,setShowTextExtractionModal} = invoiceDetailStore();
   const [pageIndex, setPageIndex] = useState(page);
   useEffect(() => {
     setPageIndex(page);
   }, [page]);
   useEffect(() => {
+ 
     if (!isModalOpen) {
       const handleKeyDown = (e) => {
         const tagName = document.activeElement.tagName.toLowerCase();
@@ -48,7 +49,7 @@ const InvoicePagination = ({ totalPages, setCurrentTab }) => {
         window.removeEventListener("keydown", handleKeyDown, true);
       };
     }
-  }, [pageIndex, totalPages, updateParams, isModalOpen, clearStore, setCurrentTab]);
+  }, [pageIndex, totalPages, updateParams, isModalOpen, clearStore, setCurrentTab,showTextExtractionModal,setShowTextExtractionModal]);
   
   return (
     <div className="flex gap-x-6 py-2 mt-2 justify-center items-center  ">

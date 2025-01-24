@@ -43,9 +43,9 @@ export default function DatePicker({ date, onChange, className }) {
     if (newValue.length <= 2) {
       formattedValue = newValue;
     } else if (newValue.length <= 4) {
-      formattedValue = `${newValue.slice(0, 2)}/${newValue.slice(2)}`;
+      formattedValue = `${newValue?.slice(0, 2)}/${newValue?.slice(2)}`;
     } else {
-      formattedValue = `${newValue.slice(0, 2)}/${newValue.slice(2, 4)}/${newValue.slice(4, 8)}`;
+      formattedValue = `${newValue?.slice(0, 2)}/${newValue?.slice(2, 4)}/${newValue?.slice(4, 8)}`;
     }
 
     setInputValue(formattedValue);

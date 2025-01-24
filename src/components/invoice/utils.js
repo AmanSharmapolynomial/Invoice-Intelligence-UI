@@ -12,7 +12,7 @@ export const getInvoiceMetaData = async (payload) => {
       payload?.invoice_type
     }&invoice_detection_status=${
       payload?.invoice_detection_status
-    }&rerun_status=${payload?.rerun_status}&auto_accepted=${
+    }&rerun_status=${""}&auto_accepted=${
       payload?.auto_accepted
     }&start_date=${payload?.start_date}&end_date=${
       payload?.end_date
