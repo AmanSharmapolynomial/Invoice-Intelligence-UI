@@ -28,6 +28,7 @@ const InvoiceFilters = () => {
   let invoice_type = searchParams.get("invoice_type") || "all";
   let clickbacon_status = searchParams.get("clickbacon_status") || "all";
   let auto_accepted = searchParams.get("auto_accepted") || "all";
+  let auto_accepted_by_vda = searchParams.get("auto_accepted_by_vda") || "all";
   let start_date = searchParams.get("start_date") || "";
   let end_date = searchParams.get("end_date") || "";
   
@@ -72,7 +73,8 @@ const InvoiceFilters = () => {
       clickbacon_status: "all",
       rerun_status: "all",
       detected: "all",
-      auto_accepted: "all"
+      auto_accepted: "all",
+      auto_accepted_by_vda:"all"
     };
 
     setFilters(defaultFilters);
@@ -137,6 +139,16 @@ const InvoiceFilters = () => {
             value={auto_accepted}
             label="Auto Accepted Filter"
             onSelect={(val) => updateFilter("auto_accepted", val)}
+            data={AutoAcceptedFilterFilterOptions}
+          />
+        </div>
+        <div>
+          <CustomSelect
+            placeholder="All"
+            triggerClassName={"!w-full"}
+            value={auto_accepted_by_vda}
+            label="Auto Accepted By VDA Filter"
+            onSelect={(val) => updateFilter("auto_accepted_by_vda", val)}
             data={AutoAcceptedFilterFilterOptions}
           />
         </div>

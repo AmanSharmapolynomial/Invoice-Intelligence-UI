@@ -394,41 +394,7 @@ const HumanVerificationTable = ({
     }
   };
 
-  const addEmptyRow = () => {
-    saveHistory();
-    let copyData = JSON.parse(JSON.stringify(data));
-    let { rows, columns } = copyData?.data?.processed_table;
-    let newRow = {
-      cells: data?.data?.processed_table?.columns.map((column) => ({
-        column_uuid: column?.column_uuid,
-        text: "",
-        actual_text: null,
-        confidence: null,
-        page_index: 0,
-        row_uuid: uuidv4(),
-        cell_uuid: uuidv4(),
-        selected_column: column.selected_column
-      })),
-      row_order:
-        data?.data?.processed_table?.rows[
-          data?.data?.processed_table?.rows.length - 1
-        ]?.row_order + 1 || 1,
-      transaction_uuid: uuidv4()
-    };
-    let operation = {
-      type: "create_row",
-      operation_order: operations?.length + 1,
-      data: {
-        transaction_uuid: newRow.transaction_uuid,
-        row_order: newRow.row_order,
-        cells: newRow.cells
-      }
-    };
-    setOperations([...operations, operation]);
-    rows.push(newRow);
-    queryClient.setQueryData(["combined-table", document_uuid], copyData);
-  };
-
+  
   const deleteRow = (rowIndex) => {
     saveHistory();
     let copyData = JSON.parse(JSON.stringify(data));
@@ -499,42 +465,50 @@ const HumanVerificationTable = ({
     queryClient.setQueryData(["combined-table", document_uuid], copyObj);
   };
   
-
   const addEmptyColumn = () => {
-    saveHistory();
+    saveHistory(); // Save the current state for undo/redo functionality
+  
     const newColumn = {
       column_uuid: uuidv4(),
       column_name: "Select an option",
       column_order:
-        data?.data?.processed_table?.columns?.[
-          data?.data?.processed_table?.columns?.length - 1
-        ]?.column_order + 1 || 0,
+        data?.data?.processed_table?.columns?.[data?.data?.processed_table?.columns?.length - 1]
+          ?.column_order + 1 || 0,
       bounding_boxes: null,
       selected_column: true
     };
-
+  
     const updatedColumns = [...data?.data?.processed_table?.columns, newColumn];
+  
     const updatedRows = data?.data?.processed_table?.rows?.map((row) => ({
       ...row,
       cells: [
         ...row.cells,
         {
           column_uuid: newColumn.column_uuid,
-          text: "",
+          text: "", // Initialize with an empty text
           actual_text: null,
           confidence: null,
           page_index: 0,
           row_uuid: row.transaction_uuid,
-          cell_uuid: uuidv4(),
-          selected_column: true
+          cell_uuid: uuidv4(), // Unique identifier for the new cell
+          selected_column: newColumn.selected_column
         }
       ]
     }));
-
-    let copyTable = JSON.parse(JSON.stringify(data));
-    copyTable.data.processed_table.rows = updatedRows;
-    copyTable.data.processed_table.columns = updatedColumns;
-
+  
+    const updatedData = {
+      ...data,
+      data: {
+        ...data.data,
+        processed_table: {
+          ...data.data.processed_table,
+          rows: updatedRows,
+          columns: updatedColumns
+        }
+      }
+    };
+  
     const operation = {
       type: "create_column",
       operation_order: operations.length + 1,
@@ -542,24 +516,135 @@ const HumanVerificationTable = ({
         column_uuid: newColumn.column_uuid,
         column_name: newColumn.column_name,
         selected_column: newColumn.selected_column,
-        cells: updatedRows.reduce((acc, row) => {
-          const filteredCells = row?.cells?.filter(
-            (cell) => cell?.column_uuid == newColumn?.column_uuid
-          );
-          return acc.concat(filteredCells);
-        }, [])
+        cells: updatedRows.map((row) => ({
+          row_uuid: row.transaction_uuid,
+          column_uuid: newColumn.column_uuid,
+          cell_uuid: row.cells.find((cell) => cell.column_uuid === newColumn.column_uuid).cell_uuid,
+          text: ""
+        }))
       }
     };
-
+  
     setOperations([...operations, operation]);
-    queryClient.setQueryData(["combined-table", document_uuid], copyTable);
-
+    queryClient.setQueryData(["combined-table", document_uuid], updatedData);
+  
     setContextMenu({
       visible: false,
       position: { x: 0, y: 0 }
     });
   };
 
+  
+  const addEmptyRow = () => {
+    saveHistory();
+    let copyData = JSON.parse(JSON.stringify(data));
+    let { rows, columns } = copyData?.data?.processed_table;
+    let newRow = {
+      cells: data?.data?.processed_table?.columns.map((column) => ({
+        column_uuid: column?.column_uuid,
+        text: "",
+        actual_text: null,
+        confidence: null,
+        page_index: 0,
+        row_uuid: uuidv4(),
+        cell_uuid: uuidv4(),
+        selected_column: column.selected_column
+      })),
+      row_order:
+        data?.data?.processed_table?.rows[
+          data?.data?.processed_table?.rows.length - 1
+        ]?.row_order + 1 || 1,
+      transaction_uuid: uuidv4()
+    };
+    let operation = {
+      type: "create_row",
+      operation_order: operations?.length + 1,
+      data: {
+        transaction_uuid: newRow.transaction_uuid,
+        row_order: newRow.row_order,
+        cells: newRow.cells
+      }
+    };
+    setOperations([...operations, operation]);
+    rows.push(newRow);
+    queryClient.setQueryData(["combined-table", document_uuid], copyData);
+  };
+  const handleSaveCell = async (rowIndex, cellIndex, value) => {
+    const originalValue =
+      data?.data?.processed_table?.rows?.[rowIndex]?.cells?.[cellIndex]?.text || "";
+  
+      if (value !== originalValue) {
+        saveHistory();
+        
+        const updatedData = JSON.parse(JSON.stringify(data)); 
+      // Create a deep copy of the data
+      
+      const targetCell = updatedData?.data?.processed_table?.rows?.[rowIndex]?.cells?.filter((c)=>selectedColumnIds?.includes(c.column_uuid))?.[cellIndex];
+      
+      if (!targetCell) {
+        toast.error("Invalid cell reference.");
+        return;
+      }
+      
+      // Update the cell's text
+      targetCell.text = value;
+      updatedData.data.processed_table.rows[rowIndex].cells[cellIndex].text=value
+      let copyObj=JSON.parse(JSON.stringify(updatedData))
+      copyObj.data.processed_table.rows[rowIndex].cells[cellIndex].text=value
+
+      // Create an operation to track the update
+      const operation = {
+        type: "update_cell",
+        operation_order: operations.length + 1,
+        data: {
+          cell_uuid: targetCell.cell_uuid,
+          row_uuid: updatedData.data.processed_table.rows[rowIndex].transaction_uuid,
+          column_uuid: targetCell.column_uuid,
+          text: value,
+        },
+      };
+  
+      // Add the operation to the state
+      setOperations([...operations, operation]);
+  
+      if (autoCalculate) {
+        // Handle auto-calculate logic
+        mutate(
+          {
+            document_uuid,
+            row: { ...updatedData.data.processed_table.rows[rowIndex] },
+          },
+          {
+            onSuccess: (mutationData) => {
+              const updatedRow = mutationData?.data;
+  
+              // Update the row in the data
+              updatedData.data.processed_table.rows[rowIndex] = updatedRow;
+  
+              setReCalculateCWiseSum(true);
+              queryClient.setQueryData(["combined-table", document_uuid], updatedData);
+              setEditMode({ rowIndex: null, cellIndex: null });
+              toast.success("Cell saved and recalculated successfully.");
+            },
+            onError: (error) => {
+              console.error(error);
+              toast.error("Failed to save cell value.");
+            },
+          }
+        );
+      } else {
+        // Directly update query data
+
+
+        queryClient.setQueryData(["combined-table", document_uuid], copyObj);
+        setEditMode({ rowIndex: null, cellIndex: null });
+ 
+      }
+    } else {
+      toast("No changes detected.");
+    }
+  };
+  
   const copyRow = (rowIndex, copyType) => {
     // Prevent copying outside table bounds
     if (rowIndex < 0 || rowIndex >= data?.data?.processed_table?.rows?.length) {
@@ -903,103 +988,7 @@ const HumanVerificationTable = ({
     toast.success("Cell deleted successfully.");
   };
 
-  const handleSaveCell = async (rowIndex, cellIndex, value) => {
-    const originalValue =
-      data.data.processed_table.rows[rowIndex].cells[cellIndex].text;
 
-    if (value !== originalValue) {
-      saveHistory();
-
-      // Create a deep copy of the data object
-      const updatedData = JSON.parse(JSON.stringify(data));
-
-      // Update the cell value in both rows
-      updatedData.data.processed_table.rows[rowIndex].cells[cellIndex].text =
-        value;
-
-      // Prepare the operation for the update
-      const operation = {
-        type: "update_cell",
-        operation_order: operations.length + 1,
-        data: {
-          cell_uuid:
-            updatedData.data.processed_table.rows[rowIndex].cells[cellIndex]
-              .cell_uuid,
-          row_uuid:
-            updatedData.data.processed_table.rows[rowIndex].transaction_uuid,
-          column_uuid:
-            updatedData.data.processed_table.rows[rowIndex].cells[cellIndex]
-              .column_uuid,
-          text: value
-        }
-      };
-
-      // Add column names if needed
-      updatedData.data.processed_table.rows[rowIndex].cells.forEach((c, i) => {
-        c["column_name"] = data.data.processed_table.columns[i]?.column_name;
-      });
-
-      setOperations([...operations, operation]);
-
-      let extPriceCellColumnUUID =
-        updatedData.data.processed_table.columns?.find(
-          (col) => col?.column_name === "Extended Price"
-        )?.["column_uuid"];
-
-      // Copy operations for recalculation
-      let copyOperations = JSON.parse(
-        JSON.stringify([...operations, operation])
-      );
-
-      // If autoCalculate is enabled, trigger the mutate function
-      if (autoCalculate) {
-        mutate(
-          {
-            document_uuid,
-            row: { ...updatedData.data.processed_table.rows[rowIndex] }
-          },
-          {
-            onSuccess: (data) => {
-              const extPriceCell = data?.data?.cells.find(
-                (cell) => cell.column_uuid === extPriceCellColumnUUID
-              );
-
-              const newOperation = {
-                type: "update_cell",
-                operation_order: operations.length + 1,
-                data: {
-                  cell_uuid: extPriceCell?.cell_uuid,
-                  row_uuid:
-                    updatedData.data.processed_table.rows[rowIndex]
-                      .transaction_uuid,
-                  column_uuid: extPriceCellColumnUUID,
-                  text: extPriceCell?.text
-                }
-              };
-
-              // Add the new operation for the extended price
-              setOperations([...copyOperations, newOperation]);
-              updatedData.data.processed_table.rows[rowIndex] = data.data;
-
-              setReCalculateCWiseSum(true); // Recalculate category-wise sum
-              queryClient.setQueryData(
-                ["combined-table", document_uuid],
-                updatedData
-              );
-              setEditMode({ rowIndex: null, cellIndex: null });
-              return;
-            }
-          }
-        );
-      }
-
-      // Update query data for the combined table
-      queryClient.setQueryData(["combined-table", document_uuid], updatedData);
-    }
-
-    // Exit edit mode after saving
-    setEditMode({ rowIndex: null, cellIndex: null });
-  };
 
   const addTax = () => {
     const newData = { ...metaData };

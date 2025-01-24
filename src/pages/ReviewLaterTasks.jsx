@@ -37,7 +37,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 const ReviewLaterTasks = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { filters, setFilters ,setDefault} = useFilterStore();
+  const { filters, setFilters, setDefault } = useFilterStore();
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [searchedInvoices, setSearchedInvoices] = useState([]);
   const [open, setOpen] = useState(false);
@@ -46,14 +46,21 @@ const ReviewLaterTasks = () => {
   let page = searchParams.get("page") || 1;
   let page_size = searchParams.get("page_size") || 10;
   let invoice_type = searchParams.get("invoice_type") || "";
-  let human_verification = searchParams.get("human_verification") || filters?.human_verification;
-  let human_verified = searchParams.get("human_verified") || filters?.human_verified
-  let detected = searchParams.get("invoice_detection_status") ||  filters?.detected;
-  let rerun_status = searchParams.get("rerun_status") ||  filters?.human_verified
-  let auto_accepted = searchParams.get("auto_accepted") ||  filters?.auto_accepted
-  let start_date = searchParams.get("start_date") ||  filters?.start_date;
+  let human_verification =
+    searchParams.get("human_verification") || filters?.human_verification;
+  let human_verified =
+    searchParams.get("human_verified") || filters?.human_verified;
+  let detected =
+    searchParams.get("invoice_detection_status") || filters?.detected;
+  let rerun_status =
+    searchParams.get("rerun_status") || filters?.human_verified;
+  let auto_accepted =
+    searchParams.get("auto_accepted") || filters?.auto_accepted;
+  let start_date = searchParams.get("start_date") || filters?.start_date;
   let end_date = searchParams.get("end_date") || filters?.end_date;
-  let clickbacon_status = searchParams.get("clickbacon_status") || filters?.clickbacon_status;
+  let clickbacon_status =
+    searchParams.get("clickbacon_status") || filters?.clickbacon_status;
+  let auto_accepted_by_vda = searchParams.get("auto_accepted_by_vda") || "all";
   let restaurant =
     searchParams.get("restaurant_id") || searchParams.get("restaurant") || "";
   let vendor =
@@ -89,6 +96,7 @@ const ReviewLaterTasks = () => {
     page,
     sort_order,
     human_verified,
+    auto_accepted_by_vda,
     assigned_to,
     document_priority,
     review_later: true
@@ -144,7 +152,7 @@ const ReviewLaterTasks = () => {
       8.5);
   let timer;
   // useEffect(()=>{
-    
+
   //   setDefault()
   // },[])
   return (
