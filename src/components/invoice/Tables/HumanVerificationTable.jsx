@@ -603,46 +603,67 @@ const HumanVerificationTable = ({
           text: value,
         },
       };
-  
+      updatedData.data.processed_table.rows[rowIndex].cells.forEach((c, i) => {
+        c["column_name"] = data.data.processed_table.columns[i]?.column_name;
+      });
+      let extPriceCellColumnUUID =
+      updatedData.data.processed_table.columns?.find(
+        (col) => col?.column_name === "Extended Price"
+      )?.["column_uuid"];
+
+    // Copy operations for recalculation
+    let copyOperations = JSON.parse(
+      JSON.stringify([...operations, operation])
+    );
       // Add the operation to the state
       setOperations([...operations, operation]);
-  
       if (autoCalculate) {
-        // Handle auto-calculate logic
         mutate(
           {
             document_uuid,
-            row: { ...updatedData.data.processed_table.rows[rowIndex] },
+            row: { ...updatedData.data.processed_table.rows[rowIndex] }
           },
           {
-            onSuccess: (mutationData) => {
-              const updatedRow = mutationData?.data;
-  
-              // Update the row in the data
-              updatedData.data.processed_table.rows[rowIndex] = updatedRow;
-  
-              setReCalculateCWiseSum(true);
-              queryClient.setQueryData(["combined-table", document_uuid], updatedData);
+            onSuccess: (data) => {
+              const extPriceCell = data?.data?.cells.find(
+                (cell) => cell.column_uuid === extPriceCellColumnUUID
+              );
+
+              const newOperation = {
+                type: "update_cell",
+                operation_order: operations.length + 1,
+                data: {
+                  cell_uuid: extPriceCell?.cell_uuid,
+                  row_uuid:
+                    updatedData.data.processed_table.rows[rowIndex]
+                      .transaction_uuid,
+                  column_uuid: extPriceCellColumnUUID,
+                  text: extPriceCell?.text
+                }
+              };
+
+              // Add the new operation for the extended price
+              setOperations([...copyOperations, newOperation]);
+              updatedData.data.processed_table.rows[rowIndex] = data.data;
+
+              setReCalculateCWiseSum(true); // Recalculate category-wise sum
+              queryClient.setQueryData(
+                ["combined-table", document_uuid],
+                updatedData
+              );
               setEditMode({ rowIndex: null, cellIndex: null });
-              toast.success("Cell saved and recalculated successfully.");
-            },
-            onError: (error) => {
-              console.error(error);
-              toast.error("Failed to save cell value.");
-            },
+              return;
+            }
           }
         );
-      } else {
-        // Directly update query data
-
-
-        queryClient.setQueryData(["combined-table", document_uuid], copyObj);
-        setEditMode({ rowIndex: null, cellIndex: null });
- 
       }
-    } else {
-      toast("No changes detected.");
+
+      // Update query data for the combined table
+      queryClient.setQueryData(["combined-table", document_uuid], updatedData);
     }
+
+    // Exit edit mode after saving
+    setEditMode({ rowIndex: null, cellIndex: null });
   };
   
   const copyRow = (rowIndex, copyType) => {
