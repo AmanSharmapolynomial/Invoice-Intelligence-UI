@@ -457,6 +457,7 @@ const InvoiceDetails = () => {
     vendor_id,
     document_uuid,
     assigned_to,
+    auto_accepted_by_vda:filters?.auto_accepted_by_vda,
     review_later: filters?.review_later || "false"
   };
 

@@ -22,7 +22,7 @@ export const getInvoiceMetaData = async (payload) => {
       payload?.restaurant
     }&human_verification_required=${payload?.human_verification}&assigned_to=${
       payload?.assigned_to || ""
-    }&review_later=${payload?.review_later}`;
+    }&review_later=${payload?.review_later}&auto_accepted_by_vda=${payload?.auto_accepted_by_vda}`;
   }
 
   const response = await axiosInstance.get(apiUrl);
