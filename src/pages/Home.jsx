@@ -52,7 +52,8 @@ const Home = () => {
   let human_verified = searchParams.get("human_verified") || "";
   let detected = searchParams.get("invoice_detection_status") || "";
   let rerun_status = searchParams.get("rerun_status") || "";
-  let auto_accepted = searchParams.get("auto_accepted") || "";
+  let auto_accepted = searchParams.get("auto_accepted") || "";      
+  let auto_accepted_by_vda = searchParams.get("auto_accepted_by_vda") || "all";      
   let start_date = searchParams.get("start_date") || "";
   let end_date = searchParams.get("end_date") || "";
   let clickbacon_status = searchParams.get("clickbacon_status") || "";
@@ -93,6 +94,7 @@ const Home = () => {
     human_verified,
     assigned_to,
     document_priority,
+    auto_accepted_by_vda,
     review_later: "false"
   };
   const { data, isLoading } = useListInvoices(payload);

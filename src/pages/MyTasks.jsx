@@ -68,6 +68,7 @@ const MyTasks = () => {
   let sort_order = searchParams.get("sort_order") || "desc";
   let invoice_number = searchParams.get("invoice_number") || "";
   let assigned_to = searchParams.get("assigned_to");
+  let auto_accepted_by_vda = searchParams.get("auto_accepted_by_vda") || "all"; 
 
   let { userId } = userStore();
   let document_priority = searchParams.get("document_priority") || "all";
@@ -100,6 +101,7 @@ const MyTasks = () => {
     human_verified,
     assigned_to: userId,
     document_priority,
+    auto_accepted_by_vda,
     review_later:"false"
   };
   const { data, isLoading } = useListInvoices(payload);
