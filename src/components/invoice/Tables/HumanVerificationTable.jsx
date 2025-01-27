@@ -356,9 +356,9 @@ const HumanVerificationTable = ({
     // setStopHovering(false);
   };
 
-  const handleKeyPress = (event, rowIndex, cellIndex) => {
+  const handleKeyPress = (event, rowIndex, cellIndex,value) => {
     if (event.key === "Enter") {
-      handleSaveCell(rowIndex, cellIndex);
+      handleSaveCell(rowIndex, cellIndex,value);
     }
   };
 
@@ -1075,7 +1075,7 @@ const HumanVerificationTable = ({
   };
 
   const existing_column_names=data?.data?.processed_table?.columns?.filter((c)=>c?.selected_column)?.map(({bounding_box,column_order,selected_column,column_uuid,...rest})=>rest?.column_name?.toLowerCase());
-
+console.log(data,"Human Verification Table")
 
   return (
     <>
@@ -1432,7 +1432,7 @@ const HumanVerificationTable = ({
                                             e.preventDefault();
                                           }}
                                           onKeyPress={(e) => {
-                                            handleKeyPress(e, index, i);
+                                            handleKeyPress(e, index, i,cellValue);
                                           }}
                                           onChange={(e) => {
                                             setCellValue(e.target.value);

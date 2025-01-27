@@ -540,7 +540,7 @@ export const PdfViewer = ({
   const [dateText, setDateText] = useState(null);
   const [toggleText, setToggleText] = useState(false);
 
-  const [borderColor,setBorderColor]=useState(null)
+  const [borderColor, setBorderColor] = useState(null);
   const handleInsertExtractedText = async (setFields = true) => {
     let isError = false;
     let formattedText = text; // Local variable to hold the formatted text
@@ -554,14 +554,13 @@ export const PdfViewer = ({
             setText(formattedText); // Update state asynchronously
             setDateText(formattedText); // Update state asynchronously
             setToggleText((prev) => !prev);
-            setBorderColor(null)
+            setBorderColor(null);
             resolve();
-
           },
           onError: (data) => {
             toast.error(data?.message);
             isError = true;
-            setBorderColor("red")
+            setBorderColor("red");
             reject(data?.message);
           }
         });
@@ -626,6 +625,7 @@ export const PdfViewer = ({
       });
     }
   };
+ 
 
   useEffect(() => {
     setUpdatedFields([]);
@@ -644,6 +644,7 @@ export const PdfViewer = ({
   }, [page]);
   return (
     <div className="w-full  max-h-[42rem] overflow-auto  hide-scrollbar">
+     
       {loadinMetadata && <Skeleton className={"w-[50rem]  h-[60rem]"} />}
       {(pdfUrls[currentPdfIndex]?.document_source == "azure_blob" ||
         pdfUrls[currentPdfIndex]?.document_source == "clickbacon") && (
@@ -820,51 +821,66 @@ export const PdfViewer = ({
       )}
       {/* PDF Viewer Wrapper */}
       {pdfUrls[currentPdfIndex]?.document_source !== undefined &&
-        (pdfUrls[currentPdfIndex]?.document_source == "azure_blob" ||
-        pdfUrls[currentPdfIndex]?.document_source == "clickbacon" ? (
-          <div
-            id="react-pdf__Wrapper"
-            ref={pdfWrapperRef}
-            style={{
-              height: "58vh",
-              overflow: "auto",
-              maxWidth: "100%",
-              position: "relative"
-            }}
-            className="flex show-scrollbar custom-scrollbar "
-          >
-            {pdfUrl ? (
-              <Document
-                onWheel={handleWheel}
-                file={pdfUrls[currentPdfIndex]?.document_link}
-                onLoadSuccess={onDocumentLoadSuccess}
-                className={""}
+      (pdfUrls[currentPdfIndex]?.document_source == "azure_blob" ||
+        pdfUrls[currentPdfIndex]?.document_source == "clickbacon") ? (
+        <div
+          id="react-pdf__Wrapper"
+          ref={pdfWrapperRef}
+          style={{
+            height: "58vh",
+            overflow: "auto",
+            maxWidth: "100%",
+            position: "relative"
+          }}
+          className="flex show-scrollbar custom-scrollbar "
+        >
+          {pdfUrl ? (
+            <Document
+              onWheel={handleWheel}
+              file={pdfUrls[currentPdfIndex]?.document_link}
+              onLoadSuccess={onDocumentLoadSuccess}
+              className={""}
+            >
+              <Page
+                pageNumber={pageNum}
+                onRenderSuccess={onRenderSuccess}
+                scale={pdfScale}
+                rotate={rotation}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                renderTextLayer={false}
               >
-                <Page
-                  pageNumber={pageNum}
-                  onRenderSuccess={onRenderSuccess}
-                  scale={pdfScale}
-                  rotate={rotation}
-                  onMouseDown={handleMouseDown}
-                  onMouseMove={handleMouseMove}
-                  onMouseUp={handleMouseUp}
-                  renderTextLayer={false}
-                >
-                  {isSelecting && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        left: Math.min(startX, endX),
-                        top: Math.min(startY, endY),
-                        width: Math.abs(endX - startX),
-                        height: Math.abs(endY - startY),
-                        border: "2px dashed #000000",
-                        backgroundColor: "rgba(99, 189, 255, 0.2)"
-                      }}
-                    />
-                  )}
-                  {highlightAll ? (
-                    bounding_boxes
+                {isSelecting && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      left: Math.min(startX, endX),
+                      top: Math.min(startY, endY),
+                      width: Math.abs(endX - startX),
+                      height: Math.abs(endY - startY),
+                      border: "2px dashed #000000",
+                      backgroundColor: "rgba(99, 189, 255, 0.2)"
+                    }}
+                  />
+                )}
+                {highlightAll ? (
+                  bounding_boxes
+                    ?.filter((bb) => bb.page_index + 1 == pageNum)
+                    .map((bb, idx) => (
+                      <div
+                        key={idx}
+                        style={getBoundingBoxStyle(
+                          pageDimensions.width,
+                          pageDimensions.height,
+                          bb,
+                          false
+                        )}
+                      ></div>
+                    ))
+                ) : (
+                  <>
+                    {bounding_boxes
                       ?.filter((bb) => bb.page_index + 1 == pageNum)
                       .map((bb, idx) => (
                         <div
@@ -876,77 +892,60 @@ export const PdfViewer = ({
                             false
                           )}
                         ></div>
-                      ))
-                  ) : (
-                    <>
-                      {bounding_boxes
-                        ?.filter((bb) => bb.page_index + 1 == pageNum)
-                        .map((bb, idx) => (
-                          <div
-                            key={idx}
-                            style={getBoundingBoxStyle(
-                              pageDimensions.width,
-                              pageDimensions.height,
-                              bb,
-                              false
-                            )}
-                          ></div>
-                        ))}
-                      <div
-                        style={getBoundingBoxStyle(
-                          pageDimensions.width,
-                          pageDimensions.height,
-                          bounding_box,
-                          true
-                        )}
-                      ></div>
-                    </>
-                  )}
-                </Page>
-                {/* <img src={image} alt="" /> */}
-              </Document>
-            ) : (
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  height: "100%"
-                }}
-              >
-                <></>
-              </div>
-            )}
-          </div>
-        ) : (
-          <>
-            {loaded && (
-              <iframe
-                title="pdf"
-                src={iframeUrl}
-                onLoad={handleLoad}
-                onError={handleError}
-                width="100%"
-                height="570"
-                allow="autoplay"
-                style={{ display: isLoading ? "none" : "block" }} // Hide iframe while loading
-              />
-            )}
-            {isLoading || !loaded ? (
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  flexDirection: "row",
-                  height: "580px"
-                }}
-              ></div>
-            ) : (
+                      ))}
+                    <div
+                      style={getBoundingBoxStyle(
+                        pageDimensions.width,
+                        pageDimensions.height,
+                        bounding_box,
+                        true
+                      )}
+                    ></div>
+                  </>
+                )}
+              </Page>
+              {/* <img src={image} alt="" /> */}
+            </Document>
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "100%"
+              }}
+            >
               <></>
-            )}{" "}
-          </>
-        ))}
+            </div>
+          )}
+        </div>
+      ) : (
+        <>
+          <iframe
+        title="pdf"
+        src={iframeUrl}
+        onLoad={handleLoad}
+        onError={handleError}
+        width="100%"
+        height="570"
+        allow="autoplay"
+        style={{ display: isLoading ? "none" : "block" }} // Hide iframe while loading
+      />
+          {isLoading || !loaded ? (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                flexDirection: "row",
+                height: "580px"
+              }}
+            ></div>
+          ) : (
+            <></>
+          )}{" "}
+        </>
+      )}
       {/* Modal for future use */}
 
       <ResizableModal
@@ -956,7 +955,7 @@ export const PdfViewer = ({
           setText("");
           setSelectPdfPortion(false);
           setSelectedField(null);
-          setBorderColor(null)
+          setBorderColor(null);
         }}
       >
         <div className="flex items-start gap-x-2 h-full flex-col">
@@ -1009,7 +1008,9 @@ export const PdfViewer = ({
                   e.stopPropagation();
                   setText(e.target.value);
                 }}
-                className={`${borderColor=="red"&&"border-red-500"} bg-[#F6F6F6] !z-50 !max-w-full !min-h-full font-poppins  font-normal text-xs !text-[#000000] focus:!outline-none focus:!ring-0 !relative`}
+                className={`${
+                  borderColor == "red" && "border-red-500"
+                } bg-[#F6F6F6] !z-50 !max-w-full !min-h-full font-poppins  font-normal text-xs !text-[#000000] focus:!outline-none focus:!ring-0 !relative`}
                 rows={10}
               ></Textarea>
             )}

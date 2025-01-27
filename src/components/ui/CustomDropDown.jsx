@@ -20,6 +20,9 @@ import approved from "@/assets/image/approved.svg";
 import { Link } from "react-router-dom";
 import { Checkbox } from "./checkbox";
 import { OLD_UI } from "@/config";
+import { FixedSizeList as List } from "react-window";
+import debounce from "lodash.debounce";
+import { Input } from "./input";
 
 const CustomDropDown = ({
   data = [],
@@ -45,6 +48,7 @@ const CustomDropDown = ({
   const [value, setValue] = useState(Value || "");
   const [item, setItem] = useState(null);
   const [itemsArray, setItemsArray] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     if (Value !== undefined) {
@@ -73,15 +77,26 @@ const CustomDropDown = ({
     [value, multiSelect, onChange, itemsArray, data]
   );
 
+  const handleSearch = useCallback(
+    debounce((term) => {
+      setSearchTerm(term);
+    }, 300),
+    []
+  );
+
   const sortedData = useMemo(() => {
     if (!data) return [];
-    return [...data].sort((a, b) => {
-      if (itemsArray.includes(a.value)) return -1;
-      if (itemsArray.includes(b.value)) return 1;
-      return 0;
-    });
-  }, [data, itemsArray]);
-  
+    return [...data]
+      .filter((item) =>
+        item.label?.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+      .sort((a, b) => {
+        if (itemsArray.includes(a.value)) return -1;
+        if (itemsArray.includes(b.value)) return 1;
+        return 0;
+      });
+  }, [data, itemsArray, searchTerm]);
+
   const renderTriggerContent = () => {
     if (multiSelect) return placeholder;
 
@@ -91,11 +106,13 @@ const CustomDropDown = ({
       );
       return (
         <Link
-        target="_blank"
+          target="_blank"
           to={
             showVendorAsLink
               ? `${OLD_UI}/vendor-consolidation-v2/${selectedItem?.value}`
-              : showBranchAsLink ?`${OLD_UI}/vendor-consolidation-v2/branches/${vendor_id}`:null
+              : showBranchAsLink
+              ? `${OLD_UI}/vendor-consolidation-v2/branches/${vendor_id}`
+              : null
           }
           className="flex items-center gap-x-2"
         >
@@ -172,70 +189,92 @@ const CustomDropDown = ({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className={`${className} p-0 dark:border-[#051C14] w-fit !max-w-60 mr-1 !z-50`}
+        className={`${className} p-0 dark:border-[#051C14] !min-w-[250px] w-fit !max-w-60 mr-1 !z-50`}
         contentClassName={`${contentClassName} w-full`}
       >
-        <Command className="dark:!border-[#051C14] dark:bg-[#051C14] min-w-[100%] !w-full !z-50">
+        <Command className="dark:!border-[#051C14] px-1 py-2 dark:bg-[#051C14]  !w-full !z-50">
           {showSearch && (
-            <CommandInput placeholder={searchPlaceholder} className="" />
+            <Input
+              placeholder={searchPlaceholder}
+              className=" rounded-sm mb-1 focus:!ring-0 !outline-none focus:!outline-none"
+              onInput={(e) => handleSearch(e.target.value)}
+            />
           )}
           {children}
-          <CommandList className="border dark:!border-[#000000] !z-50 ">
+          <CommandList className=" dark:!border-[#000000] !z-50 hide-scrollbar">
             <CommandEmpty>No data found.</CommandEmpty>
-            <CommandGroup className=" ">
-              {showCustomItems
-                ? children
-                : sortedData.map((item) => (
-                    <CommandItem
-                      key={item.value}
-                      className={cn(
-                        "text-left border mb-1.5 !pl-0 border-[#E0E0E0] !bg-gray-200/70 !ml-0 ",
-                        multiSelect && "!pl-2"
-                      )}
-                      onBlur={onBlur}
-                      onSelect={() => {
-                        !multiSelect && handleSelect(item.value, item);
-                      }}
-                    >
-                      {!multiSelect && (
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4 dark:text-[#FFFFFF]",
-                            value === item.value ? "opacity-100" : "opacity-0"
-                          )}
-                        />
-                      )}
-                      <div className="flex justify-between w-full items-center !pl-0 font-poppins text-xs font-normal dark:!text-[#FFFFFF] gap-x-4">
-                        <span className="capitalize text-left flex items-center gap-x-2">
-                          {item?.archived_status && (
-                            <Archive className="h-4 w-4 text-yellow-500" />
-                          )}
-                          {item?.label || item?.value}
-                        </span>
-                        {item?.human_verified && (
-                          <img
-                            src={approved}
-                            className="text-primary !h-4 !w-5"
-                            alt="Approved"
+            <CommandGroup className="!min-h-[8rem] !max-h-[20rem] ">
+              <List
+                height={200}
+                itemCount={sortedData.length}
+                itemSize={40}
+                width="100%"
+              >
+                {({ index, style }) => {
+                  const item = sortedData[index];
+                  return (
+                    <div style={style} key={item.value}>
+                      <CommandItem
+                        className={cn(
+                          "text-left border mb-1.5 break-word  truncate whitespace-break-spaces !max-h-[3rem] overflow-hidden !pl-0 border-[#E0E0E0] !bg-gray-200/70 !ml-0 ",
+                          multiSelect && "!pl-2"
+                        )}
+                        onBlur={onBlur}
+                        onSelect={() => {
+                          !multiSelect && handleSelect(item.value, item);
+                        }}
+                      >
+                        {!multiSelect && (
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4 dark:text-[#FFFFFF]",
+                              value === item.value ? "opacity-100" : "opacity-0"
+                            )}
                           />
                         )}
-                        {multiSelect && (
-                          <Checkbox
-                            checked={itemsArray.includes(item.value)}
-                            onCheckedChange={(checked) => {
-                              setItemsArray((prev) => {
-                                const updatedArray = checked
-                                  ? [...prev, item.value]
-                                  : prev.filter((i) => i !== item.value);
-                                onChange(updatedArray, item);
-                                return updatedArray;
-                              });
-                            }}
-                          />
-                        )}
-                      </div>
-                    </CommandItem>
-                  ))}
+                        <div className="flex justify-between w-full items-center !pl-0 font-poppins text-xs font-normal dark:!text-[#FFFFFF] gap-x-4 break-word truncate whitespace-normal">
+                          <div className="flex gap-x-1 items-center">
+                            <span>
+                              {item?.archived_status ? (
+                                <Archive className="h-4 w-4 text-yellow-500" />
+                              ):<div className="h-4 w-4"/>}
+                            </span>
+                            <span className="capitalize text-left flex items-center gap-x-2">
+                              {item?.label?.slice(0, 17) ||
+                                item?.value?.slice(0, 17)}{" "}
+                              {item?.label?.length > 17 && "..."}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-x-1">
+                            {item?.human_verified && (
+                              <img
+                                src={approved}
+                                className="text-primary !h-4 !w-5"
+                                alt="Approved"
+                              />
+                            )}
+                            {multiSelect && (
+                              <Checkbox
+                                className="mr-2"
+                                checked={itemsArray.includes(item.value)}
+                                onCheckedChange={(checked) => {
+                                  setItemsArray((prev) => {
+                                    const updatedArray = checked
+                                      ? [...prev, item.value]
+                                      : prev.filter((i) => i !== item.value);
+                                    onChange(updatedArray, item);
+                                    return updatedArray;
+                                  });
+                                }}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </CommandItem>
+                    </div>
+                  );
+                }}
+              </List>
             </CommandGroup>
           </CommandList>
         </Command>
