@@ -67,6 +67,7 @@ const MetadataTable = ({
     savingBranch: false
   });
   const {
+    updatedFields,
     setUpdatedFields,
     vendorChanged,
     setVendorChanged,
@@ -262,7 +263,8 @@ const MetadataTable = ({
   }, [vendorTypesAndCategories]);
   let action_controls =
     data?.data?.[0]?.action_controls || data?.data?.action_controls;
-
+    console.log(data?.data,"Metadata Table")
+  console.log(updatedFields,"Metadata Table Updated Fields")
   return (
     <div className="w-full -mt-3 border border-[#F0F0F0] shadow-sm p-2 rounded-md">
       <div className="grid grid-cols-3 gap-x-4">
