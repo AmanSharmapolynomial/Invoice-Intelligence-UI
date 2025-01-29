@@ -355,12 +355,12 @@ const HumanVerificationTable = ({
     setCellValue(initialValue);
     // setStopHovering(false);
   };
-
-  const handleKeyPress = (event, rowIndex, cellIndex,value) => {
-    if (event.key === "Enter") {
-      handleSaveCell(rowIndex, cellIndex,value);
+  const handleKeyPress = (event, rowIndex, cellIndex, value) => {
+    if (event.key === "Enter" && !event.ctrlKey && !event.shiftKey && !event.altKey && !event.metaKey) {
+      handleSaveCell(rowIndex, cellIndex, value);
     }
   };
+  
 
   const undoLastAction = () => {
     if (operations?.length !== 0) {
@@ -1428,6 +1428,10 @@ console.log(data,"Human Verification Table")
                                           onBlur={() =>
                                             handleSaveCell(index, i, cellValue)
                                           }
+                                          onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation()
+                                          }}
                                           onDoubleClick={(e) => {
                                             e.preventDefault();
                                           }}

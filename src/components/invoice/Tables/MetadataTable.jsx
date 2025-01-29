@@ -305,6 +305,7 @@ const MetadataTable = ({
             className={`!min-w-[300px] ${
               !invoice_type ? "!border-[#F97074]" : ""
             }`}
+
             data={vendorCategories?.slice(0, 3)}
             Value={invoice_type}
             onChange={(v) => {
@@ -515,7 +516,7 @@ const MetadataTable = ({
       </div>
       <div className="grid grid-cols-1 gap-x-4 mt-4">
         <Template title="Vendor Address" className={"col-span-2 "}>
-          <div className="flex items-center gap-x-4 pr-2 w-full">
+          <div className="flex items-center gap-x-4 pr-2 !min-w-full">
             {editBranch ? (
               <CustomInput
                 value={branch?.vendor_address}
