@@ -79,7 +79,7 @@ const BreadCrumb = ({ crumbs = [], title, showCustom = false, children }) => {
         <BreadcrumbList className="flex items-center">
           <BreadcrumbItem>
             <BreadcrumbLink asChild className="flex items-center">
-              <Link to="/home">
+              <Link to="/">
                 <img src={home} alt="" className="-mt-0.5 dark:hidden" />
                 <img
                   src={home_white}

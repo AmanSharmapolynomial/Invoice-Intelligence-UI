@@ -194,7 +194,7 @@ setFocusedIndex(sortedData.findIndex((item)=>item.value===value))
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className={`${className} p-0 dark:border-[#051C14]  !min-w-[15rem] ${showBranchAsLink||showVendorAsLink && "!min-w-[20rem]"}  mr-1 !z-50`}
+        className={`${className} p-0 dark:border-[#051C14]  min-w-[25rem] ${(showBranchAsLink||showVendorAsLink) && "!min-w-[30rem]"}  mr-1 !z-50`}
         contentClassName={`${contentClassName}  !max-w-[17rem] min-w-full`}
       >
         <Command className="dark:!border-[#051C14] px-1 py-2 dark:bg-[#051C14]  !min-w-full !z-50">
@@ -203,6 +203,12 @@ setFocusedIndex(sortedData.findIndex((item)=>item.value===value))
               placeholder={searchPlaceholder}
               className=" rounded-sm mb-1 focus:!ring-0 !outline-none focus:!outline-none"
               onInput={(e) => handleSearch(e.target.value)}
+              onKeyDown={(e) => {
+                
+                if(e.key=="Enter"){
+                  handleSelect(sortedData[0].value,sortedData[0])
+                }
+              }}
             />
           )}
           {children}
@@ -245,9 +251,9 @@ setFocusedIndex(sortedData.findIndex((item)=>item.value===value))
                               ):<div className="h-4 w-4"/>}
                             </span>
                             <span className="capitalize text-left flex items-center gap-x-2">
-                              {item?.label?.slice(0, (showBranchAsLink ||showVendorAsLink?30:14)) ||
-                                item?.value?.slice(0, (showBranchAsLink ||showVendorAsLink?25:14))}{" "}
-                              {item?.label?.length > (showBranchAsLink ||showVendorAsLink?30:14) && "..."}
+                              {item?.label?.slice(0, ((showBranchAsLink ||showVendorAsLink)?30:35)) ||
+                                item?.value?.slice(0, ((showBranchAsLink ||showVendorAsLink)?25:35))}{" "}
+                              {item?.label?.length > ((showBranchAsLink ||showVendorAsLink)?40:35) && "..."}
                             </span>
                           </div>
                           <div className="flex items-center gap-x-1 mr-0.5">

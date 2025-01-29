@@ -305,6 +305,7 @@ const MetadataTable = ({
             className={`!min-w-[300px] ${
               !invoice_type ? "!border-[#F97074]" : ""
             }`}
+
             data={vendorCategories?.slice(0, 3)}
             Value={invoice_type}
             onChange={(v) => {
