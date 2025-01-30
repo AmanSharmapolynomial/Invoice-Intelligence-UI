@@ -951,6 +951,7 @@ setShowAlreadySyncedModal(false)
               <CategoryWiseSum isLoading={isLoading} />
             )}
             <LastUpdateInfo
+            document_id={data?.data?.[0]?.document_uuid|| data?.data?.document_uuid }
               info={
                 data?.data?.latest_update_info ||
                 data?.data?.[0]?.latest_update_info
