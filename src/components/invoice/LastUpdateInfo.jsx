@@ -1,15 +1,20 @@
-import React from "react";
-import { useGetDocumentTimeLine } from "./api";
 import { Check, GitCommitHorizontal } from "lucide-react";
-import { Modal, ModalDescription } from "../ui/Modal";
-import Timeline from "./Timeline";
+import React, { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import CustomTooltip from "../ui/Custom/CustomTooltip";
+import { Modal, ModalDescription } from "../ui/Modal";
+import { useGetDocumentTimeLine } from "./api";
 
 const LastUpdateInfo = ({ info, document_id }) => {
   const [timeline, setTimeline] = React.useState([]);
   const { mutate, isPending } = useGetDocumentTimeLine();
+  const [searchParams]=useSearchParams()
+  let page_number=searchParams.get("page_number")
   const [open, setOpen] = React.useState(false);
-
+  useEffect(()=>{
+     setOpen(false)
+     setTimeline([])
+  },[page_number])
   return (
     <div
       className="w-full   border-[#F0F0F0]  rounded-md my-4 relative"
