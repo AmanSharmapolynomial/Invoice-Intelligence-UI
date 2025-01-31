@@ -6,7 +6,7 @@ import { useGetAdditionalData } from "@/components/vendor/api";
 import { invoiceDetailsTabs } from "@/constants";
 import useFilterStore from "@/store/filtersStore";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
-import { useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import { useGetCombinedTable, useGetDocumentMetadata } from "../api";
 import CombinedTable from "./CombinedTable";
 import MetadataTable from "./MetadataTable";
@@ -30,12 +30,14 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
     useGetAdditionalData();
 
   const { filters } = useFilterStore();
+  let { pathname } = useLocation();
   let page = searchParams.get("page_number") || 1;
   let vendor_id = searchParams.get("vendor") || "";
   let document_uuid = searchParams.get("document_uuid") || "";
   let layout = searchParams.get("layout") || null;
   let assigned_to = searchParams.get("assigned_to");
-  let auto_accepted_by_vda=searchParams.get("auto_accepted_by_vda")||"all"
+  let auto_accepted_by_vda = searchParams.get("auto_accepted_by_vda") || "all";
+  let from_view=searchParams.get("from_view")||""
   let payload = {
     page: page,
     page_size: filters?.page_size,
@@ -50,11 +52,14 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
     sort_order: filters?.sort_order,
     restaurant: filters?.restaurant,
     human_verified: filters?.human_verified,
-    auto_accepted_by_vda:auto_accepted_by_vda,
+    auto_accepted_by_vda: auto_accepted_by_vda,
     vendor_id,
     document_uuid,
     assigned_to,
-    review_later: filters?.review_later || "false"
+    review_later: filters?.review_later || "false",
+    from_view: from_view?.includes("not-supported")
+      ? "not-supported-documents"
+      : ""
   };
 
   const { data, isLoading, isPending, isFetched } =
