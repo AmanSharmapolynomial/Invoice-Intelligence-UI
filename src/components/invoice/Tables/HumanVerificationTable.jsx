@@ -1293,10 +1293,10 @@ console.log(data,"Human Verification Table")
                                 triggerClassName={
                                   "!max-w-full !h-[2.25rem] !min-w-[10.5rem]  "
                                 }
-                                data={headerNamesFormatter(
+                                data={[...(headerNamesFormatter(
                                   additionalData?.data
                                     ?.processed_table_header_candidates
-                                )?.filter((col)=>!existing_column_names?.includes(col?.label?.toLowerCase()))}
+                                )?.filter((col)=>!existing_column_names?.includes(col?.label?.toLowerCase()))),{label:"NA",value:"NA"}]}
                                 onChange={(c, item) => {
                                   handleDropdownChange(column_uuid, c);
                                 }}

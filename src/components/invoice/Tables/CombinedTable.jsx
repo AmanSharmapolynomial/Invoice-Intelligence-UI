@@ -248,7 +248,7 @@ const CombinedTable = ({
                           triggerClassName={
                             "!max-w-[10rem] !relative  !h-[2.25rem] !min-w-[9.5rem]  "
                           }
-                          data={headerNamesFormatter(
+                          data={[...(headerNamesFormatter(
                             additionalData?.data
                               ?.processed_table_header_candidates
                           )?.filter(
@@ -257,7 +257,7 @@ const CombinedTable = ({
                                 existingColumn_names?.includes(c?.label) &&
                                 c.label !== column_name
                               )
-                          )}
+                          )),{label:"NA",value:"NA"}]}
                           onChange={(c, item) => {
                             handleDropdownChange(column_uuid, c);
                           }}
