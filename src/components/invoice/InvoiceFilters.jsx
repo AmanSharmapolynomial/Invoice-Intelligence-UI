@@ -74,7 +74,7 @@ const InvoiceFilters = () => {
       // rerun_status: "all",
       detected: "all",
       auto_accepted: "all",
-      auto_accepted_by_vda:"all"
+      auto_accepted_by_vda:""
     };
 
     setFilters(defaultFilters);

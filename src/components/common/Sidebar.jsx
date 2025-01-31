@@ -7,6 +7,8 @@ import review_later_white from "@/assets/image/review_later_white.svg";
 import review_later_black from "@/assets/image/review_later_black.svg";
 import all_invoices_black from "@/assets/image/all_invoices_black.svg";
 import all_invoices_white from "@/assets/image/all_invoices_white.svg";
+import not_supported_white from "@/assets/image/not_supported_white.svg";
+import not_supported_black from "@/assets/image/not_supported_black.svg";
 import my_tasks_white from "@/assets/image/check_book_white.svg";
 import my_tasks_black from "@/assets/image/check_book_black.svg";
 import book_user_white from "@/assets/image/book_user_white.svg";
@@ -41,6 +43,13 @@ const Sidebar = () => {
       text: "Review Later Invoices",
       image: theme === "light" ? review_later_black : review_later_white,
       hoverImage: review_later_white
+    },
+    {
+      path: "/not-supported-documents",
+      icon: null,
+      text: "Not Supported Invoices",
+      image: theme === "light" ? not_supported_black : not_supported_white,
+      hoverImage: not_supported_white
     },
     {
       path: null,

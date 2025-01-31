@@ -305,7 +305,7 @@ const InvoiceTable = ({
                               ? "review_later"
                               : pathname?.includes("my-tasks")
                               ? "my-tasks"
-                              : "invoice_listing"
+                              : pathname?.includes("not-supported")?"not-supported-documents":"invoice_listing"
                           }`
                         );
                       }}
