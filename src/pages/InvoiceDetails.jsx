@@ -441,6 +441,7 @@ const InvoiceDetails = () => {
   // let document_uuid = searchParams.get("document_uuid") || "";
   let layout = searchParams.get("layout") || null;
   let assigned_to = searchParams.get("assigned_to");
+  
   let payload = {
     page: page,
     page_size: filters?.page_size,
@@ -459,7 +460,8 @@ const InvoiceDetails = () => {
     document_uuid,
     assigned_to,
     auto_accepted_by_vda:filters?.auto_accepted_by_vda,
-    review_later: filters?.review_later || "false"
+    review_later: filters?.review_later || "false",
+    from_view:from_view?.includes("not-supported")?"not-supported-documents":""
   };
 
   useEffect(()=>{
@@ -951,6 +953,7 @@ setShowAlreadySyncedModal(false)
               <CategoryWiseSum isLoading={isLoading} />
             )}
             <LastUpdateInfo
+            document_id={data?.data?.[0]?.document_uuid|| data?.data?.document_uuid }
               info={
                 data?.data?.latest_update_info ||
                 data?.data?.[0]?.latest_update_info
