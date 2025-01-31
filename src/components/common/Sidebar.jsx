@@ -47,7 +47,7 @@ const Sidebar = () => {
     {
       path: "/not-supported-documents",
       icon: null,
-      text: "Not Supported Invoices",
+      text: "Not Supported Documents",
       image: theme === "light" ? not_supported_black : not_supported_white,
       hoverImage: not_supported_white
     },
