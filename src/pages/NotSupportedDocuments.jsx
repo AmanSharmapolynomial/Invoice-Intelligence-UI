@@ -149,11 +149,11 @@ const NotSupportedDocuments = () => {
         <Navbar />
         <Layout>
           <BreadCrumb
-            title={"Not Supported Invoices"}
+            title={"Not Supported Documents"}
             crumbs={[
               {
                 path: null,
-                label: "Not Supported Invoices"
+                label: "Not Supported Documents"
               }
             ]}
           />
