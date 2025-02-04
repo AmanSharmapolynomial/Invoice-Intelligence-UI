@@ -417,7 +417,7 @@ export const PdfViewer = ({
       formData.append("image", blob, "selected_area.png");
       mutate(formData, {
         onSuccess: (data) => {
-          setText(data?.data?.text?.split("\n")?.join(""));
+          setText(data?.data?.text?.split("\n")?.join(" "));
         }
       });
       setIsModalOpen(true);
@@ -625,7 +625,6 @@ export const PdfViewer = ({
       });
     }
   };
- 
 
   useEffect(() => {
     setUpdatedFields([]);
@@ -644,7 +643,6 @@ export const PdfViewer = ({
   }, [page]);
   return (
     <div className="w-full  max-h-[42rem] overflow-auto  hide-scrollbar">
-     
       {loadinMetadata && <Skeleton className={"w-[50rem]  h-[60rem]"} />}
       {(pdfUrls[currentPdfIndex]?.document_source == "azure_blob" ||
         pdfUrls[currentPdfIndex]?.document_source == "clickbacon") && (
@@ -922,15 +920,15 @@ export const PdfViewer = ({
       ) : (
         <>
           <iframe
-        title="pdf"
-        src={iframeUrl}
-        onLoad={handleLoad}
-        onError={handleError}
-        width="100%"
-        height="570"
-        allow="autoplay"
-        style={{ display: isLoading ? "none" : "block" }} // Hide iframe while loading
-      />
+            title="pdf"
+            src={iframeUrl}
+            onLoad={handleLoad}
+            onError={handleError}
+            width="100%"
+            height="570"
+            allow="autoplay"
+            style={{ display: isLoading ? "none" : "block" }} // Hide iframe while loading
+          />
           {isLoading || !loaded ? (
             <div
               style={{

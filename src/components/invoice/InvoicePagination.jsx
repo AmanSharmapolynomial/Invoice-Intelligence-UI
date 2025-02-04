@@ -6,6 +6,7 @@ import { invoiceDetailStore } from "@/store/invoiceDetailStore";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Input } from "../ui/input";
+import { queryClient } from "@/lib/utils";
 const InvoicePagination = ({ totalPages, setCurrentTab }) => {
   const [searchParams] = useSearchParams();
   const updateParams = useUpdateParams();
@@ -37,11 +38,15 @@ const InvoicePagination = ({ totalPages, setCurrentTab }) => {
             setPageIndex((prev) => prev - 1);
             setCurrentTab("metadata");
             clearStore();
+            queryClient.invalidateQueries({queryKey:['combined-table']})
+            queryClient.invalidateQueries({queryKey:['document-metadata']})
           } else if (e.key === "ArrowRight" && pageIndex < totalPages) {
             updateParams({ page_number: Number(pageIndex) + 1 });
             setPageIndex((prev) => Number(prev) + 1);
             setCurrentTab("metadata");
             clearStore();
+            queryClient.invalidateQueries({queryKey:['combined-table']})
+            queryClient.invalidateQueries({queryKey:['document-metadata']})
           }
         }
       };

@@ -525,28 +525,10 @@ const MetadataTable = ({
                   !newBranch ? "!border-[#F97074]" : ""
                 } !max-w-full`}
                 onChange={(v) => {
-                  if (branchChanged || vendorChanged) {
-                    if (branchChanged) {
-                      toast.error(
-                        "Please Update the Vendor Address before proceeding for other changes.",
-                        {
-                          icon: "⚠️"
-                        }
-                      );
-                      return;
-                    } else {
-                      toast.error(
-                        "Please Update the Vendor Name before proceeding for other changes.",
-                        {
-                          icon: "⚠️"
-                        }
-                      );
-                      return;
-                    }
-                  } else {
+                
                     setNewBranch(v);
                     setBranchChanged(true)
-                  }
+                  
                 }}
               />
             ) : (
