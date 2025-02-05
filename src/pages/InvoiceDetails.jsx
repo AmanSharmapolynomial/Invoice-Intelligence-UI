@@ -169,6 +169,7 @@ const InvoiceDetails = () => {
           onSuccess: () => {
             setLoadingState({ ...loadingState, saving: false });
             queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
+            queryClient.invalidateQueries({ queryKey: ["duplicate-invoices"] });
             clearUpdatedFields();
             setBranchChanged(false);
             setVendorChanged(false);
@@ -193,6 +194,7 @@ const InvoiceDetails = () => {
               queryClient.invalidateQueries({
                 queryKey: ["document-metadata"]
               });
+              queryClient.invalidateQueries({ queryKey: ["duplicate-invoices"] });
               clearUpdatedFields();
               setBranchChanged(false);
               setVendorChanged(false);
@@ -212,6 +214,7 @@ const InvoiceDetails = () => {
               setOperations([]);
 
               setHistory([]);
+              queryClient.invalidateQueries({ queryKey: ["duplicate-invoices"] });
               queryClient.invalidateQueries({ queryKey: ["combined-table"] });
               queryClient.invalidateQueries({ queryKey: ["additional-data"] });
               // queryClient.invalidateQueries({ queryKey: ["document-metadata"] });

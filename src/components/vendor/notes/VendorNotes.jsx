@@ -135,6 +135,21 @@ const VendorNotes = ({ data = [], vendor_id, isLoading }) => {
                   }
                 }}
                 placeholder="Start Typing..."
+                onKeyDown={(e)=>e.key=="Enter"&&  mutate(
+                  { vendor_id, note },
+                  {
+                    onSuccess: (d) => {
+                      queryClient.invalidateQueries({
+                        queryKey: ["vendor-notes", vendor_id]
+                      });
+                      toast.success(d?.message), setNote("");
+                    },
+                    onError: (d) => {
+                      toast.error(d?.message);
+                      setNote("");
+                    }
+                  }
+                )}
                 className="min-w- max-w-96 border border-b-0 placeholder:!text-[#666668] placeholder:!font-poppins border-gray-200 border-none focus:!ring-0 focus:!outline-none font-poppins font-normal text-[0.9rem] text-[#666668]"
               />
               <Button
