@@ -147,6 +147,14 @@ const DocumentNotes = ({ data = [], document_uuid, isLoading }) => {
                     setNote(e.target.value);
                   }
                 }}
+                onKeyDown={(e)=>e.key=="Enter"&&  mutate(
+                  { document_uuid, note },
+                  {
+                    onSuccess: () => {
+                      setNote("");
+                    }
+                  }
+                )}
                 placeholder="Start Typing..."
                 className="min-w- max-w-96 border border-b-0 placeholder:!text-[#666668] placeholder:!font-poppins border-gray-200 border-none focus:!ring-0 focus:!outline-none font-poppins font-normal text-[0.9rem] text-[#666668]"
               />

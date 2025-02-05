@@ -21,6 +21,8 @@ import {
   ArrowUpFromLine,
   ArrowUpToLine,
   CircleAlert,
+  Globe,
+  Network,
   Trash2
 } from "lucide-react";
 import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
@@ -31,6 +33,7 @@ import CustomInput from "@/components/ui/Custom/CustomInput";
 import { useAutoCalculate } from "../api";
 import { Label } from "@/components/ui/label";
 import CustomToolTip from "@/components/ui/CustomToolTip";
+import { Link } from "react-router-dom";
 
 const HumanVerificationTable = ({
   data,
@@ -1393,12 +1396,6 @@ console.log(data,"Human Verification Table")
                                       {cell?.column_uuid ===
                                       categoryColumnId ? (
                                         <div
-                                        // onMouseLeave={() =>
-                                        //   setEditMode({
-                                        //     rowIndex: -1,
-                                        //     cellIndex: -1
-                                        //   })
-                                        // }
                                         >
                                           <CustomDropDown
                                             Value={
@@ -1526,6 +1523,9 @@ console.log(data,"Human Verification Table")
                                     src={warning_mark}
                                   />
                                 ))}
+                                {/* <Link target="_blank" to={`https://www.google.com/search?q=${row?.cells?.[2]?.text}`}>
+                                  <Globe/>
+                                </Link> */}
                             </CustomTooltip>
 
                             {viewDeleteColumn && (
@@ -1556,6 +1556,7 @@ console.log(data,"Human Verification Table")
                             )}
                           </TableCell>
                         )}
+                      
                       </div>
                     );
                   })}
