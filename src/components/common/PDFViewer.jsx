@@ -148,6 +148,7 @@ export const PdfViewer = ({
 
   const onRenderSuccess = (page) => {
     const { originalWidth, originalHeight } = page;
+    
     setPageDimensions({
       width: originalWidth,
       height: originalHeight
@@ -240,7 +241,12 @@ export const PdfViewer = ({
     const viewerElement = document.getElementById("react-pdf__Wrapper");
     if (!bb?.box?.polygon || bb?.box?.polygon?.length !== 4) {
       if (!lockZoomAndScroll && pdfScale === 1.0) {
-        setPdfScale(1);
+       if(pageDimensions?.width>1000){
+        setPdfScale(0.2);
+       }else{
+        setPdfScale(1.0);
+        
+       }
         viewerElement?.scrollTo({ top: 0, left: 0, behavior: "smooth" });
       }
       return;
@@ -288,6 +294,7 @@ export const PdfViewer = ({
 
     // Scroll to the calculated position with smooth behavior
     lockZoomAndScroll && setPdfScale(pdfScale);
+   
     viewerElement.scrollTo({
       left: scrollLeft,
       top: scrollTop,
@@ -307,9 +314,7 @@ export const PdfViewer = ({
     setLockZoomAndScroll(false);
     setPdfScale(1.0);
   }, [page]);
-  useEffect(() => {
-    setPdfScale(1.0);
-  }, []);
+
 
   useEffect(() => {
     if (pageDimensions.width && pageDimensions.height) {
