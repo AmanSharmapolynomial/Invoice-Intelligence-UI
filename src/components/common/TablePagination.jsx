@@ -12,6 +12,7 @@ import {
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { Button } from "../ui/button";
 
 const TablePagination = ({
   totalPages = null,
@@ -89,15 +90,27 @@ const TablePagination = ({
           className="cursor-pointer"
           onClick={handleNavigateStart}
         >
+           <Button className="border-none p-0 bg-transparent hover:bg-transparent ring-0 outline-none shadow-none">
+
           <img src={navigate_start} alt="" className="h-[0.8rem]" />
+           </Button>
         </PaginationItem>
         <PaginationItem className="cursor-pointer" onClick={handlePreviousPage}>
+        <Button className="border-none p-0 bg-transparent hover:bg-transparent ring-0 outline-none shadow-none">
           <img src={navigate_back} alt="" className="h-6 w-6" />
+          </Button>
         </PaginationItem>
         <PaginationItem className="flex justify-center items-center h-10 z-20">
           <Input
             value={pageIndex}
             type="number"
+            onKeyDown={(e) => {
+              if (e.key == "Enter") {
+                let newPageIndex = Math.max(1, Math.min(pageIndex, totalPages));
+                updateParams({ [`${Key}`]: newPageIndex });
+                setPageIndex(newPageIndex);
+              }
+            }}
             onChange={(e) => setPageIndex(e.target.value)}
             onBlur={() => {
               let newPageIndex = Math.max(1, Math.min(pageIndex, totalPages));
@@ -115,10 +128,14 @@ const TablePagination = ({
           />
         </PaginationItem>
         <PaginationItem className="cursor-pointer" onClick={handleNextPage}>
-          <img src={navigate_next} alt="" className="h-6 w-6" />
+          <Button className="border-none p-0 bg-transparent hover:bg-transparent ring-0 outline-none shadow-none">
+            <img src={navigate_next} alt="" className="h-6 w-6" />
+          </Button>
         </PaginationItem>
         <PaginationItem className="cursor-pointer" onClick={handleNavigateEnd}>
+        <Button className="border-none p-0 bg-transparent hover:bg-transparent ring-0 outline-none shadow-none">
           <img src={navigate_end} alt="" className="h-[0.8rem]" />
+          </Button>
         </PaginationItem>
       </PaginationContent>
     </Pagination>

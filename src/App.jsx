@@ -80,8 +80,9 @@ function App() {
             className={"cursor-pointer"}
             title="Check Item Master"
             onClick={() => {
-              setOpen(true);
-              setIsItemMaster(true);
+              // setOpen(true);
+              // setIsItemMaster(true);
+              navigate(`/item-master-vendors`)
             }}
             content="Speed up item master verification for seamless operations."
           />

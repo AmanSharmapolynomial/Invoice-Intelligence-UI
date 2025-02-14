@@ -1,35 +1,29 @@
-import Header from "@/components/common/Header";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
-import { PdfViewer } from "@/components/common/PDFViewer";
-import TablePagination from "@/components/common/TablePagination";
+import Sidebar from "@/components/common/Sidebar";
 import { useGetItemMasterPdfs } from "@/components/invoice/api";
-import { Button } from "@/components/ui/button";
+import BreadCrumb from "@/components/ui/Custom/BreadCrumb";
+import { useGetVendorItemMaster } from "@/components/vendor/api";
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams
+} from "react-router-dom";
+import approved from "@/assets/image/approved.svg";
+import FIVPdfViewer from "@/components/vendor/vendorItemMaster/FIVPdfViewer";
 import ProgressBar from "@/components/ui/Custom/ProgressBar";
-import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup
-} from "@/components/ui/resizable";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from "@/components/ui/tooltip";
-import {
-  useGetVendorItemMaster
-} from "@/components/vendor/api";
 import VendorItemMasterTable from "@/components/vendor/vendorItemMaster/VendorItemMasterTable";
-import { useParams, useSearchParams } from "react-router-dom";
-
+import TablePagination from "@/components/common/TablePagination";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 const FastItemVerification = () => {
   const { vendor_id } = useParams();
   const [searchParams] = useSearchParams();
   let document_uuid = searchParams.get("document_uuid") || "";
   let page = searchParams.get("page") || 1;
+  let vendor_name = searchParams.get("vendor_name");
+  let human_verified = searchParams.get("human_verified");
   const { data, isLoading } = useGetVendorItemMaster({
     page: 1,
     page_size: 1,
@@ -48,59 +42,59 @@ const FastItemVerification = () => {
 
   const { data: pdfsData, isLoading: loadingPdfs } =
     useGetItemMasterPdfs(item_uuid);
-
+  const navigate = useNavigate();
   return (
-    <>
-      <Navbar />
-      <Layout className={"overflow-auto mx-10 mt-8 "}>
-       
-           <div className="flex  items-center justify-between">
-           <ProgressBar
+    <div className="h-screen flex w- overflow-x-hidden" id="maindiv">
+      <Sidebar />
+      <div className="w-full">
+        <Navbar />
+        <Layout>
+          <BreadCrumb
+            showCustom={true}
+            title={`Fast Item Verification ${
+              vendor_name && "| "
+            } ${vendor_name}`}
+            crumbs={[{ path: null, label: "Fast Item Verification" }]}
+          >
+            {human_verified && (
+              <img src={approved} alt="" className="h-4 w-4" />
+            )}
+          </BreadCrumb>
+          <div className="w-full flex justify-end items-center ">
+            <ProgressBar
               title={"Verified Items"}
-              currentValue={data?.data?.verified_item_count}
+              currentValue={data?.data?.verified_item_count }
               totalValue={data?.data?.total_item_count}
             />
-            <Button className="!h-[2.25rem] rounded-sm !font-thin w-[5.5rem] font-poppins text-xs">
-              Save
-            </Button>
-           </div>
-        
-         
-        <ResizablePanelGroup direction="vertical" className={"min-h-screen "}>
-          <ResizablePanel defaultSize={50}>
-            <PdfViewer
-              showInvoiceButton
-              pdfList={pdfsData?.data}
-              isLoading={loadingPdfs}
-              className="h-[400px]"
-            >
-              <p className="flex items-center ml-2">
-                Bounding Box:{" "}
-                {is_bounding_box ? (
-                  <span className="h-5 w-5 rounded-full bg-primary ml-2" />
-                ) : (
-                  <span className="h-5 w-5 rounded-full bg-red-500 ml-2" />
-                )}{" "}
-              </p>
-            </PdfViewer>
-          </ResizablePanel>
-          <ResizableHandle className={"w-1"} withHandle />
-          <ResizablePanel className="!h-full !w-full flex flex-col">
-            {" "}
+          </div>
+          {isLoading ? (
+            <div className="md:px-44  flex items-center justify-center">
+              <Skeleton className={" w-full h-[26vh]"} />
+            </div>
+          ) : (
+            <div className="md:px-44  flex items-center justify-center">
+              <FIVPdfViewer
+                document_source={pdfsData?.data[0]?.document_source}
+                document_link={pdfsData?.data[0]?.document_link}
+                isLoading={loadingPdfs}
+                lineItem={pdfsData?.data?.[0]?.line_item}
+              />
+            </div>
+          )}
+          <div className="flex flex-col gap-y-2 mt-4 px-16 ">
             <VendorItemMasterTable
-              isLoading={isLoading}
               data={data}
+              pdfsData={pdfsData}
+              isLoading={isLoading}
               extraHeaders={["Approved", "Category Review", "Actions"]}
             />
-            <TablePagination
-              totalPages={data?.total_pages}
-              isFinalPage={data?.is_final_page}
-            />
-          </ResizablePanel>
-        </ResizablePanelGroup>
+         
+          </div>
 
-      </Layout>
-    </>
+      
+        </Layout>
+      </div>
+    </div>
   );
 };
 

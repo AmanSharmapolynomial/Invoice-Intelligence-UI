@@ -57,7 +57,7 @@ export const useProcessInvoice = () => {
 export const useGetItemMasterPdfs = (item_uuid) => {
   return useQuery({
     queryKey: ["get-item-master-pdf", item_uuid],
-    queryFn: () => getMasterItemPdfs(item_uuid)
+    queryFn: () => item_uuid&& getMasterItemPdfs(item_uuid)
   });
 };
 

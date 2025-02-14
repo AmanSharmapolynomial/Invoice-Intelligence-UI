@@ -52,7 +52,7 @@ export const createVendorMutation = () => {
 export const useGetVendorNames = (non_summary) => {
   return useQuery({
     queryKey: ["vendor-names-list"],
-    queryFn: ()=>getVendorNamesList(non_summary)
+    queryFn: () => getVendorNamesList(non_summary)
   });
 };
 
@@ -338,7 +338,7 @@ export const useUpdateVendorItemMaster = () => {
     },
     onError: (data) => {
       toast.error(data?.message);
-      return data
+      return data;
     }
   });
 };
@@ -363,6 +363,22 @@ export const useMergeVendorItemMaster = () => {
     },
     onError: (data) => {
       toast.error(data?.message);
+    }
+  });
+};
+
+export const useGetItemMasterVendors = () => {
+  return useQuery({
+    queryKey: ["item-master-vendors"],
+    queryFn: async () => {
+      try {
+        let response = await axiosInstance.get(
+          `/api/item-master/vendors-item-master-overview/`
+        );
+        return response?.data;
+      } catch (error) {
+        return error?.data?.message;
+      }
     }
   });
 };

@@ -16,17 +16,30 @@ import home from "@/assets/image/home.svg";
 import home_white from "@/assets/image/home_white.svg";
 import { ArrowLeft, MoveLeft } from "lucide-react";
 import useFilterStore from "@/store/filtersStore";
+import { includes } from "lodash";
 
-const BreadCrumb = ({ crumbs = [], title, showCustom = false, children }) => {
+const BreadCrumb = ({
+  crumbs = [],
+  title,
+  showCustom = false,
+  children,
+  hideTitle = false
+}) => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [searchParams] = useSearchParams();
   let from_view = searchParams.get("from_view");
   const { filters } = useFilterStore();
+
   const navigator = () => {
     if (pathname == "/home") {
       navigate("/");
-    } else if (pathname == "/invoice-details/") {
+    }else if (from_view=="item-master-vendors") {
+    
+      navigate("/item-master-vendors");
+    }
+    
+    else if (pathname == "/invoice-details/") {
       if (from_view == "review_later") {
         const newParams = new URLSearchParams();
 
@@ -55,7 +68,7 @@ const BreadCrumb = ({ crumbs = [], title, showCustom = false, children }) => {
         });
         navigate(`/home` + `?${newParams?.toString()}`);
       }
-    } else {
+    }  else {
       window.history.back();
     }
   };
@@ -71,7 +84,7 @@ const BreadCrumb = ({ crumbs = [], title, showCustom = false, children }) => {
         />{" "}
         <span className="!text-xl !font-semibold font-poppins text-[#121212] dark:!text-[#FFFFFF] capitalize">
           {" "}
-          {!showCustom && (title || crumbs?.[crumbs?.length - 1]?.["label"])}
+          {!hideTitle && (title || crumbs?.[crumbs?.length - 1]?.["label"])}
         </span>
         {showCustom && children}
       </p>
