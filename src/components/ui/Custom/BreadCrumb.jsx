@@ -34,12 +34,13 @@ const BreadCrumb = ({
   const navigator = () => {
     if (pathname == "/home") {
       navigate("/");
-    }else if (from_view=="item-master-vendors") {
+    }else if (pathname=="/item-master-vendors"){
+      navigate("/")
+    } 
     
+    else if (from_view == "item-master-vendors") {
       navigate("/item-master-vendors");
-    }
-    
-    else if (pathname == "/invoice-details/") {
+    } else if (pathname == "/invoice-details/") {
       if (from_view == "review_later") {
         const newParams = new URLSearchParams();
 
@@ -68,7 +69,7 @@ const BreadCrumb = ({
         });
         navigate(`/home` + `?${newParams?.toString()}`);
       }
-    }  else {
+    } else {
       window.history.back();
     }
   };

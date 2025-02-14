@@ -68,33 +68,41 @@ const VendorsTable = ({ columns, data, isLoading }) => {
               </>
             ) : (
               <div className="w-full">
-                {data?.map((row, rowIndex) => (
-                  <TableRow
-                    onClick={() =>
-                      navigate(
-                        `/fast-item-verification/${row?.vendor?.vendor_id}?vendor_name=${row?.vendor?.vendor_name}&human_verified=${row?.vendor?.human_verified}&from_view=item-master-vendors`
-                      )
-                    }
-                    key={rowIndex}
-                    className={`grid grid-cols-${columns?.length} w-full items-center cursor-pointer text-xs sm:text-sm`}
-                  >
-                    {columns.map((column) => (
-                      <TableCell
-                        key={column.key}
-                        className={`border-r h-full font-poppins px-[0.8rem] capitalize text-sm font-normal `}
-                      >
-                       <div className="flex gap-x-4 ">
-                       {column?.key == "vendor[recent_addition_date]"
-                          ? formatDateTimeToReadable(getValue(row, column?.key))||"-"
-                          : getValue(row, column?.key)||"-"}
-                        {column?.key=="vendor[vendor_name]"&&row?.vendor?.human_verified && (
-                          <img src={approved} alt=""></img>
-                        )}
-                       </div>
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))}
+                {data
+                  ?.sort(
+                    (a, b) =>
+                      b?.vendor?.human_verified - a?.vendor?.human_verified
+                  )
+                  ?.map((row, rowIndex) => (
+                    <TableRow
+                      onClick={() =>
+                        navigate(
+                          `/fast-item-verification/${row?.vendor?.vendor_id}?vendor_name=${row?.vendor?.vendor_name}&human_verified=${row?.vendor?.human_verified}&from_view=item-master-vendors`
+                        )
+                      }
+                      key={rowIndex}
+                      className={`grid grid-cols-${columns?.length} w-full items-center cursor-pointer text-xs sm:text-sm`}
+                    >
+                      {columns.map((column) => (
+                        <TableCell
+                          key={column.key}
+                          className={`border-r h-full font-poppins px-[0.8rem] capitalize text-sm font-normal `}
+                        >
+                          <div className="flex gap-x-4 ">
+                            {column?.key == "vendor[recent_addition_date]"
+                              ? formatDateTimeToReadable(
+                                  getValue(row, column?.key)
+                                ) || "-"
+                              : getValue(row, column?.key) || "-"}
+                            {column?.key == "vendor[vendor_name]" &&
+                              row?.vendor?.human_verified && (
+                                <img src={approved} alt=""></img>
+                              )}
+                          </div>
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
               </div>
             )}
           </TableBody>
