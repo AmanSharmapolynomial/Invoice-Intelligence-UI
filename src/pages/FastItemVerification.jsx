@@ -34,7 +34,8 @@ const FastItemVerification = () => {
     verified_by: "",
     item_code: "",
     item_description: "",
-    page: page
+    page: page,
+    is_bounding_box_present: true
   });
 
   const item_uuid = data?.data?.items[0]?.item_uuid;

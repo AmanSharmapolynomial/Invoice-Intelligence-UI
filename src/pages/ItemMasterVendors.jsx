@@ -32,6 +32,8 @@ const ItemMasterVendors = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedApproval, setSelectedApproval] = useState(null);
   const [selectedPercentage, setSelectedPercentage] = useState(null);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
+
   const getValue = (obj, key) => {
     return key.includes("[")
       ? key
@@ -40,6 +42,7 @@ const ItemMasterVendors = () => {
           .reduce((o, k) => (o ? o[k] : ""), obj)
       : obj[key];
   };
+
   const filteredData = useMemo(() => {
     if (!data) return [];
 
@@ -66,49 +69,60 @@ const ItemMasterVendors = () => {
     });
   }, [data, searchQuery, selectedApproval, selectedPercentage]);
 
+  const sortedData = useMemo(() => {
+    if (!filteredData || !sortConfig.key) return filteredData;
+
+    return [...filteredData].sort((a, b) => {
+      const aValue = getValue(a, sortConfig.key) || "";
+      const bValue = getValue(b, sortConfig.key) || "";
+
+      if (sortConfig.direction === "asc") {
+        return aValue > bValue ? 1 : -1;
+      } else if (sortConfig.direction === "desc") {
+        return aValue < bValue ? 1 : -1;
+      }
+      return 0;
+    });
+  }, [filteredData, sortConfig]);
+
   return (
-    <div className="h-screen flex w-full" id="maindiv">
+    <div className="h-screen flex w-full">
       <Sidebar />
       <div className="w-full">
         <Navbar />
         <Layout>
           <BreadCrumb
-            title={"Vendors"}
+            title="Vendors"
             crumbs={[{ path: null, label: "Vendors" }]}
           />
-
           <div className="flex items-center gap-x-2 justify-end">
             <div className="flex items-center gap-x-2">
-              {/* Approval Dropdown */}
               <CustomDropDown
                 data={approvalOptions}
                 Value={selectedApproval}
                 onChange={setSelectedApproval}
                 showSearch={false}
-                className={"!min-w-[12rem]"}
-                commandGroupClassName="!min-h-[0rem] !max-h-[8rem]"
-                contentClassName={"!w-[10rem]"}
+                className="!min-w-[12rem] "
+                     commandGroupClassName="!min-h-[0rem] !max-h-[8rem]"
                 placeholder="Vendor Approval"
               />
 
-              {/* Percentage Approval Dropdown */}
               <CustomDropDown
                 data={percentageOptions}
                 Value={selectedPercentage}
-                className={"!min-w-[12rem]"}
                 onChange={setSelectedPercentage}
-                 commandGroupClassName="!min-h-[0rem] !max-h-[8rem]"
+                       commandGroupClassName="!min-h-[0rem] !max-h-[8rem]"
                 showSearch={false}
+                className="!min-w-[12rem]"
                 placeholder="Vendor Approval Percentage"
               />
 
-              {/* Search Input */}
               <CustomInput
-                showIcon={true}
+                showIcon
                 variant="search"
                 placeholder="Search Vendors"
                 value={searchQuery}
-                onChange={(value) => setSearchQuery(value)}
+                onChange={setSearchQuery}
                 className="min-w-72 max-w-96 border border-gray-200"
               />
             </div>
@@ -116,8 +130,10 @@ const ItemMasterVendors = () => {
 
           <VendorsTable
             columns={columns}
-            data={filteredData}
+            data={sortedData}
             isLoading={isLoading}
+            handleSort={setSortConfig}
+            sortConfig={sortConfig}
           />
         </Layout>
       </div>

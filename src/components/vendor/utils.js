@@ -94,9 +94,9 @@ export const getVendorItemMaster = async (payload) => {
     item_description,
     page,
     document_uuid,
-    page_size
+    page_size,is_bounding_box_present
   } = payload;
-  const apiUrl = `/api/item-master/vendor/${vendor_id}/?page=${page}&human_verified=${human_verified}&category_review_required=${category_review_required}&verified_by=${verified_by}&item_code=${item_code}&item_description=${item_description}&document_uuid=${document_uuid}&page_size=${page_size}`;
+  const apiUrl = `/api/item-master/vendor/${vendor_id}/?page=${page}&human_verified=${human_verified}&category_review_required=${category_review_required}&verified_by=${verified_by}&item_code=${item_code}&item_description=${item_description}&document_uuid=${document_uuid}&page_size=${page_size}&is_bounding_box_present=${is_bounding_box_present}`;
   const response = await axiosInstance.get(apiUrl);
   return response;
 };
