@@ -1078,7 +1078,6 @@ const HumanVerificationTable = ({
   };
 
   const existing_column_names=data?.data?.processed_table?.columns?.filter((c)=>c?.selected_column)?.map(({bounding_box,column_order,selected_column,column_uuid,...rest})=>rest?.column_name?.toLowerCase());
-console.log(data,"Human Verification Table")
 
   return (
     <>

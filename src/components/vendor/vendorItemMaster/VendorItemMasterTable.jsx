@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import CustomDropDown from "@/components/ui/CustomDropDown";
 import CustomInput from "@/components/ui/Custom/CustomInput";
+import unApproved from "@/assets/image/unapproved.svg";
+import approved from "@/assets/image/approved.svg";
 import { Modal, ModalDescription } from "@/components/ui/Modal";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -28,6 +30,8 @@ import {
 import { vendorStore } from "../store/vendorStore";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { Switch } from "@/components/ui/switch";
+import { Link, useSearchParams } from "react-router-dom";
+import TablePagination from "@/components/common/TablePagination";
 
 const VendorItemMasterTable = ({
   data = [],
@@ -37,20 +41,28 @@ const VendorItemMasterTable = ({
   setViewIconIndex,
   viewIconIndex,
   extraHeaders,
-  setItem_uuid
+  setItem_uuid,
+  pdfsData
 }) => {
   const { masterVendor, setMasterVendor, checkedVendors, setCheckedVendors } =
     vendorStore();
   const [currentDesc, setCurrentDesc] = useState(null);
   const [saveError, setSaveError] = useState(false);
   const [editableRow, setEditableRow] = useState(null);
+  const [loadingState, setLoadingState] = useState({
+    nextAndSaving: false,
+    nextAndApproving: false
+  });
   const [updateHumanVerified, setUpdateHumanVerified] = useState({
     status: null,
     index: -1,
-    key:null
+    key: null
   });
   const [rowUUID, setRowUUID] = useState(null);
+
   const updateParams = useUpdateParams();
+  const [searchParams] = useSearchParams();
+  let page = searchParams.get("page");
   const [open, setOpen] = useState(false);
   const {
     mutate: updateVendorItemMaster,
@@ -74,7 +86,6 @@ const VendorItemMasterTable = ({
   };
 
   const handleUpdateVendorItemMaster = (uuid, payload, ind) => {
-
     setSaveError(true);
     updateVendorItemMaster(
       { item_uuid: uuid, data: payload },
@@ -82,35 +93,54 @@ const VendorItemMasterTable = ({
         onSuccess: () => {
           setSaveError(false);
           setEditableRow(null);
-          if(updateHumanVerified.key=='human_verified'){
+          let copyObj = { ...data };
+          let { items } = copyObj.data;
+
+          items.find((it) => (it.item_uuid = uuid)).human_verified = true;
+
+          queryClient.setQueryData(["vendor-item-master"], copyObj);
+          if (updateHumanVerified.key == "human_verified") {
             setUpdateHumanVerified((prevState) => ({
               ...prevState,
               status: true
             }));
           }
-      
         },
         onError: (e) => {
           setSaveError(false);
+          let copyObj = { ...data };
+          let { items } = copyObj.data;
+
+          items[updateHumanVerified.index].human_verified = false;
+
+          queryClient.setQueryData(["vendor-item-master"], copyObj);
         }
       }
     );
   };
+
   useEffect(() => {
-    if (updateHumanVerified?.status == true&& updateHumanVerified?.key=="human_verified") {
-      let copyObj = {...data};
+    if (!data) {
+      return;
+    }
+    if (
+      updateHumanVerified?.status == true &&
+      updateHumanVerified?.key == "human_verified"
+    ) {
+      let copyObj = { ...data };
       let { items } = copyObj.data;
 
       items[updateHumanVerified.index].human_verified = true;
 
       queryClient.setQueryData(["vendor-item-master"], copyObj);
     } else if (updateHumanVerified?.status == false) {
-      let copyObj = {...data};
+      let copyObj = { ...data };
       let { items } = copyObj.data;
       items[updateHumanVerified.index].human_verified = false;
       queryClient.setQueryData(["vendor-item-master"], copyObj);
     }
   }, [updateHumanVerified]);
+
   const handleVendorItemMasterDelete = (type) => {
     deleteItemMasterVendor(
       { item_uuid: rowUUID, type },
@@ -124,20 +154,115 @@ const VendorItemMasterTable = ({
     );
   };
 
+  const approveAndNextHandler = (uuid, payload) => {
+    setLoadingState((prev) => ({ ...prev, nextAndApproving: true }));
+
+    updateVendorItemMaster(
+      { item_uuid: uuid, data: payload },
+      {
+        onSuccess: () => {
+          setLoadingState((prev) => ({ ...prev, nextAndApproving: false }));
+
+          setEditableRow(null);
+          if (updateHumanVerified.key == "human_verified") {
+            setUpdateHumanVerified((prevState) => ({
+              ...prevState,
+              status: true
+            }));
+          }
+          let copyObj = { ...data };
+          let { items } = copyObj.data;
+
+          items.find((it) => it.item_uuid == uuid).human_verified = true;
+
+          queryClient.setQueryData(["vendor-item-master"], copyObj);
+          if (page !== data?.total_pages) {
+            updateParams({ page: Number(page) + 1 });
+          }
+        },
+        onError: (e) => {
+          let copyObj = { ...data };
+          let { items } = copyObj.data;
+
+          items.find((it) => it.item_uuid == uuid).human_verified = false;
+
+          queryClient.setQueryData(["vendor-item-master"], copyObj);
+          setLoadingState((prev) => ({ ...prev, nextAndApproving: false }));
+        }
+      }
+    );
+  };
+
+  const saveAndNextHandler = (uuid, payload) => {
+    setLoadingState((prev) => ({ ...prev, nextAndSaving: true }));
+
+    updateVendorItemMaster(
+      { item_uuid: uuid, data: payload },
+      {
+        onSuccess: () => {
+          setLoadingState((prev) => ({ ...prev, nextAndSaving: false }));
+
+          setEditableRow(null);
+          if (updateHumanVerified.key == "human_verified") {
+            setUpdateHumanVerified((prevState) => ({
+              ...prevState,
+              status: true
+            }));
+          }
+
+          if (page !== data?.total_pages) {
+            updateParams({ page: Number(page) + 1 });
+          }
+        },
+        onError: (e) => {
+          setLoadingState((prev) => ({ ...prev, nextAndSaving: false }));
+        }
+      }
+    );
+  };
+
   return (
     <div className="w-full overflow-auto   ">
       <div className="w-full overflow-auto ">
+        {(loadingAdditionalData || isLoading) && (
+          <TableRow className="flex  text-base  !border-none !w-full !pb-0 !mb-0 ">
+            {["category", "item_code", "item_description"]?.map(
+              (item, index) => (
+                <TableHead
+                  key={index}
+                  className={`${
+                    item == "item_description"
+                      ? "!min-w-[20%] w-full"
+                      : item == "category" && "!min-w-[15%] w-full"
+                  } border-r !text-left w-full items-center justify-start flex !pl-6   !font-semibold !text-gray-800    bg-gray-200 min-w-[10%] h-14 `}
+                >
+                  {keysCapitalizer(item)}
+                </TableHead>
+              )
+            )}
+
+            {extraHeaders?.map((item, i) => (
+              <TableHead
+                key={i}
+                className={`flex  border-r w-full !text-left items-center min-w-[9.16%]  justify-center  !font-semibold !text-gray-800  border-b  bg-gray-200 h-14`}
+              >
+                {item}
+              </TableHead>
+            ))}
+          </TableRow>
+        )}
+
         {loadingAdditionalData || isLoading ? (
-          new Array(11).fill(11)?.map((_, index) => {
+          new Array(1).fill(1)?.map((_, index) => {
             return (
-              <TableRow key={index} className="flex w-full">
-                {new Array(7).fill(7)?.map((_, ind) => {
+              <TableRow key={index} className="flex w-full justify-between">
+                {new Array(6).fill(6)?.map((_, ind) => {
                   return (
                     <TableHead
                       key={ind}
-                      className={`flex  border-r !text-left items-center min-w-[10%]  justify-center  !font-semibold !text-gray-800  border-b  bg-gray-200 h-14`}
+                      className={`flex  border-r !text-left items-center min-w-[10%]  justify-center  !font-semibold !text-gray-800  border-b   h-14`}
                     >
-                      <Skeleton className={"w-96 h-5"} />
+                      <Skeleton className={"w-[14rem] h-5"} />
                     </TableHead>
                   );
                 })}
@@ -145,7 +270,7 @@ const VendorItemMasterTable = ({
             );
           })
         ) : (
-          <Table className="flex flex-col   box-border  scrollbar min-h-[65vh] !w-full ">
+          <Table className="flex flex-col   box-border  scrollbar min-h-fit !w-full ">
             <TableHeader className="min-h-14">
               <TableRow className="flex  text-base  !border-none !w-full !pb-0 !mb-0 ">
                 {data?.data?.required_columns?.map((item, index) => (
@@ -174,15 +299,17 @@ const VendorItemMasterTable = ({
             <TableBody className="!w-full">
               <div className="!w-full flex-1">
                 {data?.data?.items?.length == 0 ? (
-                  <div className="w-full flex items-center justify-center flex-1">
-                    <img src={no_data} alt="" className="max-h-[50vh]" />
+                  <div className="w-full flex items-center justify-center flex-1 h-[5vh]">
+                    <p className="font-poppins font-semibold text-sm">
+                      No Data
+                    </p>
                   </div>
                 ) : (
                   data?.data?.items?.map((item, ind) => {
                     return (
                       <TableRow
                         key={item?.item_uuid}
-                        className="!border-none !h-14 w-full flex !flex-1"
+                        className="!border-none cursor-pointer !h-14 w-full flex !flex-1"
                       >
                         {data?.data?.required_columns?.map((col, index) => (
                           <TableCell
@@ -195,68 +322,61 @@ const VendorItemMasterTable = ({
                                 : "min-w-[10%]"
                             }  !border-b  flex w-full border-r !min-h-14 !text-left items-center justify-start pl-6 !font-normal !text-gray-800   `}
                           >
-                            {editableRow == item?.item_uuid ? (
-                              <>
-                                {col === "category" ? (
-                                  <CustomDropDown
-                                    Value={item?.[col]?.["category_id"]}
-                                    className="!min-w-[300px] !max-w-[400px]"
-                                    triggerClassName={"bg-gray-100 !min-w-full"}
-                                    contentClassName={"bg-gray-100 !min-w-full"}
-                                    data={additionalData?.data?.category_choices?.map(
-                                      ({ name, category_id }) => {
-                                        let obj = {
-                                          label: name,
-                                          value: category_id
-                                        };
-                                        return obj;
-                                      }
-                                    )}
-                                    onChange={(val, valObj) => {
-                                      let copyObj = { ...data };
-                                      let { items } = data?.data;
-
-                                      let catObj = {
-                                        category_id: val,
-                                        name: valObj?.label
+                            <>
+                              {col === "category" ? (
+                                <CustomDropDown
+                                  Value={item?.[col]?.["category_id"]}
+                                  className="!min-w-[300px] !max-w-[400px]"
+                                  triggerClassName={"bg-gray-100 !min-w-full"}
+                                  contentClassName={"bg-gray-100 !min-w-full"}
+                                  data={additionalData?.data?.category_choices?.map(
+                                    ({ name, category_id }) => {
+                                      let obj = {
+                                        label: name,
+                                        value: category_id
                                       };
-
-                                      items[ind][col] = catObj;
-                                      queryClient.setQueryData(
-                                        ["vendor-item-master"],
-                                        copyObj
-                                      );
-                                    }}
-                                    placeholder="None"
-                                    searchPlaceholder="Category"
-                                  />
-                                ) : (
-                                  <CustomInput
-                                    value={
-                                      col == "category"
-                                        ? item?.[col]?.["name"]
-                                        : item[col]
+                                      return obj;
                                     }
-                                    onChange={(val) => {
-                                      let copyObj = { ...data };
-                                      let { items } = data?.data;
+                                  )}
+                                  onChange={(val, valObj) => {
+                                    let copyObj = { ...data };
+                                    let { items } = data?.data;
 
-                                      items[ind][col] = val;
+                                    let catObj = {
+                                      category_id: val,
+                                      name: valObj?.label
+                                    };
 
-                                      queryClient.setQueryData(
-                                        ["vendor-item-master"],
-                                        copyObj
-                                      );
-                                    }}
-                                  />
-                                )}
-                              </>
-                            ) : //   Values only
-                            col == "category" ? (
-                              item?.[col]?.["name"]
-                            ) : (
-                              item[col]
-                            )}
+                                    items[ind][col] = catObj;
+                                    queryClient.setQueryData(
+                                      ["vendor-item-master"],
+                                      copyObj
+                                    );
+                                  }}
+                                  placeholder="None"
+                                  searchPlaceholder="Category"
+                                />
+                              ) : (
+                                <CustomInput
+                                  value={
+                                    col == "category"
+                                      ? item?.[col]?.["name"]
+                                      : item[col]
+                                  }
+                                  onChange={(val) => {
+                                    let copyObj = { ...data };
+                                    let { items } = data?.data;
+
+                                    items[ind][col] = val;
+
+                                    queryClient.setQueryData(
+                                      ["vendor-item-master"],
+                                      copyObj
+                                    );
+                                  }}
+                                />
+                              )}
+                            </>
                           </TableCell>
                         ))}
 
@@ -267,27 +387,29 @@ const VendorItemMasterTable = ({
                         )}
                         <TableCell className="flex w-full border-r !min-h-10 !text-left items-center justify-center !font-normal !text-gray-800 !min-w-[9.16%] border-b  ">
                           {item?.["human_verified"] == true ? (
-                            <BadgeCheck
-                              className="text-primary  h-5 w-5"
+                            <Button
                               disabled={updatingVendorItemMaster}
-                            />
+                              className="border-none bg-transparent hover:bg-transparent ring-0 outline-none shadow-none"
+                            >
+                              <img src={approved} alt="" className="h-5 w-5" />
+                            </Button>
                           ) : (
-                            <BadgeCheck
-                              className="text-gray-800 h-5 w-5 cursor-pointer"
+                            <Button
                               onClick={() => {
                                 handleUpdateVendorItemMaster(
                                   item?.item_uuid,
                                   { ...item, human_verified: true },
                                   ind
                                 );
-                                setUpdateHumanVerified(prevState => ({
-                                  ...prevState,
-                                  index: ind,
-                                  key:"human_verified"
-                                }));
-                                
                               }}
-                            />
+                              className="border-none bg-transparent hover:bg-transparent ring-0 outline-none shadow-none"
+                            >
+                              <img
+                                src={unApproved}
+                                alt=""
+                                className="h-5 w-5"
+                              />
+                            </Button>
                           )}
                         </TableCell>
                         {extraHeaders.includes("Category Review") && (
@@ -391,28 +513,18 @@ const VendorItemMasterTable = ({
                         )}
 
                         <TableCell className="flex  border-r !min-h-10 !text-left items-center justify-center !font-normal !text-gray-800 !min-w-[9.16%] w-full border-b  ">
-                          {editableRow !== item?.item_uuid ? (
-                            <Button
-                              className="hover:bg-transparent bg-transparent shadow-none"
-                              onClick={() => setEditableRow(item?.item_uuid)}
-                              disabled={saveError || updatingVendorItemMaster}
-                            >
-                              <Edit className="h-5 w-5 text-primary" />
-                            </Button>
-                          ) : (
-                            <Button
-                              disabled={saveError || updatingVendorItemMaster}
-                              className="hover:bg-transparent bg-transparent shadow-none"
-                              onClick={() =>
-                                handleUpdateVendorItemMaster(
-                                  item?.item_uuid,
-                                  item
-                                )
-                              }
-                            >
-                              <Save className="h-5 w-5 text-primary" />
-                            </Button>
-                          )}
+                          <Button
+                            disabled={saveError || updatingVendorItemMaster}
+                            className="hover:bg-transparent bg-transparent shadow-none"
+                            onClick={() =>
+                              handleUpdateVendorItemMaster(
+                                item?.item_uuid,
+                                item
+                              )
+                            }
+                          >
+                            <Save className="h-5 w-5 text-primary" />
+                          </Button>
 
                           <Button
                             onClick={() => {
@@ -435,6 +547,49 @@ const VendorItemMasterTable = ({
           </Table>
         )}
       </div>
+      <TablePagination
+        totalPages={data?.total_pages}
+        isFinalPage={data?.is_final_page}
+      />
+      <div className="min-w-full justify-between  flex items-center mt-4">
+        <div>
+          <Button disabled={!pdfsData?.data?.[0]?.document_uuid} className="rounded-sm font-poppins font-normal text-sm bg-transparent hover:bg-transparent border-primary text-black border">
+            <Link
+              to={`/invoice-details?document_uuid=${pdfsData?.data[0]?.document_uuid}`}
+              target="_blank"
+            >
+              View Invoice
+            </Link>
+          </Button>
+        </div>
+        <div className="flex items-center gap-x-4">
+          <Button
+           disabled={!pdfsData?.data?.[0]?.document_uuid||loadingState?.nextAndApproving}
+            onClick={() => {
+              approveAndNextHandler(data?.data?.items?.[0]?.item_uuid, {
+                ...data?.data?.items?.[0],
+                human_verified: true
+              });
+            }}
+
+            className="rounded-sm font-poppins font-normal text-sm bg-transparent hover:bg-transparent border-primary text-black border"
+          >
+            {loadingState?.nextAndApproving ? "Approving..." : "Approve & Next"}
+          </Button>
+          <Button
+           disabled={!pdfsData?.data?.[0]?.document_uuid||loadingState?.nextAndSaving}
+            onClick={() => {
+              saveAndNextHandler(data?.data?.items?.[0]?.item_uuid, {
+                ...data?.data?.items?.[0]
+              });
+            }}
+            className="rounded-sm font-poppins font-normal text-sm bg-transparent hover:bg-transparent border-primary text-black border"
+          >
+            {loadingState?.nextAndSaving ? "Saving..." : "Save & Next"}
+          </Button>
+        </div>
+      </div>
+
       <Modal
         open={open}
         setOpen={setOpen}

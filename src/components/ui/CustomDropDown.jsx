@@ -42,7 +42,8 @@ const CustomDropDown = ({
   showBranchAsLink = false,
   multiSelect = false,
   vendor_id,
-  branch_id
+  branch_id,
+  commandGroupClassName
 }) => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(Value || "");
@@ -214,7 +215,7 @@ setFocusedIndex(sortedData.findIndex((item)=>item.value===value))
           {children}
           <CommandList className=" dark:!border-[#000000] !z-50 hide-scrollbar !w-full">
             <CommandEmpty>No data found.</CommandEmpty>
-            <CommandGroup className="!min-h-[8rem]  !max-h-[20rem] !w-full">
+            <CommandGroup className={`${commandGroupClassName} min-h-[8rem]  max-h-[20rem] !w-full`}>
               <List
                 height={200}
                 itemCount={sortedData.length}

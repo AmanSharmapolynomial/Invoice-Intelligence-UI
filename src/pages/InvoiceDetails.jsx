@@ -33,13 +33,16 @@ import useFilterStore from "@/store/filtersStore";
 import globalStore from "@/store/globalStore";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
 
+import review_later_white from "@/assets/image/review_later_white.svg";
+import review_later_black from "@/assets/image/review_later_black.svg";
 import all_invoices_black from "@/assets/image/all_invoices_black.svg";
 import all_invoices_white from "@/assets/image/all_invoices_white.svg";
-import my_tasks_black from "@/assets/image/check_book_black.svg";
+import not_supported_white from "@/assets/image/not_supported_white.svg";
+import not_supported_black from "@/assets/image/not_supported_black.svg";
 import my_tasks_white from "@/assets/image/check_book_white.svg";
-import review_later_black from "@/assets/image/review_later_black.svg";
-import review_later_white from "@/assets/image/review_later_white.svg";
-
+import my_tasks_black from "@/assets/image/check_book_black.svg";
+import book_user_white from "@/assets/image/book_user_white.svg";
+import book_user_black from "@/assets/image/book_user_black.svg";
 import { useListRestaurants } from "@/components/home/api";
 import InvoiceFilters from "@/components/invoice/InvoiceFilters";
 import { useInvoiceStore } from "@/components/invoice/store";
@@ -194,7 +197,9 @@ const InvoiceDetails = () => {
               queryClient.invalidateQueries({
                 queryKey: ["document-metadata"]
               });
-              queryClient.invalidateQueries({ queryKey: ["duplicate-invoices"] });
+              queryClient.invalidateQueries({
+                queryKey: ["duplicate-invoices"]
+              });
               clearUpdatedFields();
               setBranchChanged(false);
               setVendorChanged(false);
@@ -214,7 +219,9 @@ const InvoiceDetails = () => {
               setOperations([]);
 
               setHistory([]);
-              queryClient.invalidateQueries({ queryKey: ["duplicate-invoices"] });
+              queryClient.invalidateQueries({
+                queryKey: ["duplicate-invoices"]
+              });
               queryClient.invalidateQueries({ queryKey: ["combined-table"] });
               queryClient.invalidateQueries({ queryKey: ["additional-data"] });
               // queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
@@ -369,11 +376,18 @@ const InvoiceDetails = () => {
       hoverImage: review_later_white
     },
     {
+      path: "/not-supported-documents",
+      icon: null,
+      text: "Not Supported Documents",
+      image: theme === "light" ? not_supported_black : not_supported_white,
+      hoverImage: not_supported_white
+    },
+    {
       path: null,
       icon: null,
       text: "Vendor Consolidation",
-      image: theme === "light" ? review_later_black : review_later_white,
-      hoverImage: review_later_white
+      image: theme === "light" ? book_user_black : book_user_white,
+      hoverImage: book_user_white
     }
   ];
   const [showWarningForBranchAndVendor, setShowWarningForBranchAndVendor] =
@@ -426,9 +440,9 @@ const InvoiceDetails = () => {
   let vendor =
     searchParams.get("vendor_id") || searchParams.get("vendor") || "";
   useEffect(() => {
-    if(data?.data?.rejected || data?.data?.[0]?.rejected){
-      setShowAlreadySyncedModal(true)
-      return
+    if (data?.data?.rejected || data?.data?.[0]?.rejected) {
+      setShowAlreadySyncedModal(true);
+      return;
     }
     if (
       action_controls?.accept?.disabled ||
@@ -436,7 +450,7 @@ const InvoiceDetails = () => {
     ) {
       setShowAlreadySyncedModal(true);
     }
-  }, [action_controls,data]);
+  }, [action_controls, data]);
 
   // const { filters } = useFilterStore();
   let page = searchParams.get("page_number") || 1;
@@ -444,7 +458,7 @@ const InvoiceDetails = () => {
   // let document_uuid = searchParams.get("document_uuid") || "";
   let layout = searchParams.get("layout") || null;
   let assigned_to = searchParams.get("assigned_to");
-  
+
   let payload = {
     page: page,
     page_size: filters?.page_size,
@@ -462,14 +476,16 @@ const InvoiceDetails = () => {
     vendor_id,
     document_uuid,
     assigned_to,
-    auto_accepted_by_vda:filters?.auto_accepted_by_vda,
+    auto_accepted_by_vda: filters?.auto_accepted_by_vda,
     review_later: filters?.review_later || "false",
-    from_view:from_view?.includes("not-supported")?"not-supported-documents":""
+    from_view: from_view?.includes("not-supported")
+      ? "not-supported-documents"
+      : ""
   };
 
-  useEffect(()=>{
-setShowAlreadySyncedModal(false)
-  },[page])
+  useEffect(() => {
+    setShowAlreadySyncedModal(false);
+  }, [page]);
   return (
     <div className="hide-scrollbar relative">
       <Navbar />
@@ -547,7 +563,8 @@ setShowAlreadySyncedModal(false)
       >
         <BreadCrumb
           showCustom={true}
-          title={`${selectedInvoiceRestaurantName}  | ${selectedInvoiceVendorName} `}
+          hideTitle={true}
+          // title={`${selectedInvoiceRestaurantName}  | ${selectedInvoiceVendorName} `}
           crumbs={[
             {
               path: null,
@@ -641,7 +658,12 @@ setShowAlreadySyncedModal(false)
             <div className="flex items-center gap-x-2">
               <Info className="h-5 w-5 text-[#FF9800]" />
               <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
-               {(data?.data?.rejected || data?.data?.[0]?.rejected)&&"Rejection Reason :- "}  {(data?.data?.rejected || data?.data?.[0]?.rejected)?(data?.data?.rejection_reason || data?.data?.[0]?.rejection_reason): action_controls?.accept?.disabled 
+                {(data?.data?.rejected || data?.data?.[0]?.rejected) &&
+                  "Rejection Reason :- "}{" "}
+                {data?.data?.rejected || data?.data?.[0]?.rejected
+                  ? data?.data?.rejection_reason ||
+                    data?.data?.[0]?.rejection_reason
+                  : action_controls?.accept?.disabled
                   ? action_controls?.accept?.reason
                   : action_controls?.reject?.disabled
                   ? action_controls?.reject?.reason
@@ -956,7 +978,9 @@ setShowAlreadySyncedModal(false)
               <CategoryWiseSum isLoading={isLoading} />
             )}
             <LastUpdateInfo
-            document_id={data?.data?.[0]?.document_uuid|| data?.data?.document_uuid }
+              document_id={
+                data?.data?.[0]?.document_uuid || data?.data?.document_uuid
+              }
               info={
                 data?.data?.latest_update_info ||
                 data?.data?.[0]?.latest_update_info
@@ -1201,8 +1225,7 @@ setShowAlreadySyncedModal(false)
                 <p className="font-poppins font-normal text-xs leading-4 text-[#6D6D6D]">
                   {formatDateTime(
                     duplicateInvoices?.current_document?.date_uploaded
-                  )
-                  }
+                  )}
                 </p>
               </div>
               <div className="flex flex-col gap-y-3 items-center">
@@ -1269,7 +1292,7 @@ setShowAlreadySyncedModal(false)
                     </p>
                     <p className="font-poppins !font-normal text-center text-xs text-[#222222] leading-4">
                       {d?.date_uploaded
-                        ? formatDateTime(d?.date_uploaded) 
+                        ? formatDateTime(d?.date_uploaded)
                         : "N/A"}
                     </p>
                   </div>

@@ -10,7 +10,6 @@ import React, { useState, useMemo } from "react";
 
 const columns = [
   { key: `vendor[vendor_name]`, label: "Vendor Name" },
-  { key: "vendor[human_verified]", label: "Human Verified" },
   { key: "unverified_item_count", label: "Unverified Item Count" },
   { key: "percentage_approved", label: "Percentage Approved" },
   { key: "vendor[recent_addition_date]", label: "Last Item Update" }
@@ -33,8 +32,6 @@ const ItemMasterVendors = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedApproval, setSelectedApproval] = useState(null);
   const [selectedPercentage, setSelectedPercentage] = useState(null);
-
-  // Function to extract nested values from object
   const getValue = (obj, key) => {
     return key.includes("[")
       ? key
@@ -43,31 +40,32 @@ const ItemMasterVendors = () => {
           .reduce((o, k) => (o ? o[k] : ""), obj)
       : obj[key];
   };
-
-  // Filter data based on search query and dropdown selections
   const filteredData = useMemo(() => {
     if (!data) return [];
-  
+
     return data.filter((row) => {
       const matchesSearch = columns.some((col) =>
         String(getValue(row, col.key))
           .toLowerCase()
           .includes(searchQuery.toLowerCase())
       );
-  
+
       const matchesApproval =
-        selectedApproval === null || 
-        getValue(row, "vendor[human_verified]") === (selectedApproval === "true");
-  
+        selectedApproval === null ||
+        getValue(row, "vendor[human_verified]") ===
+          (selectedApproval === "true");
+
       const matchesPercentage =
         !selectedPercentage ||
-        (selectedPercentage === "0-50" && getValue(row, "percentage_approved") <= 50) ||
-        (selectedPercentage === "50-100" && getValue(row, "percentage_approved") > 50);
-  
+        (selectedPercentage === "0-50" &&
+          getValue(row, "percentage_approved") <= 50) ||
+        (selectedPercentage === "50-100" &&
+          getValue(row, "percentage_approved") > 50);
+
       return matchesSearch && matchesApproval && matchesPercentage;
     });
   }, [data, searchQuery, selectedApproval, selectedPercentage]);
-  
+
   return (
     <div className="h-screen flex w-full" id="maindiv">
       <Sidebar />
@@ -87,6 +85,9 @@ const ItemMasterVendors = () => {
                 Value={selectedApproval}
                 onChange={setSelectedApproval}
                 showSearch={false}
+                className={"!min-w-[12rem]"}
+                commandGroupClassName="!min-h-[0rem] !max-h-[8rem]"
+                contentClassName={"!w-[10rem]"}
                 placeholder="Vendor Approval"
               />
 
@@ -94,7 +95,9 @@ const ItemMasterVendors = () => {
               <CustomDropDown
                 data={percentageOptions}
                 Value={selectedPercentage}
+                className={"!min-w-[12rem]"}
                 onChange={setSelectedPercentage}
+                 commandGroupClassName="!min-h-[0rem] !max-h-[8rem]"
                 showSearch={false}
                 placeholder="Vendor Approval Percentage"
               />
@@ -111,7 +114,11 @@ const ItemMasterVendors = () => {
             </div>
           </div>
 
-          <VendorsTable columns={columns} data={filteredData} />
+          <VendorsTable
+            columns={columns}
+            data={filteredData}
+            isLoading={isLoading}
+          />
         </Layout>
       </div>
     </div>
