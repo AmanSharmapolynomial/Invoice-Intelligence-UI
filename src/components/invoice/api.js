@@ -11,7 +11,8 @@ import {
   markAsReviewLater,
   getDocumentTimeline,
   getVendorTypesAndCategories,
-  updateVendorTypesAndCategories
+  updateVendorTypesAndCategories,
+  getItemMasterSimilarItems
 } from "./utils";
 import { axiosInstance } from "@/axios/instance";
 import toast from "react-hot-toast";
@@ -60,6 +61,17 @@ export const useGetItemMasterPdfs = (item_uuid) => {
     queryFn: () => item_uuid&& getMasterItemPdfs(item_uuid)
   });
 };
+export const useGetItemMastSimilarItems = (payload) => {
+  return useQuery({
+    queryKey: ["get-item-master-similar-items", payload],
+    queryFn: () => payload?.item_uuid&& getItemMasterSimilarItems(payload)
+  });
+};
+
+
+
+
+
 
 export const useGetDocumentNotes = (documnent_uuid) => {
   return useQuery({

@@ -1,22 +1,26 @@
+import approved from "@/assets/image/approved.svg";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import Sidebar from "@/components/common/Sidebar";
-import { useGetItemMasterPdfs } from "@/components/invoice/api";
-import BreadCrumb from "@/components/ui/Custom/BreadCrumb";
-import { useGetVendorItemMaster } from "@/components/vendor/api";
 import {
-  Link,
-  useNavigate,
-  useParams,
-  useSearchParams
-} from "react-router-dom";
-import approved from "@/assets/image/approved.svg";
-import FIVPdfViewer from "@/components/vendor/vendorItemMaster/FIVPdfViewer";
+  useGetItemMasterPdfs,
+  useGetItemMastSimilarItems
+} from "@/components/invoice/api";
+import BreadCrumb from "@/components/ui/Custom/BreadCrumb";
 import ProgressBar from "@/components/ui/Custom/ProgressBar";
-import VendorItemMasterTable from "@/components/vendor/vendorItemMaster/VendorItemMasterTable";
-import TablePagination from "@/components/common/TablePagination";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger
+} from "@/components/ui/accordion";
+
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
+import { useGetVendorItemMaster } from "@/components/vendor/api";
+import FIVPdfViewer from "@/components/vendor/vendorItemMaster/FIVPdfViewer";
+import SimilarItems from "@/components/vendor/vendorItemMaster/SImilarItems";
+import VendorItemMasterTable from "@/components/vendor/vendorItemMaster/VendorItemMasterTable";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 const FastItemVerification = () => {
   const { vendor_id } = useParams();
   const [searchParams] = useSearchParams();
@@ -43,7 +47,10 @@ const FastItemVerification = () => {
 
   const { data: pdfsData, isLoading: loadingPdfs } =
     useGetItemMasterPdfs(item_uuid);
+  const { data: similarItems, isLoading: loadinSimilarItems } =
+    useGetItemMastSimilarItems({ item_uuid: item_uuid, threshold: 60 });
   const navigate = useNavigate();
+ 
   return (
     <div className="h-screen flex w- overflow-x-hidden" id="maindiv">
       <Sidebar />
@@ -64,7 +71,7 @@ const FastItemVerification = () => {
           <div className="w-full flex justify-end items-center ">
             <ProgressBar
               title={"Verified Items"}
-              currentValue={data?.data?.verified_item_count }
+              currentValue={data?.data?.verified_item_count}
               totalValue={data?.data?.total_item_count}
             />
           </div>
@@ -87,12 +94,29 @@ const FastItemVerification = () => {
               data={data}
               pdfsData={pdfsData}
               isLoading={isLoading}
-              extraHeaders={["Approved", "Category Review", "Actions"]}
+              extraHeaders={["Approved",  "Actions"]}
             />
-         
           </div>
 
-      
+          {/* Similar Items Accordion */}
+         {similarItems?.data?.total_matches >0&& <div className="px-16 mt-6">
+            <Accordion type="single" collapsible>
+              <AccordionItem
+                value="item-1"
+                className="border  rounded-md px-4 border-[#E0E0E0] "
+              >
+                <AccordionTrigger className="hover:no-underline  border-b font-poppins font-semibold text-sm">
+                  Similar Items ({similarItems?.data?.total_matches || 0})
+                </AccordionTrigger>
+                <AccordionContent>
+                  <SimilarItems
+                    data={similarItems}
+                    isLoading={loadinSimilarItems}
+                  />
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>}
         </Layout>
       </div>
     </div>

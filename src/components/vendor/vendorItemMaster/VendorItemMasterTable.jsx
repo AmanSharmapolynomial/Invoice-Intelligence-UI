@@ -256,7 +256,7 @@ const VendorItemMasterTable = ({
           new Array(1).fill(1)?.map((_, index) => {
             return (
               <TableRow key={index} className="flex w-full justify-between">
-                {new Array(6).fill(6)?.map((_, ind) => {
+                {new Array(5).fill(5)?.map((_, ind) => {
                   return (
                     <TableHead
                       key={ind}
@@ -412,24 +412,7 @@ const VendorItemMasterTable = ({
                             </Button>
                           )}
                         </TableCell>
-                        {extraHeaders.includes("Category Review") && (
-                          <TableCell className="flex w-full border-r !min-h-10 !text-left items-center justify-center !font-normal !text-gray-800 !min-w-[9.16%] border-b  ">
-                            <Switch
-                              value={item?.["category_review_required"]}
-                              onCheckedChange={(val) => {
-                                let copyObj = JSON.parse(JSON.stringify(data));
-                                let { items } = data?.data;
-
-                                items[0]["category_review_required"] = val;
-
-                                queryClient.setQueryData(
-                                  ["vendor-item-master"],
-                                  copyObj
-                                );
-                              }}
-                            />
-                          </TableCell>
-                        )}
+                        
                         {extraHeaders.includes("Select Master") && (
                           <TableCell className="flex  border-r !min-h-10 !text-left items-center justify-center !font-normal !text-gray-800 !min-w-[9.16%] border-b  ">
                             <RadioGroup
