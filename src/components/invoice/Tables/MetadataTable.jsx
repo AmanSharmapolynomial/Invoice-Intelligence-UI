@@ -7,6 +7,17 @@ import CustomInput from "@/components/ui/Custom/CustomInput";
 import DatePicker from "@/components/ui/Custom/DatePicker";
 import CustomDropDown from "@/components/ui/CustomDropDown";
 
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "@/components/ui/alert-dialog";
+import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
+import { DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { vendorCategories } from "@/constants";
 import {
   categoryNamesFormatter,
@@ -16,30 +27,19 @@ import {
 import { queryClient } from "@/lib/utils";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
 import { formatISO, isValid, parseISO } from "date-fns";
+import { X } from "lucide-react";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import {
   useGetVendorTypesAndCategories,
   useUpdateVendorOrBranch,
   useUpdateVendorTypesAndCategories
 } from "../api";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogHeader,
-  AlertDialogTitle
-} from "@/components/ui/alert-dialog";
-import { X } from "lucide-react";
-import toast from "react-hot-toast";
-import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
 const Template = ({ title, children, className, titleContent }) => {
   return (
-    <div className={`${className} flex flex-col gap-y-2`}>
-      <p className="font-poppins  font-medium text-sm leading-5 text-[#000000]">
+    <div className={`${className} flex flex-col gap-y-2 !z-12`}>
+      <p className="font-poppins  font-medium text-sm leading-5 text-[#000000] !z-10">
         {title} {titleContent}
       </p>
       {children}
@@ -67,11 +67,13 @@ const MetadataTable = ({
     savingBranch: false
   });
   const {
+    updatedFields,
     setUpdatedFields,
     vendorChanged,
     setVendorChanged,
     branchChanged,
     setBranchChanged,
+    setMetadata,
     newVendor,
     setNewVendor,
     newBranch,
@@ -99,6 +101,7 @@ const MetadataTable = ({
     human_verification_required,
     invoice_type
   } = data?.data?.[0] || data?.data;
+
   const [showToChangeCategoriesAndTypes, setShowToChangeCategoriesAndTypes] =
     useState(false);
   const [wantToChangeCategoriesAndTypes, setWantToChangeCategoriesAndTypes] =
@@ -177,6 +180,12 @@ const MetadataTable = ({
           setVendorChanged(false);
           setLoadingState({ ...loadingState, savingVendor: false });
           setEditVendor(false);
+          queryClient.invalidateQueries({
+            queryKey: ["document-metadata", payload]
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["combined-table", document_uuid]
+          });
           setNewVendor("");
         },
         onError: () => {
@@ -200,6 +209,12 @@ const MetadataTable = ({
         onSuccess: () => {
           setBranchChanged(false);
           setLoadingState({ ...loadingState, savingBranch: false });
+          queryClient.invalidateQueries({
+            queryKey: ["document-metadata", payload]
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["combined-table", document_uuid]
+          });
           setEditBranch(false);
           setNewBranch("");
         },
@@ -222,8 +237,12 @@ const MetadataTable = ({
       }
     );
   };
+
+  const [vendorIdForTypesAndCategories, setVendorIdForTypesAndCategories] =
+    useState(null);
+
   const { data: vendorTypesAndCategories } = useGetVendorTypesAndCategories(
-    vendor?.vendor_id
+    vendorIdForTypesAndCategories
   );
 
   const [types_and_categories, setTypes_and_categories] = useState({
@@ -242,8 +261,10 @@ const MetadataTable = ({
         vendorTypesAndCategories?.data?.vendor_account_category?.category_id
     });
   }, [vendorTypesAndCategories]);
-  let action_controls= data?.data?.[0]?.action_controls||data?.data?.action_controls
- 
+  let action_controls =
+    data?.data?.[0]?.action_controls || data?.data?.action_controls;
+    console.log(data?.data,"Metadata Table")
+  console.log(updatedFields,"Metadata Table Updated Fields")
   return (
     <div className="w-full -mt-3 border border-[#F0F0F0] shadow-sm p-2 rounded-md">
       <div className="grid grid-cols-3 gap-x-4">
@@ -257,12 +278,18 @@ const MetadataTable = ({
               if (branchChanged || vendorChanged) {
                 if (branchChanged) {
                   toast.error(
-                    "Please Update the Vendor Address before proceeding for other changes."
+                    "Please Update the Vendor Address before proceeding for other changes.",
+                    {
+                      icon: "⚠️"
+                    }
                   );
                   return;
                 } else {
                   toast.error(
-                    "Please Update the Vendor Name before proceeding for other changes."
+                    "Please Update the Vendor Name before proceeding for other changes.",
+                    {
+                      icon: "⚠️"
+                    }
                   );
                   return;
                 }
@@ -278,23 +305,31 @@ const MetadataTable = ({
             className={`!min-w-[300px] ${
               !invoice_type ? "!border-[#F97074]" : ""
             }`}
+
             data={vendorCategories?.slice(0, 3)}
             Value={invoice_type}
             onChange={(v) => {
               if (branchChanged || vendorChanged) {
                 if (branchChanged) {
                   toast.error(
-                    "Please Update the Vendor Address before proceeding for other changes."
+                    "Please Update the Vendor Address before proceeding for other changes.",
+                    {
+                      icon: "⚠️"
+                    }
                   );
                   return;
                 } else {
                   toast.error(
-                    "Please Update the Vendor Name before proceeding for other changes."
+                    "Please Update the Vendor Name before proceeding for other changes.",
+                    {
+                      icon: "⚠️"
+                    }
                   );
                   return;
                 }
               } else {
                 setCachedData("invoice_type", v);
+                setVendorIdForTypesAndCategories(vendor?.vendor_id);
               }
             }}
           />
@@ -316,12 +351,18 @@ const MetadataTable = ({
                 if (branchChanged || vendorChanged) {
                   if (branchChanged) {
                     toast.error(
-                      "Please Update the Vendor Address before proceeding for other changes."
+                      "Please Update the Vendor Address before proceeding for other changes.",
+                      {
+                        icon: "⚠️"
+                      }
                     );
                     return;
                   } else {
                     toast.error(
-                      "Please Update the Vendor Name before proceeding for other changes."
+                      "Please Update the Vendor Name before proceeding for other changes.",
+                      {
+                        icon: "⚠️"
+                      }
                     );
                     return;
                   }
@@ -348,20 +389,26 @@ const MetadataTable = ({
             }`}
             date={
               document_metadata?.invoice_due_date &&
-              isValid(parseISO(document_metadata.invoice_due_date))
-                ? parseISO(document_metadata.invoice_due_date) // Parse ISO string
+              isValid(parseISO(document_metadata?.invoice_due_date))
+                ? parseISO(document_metadata?.invoice_due_date) // Parse ISO string
                 : null
             }
             onChange={(date) => {
               if (branchChanged || vendorChanged) {
                 if (branchChanged) {
                   toast.error(
-                    "Please Update the Vendor Address before proceeding for other changes."
+                    "Please Update the Vendor Address before proceeding for other changes.",
+                    {
+                      icon: "⚠️"
+                    }
                   );
                   return;
                 } else {
                   toast.error(
-                    "Please Update the Vendor Name before proceeding for other changes."
+                    "Please Update the Vendor Name before proceeding for other changes.",
+                    {
+                      icon: "⚠️"
+                    }
                   );
                   return;
                 }
@@ -379,70 +426,44 @@ const MetadataTable = ({
             }}
           />
         </Template>
-        <Template title="Vendor Name" className="col-span-2">
-          <div className="flex items-center gap-x-4 pr-2 w-full">
+        <Template title="Vendor Name" className="col-span-2 w-full">
+          <div className="flex items-center gap-x-4 pr-2  !min-w-full">
             {editVendor ? (
               <CustomInput
                 className={`${
                   !newVendor ? "!border-[#F97074]" : ""
                 } !text-xs text-[#666666] hover:text-[#666666]`}
                 value={newVendor}
+                vendor_id={vendor?.vendor_id}
                 placeholder="Vendor Name"
                 onChange={(v) => {
-                  if (branchChanged || vendorChanged) {
-                    if (branchChanged) {
-                      toast.error(
-                        "Please Update the Vendor Address before proceeding for other changes."
-                      );
-                      return;
-                    } else {
-                      toast.error(
-                        "Please Update the Vendor Name before proceeding for other changes."
-                      );
-                      return;
-                    }
-                  } else {
-                    setNewVendor(v);
-                  }
+                  setNewVendor(v);
+                  setVendorChanged(true)
                 }}
               />
             ) : (
-              <div className="w-full  flex gap-x-4">
+              <div className="!w-full overflow-auto    flex gap-x-4">
                 <CustomDropDown
                   Value={vendor?.vendor_id}
-                  className={`min-w-full ${
+                  className={`!max-w-full !min-w-full ${
                     !vendor?.vendor_id ? "!border-[#F97074]" : ""
                   }`}
                   triggerClassName={`${
-                    editVendor ? " !min-w-[80%]" : "!min-w-full"
-                  } `}
+                    editVendor ? " !min-w-[80%]" : "!min-w-fit"
+                  }  md:max-w-[15rem] xl:!min-w-full`}
                   showVendorAsLink={true}
                   onChange={(v, vendor) => {
-                    if (branchChanged || vendorChanged) {
-                      if (branchChanged) {
-                        toast.error(
-                          "Please Update the Vendor Address before proceeding for other changes."
-                        );
-                        return;
-                      } else {
-                        toast.error(
-                          "Please Update the Vendor Name before proceeding for other changes."
-                        );
-                        return;
-                      }
-                    } else {
-                      setVendorChanged(true);
+                    setVendorChanged(true);
 
-                      setCachedData(
-                        "vendor",
-                        {
-                          vendor_name: vendor?.label,
-                          vendor_id: vendor?.value,
-                          human_verified: vendor?.human_verified
-                        },
-                        false
-                      );
-                    }
+                    setCachedData(
+                      "vendor",
+                      {
+                        vendor_name: vendor?.label,
+                        vendor_id: vendor?.value,
+                        human_verified: vendor?.human_verified
+                      },
+                      false
+                    );
                   }}
                   data={vendorNamesFormatter(vendorsData?.vendor_names)}
                 >
@@ -456,23 +477,28 @@ const MetadataTable = ({
               </div>
             )}
             <CustomTooltip
-            
-            content={action_controls?.update_vendor?.disabled&& action_controls?.update_vendor?.reason}>
-            <Button
-              className={`${
-                !vendorChanged && "!border-[#CBCBCB] "
-              } bg-transparent h-[2.4rem] border-primary w-[4.85rem] !rounded-md hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm`}
-              disabled={action_controls?.update_vendor?.disabled||!vendorChanged}
-              onClick={() => {
-                if (newVendor?.length > 0) {
-                  updateVendor({ vendor_name: newVendor });
-                } else {
-                  updateVendor(vendor);
-                }
-              }}
+              content={
+                action_controls?.update_vendor?.disabled &&
+                action_controls?.update_vendor?.reason
+              }
             >
-              {loadingState?.savingVendor ? "Updating.." : "Update"}
-            </Button>
+              <Button
+                className={`${
+                  !vendorChanged && "!border-[#CBCBCB] "
+                } bg-transparent h-[2.4rem] border-primary w-[4.85rem] !rounded-md hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm`}
+                disabled={
+                  action_controls?.update_vendor?.disabled || !vendorChanged
+                }
+                onClick={() => {
+                  if (newVendor?.length > 0) {
+                    updateVendor({ vendor_name: newVendor });
+                  } else {
+                    updateVendor(vendor);
+                  }
+                }}
+              >
+                {loadingState?.savingVendor ? "Updating.." : "Update"}
+              </Button>
             </CustomTooltip>
             {editVendor && (
               <Button
@@ -490,34 +516,26 @@ const MetadataTable = ({
       </div>
       <div className="grid grid-cols-1 gap-x-4 mt-4">
         <Template title="Vendor Address" className={"col-span-2 "}>
-          <div className="flex items-center gap-x-4 pr-2 w-full">
+          <div className="flex items-center gap-x-4 pr-2 !min-w-full">
             {editBranch ? (
               <CustomInput
                 value={branch?.vendor_address}
-                className={`${!newBranch ? "!border-[#F97074]" : ""} !max-w-[10rem]`}
-                
+              
+                className={`${
+                  !newBranch ? "!border-[#F97074]" : ""
+                } !max-w-full`}
                 onChange={(v) => {
-                  if (branchChanged || vendorChanged) {
-                    if (branchChanged) {
-                      toast.error(
-                        "Please Update the Vendor Address before proceeding for other changes."
-                      );
-                      return;
-                    } else {
-                      toast.error(
-                        "Please Update the Vendor Name before proceeding for other changes."
-                      );
-                      return;
-                    }
-                  } else {
+                
                     setNewBranch(v);
-                  }
+                    setBranchChanged(true)
+                  
                 }}
               />
             ) : (
               <div className="flex items-center gap-x-4 w-full">
                 <CustomDropDown
-                  Value={branch?.branch_id}
+                  Value={branch}
+                  vendor_id={vendor?.vendor_id}
                   className={`min-w-[30rem] ${
                     !branch?.branch_id ? "!border-[#F97074]" : ""
                   }`}
@@ -525,31 +543,18 @@ const MetadataTable = ({
                     editBranch ? "!min-w-[80%]" : "!min-w-full"
                   } !max-w-[10rem] `}
                   onChange={(v, branch) => {
-                    if (branchChanged || vendorChanged) {
-                      if (branchChanged) {
-                        toast.error(
-                          "Please Update the Vendor Address before proceeding for other changes."
-                        );
-                        return;
-                      } else {
-                        toast.error(
-                          "Please Update the Vendor Name before proceeding for other changes."
-                        );
-                        return;
-                      }
-                    } else {
-                      setCachedData(
-                        "branch",
-                        {
-                          vendor_address: branch?.label,
-                          branch_id: branch?.value,
-                          human_verified: branch?.human_verified
-                        },
-                        false
-                      );
-                      setBranchChanged(true);
-                    }
+                    setCachedData(
+                      "branch",
+                      {
+                        vendor_address: branch?.label,
+                        branch_id: branch?.value,
+                        human_verified: branch?.human_verified
+                      },
+                      false
+                    );
+                    setBranchChanged(true);
                   }}
+                  showBranchAsLink={true}
                   data={vendorAddressFormatter(vendorAddress?.branches)}
                 >
                   <p
@@ -561,25 +566,30 @@ const MetadataTable = ({
                 </CustomDropDown>
               </div>
             )}
-          <CustomTooltip
-          content={action_controls?.update_branch?.disabled&& action_controls?.update_branch?.reason}
-          >
-          <Button
-              className={`${
-                !branchChanged && "!border-[#CBCBCB]"
-              } bg-transparent h-[2.4rem] border-primary w-[4.85rem] !rounded-md hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm`}
-              disabled={action_controls?.update_branch?.disabled||!branchChanged}
-              onClick={() => {
-                if (newBranch?.length > 0) {
-                  updateBranch({ vendor_address: newBranch });
-                } else {
-                  updateBranch(branch);
-                }
-              }}
+            <CustomTooltip
+              content={
+                action_controls?.update_branch?.disabled &&
+                action_controls?.update_branch?.reason
+              }
             >
-              {loadingState?.savingBranch ? "Updating.." : "Update"}
-            </Button>
-          </CustomTooltip>
+              <Button
+                className={`${
+                  !branchChanged && "!border-[#CBCBCB]"
+                } bg-transparent h-[2.4rem] border-primary w-[4.85rem] !rounded-md hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm`}
+                disabled={
+                  action_controls?.update_branch?.disabled || !branchChanged
+                }
+                onClick={() => {
+                  if (newBranch?.length > 0) {
+                    updateBranch({ vendor_address: newBranch });
+                  } else {
+                    updateBranch(branch);
+                  }
+                }}
+              >
+                {loadingState?.savingBranch ? "Updating.." : "Update"}
+              </Button>
+            </CustomTooltip>
             {editBranch && (
               <Button
                 className="bg-transparent h-[2.4rem] border-primary w-[4.85rem] !rounded-md hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
@@ -594,33 +604,7 @@ const MetadataTable = ({
           </div>
         </Template>
       </div>
-      <div className="grid grid-cols-2 gap-x-4 mt-4">
-        <Template title="Document Type Prediction">
-          <CustomDropDown
-            Value={document_type}
-            className={`min-w-[28rem] ${
-              !document_type ? "!border-[#F97074]" : ""
-            }`}
-            data={makeKeyValueFromKey(additionalData?.data?.document_types)}
-            onChange={(v) => {
-              if (branchChanged || vendorChanged) {
-                if (branchChanged) {
-                  toast.error(
-                    "Please Update the Vendor Address before proceeding for other changes."
-                  );
-                  return;
-                } else {
-                  toast.error(
-                    "Please Update the Vendor Name before proceeding for other changes."
-                  );
-                  return;
-                }
-              } else {
-                setCachedData("document_type", v);
-              }
-            }}
-          />
-        </Template>
+      <div className="grid grid-cols-1 gap-x-4 mt-4">
         <Template title="QuickBooks Documents Type">
           <CustomDropDown
             Value={quick_book_document_type}
@@ -631,21 +615,7 @@ const MetadataTable = ({
               additionalData?.data?.vendor_invoice_document_types
             )}
             onChange={(v) => {
-              if (branchChanged || vendorChanged) {
-                if (branchChanged) {
-                  toast.error(
-                    "Please Update the Vendor Address before proceeding for other changes."
-                  );
-                  return;
-                } else {
-                  toast.error(
-                    "Please Update the Vendor Name before proceeding for other changes."
-                  );
-                  return;
-                }
-              } else {
-                setCachedData("quick_book_document_type", v);
-              }
+              setCachedData("quick_book_document_type", v);
             }}
           />
         </Template>
@@ -661,12 +631,18 @@ const MetadataTable = ({
               if (branchChanged || vendorChanged) {
                 if (branchChanged) {
                   toast.error(
-                    "Please Update the Vendor Address before proceeding for other changes."
+                    "Please Update the Vendor Address before proceeding for other changes.",
+                    {
+                      icon: "⚠️"
+                    }
                   );
                   return;
                 } else {
                   toast.error(
-                    "Please Update the Vendor Name before proceeding for other changes."
+                    "Please Update the Vendor Name before proceeding for other changes.",
+                    {
+                      icon: "⚠️"
+                    }
                   );
                   return;
                 }
@@ -686,12 +662,18 @@ const MetadataTable = ({
               if (branchChanged || vendorChanged) {
                 if (branchChanged) {
                   toast.error(
-                    "Please Update the Vendor Address before proceeding for other changes."
+                    "Please Update the Vendor Address before proceeding for other changes.",
+                    {
+                      icon: "⚠️"
+                    }
                   );
                   return;
                 } else {
                   toast.error(
-                    "Please Update the Vendor Name before proceeding for other changes."
+                    "Please Update the Vendor Name before proceeding for other changes.",
+                    {
+                      icon: "⚠️"
+                    }
                   );
                   return;
                 }
@@ -714,12 +696,18 @@ const MetadataTable = ({
               if (branchChanged || vendorChanged) {
                 if (branchChanged) {
                   toast.error(
-                    "Please Update the Vendor Address before proceeding for other changes."
+                    "Please Update the Vendor Address before proceeding for other changes.",
+                    {
+                      icon: "⚠️"
+                    }
                   );
                   return;
                 } else {
                   toast.error(
-                    "Please Update the Vendor Name before proceeding for other changes."
+                    "Please Update the Vendor Name before proceeding for other changes.",
+                    {
+                      icon: "⚠️"
+                    }
                   );
                   return;
                 }
@@ -739,12 +727,18 @@ const MetadataTable = ({
               if (branchChanged || vendorChanged) {
                 if (branchChanged) {
                   toast.error(
-                    "Please Update the Vendor Address before proceeding for other changes."
+                    "Please Update the Vendor Address before proceeding for other changes.",
+                    {
+                      icon: "⚠️"
+                    }
                   );
                   return;
                 } else {
                   toast.error(
-                    "Please Update the Vendor Name before proceeding for other changes."
+                    "Please Update the Vendor Name before proceeding for other changes.",
+                    {
+                      icon: "⚠️"
+                    }
                   );
                   return;
                 }
@@ -764,12 +758,18 @@ const MetadataTable = ({
               if (branchChanged || vendorChanged) {
                 if (branchChanged) {
                   toast.error(
-                    "Please Update the Vendor Address before proceeding for other changes."
+                    "Please Update the Vendor Address before proceeding for other changes.",
+                    {
+                      icon: "⚠️"
+                    }
                   );
                   return;
                 } else {
                   toast.error(
-                    "Please Update the Vendor Name before proceeding for other changes."
+                    "Please Update the Vendor Name before proceeding for other changes.",
+                    {
+                      icon: "⚠️"
+                    }
                   );
                   return;
                 }
@@ -819,6 +819,7 @@ const MetadataTable = ({
                         vendor_account_category: null
                       });
                       setShowToChangeCategoriesAndTypes(false);
+                      setMetadata(data);
                     }
                   }}
                 >
@@ -855,6 +856,7 @@ const MetadataTable = ({
                     <p>Vendor Document Type</p>
                     <CustomDropDown
                       Value={types_and_categories?.document_types}
+
                       className={"min-w-[28rem]"}
                       data={makeKeyValueFromKey(
                         additionalData?.data?.vendor_invoice_document_types

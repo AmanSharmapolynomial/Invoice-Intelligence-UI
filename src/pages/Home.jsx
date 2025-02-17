@@ -1,5 +1,4 @@
 import "@/App.css";
-import clock from "@/assets/image/clock.svg";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import {
@@ -25,11 +24,12 @@ import BreadCrumb from "@/components/ui/Custom/BreadCrumb";
 import CustomInput from "@/components/ui/Custom/CustomInput";
 import CustomDropDown from "@/components/ui/CustomDropDown";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { useGetVendorNames } from "@/components/vendor/api";
 import { formatRestaurantsList, vendorNamesFormatter } from "@/lib/helpers";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
+import useFilterStore from "@/store/filtersStore";
+import { invoiceDetailStore } from "@/store/invoiceDetailStore";
 import persistStore from "@/store/persistStore";
 import { ArrowRight, Filter, X } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -37,7 +37,9 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 
 const Home = () => {
   const [searchParams] = useSearchParams();
+  const { clearStore } = invoiceDetailStore();
   const navigate = useNavigate();
+  const { filters, setFilters } = useFilterStore();
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [searchedInvoices, setSearchedInvoices] = useState([]);
   const [open, setOpen] = useState(false);
@@ -50,7 +52,8 @@ const Home = () => {
   let human_verified = searchParams.get("human_verified") || "";
   let detected = searchParams.get("invoice_detection_status") || "";
   let rerun_status = searchParams.get("rerun_status") || "";
-  let auto_accepted = searchParams.get("auto_accepted") || "";
+  let auto_accepted = searchParams.get("auto_accepted") || "";      
+  let auto_accepted_by_vda = searchParams.get("auto_accepted_by_vda") || "all";      
   let start_date = searchParams.get("start_date") || "";
   let end_date = searchParams.get("end_date") || "";
   let clickbacon_status = searchParams.get("clickbacon_status") || "";
@@ -90,7 +93,9 @@ const Home = () => {
     sort_order,
     human_verified,
     assigned_to,
-    document_priority
+    document_priority,
+    auto_accepted_by_vda,
+    review_later: "false"
   };
   const { data, isLoading } = useListInvoices(payload);
   useEffect(() => {
@@ -141,15 +146,10 @@ const Home = () => {
       calculateDivHeightInVh("div2") +
       calculateDivHeightInVh("pagination") +
       8.5);
-  let timer;
-  let token = searchParams.get("token");
-  let user_id = searchParams.get("user_id");
-  let refresh_token = searchParams.get("refresh_token");
-  let username = searchParams.get("username");
-  let role = searchParams.get("role");
-  let user_email = searchParams.get("user_email");
-  let first_name = searchParams.get("first_name");
-  let last_name = searchParams.get("last_name");
+
+  useEffect(() => {
+    clearStore();
+  }, []);
   return (
     <div className="h-screen  flex w-full " id="maindiv">
       <Sidebar />
@@ -173,43 +173,56 @@ const Home = () => {
           >
             <div className="flex  items-center space-x-2 ">
               <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
-              
                 <CustomDropDown
                   triggerClassName={"bg-gray-100"}
                   contentClassName={"bg-gray-100"}
-                  Value={restaurantFilterValue}
+                  Value={
+                    searchParams.get("restaurant") || restaurantFilterValue
+                  }
                   placeholder="All Restaurants"
+                  multiSelect={true}
                   className={"!max-w-fit"}
                   data={formatRestaurantsList(
                     restaurantsList && restaurantsList?.data
                   )}
                   searchPlaceholder="Search Restaurant"
                   onChange={(val) => {
-                    if (val == "none") {
-                      updateParams({ restaurant: undefined });
-                      setRestaurantFilter("none");
+                    if (typeof val == "object") {
+                      let restaurant = val.map((item) => item).join(",");
+                      setFilters({ ...filters, restaurant: restaurant });
+                      updateParams({ restaurant: restaurant });
                     } else {
-                      setRestaurantFilter(val);
-                      updateParams({ restaurant: val });
+                      if (val == "none") {
+                        updateParams({ restaurant: undefined });
+                        setFilters({ ...filters, restaurant: undefined });
+                      } else {
+                        updateParams({ restaurant: val });
+                        setFilters({ ...filters, restaurant: val });
+                      }
                     }
                   }}
                 />{" "}
                 <CustomDropDown
-                  Value={vendorFilterValue}
-                  // className="!min-w-56"
-                  className={"!max-w-56"}
-                  triggerClassName={"bg-gray-100"}
-                  contentClassName={"bg-gray-100"}
+                  Value={searchParams.get("vendor") || vendorFilterValue}
+                  className={"!max-w-80"}
+                  triggerClassName={"bg-gray-100 "}
+                  contentClassName={"bg-gray-100 !min-w-80"}
                   data={vendorNamesFormatter(
                     vendorNamesList?.data && vendorNamesList?.data?.vendor_names
                   )}
+                  multiSelect={true}
                   onChange={(val) => {
-                    if (val == "none") {
-                      setVendorFilter("none");
-                      updateParams({ vendor: undefined });
+                    if (typeof val == "object") {
+                      let vendor = val.map((item) => item).join(",");
+                      updateParams({ vendor: vendor });
+                      setFilters({ ...filters, vendor: vendor });
                     } else {
-                      setVendorFilter(val);
-                      updateParams({ vendor: val });
+                      if (val == "none") {
+                        updateParams({ vendor: undefined });
+                        setFilters({ ...filters, vendor: undefined });
+                      } else {
+                        setFilters({ ...filters, vendor: val });
+                      }
                     }
                   }}
                   placeholder="All Vendors"
@@ -222,8 +235,24 @@ const Home = () => {
                 >
                   <SheetTrigger>
                     {" "}
-                    <Button className="bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000]  ">
-                      <Filter className="h-5  text-black/40 dark:text-white/50" />
+                    <Button
+                      className={`bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000] ${
+                        open ||
+                        filters?.human_verified !== "all" ||
+                        filters?.human_verification !== "all" ||
+                        filters?.invoice_type !== ""||filters?.start_date!==""||filters?.end_date!==""||filters?.clickbacon_status!==""||filters?.auto_accepted!==""
+                          ? "!bg-primary !text-white"
+                          : "!bg-white"
+                      }   `}
+                    >
+                      <Filter
+                        className={`${
+                          (  open ||
+                            filters?.human_verified !== "all" ||
+                            filters?.human_verification !== "all" ||
+                            filters?.invoice_type !== ""||filters?.start_date!==""||filters?.end_date!==""||filters?.clickbacon_status!==""||filters?.auto_accepted!=="") ? "!text-white" : ""
+                        } h-5  text-black/40 dark:text-white/50`}
+                      />
                     </Button>
                   </SheetTrigger>
                   <SheetContent className="min-w-fit !max-w-[20rem] !overflow-auto">
@@ -248,7 +277,6 @@ const Home = () => {
                 </Sheet>
               </div>
 
-
               <CustomInput
                 showIcon={true}
                 variant="search"
@@ -256,28 +284,24 @@ const Home = () => {
                 value={invoiceNumber}
                 onChange={(value) => {
                   setInvoiceNumber(value);
-
                 }}
-                onKeyDown={
-                  (e) => {
-                    // alert(e.key)
-                    if (e.key == "Enter") {
-                      if (invoiceNumber?.length == 0) {
-                        setShowResults(false);
-                        return;
-                      }
-                      if (invoiceNumber?.length !== 0) {
-                        setShowResults(true);
-                        searchInvoices(invoiceNumber, {
-                          onSuccess: (data) => {
-                            setSearchedInvoices(data?.data);
-                          }
-                        });
-
-                      }
+                onKeyDown={(e) => {
+                  // alert(e.key)
+                  if (e.key == "Enter") {
+                    if (invoiceNumber?.length == 0) {
+                      setShowResults(false);
+                      return;
+                    }
+                    if (invoiceNumber?.length !== 0) {
+                      setShowResults(true);
+                      searchInvoices(invoiceNumber, {
+                        onSuccess: (data) => {
+                          setSearchedInvoices(data?.data);
+                        }
+                      });
                     }
                   }
-                }
+                }}
                 className="min-w-72 max-w-96 border border-gray-200 relative  focus:!ring-0 focus:!outline-none remove-number-spinner"
               />
 
@@ -296,7 +320,7 @@ const Home = () => {
                       <X className="cursor-pointer" />
                     </span>
                   </p>
-                  <Table  >
+                  <Table>
                     <div className="w-full justify-between flex max-h-56 overflow-auto">
                       <TableBody className="w-full">
                         {searchingInvoices ? (

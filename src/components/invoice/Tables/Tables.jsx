@@ -6,7 +6,7 @@ import { useGetAdditionalData } from "@/components/vendor/api";
 import { invoiceDetailsTabs } from "@/constants";
 import useFilterStore from "@/store/filtersStore";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
-import { useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import { useGetCombinedTable, useGetDocumentMetadata } from "../api";
 import CombinedTable from "./CombinedTable";
 import MetadataTable from "./MetadataTable";
@@ -23,17 +23,21 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
     reCalculateCWiseSum,
     setHistory,
     operations,
-    setMetaData
+    setMetaData,
+    setMetadataTableCopy
   } = invoiceDetailStore();
   const { data: additionalData, isLoading: loadingAdditionalData } =
     useGetAdditionalData();
 
   const { filters } = useFilterStore();
+  let { pathname } = useLocation();
   let page = searchParams.get("page_number") || 1;
   let vendor_id = searchParams.get("vendor") || "";
   let document_uuid = searchParams.get("document_uuid") || "";
   let layout = searchParams.get("layout") || null;
   let assigned_to = searchParams.get("assigned_to");
+  let auto_accepted_by_vda = searchParams.get("auto_accepted_by_vda") || "all";
+  let from_view = searchParams.get("from_view") || "";
   let payload = {
     page: page,
     page_size: filters?.page_size,
@@ -48,9 +52,14 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
     sort_order: filters?.sort_order,
     restaurant: filters?.restaurant,
     human_verified: filters?.human_verified,
+    auto_accepted_by_vda: auto_accepted_by_vda,
     vendor_id,
     document_uuid,
-    assigned_to
+    assigned_to,
+    review_later: filters?.review_later || "false",
+    from_view: from_view?.includes("not-supported")
+      ? "not-supported-documents"
+      : ""
   };
 
   const { data, isLoading, isPending, isFetched } =
@@ -59,13 +68,16 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
     useGetCombinedTable(
       data?.data?.[0]?.document_uuid || data?.data?.document_uuid
     );
+
+  useEffect(() => {
+    setMetadataTableCopy(data);
+  }, [data]);
   useEffect(() => {
     setMetaData(data?.data?.[0] || data?.data);
 
     setData(data);
     setIsLoading(isLoading);
   }, [data]);
-  
   useEffect(() => {
     const categoryColNum =
       combinedTableData?.data?.processed_table?.columns?.findIndex(
@@ -78,19 +90,23 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
 
     const categorySum = combinedTableData?.data?.processed_table?.rows?.reduce(
       (acc, row) => {
-        const category = row?.cells[categoryColNum]?.text;
+        const category =
+          categoryColNum !== -1 ? row?.cells[categoryColNum]?.text || "-" : "-"; // Default to "-" if no category column
         const price = Number(row?.cells[extPriceColNum]?.text || 0);
-        if (category) {
+        if (price > 0) {
+          // Only consider rows with a valid price
           acc[category] = (acc[category] || 0) + price;
         }
         return acc;
       },
       {}
     );
+
     if (!categorySum) {
       return;
     }
-    const categorySumArray = Object?.entries(categorySum).map(
+
+    const categorySumArray = Object.entries(categorySum).map(
       ([category, sum]) => ({ category, sum })
     );
 
@@ -104,6 +120,7 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
     combinedTableData,
     data
   ]);
+
   let length = invoiceDetailsTabs?.filter(({ value }) => {
     if (value == "combined-table") {
       if (
@@ -118,7 +135,9 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
 
   return (
     <div className="w-full box-border ">
-      <div className={`grid grid-cols-${length} !max-w-full border-b border-b-[#F0F0F0] mt-2`}>
+      <div
+        className={`grid grid-cols-${length} !max-w-full border-b border-b-[#F0F0F0] mt-2`}
+      >
         {invoiceDetailsTabs
           ?.filter(({ value }) => {
             if (value == "combined-table") {
@@ -139,8 +158,8 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
               <div
                 key={value}
                 onClick={() => {
-                  if (branchChanged || vendorChanged) {
-                    setShowWarningModal(true);
+                  if (isLoading || loadingCombinedTable) {
+                    return;
                   } else {
                     setCurrentTab(value);
                   }
@@ -187,7 +206,7 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
       {currentTab == "human-verification" && !isLoading && (
         <HumanVerificationTable
           data={combinedTableData}
-          metadata={data}
+          metadata={data?.data?.[0] || data?.data}
           payload={{
             ...filters,
             page,
@@ -216,32 +235,6 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
             }
           />
         )}
-      <Modal
-        open={showWarningModal}
-        setOpen={setShowWarningModal}
-        title={""}
-        showXicon={false}
-        className={"h-[18rem] w-[25rem] !rounded-3xl"}
-      >
-        <ModalDescription className="h-[50rem]">
-          <div className="w-full flex  flex-col justify-center h-full items-center -ml-4">
-            <img src={warning} alt="" className="h-16 w-16" />
-            <p className="font-poppins font-semibold text-base leading-6 text-[#000000]">
-              Warning
-            </p>
-            <p className="px-8 text-center mt-2 text-[#666667] font-poppins font-medium  text-sm leading-5">
-              Please save{" "}
-              {branchChanged
-                ? "the vendor"
-                : vendorChanged
-                ? "the branch "
-                : "the updated fields"}{" "}
-              before proceeding to the next step to avoid losing your changes or
-              encountering errors.
-            </p>
-          </div>
-        </ModalDescription>
-      </Modal>
     </div>
   );
 };

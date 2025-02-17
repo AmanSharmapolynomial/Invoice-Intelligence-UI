@@ -1,3 +1,4 @@
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -14,10 +15,14 @@ import {
 } from "@/components/ui/popover";
 import { getValueFromLabel } from "@/lib/helpers";
 import { cn } from "@/lib/utils";
-import { Check, ChevronDown, Link2, Verified } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Archive, Check, ChevronDown, Link2 } from "lucide-react";
 import approved from "@/assets/image/approved.svg";
 import { Link } from "react-router-dom";
+import { Checkbox } from "./checkbox";
+import { OLD_UI } from "@/config";
+import { FixedSizeList as List } from "react-window";
+import debounce from "lodash.debounce";
+import { Input } from "./input";
 
 const CustomDropDown = ({
   data = [],
@@ -34,157 +39,253 @@ const CustomDropDown = ({
   showSearch = true,
   onBlur = () => {},
   showVendorAsLink = false,
-  showBranchAsLink = false
+  showBranchAsLink = false,
+  multiSelect = false,
+  vendor_id,
+  branch_id
 }) => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(Value || "");
   const [item, setItem] = useState(null);
+  const [itemsArray, setItemsArray] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [focusedIndex,setFocusedIndex] = useState(0);
+
   useEffect(() => {
     if (Value !== undefined) {
       setValue(Value);
     }
   }, [Value]);
 
-  const handleSelect = (currentValue, item) => {
-    const newValue = currentValue === value ? "" : currentValue;
-    setValue(newValue);
-    setOpen(false);
-    setItem(item);
-    onChange(getValueFromLabel(data, newValue), item);
+  useEffect(() => {
+    if (multiSelect && Value !== "none") {
+      setItemsArray(
+        Value ? (typeof Value === "string" ? Value.split(",") : [Value]) : []
+      );
+    }
+  }, [multiSelect, Value]);
+
+  const handleSelect = useCallback(
+    (currentValue, item) => {
+      const newValue = currentValue === value ? "" : currentValue;
+      setValue(newValue);
+      setOpen(false);
+      setItem(item);
+      !multiSelect
+        ? onChange(getValueFromLabel(data, newValue), item)
+        : onChange(itemsArray, item);
+    },
+    [value, multiSelect, onChange, itemsArray, data]
+  );
+
+  const handleSearch = useCallback(
+    debounce((term) => {
+      setSearchTerm(term);
+    }, 300),
+    []
+  );
+
+  const sortedData = useMemo(() => {
+    if (!data) return [];
+    return [...data]
+      .filter((item) =>
+        item.label?.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+      .sort((a, b) => {
+        if (itemsArray.includes(a.value)) return -1;
+        if (itemsArray.includes(b.value)) return 1;
+        return 0;
+      });
+  }, [data, itemsArray, searchTerm]);
+
+  const renderTriggerContent = () => {
+    if (multiSelect) return placeholder;
+
+    if (showBranchAsLink || showVendorAsLink) {
+      const selectedItem = data.find(
+        (item) => item[Key] == (showBranchAsLink ? value?.branch_id : value)
+      );
+      return (
+        <Link
+          target="_blank"
+          to={
+            showVendorAsLink
+              ? `${OLD_UI}/vendor-consolidation-v2/${selectedItem?.value}`
+              : showBranchAsLink
+              ? `${OLD_UI}/vendor-consolidation-v2/branches/${vendor_id}`
+              : null
+          }
+          className="flex items-center gap-x-2"
+        >
+          <Link2 className="text-[#348355] !h-4 !w-4" />
+          <span className="text-[#348355] text-sm font-poppins font-normal truncate">
+            {selectedItem
+              ? selectedItem?.label?.slice(0, 50) +
+                (selectedItem?.label?.length > 100 ? "....." : "")
+              : placeholder}
+          </span>
+          {selectedItem?.human_verified && (
+            <img
+              src={approved}
+              className="text-primary !h-4 !w-5"
+              alt="Approved"
+            />
+          )}
+        </Link>
+      );
+    }
+
+    const selectedItem = data.find((item) => item[Key] == value);
+    return (
+      <div className="flex items-center gap-x-2">
+        <span className="!truncate">
+          {value && value !== "none"
+            ? selectedItem
+              ? `${selectedItem.label?.slice(0, 50)}${
+                  selectedItem.label?.length > 100 ? "....." : ""
+                }`
+              : typeof value === "string"
+              ? value
+              : Value?.vendor_address
+            : placeholder}
+        </span>
+        {item?.human_verified && (
+          <img
+            src={approved}
+            className="text-primary !h-4 !w-5"
+            alt="Approved"
+          />
+        )}
+      </div>
+    );
   };
+
+  useEffect(()=>{
+setFocusedIndex(sortedData.findIndex((item)=>item.value===value))
+  },[Value])
 
   return (
     <Popover
       open={open}
       onOpenChange={setOpen}
-      className={`${className} dark:!border-[#000000] `}
+      className={`${className} dark:!border-[#000000] !z-50 !w-full`}
     >
       <PopoverTrigger
         asChild
-        className={`${triggerClassName} dark:!border-[#000000]`}
+        className={`${triggerClassName} dark:!border-[#000000] !relative !w-full`}
       >
         <Button
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="min-w-fit border h-[2.5rem] dark:bg-[#000000] dark:text-textColor/200 dark:border-[#000000] bg-[#FFFFFF] hover:bg-[#FFFFFF] border-[#E0E0E0]  justify-between capitalize shadow-none !rounded-[4px] text-[#000000] hover:text-[#666666] font-poppins font-normal text-xs"
-        >
-          {showBranchAsLink || showVendorAsLink ? (
-            <>
-              {showBranchAsLink ? (
-                <Link to={null} className="flex items-center gap-x-2">
-                  <Link2 className="text-[#348355] !h-4 !w-4" />
-                  <span className="text-[#348355]  text-sm font-poppins font-normal truncate">
-                    {value && value !== "none"
-                      ? data.find((item) => item?.[Key] == value)
-                        ? data
-                            .find((item) => item?.[Key] == value)
-                            ?.label?.slice(0, 120) +
-                            `${data.find((item) => item?.[Key] == value)?.label
-                              ?.length >
-                            120 ? ".....":""}`
-                        : placeholder
-                      : placeholder}
-                  </span>
-                  {data.find((item) => item?.[Key] == value)
-                    ?.human_verified && (
-                    <img src={approved} className="text-primary !h-4 !w-5  " />
-                  )}
-                </Link>
-              ) : showVendorAsLink ? (
-                <Link to={null} className="flex items-center gap-x-2">
-                  <Link2 className="text-[#348355] !h-4 !w-4" />
-                  <span className="text-[#348355]  text-sm font-poppins font-normal truncate">
-                    {value && value !== "none"
-                      ? data.find((item) => item?.[Key] == value)
-                        ? data
-                            .find((item) => item?.[Key] == value)
-                            ?.label?.slice(0, 120) +
-                            `${data.find((item) => item?.[Key] == value)?.label
-                              ?.length >
-                            120 ? ".....":""}`
-                        : placeholder
-                      : placeholder}
-                  </span>
-                  {data.find((item) => item?.[Key] == value)
-                    ?.human_verified && (
-                    <img src={approved} className="text-primary !h-4 !w-5  " />
-                  )}
-                </Link>
-              ) : null}
-            </>
-          ) : (
-            <div className="flex items-center gap-x-2">
-              <span className="!truncate">
-                {value && value !== "none"
-                  ? data.find((item) => item?.[Key] == value)
-                    ? `${
-                        data
-                          .find((item) => item?.[Key] == value)
-                          ?.label?.slice(0, 120) +
-                          `${data.find((item) => item?.[Key] == value)?.label
-                            ?.length >
-                          120 ? ".....":""}`
-                      }`
-                    : value
-                  : placeholder}
-              </span>
-              <span>
-                {" "}
-                {item?.human_verified && (
-                  <img src={approved} className="text-primary !h-4 !w-5  " />
-                )}
-              </span>
-            </div>
+          className={cn(
+            "min-w-fit border h-[2.5rem] dark:bg-[#000000] dark:text-textColor/200 dark:border-[#000000] bg-[#FFFFFF] hover:bg-[#FFFFFF] border-[#E0E0E0] justify-between capitalize shadow-none !rounded-[4px] text-[#000000] hover:text-[#666666] font-poppins font-normal text-xs",
+            multiSelect && itemsArray?.length > 0 && "!bg-primary !text-white "
           )}
-          {/* Chevron icon with transition */}
+        >
+          {renderTriggerContent()}
           <ChevronDown
-            className={`ml-2 h-4 font-bold w-4 shrink-0 !text-[#666666] dark:text-textColor/200 transition-transform duration-300 ${
-              open ? "rotate-180" : "rotate-0"
-            }`}
+            className={cn(
+              "ml-2 h-4 font-bold w-4 shrink-0 !text-[#666666] dark:text-textColor/200 transition-transform duration-300",
+              open && "rotate-180",
+              multiSelect && itemsArray?.length > 0 && "!text-white"
+            )}
           />
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className={`${className}  p-0 bg-[#FFFFFF] dark:border-[#051C14]  w-fit  !max-w-60  mr-1`}
-        contentClassName={`${contentClassName}   w-full`}
+        className={`${className} p-0 dark:border-[#051C14]  min-w-[25rem] ${(showBranchAsLink||showVendorAsLink) && "!min-w-[30rem]"}  mr-1 !z-50`}
+        contentClassName={`${contentClassName}  !max-w-[17rem] min-w-full`}
       >
-        <Command className="dark:!border-[#051C14]    dark:bg-[#051C14] min-w-[100%] !w-full !z-50">
+        <Command className="dark:!border-[#051C14] px-1 py-2 dark:bg-[#051C14]  !min-w-full !z-50">
           {showSearch && (
-            <CommandInput placeholder={searchPlaceholder} className="" />
+            <Input
+              placeholder={searchPlaceholder}
+              className=" rounded-sm mb-1 focus:!ring-0 !outline-none focus:!outline-none"
+              onInput={(e) => handleSearch(e.target.value)}
+              onKeyDown={(e) => {
+                
+                if(e.key=="Enter"){
+                  handleSelect(sortedData[0].value,sortedData[0])
+                }
+              }}
+            />
           )}
           {children}
-          <CommandList className="border dark:!border-[#000000] !z-50">
+          <CommandList className=" dark:!border-[#000000] !z-50 hide-scrollbar !w-full">
             <CommandEmpty>No data found.</CommandEmpty>
-            <CommandGroup>
-              {showCustomItems
-                ? children // Render custom items if showCustomItems is true
-                : data?.map((item) => (
-                    <CommandItem
-                      key={item.value}
-                      className="text-left   !pl-0 !ml-0"
-                      onBlur={onBlur}
-                      onSelect={() => handleSelect(item.value, item)}
-                    >
-                      <Check
+            <CommandGroup className="!min-h-[8rem]  !max-h-[20rem] !w-full">
+              <List
+                height={200}
+                itemCount={sortedData.length}
+                itemSize={40}
+                width="100%"
+              >
+                {({ index, style }) => {
+                  const item = sortedData[index];
+                  return (
+                    <div style={style} key={item.value}>
+                      <CommandItem
                         className={cn(
-                          "mr-2 h-4 w-4 dark:text-[#FFFFFF]",
-                          value === item.value ? "opacity-100" : "opacity-0"
+                          "text-left border mb-1.5 break-word  truncate whitespace-break-spaces !max-h-[3rem] overflow-hidden !pl-0 border-[#E0E0E0] !bg-gray-200/70 !ml-0 ",
+                          multiSelect && "!pl-2" 
                         )}
-                      />
-                      <div className="flex justify-between  w-full items-center font-poppins text-xs font-normal dark:!text-[#FFFFFF]   gap-x-4">
-                        <span className="capitalize text-left">
-                          {item.label}
-                        </span>
-                        {item?.human_verified && (
-                          <img
-                            src={approved}
-                            className="text-primary !h-4 !w-5  "
+                        onBlur={onBlur}
+                        onSelect={() => {
+                          !multiSelect && handleSelect(item.value, item);
+                        }}
+                      >
+                        {!multiSelect && (
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4 dark:text-[#FFFFFF] ml-4",
+                              value === item.value ? "opacity-100" : "opacity-0"
+                            )}
                           />
                         )}
-                      </div>
-                    </CommandItem>
-                  ))}
+                        <div className="flex justify-between w-full items-center !pl-0 font-poppins text-xs font-normal dark:!text-[#FFFFFF] gap-x-4 break-word truncate whitespace-normal">
+                          <div className="flex gap-x-1 items-center">
+                            <span>
+                              {item?.archived_status ? (
+                                <Archive className="h-4 w-4 text-yellow-500" />
+                              ):<div className="h-4 w-4"/>}
+                            </span>
+                            <span className="capitalize text-left flex items-center gap-x-2">
+                              {item?.label?.slice(0, ((showBranchAsLink ||showVendorAsLink)?30:35)) ||
+                                item?.value?.slice(0, ((showBranchAsLink ||showVendorAsLink)?25:35))}{" "}
+                              {item?.label?.length > ((showBranchAsLink ||showVendorAsLink)?40:35) && "..."}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-x-1 mr-0.5">
+                            {item?.human_verified && (
+                              <img
+                                src={approved}
+                                className="text-primary !h-4 !w-5"
+                                alt="Approved"
+                              />
+                            )}
+                            {multiSelect && (
+                              <Checkbox
+                             
+                                checked={itemsArray.includes(item.value)}
+                                onCheckedChange={(checked) => {
+                                  setItemsArray((prev) => {
+                                    const updatedArray = checked
+                                      ? [...prev, item.value]
+                                      : prev.filter((i) => i !== item.value);
+                                    onChange(updatedArray, item);
+                                    return updatedArray;
+                                  });
+                                }}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </CommandItem>
+                    </div>
+                  );
+                }}
+              </List>
             </CommandGroup>
           </CommandList>
         </Command>
@@ -193,4 +294,4 @@ const CustomDropDown = ({
   );
 };
 
-export default CustomDropDown;
+export default React.memo(CustomDropDown);

@@ -1,6 +1,6 @@
 import approved from "@/assets/image/approved.svg";
 import no_data from "@/assets/image/no-data.svg";
-import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -10,16 +10,21 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table";
+import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
 import { invoiceTableHeaders } from "@/constants";
 import { calculateTimeDifference, formatDateToReadable } from "@/lib/helpers";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import globalStore from "@/store/globalStore";
 import { ArrowDown, ArrowUp } from "lucide-react";
-import { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useGetDocumentTimeLine, useUpdateDocumentPriority } from "../api";
 import Timeline from "../Timeline";
 
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import useFilterStore from "@/store/filtersStore";
 import {
   CheckCheck,
   ChevronDown,
@@ -28,9 +33,6 @@ import {
   ChevronUp,
   Equal
 } from "lucide-react";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 function getPropertyIcon(priority) {
   if (priority == "HIGHEST") {
     return (
@@ -43,7 +45,7 @@ function getPropertyIcon(priority) {
         }
         top={2}
       >
-        <ChevronsUp className="w-6 object-fill  text-red-500 cursor-pointer" />
+        <ChevronsUp className="w-4 object-fill  text-red-500 cursor-pointer" />
       </CustomTooltip>
     );
   }
@@ -51,7 +53,7 @@ function getPropertyIcon(priority) {
   if (priority == "LOWEST") {
     return (
       <CustomTooltip content={"LOWEST"} top={2}>
-        <ChevronsDown className=" object-fill h-6  text-blue-500 cursor-pointer" />
+        <ChevronsDown className=" object-fill h-4  text-blue-500 cursor-pointer" />
       </CustomTooltip>
     );
   }
@@ -59,7 +61,7 @@ function getPropertyIcon(priority) {
   if (priority == "HIGH") {
     return (
       <CustomTooltip content={"HIGH"} top={2}>
-        <ChevronUp className="w-4 object-fill h-10  text-orange-400 cursor-pointer" />
+        <ChevronUp className="w-4 object-fill h-4  text-orange-400 cursor-pointer" />
       </CustomTooltip>
     );
   }
@@ -67,7 +69,7 @@ function getPropertyIcon(priority) {
   if (priority == "LOW") {
     return (
       <CustomTooltip content={"LOW"} top={2}>
-        <ChevronDown className=" object-fill h-10  text-orange-400 cursor-pointer" />
+        <ChevronDown className=" object-fill h-4  text-orange-400 cursor-pointer" />
       </CustomTooltip>
     );
   }
@@ -75,7 +77,7 @@ function getPropertyIcon(priority) {
   if (priority == "MEDIUM") {
     return (
       <CustomTooltip content={"MEDIUM"} top={2}>
-        <Equal className=" object-fill h-10  text-orange-700 cursor-pointer" />
+        <Equal className=" object-fill h-4  text-orange-700 cursor-pointer" />
       </CustomTooltip>
     );
   }
@@ -83,7 +85,7 @@ function getPropertyIcon(priority) {
   if (priority == "COMPLETED") {
     return (
       <CustomTooltip content={"COMPLETED"}>
-        <CheckCheck className=" object-fill h-5 !z-50  text-primary cursor-pointer" />
+        <CheckCheck className=" object-fill h-4 !z-50  text-primary cursor-pointer" />
       </CustomTooltip>
     );
   }
@@ -104,6 +106,7 @@ const InvoiceTable = ({
   let page = searchParams.get("page") || 1;
   let sort_order = searchParams.get("sort_order") || "desc";
   let document_priority = searchParams.get("document_priority") || "all";
+
   const [changePriorityModal, setChangePriorityModal] = useState({
     state: false,
     document_uuid: null,
@@ -113,6 +116,14 @@ const InvoiceTable = ({
   const { mutate, isPending } = useGetDocumentTimeLine();
   const { mutate: updatePriority, isPending: updatingPriority } =
     useUpdateDocumentPriority();
+  const { filters, setFilters } = useFilterStore();
+
+  useEffect(() => {
+    if (review_later) {
+      setFilters({ ...filters, review_later: "true" });
+    }
+  }, [review_later]);
+  let { pathname } = useLocation();
 
   return (
     <div className="w-full overflow-auto  dark:bg-[#051C14] mb-1.5 dark:border-b dark:border-r dark:border-l dark:border-primary ">
@@ -122,12 +133,20 @@ const InvoiceTable = ({
         }vh]  `}
         style={{ height: `${height}vh` }}
       >
-        <TableHeader className="sticky top-0">
-          <TableRow className="flex  text-base border-none !sticky top-0 py-2 ">
-            {invoiceTableHeaders?.map(({ label, styling }) => (
+        <TableHeader className="sticky top-0 !bg-white !z-20">
+          <TableRow className="flex  text-base  !sticky top-0  !border-t  !border-b-0 border-l !min-h-16  !max-h-fit bg-white !z-50">
+            {invoiceTableHeaders?.map(({ label, styling }, i) => (
               <TableHead
                 key={label}
-                className={`flex  dark:text-[#F6F6F6] flex-wrap break-words  text-[#000000] font-poppins  items-center !justify-start gap-x-1 ${styling} !font-semibold text-sm w-[11.11%]   `}
+                className={`flex ${
+                  review_later ? "!w-[10%] !pl-[0.9rem]" : "!w-[11.1111111%]"
+                } !h-full !min-h-16 !max-h-fit !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-start gap-x-1 ${
+                  !review_later && styling
+                } !font-semibold text-sm !border-b-0   ${
+                  data && Object?.keys(data)?.length > 0 ? "" : " "
+                }  ${label === "Invoice #" && " !pl-2"} ${
+                  i !== invoiceTableHeaders?.length - 1 ? "!border-r" : "!"
+                }`}
               >
                 {label == "Load Date" && (
                   <>
@@ -137,7 +156,10 @@ const InvoiceTable = ({
                       >
                         <ArrowUp
                           className="h-4 cursor-pointer"
-                          onClick={() => updateParams({ sort_order: "asc" })}
+                          onClick={() => {
+                            updateParams({ sort_order: "asc" });
+                            setFilters({ ...filters, sort_order: "asc" });
+                          }}
                         />
                       </CustomTooltip>
                     )}
@@ -147,7 +169,10 @@ const InvoiceTable = ({
                       >
                         <ArrowDown
                           className="h-4 cursor-pointer"
-                          onClick={() => updateParams({ sort_order: "desc" })}
+                          onClick={() => {
+                            updateParams({ sort_order: "desc" });
+                            setFilters({ ...filters, sort_order: "desc" });
+                          }}
                         />
                       </CustomTooltip>
                     )}
@@ -161,9 +186,13 @@ const InvoiceTable = ({
                       >
                         <ArrowUp
                           className="h-4 cursor-pointer"
-                          onClick={() =>
-                            updateParams({ document_priority: "asc" })
-                          }
+                          onClick={() => {
+                            updateParams({ document_priority: "asc" });
+                            setFilters({
+                              ...filters,
+                              document_priority: "asc"
+                            });
+                          }}
                         />
                       </CustomTooltip>
                     )}
@@ -173,20 +202,30 @@ const InvoiceTable = ({
                       >
                         <ArrowDown
                           className="h-4 cursor-pointer"
-                          onClick={() =>
-                            updateParams({ document_priority: "desc" })
-                          }
+                          onClick={() => {
+                            updateParams({ document_priority: "desc" });
+                            setFilters({
+                              ...filters,
+                              document_priority: "desc"
+                            });
+                          }}
                         />
                       </CustomTooltip>
                     )}
                   </>
+                )}
+
+                {label == "Invoice #" && (
+                  <span
+                    className={`!mr-2  border-r h-full !min-h-16 !max-h-fit !w-[25.5%]`}
+                  />
                 )}
                 {label}
               </TableHead>
             ))}
             {review_later && (
               <TableHead
-                className={`flex  dark:text-[#F6F6F6] flex-wrap break-words  text-[#000000] font-poppins  items-center !justify-center gap-x-1  !font-semibold text-sm w-[11.11%]   `}
+                className={`flex  dark:text-[#F6F6F6] flex-wrap break-words !min-h-16 !max-h-fit  border-r text-[#000000] font-poppins  items-center !justify-start !pl-[0.7rem] gap-x-1  !font-semibold text-sm !w-[10%]   `}
               >
                 Comments
               </TableHead>
@@ -194,7 +233,7 @@ const InvoiceTable = ({
           </TableRow>
         </TableHeader>
         <TableBody
-          className="flex-1 !w-[100%] !overflow-auto"
+          className="flex-1 !w-[100%] "
           style={{ height: `${height}vh` }}
         >
           {isLoading ? (
@@ -208,7 +247,7 @@ const InvoiceTable = ({
                     return (
                       <TableHead
                         key={i}
-                        className="flex  !text-left items-center justify-start  pb-4 !font-semibold !text-[#1C1C1E] !min-w-[11.11%] border-b  "
+                        className="flex  !text-left items-center justify-start  pb-4 !font-semibold !text-[#1C1C1E] !min-w-[11.1111111%] border-b  "
                       >
                         {" "}
                         <Skeleton className={"w-28 h-5"} />
@@ -261,34 +300,57 @@ const InvoiceTable = ({
                         navigate(
                           `/invoice-details/?page_number=${
                             (page - 1) * 10 + (index + 1)
+                          }&from_view=${
+                            pathname?.includes("review")
+                              ? "review_later"
+                              : pathname?.includes("my-tasks")
+                              ? "my-tasks"
+                              : pathname?.includes("not-supported")?"not-supported-documents":"invoice_listing"
                           }`
                         );
                       }}
-                      className="flex gap-y-4  !font-poppins !text-sm w-[100%]  !text-[#1C1C1E] items-center  !border-none "
+                      className={`${
+                        index == 0 ? "!border-t" : "!border-t-0"
+                      }  flex !py-0  !font-poppins  !min-h-16 !max-h-44  !text-sm w-[100%]  !text-[#1C1C1E] items-center  !border   ${
+                        index == data?.length - 1 ? "!border-b" : "!border-b-0"
+                      } w-full`}
                     >
                       <TableCell
-                        className={`flex dark:!text-[#F6F6F6] font-poppins cursor-pointer!text-left break-word items-center  justify-start gap-x-2  !font-normal ${
-                          review_later ? "!w-[10%]" : "!w-[11.11%] pl-2"
+                        className={`flex dark:!text-[#F6F6F6] !h-full !min-h-16 !max-h-44 font-poppins  cursor-pointer !text-left  justify-start gap-x-2 !p-0 !font-normal ${
+                          review_later
+                            ? "!w-[10%]"
+                            : "!w-[11.1111111%] pl-2 border-r "
                         }  text-sm  `}
                       >
-                        <div
-                          className=" pt-[3px]"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setChangePriorityModal({
-                              state: true,
-                              document_uuid: document_uuid
-                            });
-                          }}
-                        >
-                          {getPropertyIcon(document_priority)}
-                        </div>{" "}
-                        <div> {invoice_number}</div>
+                        <div className=" w-full flex  ">
+                          <div className="border-r !w-[30%] flex mr-4 justify-center  !items-center h-full">
+                            <div
+                              className=" pt-[3px]  !break-word truncate"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setChangePriorityModal({
+                                  state: true,
+                                  document_uuid: document_uuid
+                                });
+                              }}
+                            >
+                              {getPropertyIcon(document_priority)}
+                            </div>{" "}
+                          </div>
+                          <div className=" flex !w-[70%] justify-start items-center !break-word  whitespace-normal truncate">
+                            <div className="!break-word  whitespace-normal truncate">
+                              {" "}
+                              {invoice_number}
+                            </div>
+                          </div>
+                        </div>
                       </TableCell>
 
                       <TableCell
-                        className={`flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-10 !text-left items-center justify-start   !font-normal !text-[#1C1C1E] ${
-                          review_later ? "!w-[10%]" : "!w-[11.11%]"
+                        className={` dark:!text-[#F6F6F6] border-r-0  !min-h-16 !max-h-44  flex font-poppins cursor-pointer !text-left items-center justify-start  !break-word whitespace-normal !font-normal !text-[#1C1C1E] ${
+                          review_later
+                            ? "!w-[10%] border-l"
+                            : "!w-[11.1111111%] "
                         } text-sm `}
                       >
                         {restaurant?.restaurant_name !== null
@@ -298,8 +360,8 @@ const InvoiceTable = ({
 
                       <TableCell
                         className={` ${
-                          review_later ? "!w-[10%]" : "!w-[11.11%]"
-                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-10  !text-left items-center gap-x-2 justify-between  !font-normal !text-[#1C1C1E]   !capitalize  text-sm break-words  `}
+                          review_later ? "!w-[10%]" : "!w-[11.1111111%] "
+                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-16 !max-h-44 !h-full border-l  !text-left items-center gap-x-2 justify-start !break-word whitespace-normal truncate  !font-normal !text-[#1C1C1E]   !capitalize  text-sm break`}
                       >
                         <span
                           className={`${
@@ -320,24 +382,39 @@ const InvoiceTable = ({
                       </TableCell>
 
                       <TableCell
-                        className={`flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm  !text-left items-center justify-start  !font-normal !text-[#1C1C1E] ${
+                        className={`flex dark:!text-[#F6F6F6] font-poppins !min-h-16 !max-h-44 !h-full  border-l cursor-pointer text-sm  !text-left items-center justify-start !break-word whitespace-normal !font-normal !text-[#1C1C1E] ${
                           review_later
-                            ? "!w-[10%] pl-[3.1%]"
-                            : "!w-[11.11%] pl-[4.12rem]"
+                            ? "!w-[10%] pl-[0.9rem]"
+                            : "!w-[11.1111111%] pl-[1.05rem]"
                         }   `}
                       >
                         {formatDateToReadable(date_uploaded?.split("T")[0])}
                       </TableCell>
+
                       <TableCell
                         className={`${
                           review_later
-                            ? "!w-[10%] !pl-[0rem]"
-                            : "!w-[11.11%] pl-[2rem]"
-                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm !text-left items-center justify-start  !font-normal !text-[#1C1C1E]  `}
+                            ? "!w-[10%] !pl-[0.9rem]"
+                            : "!w-[11.2%] pl-[1rem]"
+                        } flex dark:!text-[#F6F6F6] ${
+                          (rejected || human_verified) && "!text-primary"
+                        } font-poppins cursor-pointer !min-h-16 !max-h-44 text-sm w-full border-l h-full !text-left items-center justify-start !break-word whitespace-normal !font-normal text-[#1C1C1E] ${
+                          timeRemaining?.includes("ago") && "text-[#F15156]"
+                        } `}
                       >
-                        {assignment_details
-                          ? timeRemaining?.split("-").join("")
-                          : "NA"}
+                        <CustomTooltip
+                       className={"!min-w-full"}
+
+                          content={`Asssigned To :- ${assignment_details?.assigned_to?.username}`}
+                        >
+                        <div className="w-full ">
+                        {assignment_details && (rejected || human_verified)
+                            ? "Completed"
+                            : (assignment_details &&
+                                timeRemaining?.split("-").join("")) ||
+                              "NA"}
+                        </div>
+                        </CustomTooltip>
                       </TableCell>
 
                       <TableCell
@@ -353,8 +430,21 @@ const InvoiceTable = ({
                           }
                         }}
                         className={`${
-                          review_later ? "!w-[10%]" : "!w-[11.11%]"
-                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm   items-center justify-center pr-[7.25rem] !text-center  capitalize  !font-normal !text-[#1C1C1E] `}
+                          review_later
+                            ? "!w-[10%] pl-[0.9rem]"
+                            : "!w-[11.1111111%] pl-[1rem]"
+                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-16 !max-h-44 text-sm border-l h-full  items-center justify-start text-left pr-[7.25rem] !break-word whitespace-normal  capitalize  !font-normal !text-[#1C1C1E] 
+                        ${
+                          auto_accepted
+                            ? "!text-[#348355]"
+                            : rejected === true
+                            ? "!text-[#F15156]"
+                            : human_verified == true
+                            ? "!text-[#348355]"
+                            : "NA"
+                        }
+                        
+                        `}
                       >
                         {auto_accepted === true
                           ? "Auto Accepted"
@@ -379,24 +469,28 @@ const InvoiceTable = ({
                         }}
                         className={` ${
                           review_later
-                            ? "!w-[8%] pl-[2%]"
-                            : "!w-[11.11%] !pl-[3.4%]"
-                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm !text-left items-center justify-start  !font-normal !text-[#1C1C1E]  `}
+                            ? "!w-[10%] !pl-[0.8rem]"
+                            : "!w-[11.1111111%] !pl-[0.9rem]"
+                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-16 !max-h-44 text-sm border-l h-full !text-left items-center !justify-start  !font-normal !break-word whitespace-normal !text-[#1C1C1E]  `}
                       >
                         {clickbacon_status}
                       </TableCell>
 
                       <TableCell
                         className={`${
-                          review_later ? "!w-[10%] pl-[0.8%] " : "!w-[11.11%]"
-                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer  text-sm !text-left items-center justify-start !font-normal !text-[#1C1C1E]   `}
+                          review_later
+                            ? "!w-[10%] pl-[0.9rem] "
+                            : "!w-[11.1111111%] pl-[0.9rem]"
+                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-16 !max-h-44 border-l h-full  text-sm !text-left items-center justify-start !font-normal !text-[#1C1C1E] !break-word whitespace-normal  `}
                       >
                         {invoice_type}
                       </TableCell>
                       <TableCell
                         className={`${
-                          review_later ? "!w-[10%] pl-[4%]" : "!w-[11.11%]"
-                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm !text-left items-center justify-center !font-normal !text-[#1C1C1E] `}
+                          review_later
+                            ? "!w-[10%] pl-[0.9rem]"
+                            : "!w-[11.1111111%] pl-[0.9rem]"
+                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-16 !max-h-44 border-l h-full text-sm !text-left items-center justify-start !font-normal !text-[#1C1C1E] !break-word whitespace-normal `}
                       >
                         {!human_verified_date
                           ? "NA"
@@ -405,7 +499,7 @@ const InvoiceTable = ({
                             ) || "NA"}
                       </TableCell>
                       {review_later && (
-                        <TableCell className="flex capitalize dark:!text-[#F6F6F6] font-poppins cursor-pointer text-sm !text-left items-center justify-center pl-[4.5%] !font-normal !text-[#1C1C1E] !w-[10%] ">
+                        <TableCell className="flex capitalize dark:!text-[#F6F6F6]  !min-h-16 !max-h-44 font-poppins cursor-pointer text-sm !text-left items-center justify-start border-l h-full !break-word whitespace-normal  !font-normal !text-[#1C1C1E] !w-[10%] ">
                           {review_later_details?.comments}
                         </TableCell>
                       )}
@@ -516,8 +610,12 @@ const InvoiceTable = ({
               }
             )
           ) : (
-            <div className="flex justify-center items-center h-[40vh] !w-[95vw] !overflow-hidden">
-              <img src={no_data} alt="" className="flex-1 h-full" />
+            <div className="flex justify-center items-center h-full !w-full !overflow-hidden">
+              <img
+                src={no_data}
+                alt=""
+                className="flex-1 h-96 overflow-hidden"
+              />
             </div>
           )}
         </TableBody>

@@ -24,12 +24,17 @@ export default function DatePicker({ date, onChange, className }) {
   const [inputValue, setInputValue] = React.useState(
     date ? format(date, "MM/dd/yyyy") : ""
   );
-  const [month, setMonth] = React.useState(
-    date ? date.getMonth() : new Date().getMonth()
-  );
-  const [year, setYear] = React.useState(
-    date ? date.getFullYear() : new Date().getFullYear()
-  );
+  const [month, setMonth] = React.useState(date ? date.getMonth() : new Date().getMonth());
+  const [year, setYear] = React.useState(date ? date.getFullYear() : new Date().getFullYear());
+
+  // Sync input value with the date prop if it changes
+  React.useEffect(() => {
+    if (date) {
+      setInputValue(format(date, "MM/dd/yyyy"));
+      setMonth(date.getMonth());
+      setYear(date.getFullYear());
+    }
+  }, [date]);
 
   const handleInputChange = (e) => {
     const newValue = e.target.value.replace(/\D/g, "");
@@ -38,12 +43,9 @@ export default function DatePicker({ date, onChange, className }) {
     if (newValue.length <= 2) {
       formattedValue = newValue;
     } else if (newValue.length <= 4) {
-      formattedValue = `${newValue.slice(0, 2)}/${newValue.slice(2)}`;
+      formattedValue = `${newValue?.slice(0, 2)}/${newValue?.slice(2)}`;
     } else {
-      formattedValue = `${newValue.slice(0, 2)}/${newValue.slice(
-        2,
-        4
-      )}/${newValue.slice(4, 8)}`;
+      formattedValue = `${newValue?.slice(0, 2)}/${newValue?.slice(2, 4)}/${newValue?.slice(4, 8)}`;
     }
 
     setInputValue(formattedValue);
@@ -70,33 +72,29 @@ export default function DatePicker({ date, onChange, className }) {
   const handleMonthChange = (value) => {
     const newMonth = parseInt(value, 10);
     setMonth(newMonth);
-    if (date) {
-      const newDate = new Date(date.setMonth(newMonth));
-      onChange(newDate);
-      setInputValue(format(newDate, "MM/dd/yyyy"));
-    }
+    const newDate = new Date(year, newMonth, 1); // Ensure a valid date
+    onChange(newDate);
+    setInputValue(format(newDate, "MM/dd/yyyy"));
   };
 
   const handleYearChange = (value) => {
     const newYear = parseInt(value, 10);
     setYear(newYear);
-    if (date) {
-      const newDate = new Date(date.setFullYear(newYear));
-      onChange(newDate);
-      setInputValue(format(newDate, "MM/dd/yyyy"));
-    }
+    const newDate = new Date(newYear, month, 1); // Ensure a valid date
+    onChange(newDate);
+    setInputValue(format(newDate, "MM/dd/yyyy"));
   };
 
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <div className="relative w-full">
+    <Popover className="!z-10">
+      <PopoverTrigger asChild className="!z-10">
+        <div className="relative w-full z-10">
           <Input
             value={inputValue}
             onChange={handleInputChange}
-            placeholder="MM/DD/YYYY"
+            placeholder="MM/dd/yyyy"
             className={cn(
-              "pr-10 dark:bg-[#000000] !min-w-full dark:text-textColor/200 dark:border-[#000000] bg-[#FFFFFF] hover:bg-[#FFFFFF] border-[#E0E0E0] capitalize !shadow-none !rounded-[4px] !text-[#000000] hover:text-[#666666] font-poppins font-normal text-xs !h-[2.5rem]",
+              "pr-10 dark:bg-[#000000] !min-w-full dark:text-textColor/200 dark:border-[#000000] bg-[#FFFFFF] hover:bg-[#FFFFFF] border-[#E0E0E0]  !shadow-none !rounded-[4px] !text-[#000000] hover:text-[#666666] font-poppins font-normal text-xs !h-[2.5rem] -z-10",
               className
             )}
           />
@@ -135,9 +133,9 @@ export default function DatePicker({ date, onChange, className }) {
         </div>
         <Calendar
           mode="single"
-          selected={date}
+          selected={date} // Make sure the calendar reflects the selected date
           onSelect={handleCalendarSelect}
-          month={new Date(year, month)}
+          month={new Date(year, month)} // Sync calendar month
           onMonthChange={(newMonth) => {
             setMonth(newMonth.getMonth());
             setYear(newMonth.getFullYear());

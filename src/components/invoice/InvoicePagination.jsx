@@ -1,19 +1,22 @@
-import useUpdateParams from "@/lib/hooks/useUpdateParams";
-import React, { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import navigate_back from "@/assets/image/navigate_back_black.svg";
 import navigate_end from "@/assets/image/navigate_end_black.svg";
 import navigate_next from "@/assets/image/navigate_next_black.svg";
-import navigate_start from "@/assets/image/navigate_start_black.svg";
 import slash from "@/assets/image/slash_black.svg";
-import { Input } from "../ui/input";
+import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { Input } from "../ui/input";
 import { queryClient } from "@/lib/utils";
 const InvoicePagination = ({ totalPages, setCurrentTab }) => {
   const [searchParams] = useSearchParams();
   const updateParams = useUpdateParams();
   let page = searchParams.get("page_number") || 1;
-  const { isModalOpen } = invoiceDetailStore();
+  const {
+    isModalOpen,
+    clearStore,
+    showTextExtractionModal,
+    setShowTextExtractionModal
+  } = invoiceDetailStore();
   const [pageIndex, setPageIndex] = useState(page);
   useEffect(() => {
     setPageIndex(page);
@@ -21,7 +24,6 @@ const InvoicePagination = ({ totalPages, setCurrentTab }) => {
   useEffect(() => {
     if (!isModalOpen) {
       const handleKeyDown = (e) => {
-        // Ignore key events if the target is an input, textarea, or content-editable element
         const tagName = document.activeElement.tagName.toLowerCase();
         const isEditable =
           document.activeElement.isContentEditable ||
@@ -30,30 +32,42 @@ const InvoicePagination = ({ totalPages, setCurrentTab }) => {
           tagName === "select";
 
         if (!isEditable) {
+          e.stopPropagation(); // Prevent other handlers from interfering
           if (e.key === "ArrowLeft" && pageIndex > 1) {
-            // Go to the previous page
             updateParams({ page_number: Number(pageIndex) - 1 });
-            queryClient.invalidateQueries({ queryKey: ["combined-table"] });
-            queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
-            setPageIndex(pageIndex - 1);
+            setPageIndex((prev) => prev - 1);
             setCurrentTab("metadata");
+            clearStore();
+            queryClient.invalidateQueries({queryKey:['combined-table']})
+            queryClient.invalidateQueries({queryKey:['document-metadata']})
           } else if (e.key === "ArrowRight" && pageIndex < totalPages) {
-            // Go to the next page
             updateParams({ page_number: Number(pageIndex) + 1 });
-            setPageIndex(Number(pageIndex) + 1);
+            setPageIndex((prev) => Number(prev) + 1);
             setCurrentTab("metadata");
-            queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
-            // queryClient.invalidateQueries({ queryKey: ["combined-table"] });
+            clearStore();
+            queryClient.invalidateQueries({queryKey:['combined-table']})
+            queryClient.invalidateQueries({queryKey:['document-metadata']})
           }
         }
       };
 
-      window.addEventListener("keydown", handleKeyDown);
+      window.addEventListener("keydown", handleKeyDown, true); // Use capture phase
+
+      // Cleanup the event listener
       return () => {
-        window.removeEventListener("keydown", handleKeyDown);
+        window.removeEventListener("keydown", handleKeyDown, true);
       };
     }
-  }, [pageIndex, totalPages, updateParams, isModalOpen]);
+  }, [
+    pageIndex,
+    totalPages,
+    updateParams,
+    isModalOpen,
+    clearStore,
+    setCurrentTab,
+    showTextExtractionModal,
+    setShowTextExtractionModal
+  ]);
 
   return (
     <div className="flex gap-x-6 py-2 mt-2 justify-center items-center  ">
@@ -85,6 +99,12 @@ const InvoicePagination = ({ totalPages, setCurrentTab }) => {
         value={pageIndex}
         onChange={(e) => {
           setPageIndex(e.target.value);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            updateParams({ page_number: pageIndex });
+            // setCurrentTab("metadata");
+          }
         }}
         onBlur={() => {
           updateParams({ page_number: pageIndex });

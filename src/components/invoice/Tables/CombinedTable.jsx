@@ -24,11 +24,42 @@ const CombinedTable = ({
   loadingAdditionalData
 }) => {
   // const {combinedTableHistory :history,setCombinedTableHistory}=invoiceDetailStore()
-  const [history, setHistory] = useState([]); // History stack for undo
+  const { history, setHistory, operations, setOperations } =
+    invoiceDetailStore(); // History stack for undo
   const { columns = [], rows = [] } = data?.data?.processed_table;
 
   const setCachedData = (key, value) => {};
+  const undoLastAction = () => {
+    if (operations?.length !== 0) {
+      if (history.length === 0) return;
 
+      const { tableData: lastTableData, operations: lastOperations } =
+        history.pop();
+      const lastOperation = lastOperations[lastOperations.length - 1];
+      if (lastOperation?.type === "delete_row") {
+        const deletedRowUuid = lastOperation.data.transaction_uuid;
+        const restoredRow = lastTableData.data.processed_table.rows.find(
+          (row) => row.transaction_uuid === deletedRowUuid
+        );
+
+        const updatedRows = [
+          ...lastTableData.data.processed_table.rows,
+          restoredRow
+        ];
+        let copyData = JSON.parse(JSON.stringify(data));
+        copyData.data.processed_table.rows = updatedRows;
+        queryClient.setQueryData(["combined-table", document_uuid], copyData);
+      } else {
+        queryClient.setQueryData(
+          ["combined-table", document_uuid],
+          lastTableData
+        );
+      }
+
+      setOperations(lastOperations);
+      setHistory(history);
+    }
+  };
   useEffect(() => {
     if (data) {
       let copyObj = JSON.parse(JSON.stringify(data));
@@ -54,11 +85,23 @@ const CombinedTable = ({
   const handleCheckboxChange = (column_uuid, val) => {
     let copyObj = JSON.parse(JSON.stringify(data));
     const { rows = [], columns = [] } = copyObj?.data?.processed_table;
+    let col_name="";
     columns?.forEach((col) => {
       if (col?.column_uuid == column_uuid) {
         col.selected_column = val;
+        col_name=col?.column_name
       }
     });
+    let operation = {
+      type: "update_column",
+      operation_order: operations?.length+1,
+      data: {
+        column_uuid: column_uuid,
+        selected_column: val,
+        column_name: col_name
+      }
+    };
+    setOperations([...operations,operation])
     queryClient.setQueryData(["combined-table", document_uuid], copyObj);
   };
 
@@ -83,11 +126,11 @@ const CombinedTable = ({
     let { rows = [], columns = [] } = copyObj?.data?.processed_table;
 
     // Save current state to history
-    setHistory((prev) => [
-      ...prev,
+    setHistory([
+      ...history,
       {
-        columns: JSON.parse(JSON.stringify(columns)),
-        rows: JSON.parse(JSON.stringify(rows))
+        tableData: JSON.parse(JSON.stringify(data)),
+        operations: [...operations]
       }
     ]);
 
@@ -103,6 +146,15 @@ const CombinedTable = ({
     copyObj.data.processed_table.rows = rows;
 
     // Update the query data
+
+    let operation = {
+      type: "delete_column",
+      operation_order: operations?.length + 1,
+      data: {
+        column_uuid: column_uuid
+      }
+    };
+    setOperations([...operations, operation]);
     queryClient.setQueryData(["combined-table", document_uuid], copyObj);
   };
 
@@ -136,7 +188,7 @@ const CombinedTable = ({
               src={undo}
               alt=""
               className="h-[1.25rem] ml-1 cursor-pointer"
-              onClick={handleUndo}
+              onClick={undoLastAction}
             />
           </Button>
         </CustomTooltip>
@@ -176,7 +228,7 @@ const CombinedTable = ({
           </TableHead>
 
           <TableBody className="!max-h-[30rem] hide-scrollbar  ">
-            <div className=" flex gap-x-2 overflow-auto px-0.5 !max-h-[35rem] hide-scrollbar justify-between " >
+            <div className=" flex gap-x-2 overflow-auto px-0.5 !max-h-[35rem] hide-scrollbar justify-between ">
               {columns?.map(
                 ({
                   column_uuid,
@@ -196,7 +248,7 @@ const CombinedTable = ({
                           triggerClassName={
                             "!max-w-[10rem] !relative  !h-[2.25rem] !min-w-[9.5rem]  "
                           }
-                          data={headerNamesFormatter(
+                          data={[...(headerNamesFormatter(
                             additionalData?.data
                               ?.processed_table_header_candidates
                           )?.filter(
@@ -205,7 +257,7 @@ const CombinedTable = ({
                                 existingColumn_names?.includes(c?.label) &&
                                 c.label !== column_name
                               )
-                          )}
+                          )),{label:"NA",value:"NA"}]}
                           onChange={(c, item) => {
                             handleDropdownChange(column_uuid, c);
                           }}
@@ -226,7 +278,7 @@ const CombinedTable = ({
                   <TableRow
                     bordered
                     key={index}
-                    className="flex w-full gap-x-2 border-none"
+                    className="flex w-full gap-x-2 border-none justify-between"
                   >
                     {row?.cells?.map((cell, i) => {
                       return (

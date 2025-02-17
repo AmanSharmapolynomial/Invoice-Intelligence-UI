@@ -9,8 +9,8 @@ const useFilterStore = create(
         page_size: 10,
         invoice_type: "",
         invoice_detection_status: "",
-        rerun_status: "",
         auto_accepted: "",
+        auto_accepted_by_vda:"all",
         start_date: "",
         end_date: "",
         clickbacon_status: "",
@@ -21,7 +21,9 @@ const useFilterStore = create(
         human_verified: "all",
         assigned_to: "",
         document_priority:"all",
-        token:""
+        token:"",
+        review_later:"false",
+        supported_documents:null
       },
       setFilters: (newFilters) =>
         set((state) => ({
@@ -35,8 +37,8 @@ const useFilterStore = create(
             page_size: 10,
             invoice_type: "",
             invoice_detection_status: "",
-            rerun_status: "",
             auto_accepted: "",
+            auto_accepted_by_vda:"all",
             start_date: "",
             end_date: "",
             clickbacon_status: "",
@@ -47,7 +49,9 @@ const useFilterStore = create(
             human_verified: "all",
             assigned_to: "",
             document_priority:"all",
-            token:""
+            token:"",
+            review_later:"false",
+            supported_documents:null
           }
         })
     }),

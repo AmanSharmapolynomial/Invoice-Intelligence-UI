@@ -6,19 +6,55 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator
 } from "@/components/ui/breadcrumb";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams
+} from "react-router-dom";
 import home from "@/assets/image/home.svg";
 import home_white from "@/assets/image/home_white.svg";
 import { ArrowLeft, MoveLeft } from "lucide-react";
+import useFilterStore from "@/store/filtersStore";
 
-const BreadCrumb = ({ crumbs = [], title ,showCustom=false,children}) => {
+const BreadCrumb = ({ crumbs = [], title, showCustom = false, children }) => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const [searchParams] = useSearchParams();
+  let from_view = searchParams.get("from_view");
+  const { filters } = useFilterStore();
   const navigator = () => {
     if (pathname == "/home") {
       navigate("/");
     } else if (pathname == "/invoice-details/") {
-      navigate("/home");
+      if (from_view == "review_later") {
+        const newParams = new URLSearchParams();
+
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value) {
+            newParams.set(key, value);
+          }
+        });
+        navigate(`/review-later-tasks` + `?${newParams?.toString()}`);
+      } else if (from_view == "my-tasks") {
+        const newParams = new URLSearchParams();
+
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value) {
+            newParams.set(key, value);
+          }
+        });
+        navigate(`/my-tasks` + `?${newParams?.toString()}`);
+      } else {
+        const newParams = new URLSearchParams();
+
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value) {
+            newParams.set(key, value);
+          }
+        });
+        navigate(`/home` + `?${newParams?.toString()}`);
+      }
     } else {
       window.history.back();
     }
@@ -43,7 +79,7 @@ const BreadCrumb = ({ crumbs = [], title ,showCustom=false,children}) => {
         <BreadcrumbList className="flex items-center">
           <BreadcrumbItem>
             <BreadcrumbLink asChild className="flex items-center">
-              <Link to="/home">
+              <Link to="/">
                 <img src={home} alt="" className="-mt-0.5 dark:hidden" />
                 <img
                   src={home_white}

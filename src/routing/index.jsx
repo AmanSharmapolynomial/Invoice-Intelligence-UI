@@ -18,12 +18,20 @@ import InvoiceProcessor from "@/pages/InvoiceProcessor";
 import FastItemVerification from "@/pages/FastItemVerification";
 import ReviewLaterTasks from "@/pages/ReviewLaterTasks";
 import MyTasks from "@/pages/MyTasks";
+import Test from "@/pages/Test";
+import NotSupportedDocuments from "@/pages/NotSupportedDocuments";
 
 const publicRoutes = [
   {
     path: "/login",
     element: <Login />
-  }
+  },
+  
+  {
+    path: "/test",
+    element: <Test />
+  },
+
 ];
 const protectedRoutes = [
   {
@@ -47,6 +55,14 @@ const protectedRoutes = [
     element: (
       <Protected>
         <ReviewLaterTasks />
+      </Protected>
+    )
+  },
+  {
+    path: "/not-supported-documents",
+    element: (
+      <Protected>
+        <NotSupportedDocuments />
       </Protected>
     )
   },

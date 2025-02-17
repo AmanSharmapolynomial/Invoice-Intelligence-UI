@@ -158,6 +158,9 @@ export const useUpdateDocumentMetadata = () => {
           autoClose: 2000
         }
       );
+    },
+    onError:(data)=>{
+      toast.error(data?.message)
     }
   });
 };
@@ -207,6 +210,9 @@ export const useMarkAsNotSupported = () => {
           autoClose: 2000
         }
       );
+    },
+    onError:(data)=>{
+      toast.error(data?.message)
     }
   });
 };
@@ -233,8 +239,12 @@ export const useUpdateDocumentTable = () => {
           autoClose: 2000
         }
       );
+     
       queryClient.invalidateQueries({ queryKey: ["combined-table"] });
       queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
+    },
+    onError:(data)=>{
+      toast.error(data?.message)
     }
   });
 };

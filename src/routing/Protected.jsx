@@ -15,8 +15,8 @@ const Protected = ({ children }) => {
   let last_name = searchParams.get("last_name");
 
 
-  const { access_token, setAccessToken, setRefreshToken, setUserId, setUsername, setRole, setEmail, setFirstName, setLastName } = userStore()
-
+  const {  setAccessToken, setRefreshToken, setUserId, setUsername, setRole, setEmail, setFirstName, setLastName } = userStore()
+let access_token=localStorage.getItem('token')
   if (!access_token) {
     if (token) {
       setAccessToken(token)

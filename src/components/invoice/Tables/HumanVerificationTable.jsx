@@ -21,6 +21,8 @@ import {
   ArrowUpFromLine,
   ArrowUpToLine,
   CircleAlert,
+  Globe,
+  Network,
   Trash2
 } from "lucide-react";
 import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
@@ -31,6 +33,7 @@ import CustomInput from "@/components/ui/Custom/CustomInput";
 import { useAutoCalculate } from "../api";
 import { Label } from "@/components/ui/label";
 import CustomToolTip from "@/components/ui/CustomToolTip";
+import { Link } from "react-router-dom";
 
 const HumanVerificationTable = ({
   data,
@@ -353,14 +356,14 @@ const HumanVerificationTable = ({
   const handleEditCell = (rowIndex, cellIndex, initialValue) => {
     setEditMode({ rowIndex, cellIndex });
     setCellValue(initialValue);
-    setStopHovering(false);
+    // setStopHovering(false);
   };
-
-  const handleKeyPress = (event, rowIndex, cellIndex) => {
-    if (event.key === "Enter") {
-      handleSaveCell(rowIndex, cellIndex);
+  const handleKeyPress = (event, rowIndex, cellIndex, value) => {
+    if (event.key === "Enter" && !event.ctrlKey && !event.shiftKey && !event.altKey && !event.metaKey) {
+      handleSaveCell(rowIndex, cellIndex, value);
     }
   };
+  
 
   const undoLastAction = () => {
     if (operations?.length !== 0) {
@@ -394,6 +397,147 @@ const HumanVerificationTable = ({
     }
   };
 
+  
+  const deleteRow = (rowIndex) => {
+    saveHistory();
+    let copyData = JSON.parse(JSON.stringify(data));
+    const updatedRows = [...copyData?.data?.processed_table?.rows];
+    const deletedRow = updatedRows[rowIndex];
+    updatedRows.splice(rowIndex, 1);
+    const operation = {
+      type: "delete_row",
+      operation_order: operations.length + 1,
+      data: {
+        transaction_uuid: deletedRow.transaction_uuid
+      }
+    };
+    setOperations([...operations, operation]);
+
+    toast.success(`Row ${rowIndex + 1} deleted successfully.`);
+    copyData.data.processed_table.rows = updatedRows;
+    queryClient.setQueryData(["combined-table", document_uuid], copyData);
+    setContextMenu({
+      visible: false,
+      position: { x: 0, y: 0 }
+    });
+  };
+
+  const handleRowShifting = (rowIndex, shiftType) => {
+    let copyObj = JSON.parse(JSON.stringify(data));
+  
+    // Check if the rowIndex is valid and avoid shifting the first or last row beyond bounds
+    if (rowIndex === 0 && shiftType === "up") {
+      return; // Can't shift the first row up
+    } else if (
+      rowIndex === copyObj?.data?.processed_table?.rows?.length - 1 &&
+      shiftType === "down"
+    ) {
+      return; // Can't shift the last row down
+    }
+  
+    saveHistory();
+  
+    // Determine the index of the row we are shifting to
+    let shiftToIndex = shiftType === "up" ? rowIndex - 1 : rowIndex + 1;
+  
+    // Swap rows logic
+    let temp;
+    let newOperation = {
+      type: "swap_rows",
+      operation_order: operations?.length + 1,
+      data: {
+        row_1_uuid: copyObj.data.processed_table.rows[rowIndex]?.transaction_uuid,
+        row_2_uuid: copyObj.data.processed_table.rows[shiftToIndex]?.transaction_uuid
+      }
+    };
+  
+    // Swap the rows
+    temp = copyObj.data.processed_table.rows[rowIndex];
+    copyObj.data.processed_table.rows[rowIndex] = copyObj.data.processed_table.rows[shiftToIndex];
+    copyObj.data.processed_table.rows[shiftToIndex] = temp;
+  
+    // Update the row orders after the swap
+    copyObj.data.processed_table.rows.forEach((row, index) => {
+      row.row_order = index + 1; // Recalculate the row_order based on the new index
+    });
+  
+    // Add the operation to the history
+    setOperations([...operations, newOperation]);
+  
+    // Update the query data with the modified rows
+    queryClient.setQueryData(["combined-table", document_uuid], copyObj);
+  };
+  
+  const addEmptyColumn = () => {
+    saveHistory(); // Save the current state for undo/redo functionality
+  
+    const newColumn = {
+      column_uuid: uuidv4(),
+      column_name: "Select an option",
+      column_order:
+        data?.data?.processed_table?.columns?.[data?.data?.processed_table?.columns?.length - 1]
+          ?.column_order + 1 || 0,
+      bounding_boxes: null,
+      selected_column: true
+    };
+  
+    const updatedColumns = [...data?.data?.processed_table?.columns, newColumn];
+  
+    const updatedRows = data?.data?.processed_table?.rows?.map((row) => ({
+      ...row,
+      cells: [
+        ...row.cells,
+        {
+          column_uuid: newColumn.column_uuid,
+          text: "", // Initialize with an empty text
+          actual_text: null,
+          confidence: null,
+          page_index: 0,
+          row_uuid: row.transaction_uuid,
+          cell_uuid: uuidv4(), // Unique identifier for the new cell
+          selected_column: newColumn.selected_column
+        }
+      ]
+    }));
+  
+    const updatedData = {
+      ...data,
+      data: {
+        ...data.data,
+        processed_table: {
+          ...data.data.processed_table,
+          rows: updatedRows,
+          columns: updatedColumns
+        }
+      }
+    };
+  
+    const operation = {
+      type: "create_column",
+      operation_order: operations.length + 1,
+      data: {
+        column_uuid: newColumn.column_uuid,
+        column_name: newColumn.column_name,
+        selected_column: newColumn.selected_column,
+        cells: updatedRows.map((row) => ({
+          row_uuid: row.transaction_uuid,
+          column_uuid: newColumn.column_uuid,
+          cell_uuid: row.cells.find((cell) => cell.column_uuid === newColumn.column_uuid).cell_uuid,
+          text: ""
+        }))
+      }
+    };
+  
+    setOperations([...operations, operation]);
+    queryClient.setQueryData(["combined-table", document_uuid], updatedData);
+  
+    setContextMenu({
+      visible: false,
+      position: { x: 0, y: 0 }
+    });
+  };
+
+  
   const addEmptyRow = () => {
     saveHistory();
     let copyData = JSON.parse(JSON.stringify(data));
@@ -428,124 +572,103 @@ const HumanVerificationTable = ({
     rows.push(newRow);
     queryClient.setQueryData(["combined-table", document_uuid], copyData);
   };
-
-  const deleteRow = (rowIndex) => {
-    saveHistory();
-    let copyData = JSON.parse(JSON.stringify(data));
-    const updatedRows = [...copyData?.data?.processed_table?.rows];
-    const deletedRow = updatedRows[rowIndex];
-    updatedRows.splice(rowIndex, 1);
-    const operation = {
-      type: "delete_row",
-      operation_order: operations.length + 1,
-      data: {
-        transaction_uuid: deletedRow.transaction_uuid
+  const handleSaveCell = async (rowIndex, cellIndex, value) => {
+    const originalValue =
+      data?.data?.processed_table?.rows?.[rowIndex]?.cells?.[cellIndex]?.text || "";
+  
+      if (value !== originalValue) {
+        saveHistory();
+        
+        const updatedData = JSON.parse(JSON.stringify(data)); 
+      // Create a deep copy of the data
+      
+      const targetCell = updatedData?.data?.processed_table?.rows?.[rowIndex]?.cells?.filter((c)=>selectedColumnIds?.includes(c.column_uuid))?.[cellIndex];
+      
+      if (!targetCell) {
+        toast.error("Invalid cell reference.");
+        return;
       }
-    };
-    setOperations([...operations, operation]);
+      
+      // Update the cell's text
+      targetCell.text = value;
+      updatedData.data.processed_table.rows[rowIndex].cells[cellIndex].text=value
+      let copyObj=JSON.parse(JSON.stringify(updatedData))
+      copyObj.data.processed_table.rows[rowIndex].cells[cellIndex].text=value
 
-    toast.success(`Row ${rowIndex + 1} deleted successfully.`);
-    copyData.data.processed_table.rows = updatedRows;
-    queryClient.setQueryData(["combined-table", document_uuid], copyData);
-    setContextMenu({
-      visible: false,
-      position: { x: 0, y: 0 }
-    });
-  };
+      // Create an operation to track the update
+      const operation = {
+        type: "update_cell",
+        operation_order: operations.length + 1,
+        data: {
+          cell_uuid: targetCell.cell_uuid,
+          row_uuid: updatedData.data.processed_table.rows[rowIndex].transaction_uuid,
+          column_uuid: targetCell.column_uuid,
+          text: value,
+        },
+      };
+      updatedData.data.processed_table.rows[rowIndex].cells.forEach((c, i) => {
+        c["column_name"] = data.data.processed_table.columns[i]?.column_name;
+      });
+      let extPriceCellColumnUUID =
+      updatedData.data.processed_table.columns?.find(
+        (col) => col?.column_name === "Extended Price"
+      )?.["column_uuid"];
 
-  const handleRowShifting = (rowIndex, shiftType) => {
-    let copyObj = JSON.parse(JSON.stringify(data));
-    if (rowIndex == 0 && shiftType == "up") {
-      return;
-    } else if (
-      rowIndex == copyObj?.data?.processed_table?.rows?.length - 1 &&
-      shiftType == "down"
-    ) {
-      return;
+    // Copy operations for recalculation
+    let copyOperations = JSON.parse(
+      JSON.stringify([...operations, operation])
+    );
+      // Add the operation to the state
+      setOperations([...operations, operation]);
+      if (autoCalculate) {
+        mutate(
+          {
+            document_uuid,
+            row: { ...updatedData.data.processed_table.rows[rowIndex] }
+          },
+          {
+            onSuccess: (data) => {
+              const extPriceCell = data?.data?.cells.find(
+                (cell) => cell.column_uuid === extPriceCellColumnUUID
+              );
+
+              const newOperation = {
+                type: "update_cell",
+                operation_order: operations.length + 1,
+                data: {
+                  cell_uuid: extPriceCell?.cell_uuid,
+                  row_uuid:
+                    updatedData.data.processed_table.rows[rowIndex]
+                      .transaction_uuid,
+                  column_uuid: extPriceCellColumnUUID,
+                  text: extPriceCell?.text
+                }
+              };
+
+              // Add the new operation for the extended price
+              setOperations([...copyOperations, newOperation]);
+              updatedData.data.processed_table.rows[rowIndex] = data.data;
+
+              setReCalculateCWiseSum(true); // Recalculate category-wise sum
+              queryClient.setQueryData(
+                ["combined-table", document_uuid],
+                updatedData
+              );
+              setEditMode({ rowIndex: null, cellIndex: null });
+              return;
+            }
+          }
+        );
+      }
+
+      // Update query data for the combined table
+      queryClient.setQueryData(["combined-table", document_uuid], updatedData);
     }
-    saveHistory();
 
-    let shiftToIndex = shiftType == "up" ? rowIndex - 1 : rowIndex + 1;
-    let temp;
-    let newOperation = {
-      type: "swap_rows",
-      operation_order: operations?.length + 1,
-      data: {
-        row_1_uuid:
-          copyObj.data.processed_table.rows[rowIndex]?.transaction_uuid,
-        row_2_uuid:
-          copyObj.data.processed_table.rows[shiftToIndex]?.transaction_uuid
-      }
-    };
-
-    setOperations([...operations, newOperation]);
-    temp = copyObj.data.processed_table.rows[rowIndex];
-    copyObj.data.processed_table.rows[rowIndex] =
-      copyObj.data.processed_table.rows[shiftToIndex];
-    copyObj.data.processed_table.rows[shiftToIndex] = temp;
-    queryClient.setQueryData(["combined-table", document_uuid], copyObj);
+    // Exit edit mode after saving
+    setEditMode({ rowIndex: null, cellIndex: null });
   };
-
-  const addEmptyColumn = () => {
-    saveHistory();
-    const newColumn = {
-      column_uuid: uuidv4(),
-      column_name: "Select an option",
-      column_order:
-        data?.data?.processed_table?.columns?.[
-          data?.data?.processed_table?.columns?.length - 1
-        ]?.column_order + 1 || 0,
-      bounding_boxes: null,
-      selected_column: true
-    };
-
-    const updatedColumns = [...data?.data?.processed_table?.columns, newColumn];
-    const updatedRows = data?.data?.processed_table?.rows?.map((row) => ({
-      ...row,
-      cells: [
-        ...row.cells,
-        {
-          column_uuid: newColumn.column_uuid,
-          text: "",
-          actual_text: null,
-          confidence: null,
-          page_index: 0,
-          row_uuid: row.transaction_uuid,
-          cell_uuid: uuidv4(),
-          selected_column: true
-        }
-      ]
-    }));
-
-    let copyTable = JSON.parse(JSON.stringify(data));
-    copyTable.data.processed_table.rows = updatedRows;
-    copyTable.data.processed_table.columns = updatedColumns;
-
-    const operation = {
-      type: "create_column",
-      operation_order: operations.length + 1,
-      data: {
-        column_uuid: newColumn.column_uuid,
-        column_name: newColumn.column_name,
-        selected_column: newColumn.selected_column,
-        cells: updatedRows.reduce((acc, row) => {
-          const filteredCells = row?.cells?.filter(
-            (cell) => cell?.column_uuid == newColumn?.column_uuid
-          );
-          return acc.concat(filteredCells);
-        }, [])
-      }
-    };
-
-    setOperations([...operations, operation]);
-    queryClient.setQueryData(["combined-table", document_uuid], copyTable);
-
-    setContextMenu({
-      visible: false,
-      position: { x: 0, y: 0 }
-    });
-  };
-
+  
   const copyRow = (rowIndex, copyType) => {
     // Prevent copying outside table bounds
     if (rowIndex < 0 || rowIndex >= data?.data?.processed_table?.rows?.length) {
@@ -683,13 +806,7 @@ const HumanVerificationTable = ({
     // Update the query data with the new row
     queryClient.setQueryData(["combined-table", document_uuid], copyData);
 
-    // Show a success toast
-    toast.success(
-      rowIndex === -1
-        ? "Row added successfully at the end."
-        : `Row added successfully at position ${rowIndex + 1}.`
-    );
-
+    
     // Hide the context menu
     setContextMenu({
       visible: false,
@@ -698,13 +815,13 @@ const HumanVerificationTable = ({
   };
 
   const addNewCell = (rowIndex, column_uuid, cell_uuid, row_uuid) => {
-    // Step 1: Deep copy the data object to work with
-    let copyData = JSON.parse(JSON.stringify(data));
-    let combinedTableCopy = JSON.parse(JSON.stringify(data));
+    // Step 1: Deep copy the data object
+    const combinedTableCopy = JSON.parse(JSON.stringify(data));
+    const copyData = combinedTableCopy.data.processed_table;
 
     saveHistory(); // Save the current state for undo/redo
 
-    let { rows } = copyData.data.processed_table;
+    const { rows } = copyData;
 
     // Step 2: Check if the last row exists and capture the last cell for the specified column
     const lastRow = rows[rows.length - 1];
@@ -712,14 +829,14 @@ const HumanVerificationTable = ({
       ? lastRow.cells.find((cell) => cell.column_uuid === column_uuid)
       : null;
 
-    // Step 3: Create a new row if adding a new cell to the last row
+    // Step 3: Create a new row if needed
     let newRow = null;
     if (lastCell) {
       const newRowUuid = uuidv4();
       newRow = {
         transaction_uuid: newRowUuid,
         row_order: rows.length + 1,
-        item_master: {}, // Customize as needed
+        item_master: {}, // Placeholder for additional data
         cells: rows[0].cells.map((cell) => ({
           ...cell,
           cell_uuid: uuidv4(),
@@ -730,50 +847,33 @@ const HumanVerificationTable = ({
       };
 
       rows.push(newRow);
-      combinedTableCopy.data.processed_table.rows.push(newRow);
     }
 
-    // Step 4: Shift cells down for the specified column and insert an empty cell
+    // Step 4: Shift cells down for the specified column
     for (let i = rows.length - 1; i > rowIndex; i--) {
-      const currentCell = rows[i].cells.find(
+      const currentRow = rows[i];
+      const previousRow = rows[i - 1];
+
+      const currentCell = currentRow.cells.find(
         (cell) => cell.column_uuid === column_uuid
       );
-      const previousCell = rows[i - 1].cells.find(
+      const previousCell = previousRow.cells.find(
         (cell) => cell.column_uuid === column_uuid
       );
 
       if (currentCell && previousCell) {
-        // Step 4.1: Clear the current cell before shifting
-        if (i === rowIndex) {
-          currentCell.text = "";
-          currentCell.actual_text = "";
-        }
-
-        // Step 4.2: Shift the content down
         currentCell.text = previousCell.text;
         currentCell.actual_text = previousCell.actual_text;
-        currentCell.cell_uuid = uuidv4(); // New UUID for the shifted cell
-
-        // Update combined table
-        const combinedCell = combinedTableCopy.data.processed_table.rows[
-          i
-        ].cells.find((cell) => cell.column_uuid === column_uuid);
-        if (combinedCell) {
-          combinedCell.text = previousCell.text;
-          combinedCell.actual_text = previousCell.actual_text;
-          combinedCell.cell_uuid = uuidv4(); // New UUID for the shifted cell
-        }
+        currentCell.cell_uuid = uuidv4();
       }
     }
 
     // Step 5: Add an empty cell at the target position
     const targetRow = rows[rowIndex];
-    let targetCell;
     if (targetRow) {
-      targetCell = targetRow.cells.find(
+      const targetCell = targetRow.cells.find(
         (cell) => cell.column_uuid === column_uuid
       );
-
       if (targetCell) {
         Object.assign(targetCell, {
           text: "",
@@ -783,6 +883,8 @@ const HumanVerificationTable = ({
         });
       }
     }
+
+    // Step 6: Prepare operations for history/undo
     const createRowOperation = newRow
       ? {
           type: "create_row",
@@ -802,7 +904,9 @@ const HumanVerificationTable = ({
         current_cell_uuid: cell_uuid,
         current_column_uuid: column_uuid,
         current_row_uuid: row_uuid,
-        new_cell_uuid: targetCell?.cell_uuid
+        new_cell_uuid: targetRow?.cells.find(
+          (cell) => cell.column_uuid === column_uuid
+        )?.cell_uuid
       }
     };
 
@@ -812,9 +916,7 @@ const HumanVerificationTable = ({
 
     setOperations(newOperations);
 
-    combinedTableCopy.data.processed_table.rows[rowIndex].cells.find(
-      (cell) => cell?.cell_uuid == cell_uuid
-    ).text = "";
+    // Step 7: Update combined table
     queryClient.setQueryData(
       ["combined-table", document_uuid],
       combinedTableCopy
@@ -839,7 +941,13 @@ const HumanVerificationTable = ({
       return;
     }
 
-    // Identify the column's cells and start shifting data upwards
+    // Find the target cell
+    const targetRow = rows[rowIndex];
+    const targetCell = targetRow?.cells.find(
+      (cell) => cell.cell_uuid === cell_uuid && cell.column_uuid === column_uuid
+    );
+
+    // Shift cells upward
     for (let i = rowIndex; i < rows.length - 1; i++) {
       const currentCell = rows[i]?.cells.find(
         (cell) => cell.column_uuid === column_uuid
@@ -849,157 +957,62 @@ const HumanVerificationTable = ({
       );
 
       if (currentCell && nextCell) {
-        // Generate a new UUID for the shifted cell
-        const newCellUuid = uuidv4();
         Object.assign(currentCell, {
-          ...nextCell,
-          cell_uuid: newCellUuid
+          text: nextCell.text,
+          actual_text: nextCell.actual_text,
+          confidence: nextCell.confidence,
+          cell_uuid: nextCell?.cell_uuid,
+          bounding_box: nextCell.bounding_box || null
         });
       }
     }
 
-    // Handle the last cell in the column
+    // Clear the last cell
     const lastRow = rows[rows.length - 1];
     const lastCell = lastRow?.cells.find(
       (cell) => cell.column_uuid === column_uuid
     );
 
-    let newLastCellUuid = null;
     if (lastCell) {
-      // Generate a new UUID for the last cell and reset it
-      newLastCellUuid = uuidv4();
       Object.assign(lastCell, {
         text: "",
         actual_text: null,
         confidence: null,
-        cell_uuid: newLastCellUuid, // Reset the last cell with a new UUID
-        bounding_box: null // Reset any bounding box or additional properties
+        cell_uuid: uuidv4(),
+        bounding_box: null
       });
     }
 
-    // Record the delete operation for tracking
-    let operation = {
+    // Record the operation
+
+    const operation = {
       type: "delete_cell",
       operation_order: operations.length + 1,
       data: {
-        current_cell_uuid: cell_uuid, // UUID of the cell being deleted
-        current_column_uuid: column_uuid,
-        current_row_uuid: rows[rowIndex]?.transaction_uuid,
-        new_cell_uuid: newLastCellUuid // New UUID of the last cell
+        current_cell_uuid: cell_uuid, // The UUID of the cell being deleted
+        current_column_uuid: column_uuid, // The column where the deletion occurred
+        current_row_uuid: targetRow?.transaction_uuid, // The row where the deletion occurred
+        new_cell_uuid: lastCell?.cell_uuid // The newly generated UUID for the last cell
       }
     };
 
-    // Update the operations and table data
     setOperations([...operations, operation]);
     queryClient.setQueryData(["combined-table", document_uuid], copyData);
 
-    // Show success toast
-    toast.success("Cell deleted and column shifted successfully.");
-
-    // Hide the context menu (if applicable)
-    setContextMenu({
-      visible: false,
-      position: { x: 0, y: 0 }
-    });
-  };
-
-  const handleSaveCell = async (rowIndex, cellIndex, value) => {
-    const originalValue =
-      data.data.processed_table.rows[rowIndex].cells[cellIndex].text;
-
-    if (value !== originalValue) {
-      saveHistory();
-
-      // Create a deep copy of the data object
-      const updatedData = JSON.parse(JSON.stringify(data));
-
-      // Update the cell value in both rows
-      updatedData.data.processed_table.rows[rowIndex].cells[cellIndex].text =
-        value;
-
-      // Prepare the operation for the update
-      const operation = {
-        type: "update_cell",
-        operation_order: operations.length + 1,
-        data: {
-          cell_uuid:
-            updatedData.data.processed_table.rows[rowIndex].cells[cellIndex]
-              .cell_uuid,
-          row_uuid:
-            updatedData.data.processed_table.rows[rowIndex].transaction_uuid,
-          column_uuid:
-            updatedData.data.processed_table.rows[rowIndex].cells[cellIndex]
-              .column_uuid,
-          text: value
-        }
-      };
-
-      // Add column names if needed
-      updatedData.data.processed_table.rows[rowIndex].cells.forEach((c, i) => {
-        c["column_name"] = data.data.processed_table.columns[i]?.column_name;
-      });
-
-      setOperations([...operations, operation]);
-
-      let extPriceCellColumnUUID =
-        updatedData.data.processed_table.columns?.find(
-          (col) => col?.column_name === "Extended Price"
-        )?.["column_uuid"];
-
-      // Copy operations for recalculation
-      let copyOperations = JSON.parse(
-        JSON.stringify([...operations, operation])
-      );
-
-      // If autoCalculate is enabled, trigger the mutate function
-      if (autoCalculate) {
-        mutate(
-          {
-            document_uuid,
-            row: { ...updatedData.data.processed_table.rows[rowIndex] }
-          },
-          {
-            onSuccess: (data) => {
-              const extPriceCell = data?.data?.cells.find(
-                (cell) => cell.column_uuid === extPriceCellColumnUUID
-              );
-
-              const newOperation = {
-                type: "update_cell",
-                operation_order: operations.length + 1,
-                data: {
-                  cell_uuid: extPriceCell?.cell_uuid,
-                  row_uuid:
-                    updatedData.data.processed_table.rows[rowIndex]
-                      .transaction_uuid,
-                  column_uuid: extPriceCellColumnUUID,
-                  text: extPriceCell?.text
-                }
-              };
-
-              // Add the new operation for the extended price
-              setOperations([...copyOperations, newOperation]);
-              updatedData.data.processed_table.rows[rowIndex] = data.data;
-
-              setReCalculateCWiseSum(true); // Recalculate category-wise sum
-              queryClient.setQueryData(
-                ["combined-table", document_uuid],
-                updatedData
-              );
-              setEditMode({ rowIndex: null, cellIndex: null });
-              return;
-            }
-          }
-        );
-      }
-
-      // Update query data for the combined table
-      queryClient.setQueryData(["combined-table", document_uuid], updatedData);
+    // Validate the final state
+    const allCellUuids = rows.flatMap((row) =>
+      row.cells.map((cell) => cell.cell_uuid)
+    );
+    if (new Set(allCellUuids).size !== allCellUuids.length) {
+      console.error("Duplicate UUIDs detected in final table state.");
+      toast.error("Duplicate UUIDs found after cell deletion.");
     }
 
-    // Exit edit mode after saving
-    setEditMode({ rowIndex: null, cellIndex: null });
+    // Success message
+    toast.success("Cell deleted successfully.");
   };
+
+
 
   const addTax = () => {
     const newData = { ...metaData };
@@ -1064,6 +1077,9 @@ const HumanVerificationTable = ({
     });
   };
 
+  const existing_column_names=data?.data?.processed_table?.columns?.filter((c)=>c?.selected_column)?.map(({bounding_box,column_order,selected_column,column_uuid,...rest})=>rest?.column_name?.toLowerCase());
+console.log(data,"Human Verification Table")
+
   return (
     <>
       {" "}
@@ -1073,7 +1089,7 @@ const HumanVerificationTable = ({
           "max-h-[42rem]   overflow-hidden"
         } w-full -mt-3 border border-[#F0F0F0] shadow-sm rounded-md  `}
       >
-        {metaData?.invoice_type !== "Summary Invoice" && (
+        {metadata?.invoice_type !== "Summary Invoice" && (
           <div className="w-full flex items-center justify-between pr-[1rem] border-b border-[#E0E0E0]">
             <p className="font-poppins font-semibold  p-3 text-base leading-6">
               Items
@@ -1221,7 +1237,7 @@ const HumanVerificationTable = ({
             onClose={handleCloseMenu}
           />
         )}
-        {metaData?.invoice_type !== "Summary Invoice" && (
+        {metadata?.invoice_type !== "Summary Invoice" && (
           <div
             className={`flex items-center justify-between py-3 !text-[#121212] !font-poppins !font-semibold !text-base px-8 ${
               metaData?.document_metadata?.invoice_extracted_total ==
@@ -1245,11 +1261,11 @@ const HumanVerificationTable = ({
           </div>
         )}
 
-        {metaData?.invoice_type !== "Summary Invoice" && (
+        {metadata?.invoice_type !== "Summary Invoice" && (
           <div className="pb-2  overflow-hidden w-full  ">
             <Table className="w-full   overflow-auto      ">
               <TableBody
-                className=""
+                className="w-full "
                 onMouseLeave={() => {
                   if (stopHovering) {
                     setBoundingBox({});
@@ -1258,48 +1274,57 @@ const HumanVerificationTable = ({
                   }
                 }}
               >
-                <div className=" flex justify-between hide-scrollbar gap-x-2  px-0.5 sticky top-0 bg-white/80 z-20">
-                  {columns
-                    ?.filter((c) => c.selected_column)
-                    ?.map(
-                      ({
-                        column_uuid,
-                        column_name,
-                        column_order,
-                        selected_column
-                      }) => {
-                        return (
-                          <TableCell
-                            className="!min-w-[11rem] !max-w-full     flex items-center "
-                            key={column_uuid}
-                          >
-                            <CustomDropDown
-                              Value={column_name}
-                              className={"!w-[rem]"}
-                              triggerClassName={
-                                "!max-w-[10rem] !h-[2.25rem] !min-w-[9.5rem]  "
-                              }
-                              data={headerNamesFormatter(
-                                additionalData?.data
-                                  ?.processed_table_header_candidates
-                              )}
-                              onChange={(c, item) => {
-                                handleDropdownChange(column_uuid, c);
-                              }}
-                            />
-                          </TableCell>
-                        );
-                      }
-                    )}
-                  <div className="w-full sticky right-0   flex items-center justify-end">
+                <div className=" flex  min-w-full hide-scrollbar   sticky top-0 bg-white/80 z-20">
+                  <div className="flex justify-between items-center gap-x-4 w-full ">
+                    {columns
+                      ?.filter((c) => c.selected_column)
+                      ?.map(
+                        ({
+                          column_uuid,
+                          column_name,
+                          column_order,
+                          selected_column
+                        }) => {
+                          return (
+                            <TableCell
+                              className="!min-w-[12rem] !max-w-full      flex items-center justify-center "
+                              key={column_uuid}
+                            >
+                              <CustomDropDown
+                                Value={column_name}
+                                className={"!w-[rem]"}
+                                triggerClassName={
+                                  "!max-w-full !h-[2.25rem] !min-w-[10.5rem]  "
+                                }
+                                data={[...(headerNamesFormatter(
+                                  additionalData?.data
+                                    ?.processed_table_header_candidates
+                                )?.filter((col)=>!existing_column_names?.includes(col?.label?.toLowerCase()))),{label:"NA",value:"NA"}]}
+                                onChange={(c, item) => {
+                                  handleDropdownChange(column_uuid, c);
+                                }}
+                              />
+                            </TableCell>
+                          );
+                        }
+                      )}
+                  </div>
+                  {/* <div className="w-full sticky right-0   flex items-center "> */}
                     {(viewDeleteColumn ||
                       viewShiftColumn ||
                       viewVerificationColumn) && (
-                      <TableCell className={`${viewDeleteColumn&&viewShiftColumn&&viewVerificationColumn &&"w-[6rem]"} !border-l  sticky !max-w-[6rem] min-w-[4rem]   flex justify-center items-center font-poppins font-normal text-xs !p-0 h-full bg-white/90  !right-[0px]`}>
+                      <TableCell
+                        className={`${
+                          viewDeleteColumn &&
+                          viewShiftColumn &&
+                          viewVerificationColumn &&
+                          "w-[6.2rem]"
+                        } !border-l  sticky !max-w-[6.2rem]  min-w-[6.3rem]   flex justify-center items-center font-poppins font-normal text-xs !p-0 min-h-full bg-white/90  !right-[0px]`}
+                      >
                         Actions
                       </TableCell>
                     )}
-                  </div>
+                  {/* </div> */}
                 </div>
 
                 <div className=" flex flex-col gap-x-2   px-0.5 max-h-[30rem]  ">
@@ -1309,7 +1334,7 @@ const HumanVerificationTable = ({
                         <TableRow
                           bordered
                           key={index}
-                          className="flex w-full gap-x-2  mb-2 border-b !border-b-[#F5F5F5]     justify-between "
+                          className="flex w-full gap-x-2  mb-2 border-b !border-b-[#F5F5F5]      justify-between "
                         >
                           {row?.cells
                             ?.filter((c) =>
@@ -1362,7 +1387,7 @@ const HumanVerificationTable = ({
                                       row_uuid: row?.transaction_uuid
                                     });
                                   }}
-                                  className="!min-w-[11rem] font-poppins  font-normal text-sm leading-4 text-[#121212] !max-w-full  justify-center    flex items-center  capitalize text-center -ml-2"
+                                  className="!w-[12rem]  font-poppins   font-normal text-sm leading-4 text-[#121212] !max-w-full  justify-center    flex items-center  capitalize  text-left"
                                   key={i}
                                 >
                                   {editMode?.rowIndex === index &&
@@ -1371,12 +1396,6 @@ const HumanVerificationTable = ({
                                       {cell?.column_uuid ===
                                       categoryColumnId ? (
                                         <div
-                                          onMouseLeave={() =>
-                                            setEditMode({
-                                              rowIndex: -1,
-                                              cellIndex: -1
-                                            })
-                                          }
                                         >
                                           <CustomDropDown
                                             Value={
@@ -1406,11 +1425,15 @@ const HumanVerificationTable = ({
                                           onBlur={() =>
                                             handleSaveCell(index, i, cellValue)
                                           }
+                                          onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation()
+                                          }}
                                           onDoubleClick={(e) => {
                                             e.preventDefault();
                                           }}
                                           onKeyPress={(e) => {
-                                            handleKeyPress(e, index, i);
+                                            handleKeyPress(e, index, i,cellValue);
                                           }}
                                           onChange={(e) => {
                                             setCellValue(e.target.value);
@@ -1429,40 +1452,55 @@ const HumanVerificationTable = ({
                         {(viewDeleteColumn ||
                           viewShiftColumn ||
                           viewVerificationColumn) && (
-                          <TableCell className="sticky !max-w-[6rem] min-w-[4rem] border-l gap-x-4 flex  justify-center  items-center font-poppins font-normal text-xs leading-4 bg-white/90  right-0 !z-10">
+                          <TableCell className="sticky !max-w-full min-w-[6.2rem] border-l gap-x-4 flex  justify-center  items-center font-poppins font-normal text-xs leading-4 bg-white/90  right-0 !z-10">
                             <CustomTooltip
                               content={
                                 <div className="flex flex-col gap-x-2 items-start gap-y-2">
-                                  
-                                   <div className="flex items-center gap-x-2"   >
-                                      <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">Category : </p>
-                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">{row?.item_master?.category || "NA"}</p> 
-                                   </div>
-                                   <div className="flex items-center gap-x-2"     >
-                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">Vendor :</p>
-                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">{row?.item_master?.vendor || "NA"}</p>
-                                   </div>
-                                   <div className="flex items-center gap-x-2"     >
-                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">Branch :</p>
-                                      <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">{row?.item_master?.branch || "NA"}</p>
-                                   </div>
-                                   <div className="flex items-center gap-x-2"       >
-                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">Item Code : </p>
-                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">{row?.item_master?.item_code || "NA"}</p>
-                                   </div>
-                                   <div className="flex items-center gap-x-2"       >
-                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">Item Description :</p>
-                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">{row?.item_master?.item_description || "NA"  }</p>
-                                   </div>
-                                
-                  
-                                   
-                            
+                                  <div className="flex items-center gap-x-2">
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
+                                      Category :{" "}
+                                    </p>
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
+                                      {row?.item_master?.category || "NA"}
+                                    </p>
+                                  </div>
+                                  <div className="flex items-center gap-x-2">
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
+                                      Vendor :
+                                    </p>
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
+                                      {row?.item_master?.vendor || "NA"}
+                                    </p>
+                                  </div>
+                                  <div className="flex items-center gap-x-2">
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
+                                      Branch :
+                                    </p>
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
+                                      {row?.item_master?.branch || "NA"}
+                                    </p>
+                                  </div>
+                                  <div className="flex items-center gap-x-2">
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
+                                      Item Code :{" "}
+                                    </p>
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
+                                      {row?.item_master?.item_code || "NA"}
+                                    </p>
+                                  </div>
+                                  <div className="flex items-center gap-x-2">
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
+                                      Item Description :
+                                    </p>
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
+                                      {row?.item_master?.item_description ||
+                                        "NA"}
+                                    </p>
+                                  </div>
                                 </div>
                               }
-                              
                               className={
-                                "!absolute !w-[30em] !top-0 border right-16 border-2 border-[#CBCBCB] !rounded-md !bg-[#F2F2F7] !z-50"
+                                "!absolute !w-[30em] !top-0 right-16  border-[#CBCBCB] !rounded-md !bg-[#F2F2F7] !z-50"
                               }
                             >
                               {viewVerificationColumn &&
@@ -1485,6 +1523,9 @@ const HumanVerificationTable = ({
                                     src={warning_mark}
                                   />
                                 ))}
+                                {/* <Link target="_blank" to={`https://www.google.com/search?q=${row?.cells?.[2]?.text}`}>
+                                  <Globe/>
+                                </Link> */}
                             </CustomTooltip>
 
                             {viewDeleteColumn && (
@@ -1515,6 +1556,7 @@ const HumanVerificationTable = ({
                             )}
                           </TableCell>
                         )}
+                      
                       </div>
                     );
                   })}
@@ -1524,7 +1566,7 @@ const HumanVerificationTable = ({
           </div>
         )}
       </div>
-      {metaData?.invoice_type !== "Summary Invoice" ? (
+      {metadata?.invoice_type !== "Summary Invoice" ? (
         <>
           <div className="flex gap-x-2 items-center  justify-between px-3 mt-8 border-b pb-3 border-b-[#E0E0E0]">
             <div className="flex  items-center gap-x-2 ">
@@ -1768,7 +1810,7 @@ const HumanVerificationTable = ({
               value={metaData?.document_metadata?.invoice_extracted_total}
             />
           </div>
-          {metaData?.invoice_type !== "Summary Invoice" && (
+          {metadata?.invoice_type !== "Summary Invoice" && (
             <div
               className={`flex items-center justify-between py-3 !text-[#121212] !font-poppins  my-4 !font-semibold !text-base px-4 ${
                 metaData?.document_metadata?.invoice_extracted_total ==
@@ -1796,7 +1838,7 @@ const HumanVerificationTable = ({
         <>
           <div
             className={`${
-              metaData?.invoice_type == "Summary Invoice"
+              metadata?.invoice_type == "Summary Invoice"
                 ? "py-4 mx-2 my-4 rounded-xl border-[#D9D9D9]"
                 : "my-4"
             } flex items-center justify-between pl-4 font-poppins font-normal text-sm text-[#121212] pr-2 border`}

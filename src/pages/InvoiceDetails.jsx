@@ -1,4 +1,4 @@
-import receipt_long from "@/assets/image/receipt_long.svg";
+import approved from "@/assets/image/approved.svg";
 import warning from "@/assets/image/warning.svg";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
@@ -22,7 +22,12 @@ import { Label } from "@/components/ui/label";
 import { Modal, ModalDescription } from "@/components/ui/Modal";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
-import { formatDateToReadable } from "@/lib/helpers";
+import {
+  formatDateTime,
+  formatDateToReadable,
+  formatRestaurantsList,
+  vendorNamesFormatter
+} from "@/lib/helpers";
 import { queryClient } from "@/lib/utils";
 import useFilterStore from "@/store/filtersStore";
 import globalStore from "@/store/globalStore";
@@ -35,27 +40,41 @@ import my_tasks_white from "@/assets/image/check_book_white.svg";
 import review_later_black from "@/assets/image/review_later_black.svg";
 import review_later_white from "@/assets/image/review_later_white.svg";
 
+import { useListRestaurants } from "@/components/home/api";
+import InvoiceFilters from "@/components/invoice/InvoiceFilters";
+import { useInvoiceStore } from "@/components/invoice/store";
+import CustomDropDown from "@/components/ui/CustomDropDown";
 import {
   Sheet,
   SheetClose,
   SheetContent,
+  SheetHeader,
+  SheetTitle,
   SheetTrigger
 } from "@/components/ui/sheet";
+import { useGetVendorNames, useGetVendorNotes } from "@/components/vendor/api";
+import DocumentNotes from "@/components/vendor/notes/DocumentNotes";
+import VendorNotes from "@/components/vendor/notes/VendorNotes";
+import useUpdateParams from "@/lib/hooks/useUpdateParams";
+import persistStore from "@/store/persistStore";
 import useThemeStore from "@/store/themeStore";
 import {
+  ArrowRight,
   ChevronRight,
+  Filter,
   Info,
   Menu,
-  MessageCircleMore,
   Share2,
   X
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { Link, useLocation, useSearchParams } from "react-router-dom";
-import VendorNotes from "@/components/vendor/notes/VendorNotes";
-import { useGetVendorNotes } from "@/components/vendor/api";
-import DocumentNotes from "@/components/vendor/notes/DocumentNotes";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams
+} from "react-router-dom";
 
 const rejectionReasons = [
   "Duplicate invoice",
@@ -69,14 +88,16 @@ const rejectionReasons = [
 
 const InvoiceDetails = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [data, setData] = useState({});
 
+  const [data, setData] = useState({});
+  const updateParams = useUpdateParams();
   const [currentTab, setCurrentTab] = useState("metadata");
   const [markForReviewModal, setMarkForReviewModal] = useState(false);
   const [markAsNotSupportedModal, setMarkAsNotSupportedModal] = useState(false);
   const [showRejectionModal, setShowRejectionModal] = useState(false);
   const [reviewLaterComments, setReviewLaterComments] = useState("");
   const [rejectionReason, setRejectionReason] = useState("");
+  const [showAlreadySyncedModal, setShowAlreadySyncedModal] = useState(false);
   const [showDuplicateInvoicesModal, setShowDuplicateInvoicesModal] =
     useState(false);
   const [showDuplicateInvoicesWarning, setShowDuplicateInvoicesWarning] =
@@ -93,7 +114,8 @@ const InvoiceDetails = () => {
     setOperations,
     setBranchChanged,
     setVendorChanged,
-    metadata
+    metadata,
+    setHistory
   } = invoiceDetailStore();
   const [isLoading, setIsLoading] = useState(true);
   const [loadingState, setLoadingState] = useState({
@@ -103,7 +125,7 @@ const InvoiceDetails = () => {
     markingForReview: false,
     markingAsNotSupported: false
   });
-  const { filters } = useFilterStore();
+  const { filters, setFilters } = useFilterStore();
   const { mutate: updateTable } = useUpdateDocumentMetadata();
   const { mutate: markForReview, isPending: markingForReview } =
     useMarkReviewLater();
@@ -130,6 +152,11 @@ const InvoiceDetails = () => {
   }, []);
 
   const handleSave = () => {
+    if (Object.keys(updatedFields)?.length == 0 && operations?.length == 0) {
+      return toast("No Fields Updated..", {
+        icon: "⚠️"
+      });
+    }
     if (currentTab == "metadata" && updatedFields) {
       setLoadingState({ ...loadingState, saving: true });
       updateTable(
@@ -142,6 +169,7 @@ const InvoiceDetails = () => {
           onSuccess: () => {
             setLoadingState({ ...loadingState, saving: false });
             queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
+            queryClient.invalidateQueries({ queryKey: ["duplicate-invoices"] });
             clearUpdatedFields();
             setBranchChanged(false);
             setVendorChanged(false);
@@ -153,7 +181,7 @@ const InvoiceDetails = () => {
       );
     } else if (currentTab == "human-verification") {
       setLoadingState({ ...loadingState, saving: true });
-      if (updatedFields) {
+      if (Object.keys(updatedFields)?.length > 0) {
         updateTable(
           {
             document_uuid:
@@ -166,6 +194,7 @@ const InvoiceDetails = () => {
               queryClient.invalidateQueries({
                 queryKey: ["document-metadata"]
               });
+              queryClient.invalidateQueries({ queryKey: ["duplicate-invoices"] });
               clearUpdatedFields();
               setBranchChanged(false);
               setVendorChanged(false);
@@ -185,15 +214,15 @@ const InvoiceDetails = () => {
               setOperations([]);
 
               setHistory([]);
+              queryClient.invalidateQueries({ queryKey: ["duplicate-invoices"] });
               queryClient.invalidateQueries({ queryKey: ["combined-table"] });
               queryClient.invalidateQueries({ queryKey: ["additional-data"] });
               // queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
-              setCombinedTableCopy({});
-              if (!refreshed) {
-                refreshed = true;
-                window.location.reload();
-              }
-              setAdded(false);
+              // setCombinedTableCopy({});
+              // if (!refreshed) {
+              //   refreshed = true;
+              //   window.location.reload();
+              // }
             },
 
             onError: () => setLoadingState({ ...loadingState, saving: false })
@@ -209,30 +238,6 @@ const InvoiceDetails = () => {
     payload["rejected"] = true;
 
     payload["rejection_reason"] = rejectionReason;
-    if (operations?.length !== 0) {
-      setLoadingState({ ...loadingState, saving: true });
-
-      saveDocumentTable(
-        { document_uuid: metaData?.document_uuid, data: operations },
-        {
-          onSuccess: () => {
-            setLoadingState({ ...loadingState, saving: false });
-            setOperations([]);
-
-            setRejectionReason("");
-            setHistory([]);
-            setShowRejectionModal(false);
-            queryClient.invalidateQueries({ queryKey: ["combined-table"] });
-            queryClient.invalidateQueries({ queryKey: ["additional-data"] });
-            queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
-            setCombinedTableCopy({});
-            setAdded(false);
-          },
-
-          onError: () => setLoadingState({ ...loadingState, saving: false })
-        }
-      );
-    }
     updateTable(
       {
         document_uuid: metaData?.document_uuid,
@@ -249,11 +254,6 @@ const InvoiceDetails = () => {
         onError: () => setLoadingState({ ...loadingState, rejecting: false })
       }
     );
-  };
-
-  const handleAccept = () => {
-    setLoadingState({ ...loadingState, accepting: true });
-    metaData["human_verified"] = true;
     if (operations?.length !== 0) {
       setLoadingState({ ...loadingState, saving: true });
 
@@ -264,20 +264,24 @@ const InvoiceDetails = () => {
             setLoadingState({ ...loadingState, saving: false });
             setOperations([]);
 
+            setRejectionReason("");
             setHistory([]);
+            setShowRejectionModal(false);
             queryClient.invalidateQueries({ queryKey: ["combined-table"] });
             queryClient.invalidateQueries({ queryKey: ["additional-data"] });
             queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
-            setCombinedTableCopy({});
-            setAdded(false);
+            // setCombinedTableCopy({});
           },
 
           onError: () => setLoadingState({ ...loadingState, saving: false })
         }
       );
     }
-    setLoadingState({ ...loadingState, saving: true });
+  };
 
+  const handleAccept = () => {
+    setLoadingState({ ...loadingState, accepting: true });
+    metaData["human_verified"] = true;
     updateTable(
       {
         document_uuid: metaData?.document_uuid,
@@ -297,6 +301,28 @@ const InvoiceDetails = () => {
         }
       }
     );
+    if (operations?.length !== 0) {
+      setLoadingState({ ...loadingState, saving: true });
+
+      saveDocumentTable(
+        { document_uuid: metaData?.document_uuid, data: operations },
+        {
+          onSuccess: () => {
+            setLoadingState({ ...loadingState, saving: false });
+            setOperations([]);
+
+            setHistory([]);
+            queryClient.invalidateQueries({ queryKey: ["combined-table"] });
+            queryClient.invalidateQueries({ queryKey: ["additional-data"] });
+            queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
+            // setCombinedTableCopy({});
+          },
+
+          onError: () => setLoadingState({ ...loadingState, saving: false })
+        }
+      );
+    }
+    setLoadingState({ ...loadingState, saving: true });
   };
 
   let action_controls =
@@ -350,7 +376,100 @@ const InvoiceDetails = () => {
       hoverImage: review_later_white
     }
   ];
+  const [showWarningForBranchAndVendor, setShowWarningForBranchAndVendor] =
+    useState(true);
 
+  useEffect(() => {
+    if (branchChanged || vendorChanged) {
+      setShowWarningForBranchAndVendor(true);
+    }
+  }, [branchChanged, vendorChanged]);
+
+  const navigate = useNavigate();
+  let page_number = searchParams.get("page_number");
+  let from_view = searchParams.get("from_view");
+  const { data: restaurantsList, isLoading: restaurantsListLoading } =
+    useListRestaurants();
+  const { data: vendorNamesList, isLoading: vendorNamesLoading } =
+    useGetVendorNames();
+  const {
+    setRestaurantFilter,
+    setVendorFilter,
+    vendorFilterValue,
+    restaurantFilterValue,
+    setVendorNames
+  } = useInvoiceStore();
+  const { setDefault } = useFilterStore();
+  useEffect(() => {
+    const resValue = formatRestaurantsList(
+      restaurantsList && restaurantsList?.data
+    )?.find((item) => item.value == restaurant)?.value;
+    const vendValue = vendorNamesFormatter(
+      vendorNamesList?.data && vendorNamesList?.data?.vendor_names
+    )?.find((item) => item.value == vendor)?.value;
+
+    setRestaurantFilter(resValue);
+    setVendorFilter(vendValue);
+    setVendorNames(vendorNamesList?.data?.vendor_names);
+    setVendorsList(vendorNamesList?.data?.vendor_names);
+  }, [
+    restaurantsList,
+    vendorNamesList,
+    vendorNamesLoading,
+    restaurantsListLoading
+  ]);
+  const [open, setOpen] = useState(false);
+  const { setVendorNames: setVendorsList } = persistStore();
+
+  let restaurant =
+    searchParams.get("restaurant_id") || searchParams.get("restaurant") || "";
+  let vendor =
+    searchParams.get("vendor_id") || searchParams.get("vendor") || "";
+  useEffect(() => {
+    if(data?.data?.rejected || data?.data?.[0]?.rejected){
+      setShowAlreadySyncedModal(true)
+      return
+    }
+    if (
+      action_controls?.accept?.disabled ||
+      action_controls?.reject?.disabled
+    ) {
+      setShowAlreadySyncedModal(true);
+    }
+  }, [action_controls,data]);
+
+  // const { filters } = useFilterStore();
+  let page = searchParams.get("page_number") || 1;
+  let vendor_id = searchParams.get("vendor") || "";
+  // let document_uuid = searchParams.get("document_uuid") || "";
+  let layout = searchParams.get("layout") || null;
+  let assigned_to = searchParams.get("assigned_to");
+  
+  let payload = {
+    page: page,
+    page_size: filters?.page_size,
+    invoice_type: filters?.invoice_type,
+    invoice_detection_status: filters?.invoice_detection_status,
+    rerun_status: filters?.rerun_status,
+    auto_accepted: filters?.auto_accepted,
+    start_date: filters?.start_date,
+    end_date: filters?.end_date,
+    clickbacon_status: filters?.clickbacon_status,
+    human_verification: filters?.human_verification,
+    sort_order: filters?.sort_order,
+    restaurant: filters?.restaurant,
+    human_verified: filters?.human_verified,
+    vendor_id,
+    document_uuid,
+    assigned_to,
+    auto_accepted_by_vda:filters?.auto_accepted_by_vda,
+    review_later: filters?.review_later || "false",
+    from_view:from_view?.includes("not-supported")?"not-supported-documents":""
+  };
+
+  useEffect(()=>{
+setShowAlreadySyncedModal(false)
+  },[page])
   return (
     <div className="hide-scrollbar relative">
       <Navbar />
@@ -445,7 +564,9 @@ const InvoiceDetails = () => {
                   </p>
                   <p className="capitalize text-[#121212] font-semibold font-poppins text-xl">
                     {data?.data?.restaurant?.restaurant_name ||
-                      data?.data?.[0]?.restaurant?.restaurant_name}
+                      data?.data?.[0]?.restaurant?.restaurant_name ||
+                      data?.data?.restaurant?.restaurant_id ||
+                      data?.data?.[0]?.restaurant?.restaurant_id}
                   </p>
                 </div>
               </>
@@ -458,9 +579,14 @@ const InvoiceDetails = () => {
                   <p className="text-[#6D6D6D] font-poppins font-medium text-xs leading-4">
                     Vendor
                   </p>
-                  <p className="capitalize text-[#121212] font-semibold font-poppins text-xl">
+                  <p className="capitalize text-[#121212] font-semibold font-poppins text-xl flex gap-x-2 items-center">
                     {data?.data?.vendor?.vendor_name ||
-                      data?.data?.[0].vendor?.vendor_name}
+                      data?.data?.[0]?.vendor?.vendor_name}
+
+                    {data?.data?.vendor?.human_verified ||
+                      (data?.data?.[0]?.vendor?.human_verified && (
+                        <img src={approved} />
+                      ))}
                   </p>
                 </div>
               </>
@@ -488,6 +614,49 @@ const InvoiceDetails = () => {
             </div>
           </div>
         </BreadCrumb>
+        {(branchChanged || vendorChanged) && showWarningForBranchAndVendor && (
+          <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
+            <div className="flex items-center gap-x-2">
+              <Info className="h-5 w-5 text-[#FF9800]" />
+              <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
+                {vendorChanged && branchChanged
+                  ? "Please Save the Vendor Name and Branch Address before proceeding."
+                  : vendorChanged
+                  ? " Please Save the Vendor Name before proceeding."
+                  : "Please Save the Branch Address before proceeding."}
+              </p>
+            </div>
+
+            <X
+              className="h-6 w-6 text-[#546E7A] absolute top-2 right-2 cursor-pointer"
+              onClick={() => {
+                setShowWarningForBranchAndVendor(false);
+              }}
+            />
+          </div>
+        )}
+
+        {showAlreadySyncedModal && (
+          <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
+            <div className="flex items-center gap-x-2">
+              <Info className="h-5 w-5 text-[#FF9800]" />
+              <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
+               {(data?.data?.rejected || data?.data?.[0]?.rejected)&&"Rejection Reason :- "}  {(data?.data?.rejected || data?.data?.[0]?.rejected)?(data?.data?.rejection_reason || data?.data?.[0]?.rejection_reason): action_controls?.accept?.disabled 
+                  ? action_controls?.accept?.reason
+                  : action_controls?.reject?.disabled
+                  ? action_controls?.reject?.reason
+                  : null}
+              </p>
+            </div>
+
+            <X
+              className="h-6 w-6 text-[#546E7A] absolute top-2 right-2 cursor-pointer"
+              onClick={() => {
+                setShowAlreadySyncedModal(false);
+              }}
+            />
+          </div>
+        )}
         {showDuplicateInvoicesWarning && (
           <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
             <div className="flex items-center gap-x-2">
@@ -510,30 +679,138 @@ const InvoiceDetails = () => {
             />
           </div>
         )}
-        <div className="flex justify-end">
-          <div className="flex items-center gap-x-3">
-            {!document_uuid && (
-              <CustomTooltip content={"Click To Copy The Link."}>
+        <div className="flex justify-end gap-x-2">
+          <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
+            <CustomDropDown
+              triggerClassName={"bg-gray-100"}
+              contentClassName={"bg-gray-100"}
+              Value={searchParams.get("restaurant") || restaurantFilterValue}
+              placeholder="All Restaurants"
+              multiSelect={true}
+              className={"!max-w-fit"}
+              data={formatRestaurantsList(
+                restaurantsList && restaurantsList?.data
+              )}
+              searchPlaceholder="Search Restaurant"
+              onChange={(val) => {
+                if (typeof val == "object") {
+                  let restaurant = val.map((item) => item).join(",");
+                  setFilters({ ...filters, restaurant: restaurant });
+                  updateParams({ restaurant: restaurant });
+                } else {
+                  if (val == "none") {
+                    updateParams({ restaurant: undefined });
+                    setFilters({ ...filters, restaurant: undefined });
+                  } else {
+                    updateParams({ restaurant: val });
+                    setFilters({ ...filters, restaurant: val });
+                  }
+                }
+              }}
+            />{" "}
+            <CustomDropDown
+              Value={searchParams.get("vendor") || vendorFilterValue}
+              className={"!max-w-56"}
+              triggerClassName={"bg-gray-100"}
+              contentClassName={"bg-gray-100"}
+              data={vendorNamesFormatter(
+                vendorNamesList?.data && vendorNamesList?.data?.vendor_names
+              )}
+              multiSelect={true}
+              onChange={(val) => {
+                if (typeof val == "object") {
+                  let vendor = val.map((item) => item).join(",");
+                  updateParams({ vendor: vendor });
+                  setFilters({ ...filters, vendor: vendor });
+                } else {
+                  if (val == "none") {
+                    updateParams({ vendor: undefined });
+                    setFilters({ ...filters, vendor: undefined });
+                  } else {
+                    setFilters({ ...filters, vendor: val });
+                  }
+                }
+              }}
+              placeholder="All Vendors"
+              searchPlaceholder="Search Vendor Name"
+            />{" "}
+            <Sheet
+              className="!overflow-auto "
+              open={open}
+              onOpenChange={() => setOpen(!open)}
+            >
+              <SheetTrigger>
+                {" "}
                 <Button
-                  onClick={() => {
-                    navigator.clipboard.writeText(
-                      `${
-                        window.location.origin
-                      }/invoice-details?document_uuid=${
-                        document_uuid ||
-                        data?.data?.[0]?.document_uuid ||
-                        data?.data?.document_uuid
-                      }`
-                    );
-                    toast.success("Link copied to clipboard");
-                  }}
-                  disabled={markingForReview}
-                  className="bg-transparent h-[2.4rem] border-primary w-[3rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                  className={`bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000] ${
+                    open ||
+                    filters?.human_verified !== "all" ||
+                    filters?.human_verification !== "all" ||
+                    filters?.invoice_type !== "" ||
+                    filters?.start_date !== "" ||
+                    filters?.end_date !== "" ||
+                    filters?.clickbacon_status !== "" ||
+                    filters?.auto_accepted !== ""
+                      ? "!bg-primary !text-white"
+                      : "!bg-white"
+                  }   `}
                 >
-                  <Share2 className="dark:text-white" />
+                  <Filter
+                    className={`${
+                      open ||
+                      filters?.human_verified !== "all" ||
+                      filters?.human_verification !== "all" ||
+                      filters?.invoice_type !== "" ||
+                      filters?.start_date !== "" ||
+                      filters?.end_date !== "" ||
+                      filters?.clickbacon_status !== "" ||
+                      filters?.auto_accepted !== ""
+                        ? "!text-white"
+                        : ""
+                    } h-5  text-black/40 dark:text-white/50`}
+                  />
                 </Button>
-              </CustomTooltip>
-            )}
+              </SheetTrigger>
+              <SheetContent className="min-w-fit !max-w-[20rem] !overflow-auto">
+                <SheetHeader>
+                  <SheetTitle>
+                    <div className="flex justify-between items-center">
+                      <p>Filters</p>
+                      <div
+                        className="flex items-center gap-x-2 cursor-pointer"
+                        onClick={() => setOpen(!open)}
+                      >
+                        <p className="text-sm font-poppins font-normal text-[#000000]">
+                          Collapse
+                        </p>
+                        <ArrowRight className="h-4 w-4 text-[#000000]" />
+                      </div>
+                    </div>
+                  </SheetTitle>
+                </SheetHeader>
+                <InvoiceFilters />
+              </SheetContent>
+            </Sheet>
+          </div>
+          <div className="flex items-center gap-x-3">
+            <CustomTooltip content={"Click To Copy The Link."}>
+              <Button
+                onClick={() => {
+                  navigator.clipboard.writeText(
+                    `${window.location.origin}/invoice-details?document_uuid=${
+                      document_uuid ||
+                      data?.data?.[0]?.document_uuid ||
+                      data?.data?.document_uuid
+                    }`
+                  );
+                  toast.success("Link copied to clipboard");
+                }}
+                disabled={markingForReview}
+                className="bg-transparent h-[2.4rem] border-primary w-[3rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+              >
+                <Share2 className="dark:text-white" />
+              </Button>
+            </CustomTooltip>
 
             <DocumentNotes
               data={documentNotes?.data}
@@ -649,12 +926,12 @@ const InvoiceDetails = () => {
         <div className="w-full flex  -mt-4">
           <div className="w-1/2 flex flex-col gap-y-4 2xl:px-16 md:px-8">
             <PdfViewer
+              payload={payload}
               loadinMetadata={isLoading}
-              
-image_rotations={
-  data?.data?.document_metadata?.image_rotations ||
-  data?.data?.[0]?.document_metadata?.image_rotations
-}
+              image_rotations={
+                data?.data?.document_metadata?.image_rotations ||
+                data?.data?.[0]?.document_metadata?.image_rotations
+              }
               pdfUrls={[
                 {
                   document_link: `${
@@ -675,8 +952,11 @@ image_rotations={
                 setCurrentTab={setCurrentTab}
               />
             )}
-            <CategoryWiseSum isLoading={isLoading} />
+            {myData?.invoice_type !== "Summary Invoice" && (
+              <CategoryWiseSum isLoading={isLoading} />
+            )}
             <LastUpdateInfo
+            document_id={data?.data?.[0]?.document_uuid|| data?.data?.document_uuid }
               info={
                 data?.data?.latest_update_info ||
                 data?.data?.[0]?.latest_update_info
@@ -740,6 +1020,18 @@ image_rotations={
                         });
                         setReviewLaterComments("");
                         setMarkForReviewModal(false);
+
+                        if (page_number == 1 && data?.totalPages == 1) {
+                          if (from_view == "my-tasks") {
+                            navigate("/my-tasks");
+                          } else if (from_view == "reviw-later") {
+                            navigate("/review-later-tasks");
+                          } else {
+                            navigate("/home");
+                          }
+                          setDefault();
+                        }
+                        window.location.reload();
                       },
                       onError: () => {
                         setLoadingState({
@@ -762,7 +1054,7 @@ image_rotations={
         {/* Mark As Not Supported */}
         <Modal
           open={markAsNotSupportedModal}
-          showXicon={false}
+          showXicon={true}
           className={"max-w-[25rem] !rounded-xl"}
           setOpen={setMarkAsNotSupportedModal}
         >
@@ -797,6 +1089,7 @@ image_rotations={
                             ...loadingState,
                             markingAsNotSupported: false
                           });
+                          window.location.reload();
                         },
                         onError: () => {
                           setLoadingState({
@@ -895,7 +1188,7 @@ image_rotations={
         }
       >
         <ModalDescription>
-          <div className="flex flex-col gap-y-4 px-4  top">
+          <div className="flex flex-col gap-y-4 px-4  top  ">
             <p className="font-poppins  font-semibold text-sm leading-5 text-[#222222]">
               Current Invoice
             </p>
@@ -906,14 +1199,10 @@ image_rotations={
                   Upload Date
                 </p>
                 <p className="font-poppins font-normal text-xs leading-4 text-[#6D6D6D]">
-                  {formatDateToReadable(
+                  {formatDateTime(
                     duplicateInvoices?.current_document?.date_uploaded
-                  ) +
-                    " " +
-                    " " +
-                    duplicateInvoices?.current_document?.date_uploaded
-                      ?.split("T")[1]
-                      ?.split(".")[0]}
+                  )
+                  }
                 </p>
               </div>
               <div className="flex flex-col gap-y-3 items-center">
@@ -955,40 +1244,38 @@ image_rotations={
                 Upload Date
               </p>
             </div>
-
-            {duplicateInvoices?.duplicate_documents?.map((d, i) => {
-              return (
-                <div className="w-full  py-2 grid grid-cols-4 gap-x-4">
-                  <div className="flex items-center gap-x-8">
-                    <p className="font-poppins !font-normal  text-center text-xs text-[#000000] leading-4 pl-1">
-                      {i + 1}
+            <div className="max-h-72 overflow-auto">
+              {duplicateInvoices?.duplicate_documents?.map((d, i) => {
+                return (
+                  <div className="w-full  py-2 grid grid-cols-4 gap-x-4">
+                    <div className="flex items-center gap-x-8">
+                      <p className="font-poppins !font-normal  text-center text-xs text-[#000000] leading-4 pl-1">
+                        {i + 1}
+                      </p>
+                      <Link
+                        target="_blank"
+                        onClick={() => setShowDuplicateInvoicesModal(false)}
+                        to={`/invoice-details?document_uuid=${d.document_uuid}`}
+                        className="font-poppins !font-normal    pl-1 underline underline-offset-4 !text-center text-xs text-[#348355] leading-4"
+                      >
+                        View
+                      </Link>
+                    </div>
+                    <p className="font-poppins !font-normal  pl-0 !text-center text-xs text-[#222222] leading-4">
+                      {d.human_verified ? "Yes" : "No"}
                     </p>
-                    <Link
-                      onClick={() => setShowDuplicateInvoicesModal(false)}
-                      to={`/invoice-details?document_uuid=${d.document_uuid}`}
-                      className="font-poppins !font-normal    pl-1 underline underline-offset-4 !text-center text-xs text-[#348355] leading-4"
-                    >
-                      View
-                    </Link>
+                    <p className="font-poppins !font-normal text-center text-xs text-[#222222] leading-4">
+                      {d.rejected ? "Yes" : "No"}
+                    </p>
+                    <p className="font-poppins !font-normal text-center text-xs text-[#222222] leading-4">
+                      {d?.date_uploaded
+                        ? formatDateTime(d?.date_uploaded) 
+                        : "N/A"}
+                    </p>
                   </div>
-                  <p className="font-poppins !font-normal  pl-0 !text-center text-xs text-[#222222] leading-4">
-                    {d.human_verified ? "Yes" : "No"}
-                  </p>
-                  <p className="font-poppins !font-normal text-center text-xs text-[#222222] leading-4">
-                    {d.rejected ? "Yes" : "No"}
-                  </p>
-                  <p className="font-poppins !font-normal text-center text-xs text-[#222222] leading-4">
-                    {d?.date_uploaded
-                      ? formatDateToReadable(d?.date_uploaded) +
-                        " " +
-                        " " +
-                        " " +
-                        d?.date_uploaded?.split("T")[1]?.split(".")[0]
-                      : "N/A"}
-                  </p>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </ModalDescription>
       </Modal>

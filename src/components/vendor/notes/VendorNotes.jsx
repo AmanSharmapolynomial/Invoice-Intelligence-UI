@@ -35,12 +35,13 @@ const VendorNotes = ({ data = [], vendor_id, isLoading }) => {
     <Sheet className="">
       <SheetTrigger>
         <CustomTooltip content={"View Vendor Notes."}>
-          <Button className="bg-transparent !min-h-[2.4rem]  !py-0  bg-primary border-primary w-[3rem] px-0  border-2 shadow-none text-[#000000] font-poppins font-normal text-sm">
+          <Button className="bg-transparent !min-h-[2.4rem]  !py-0  bg-primary border-primary w-[3rem] px-0  border-2 shadow-none text-[#000000] font-poppins font-normal text-sm relative">
             <img
               src={receipt_long}
               alt=""
               className="text-white !h-[20px] mx-4 "
             />
+              {data?.length>0 && <p className="font-poppins font-normal text-xs  absolute -top-2 -right-1 w-5 h-5 flex justify-center items-center border border-primary bg-primary rounded-full text-white">{data?.length}</p>}
           </Button>
         </CustomTooltip>
       </SheetTrigger>
@@ -67,7 +68,7 @@ const VendorNotes = ({ data = [], vendor_id, isLoading }) => {
               </div>
             ) : (
               <div className="flex-1 flex-col gap-y-4  flex items-center justify-between">
-                <div className="flex-1 overflow-auto flex-col w-full mt-2">
+                <div className="flex overflow-auto flex-col gap-y-4 w-full mt-2">
                   {isLoading
                     ? [1, 2, 3, 4, 5, 6, 7, 8, 9].map((_, ind) => (
                         <div
@@ -98,7 +99,7 @@ const VendorNotes = ({ data = [], vendor_id, isLoading }) => {
                         }) => (
                           <div
                             key={note_uuid}
-                            className="w-full flex justify-start items-center pr-[2em]"
+                            className="w-full flex justify-start items-center pr-[2em] gap"
                           >
                             <div className=" rounded-md py-3 px-3 bg-[#F2F2F7] w-full  flex flex-col gap-y-1 ">
                               <p className="text-xs font-poppins  leading-4 text-[#2C2C2E] capitalize">
@@ -134,6 +135,21 @@ const VendorNotes = ({ data = [], vendor_id, isLoading }) => {
                   }
                 }}
                 placeholder="Start Typing..."
+                onKeyDown={(e)=>e.key=="Enter"&&  mutate(
+                  { vendor_id, note },
+                  {
+                    onSuccess: (d) => {
+                      queryClient.invalidateQueries({
+                        queryKey: ["vendor-notes", vendor_id]
+                      });
+                      toast.success(d?.message), setNote("");
+                    },
+                    onError: (d) => {
+                      toast.error(d?.message);
+                      setNote("");
+                    }
+                  }
+                )}
                 className="min-w- max-w-96 border border-b-0 placeholder:!text-[#666668] placeholder:!font-poppins border-gray-200 border-none focus:!ring-0 focus:!outline-none font-poppins font-normal text-[0.9rem] text-[#666668]"
               />
               <Button

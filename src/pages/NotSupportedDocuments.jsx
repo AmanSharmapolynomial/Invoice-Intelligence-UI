@@ -1,15 +1,5 @@
-import "@/App.css";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger
-} from "@/components/ui/sheet";
-
-import userStore from "@/components/auth/store/userStore";
 import Sidebar from "@/components/common/Sidebar";
 import TablePagination from "@/components/common/TablePagination";
 import {
@@ -24,21 +14,22 @@ import { Button } from "@/components/ui/button";
 import BreadCrumb from "@/components/ui/Custom/BreadCrumb";
 import CustomInput from "@/components/ui/Custom/CustomInput";
 import CustomDropDown from "@/components/ui/CustomDropDown";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { useGetVendorNames } from "@/components/vendor/api";
 import { formatRestaurantsList, vendorNamesFormatter } from "@/lib/helpers";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
-import persistStore from "@/store/persistStore";
-import { ArrowRight, Filter, X } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
 import useFilterStore from "@/store/filtersStore";
+import persistStore from "@/store/persistStore";
+import { ArrowRight, Filter } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
-const MyTasks = () => {
-  const { filters, setFilters } = useFilterStore();
+const NotSupportedDocuments = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { filters, setFilters, setDefault } = useFilterStore();
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [searchedInvoices, setSearchedInvoices] = useState([]);
   const [open, setOpen] = useState(false);
@@ -61,6 +52,7 @@ const MyTasks = () => {
   let end_date = searchParams.get("end_date") || filters?.end_date;
   let clickbacon_status =
     searchParams.get("clickbacon_status") || filters?.clickbacon_status;
+  let auto_accepted_by_vda = searchParams.get("auto_accepted_by_vda") || "all";
   let restaurant =
     searchParams.get("restaurant_id") || searchParams.get("restaurant") || "";
   let vendor =
@@ -68,9 +60,6 @@ const MyTasks = () => {
   let sort_order = searchParams.get("sort_order") || "desc";
   let invoice_number = searchParams.get("invoice_number") || "";
   let assigned_to = searchParams.get("assigned_to");
-  let auto_accepted_by_vda = searchParams.get("auto_accepted_by_vda") || "all"; 
-
-  let { userId } = userStore();
   let document_priority = searchParams.get("document_priority") || "all";
   const updateParams = useUpdateParams();
   const { data: restaurantsList, isLoading: restaurantsListLoading } =
@@ -99,10 +88,11 @@ const MyTasks = () => {
     page,
     sort_order,
     human_verified,
-    assigned_to: userId,
-    document_priority,
     auto_accepted_by_vda,
-    review_later:"false"
+    assigned_to,
+    document_priority,
+    review_later: false,
+    supported_documents: false
   };
   const { data, isLoading } = useListInvoices(payload);
   useEffect(() => {
@@ -132,12 +122,9 @@ const MyTasks = () => {
   function calculateDivHeightInVh(elementId) {
     const element = document.getElementById(elementId);
     if (element) {
-      // Get the height of the element in pixels
       const elementHeight = element.getBoundingClientRect().height;
-
       const viewportHeight = window.innerHeight;
       const heightInVh = (elementHeight / viewportHeight) * 100;
-
       return heightInVh;
     } else {
       console.error("Element not found");
@@ -154,10 +141,6 @@ const MyTasks = () => {
       calculateDivHeightInVh("pagination") +
       8.5);
   let timer;
-
-  useEffect(() => {
-    setFilters({ ...filters, assigned_to: userId });
-  }, []);
   return (
     <div className="h-screen  flex w-full " id="maindiv">
       <Sidebar />
@@ -166,15 +149,15 @@ const MyTasks = () => {
         <Navbar />
         <Layout>
           <BreadCrumb
-            title={"My Tasks"}
+            title={"Not Supported Documents"}
             crumbs={[
               {
                 path: null,
-                label: "My Tasks"
+                label: "Not Supported Documents"
               }
             ]}
           />
-
+          
           <div
             className="w-full flex items-center relative justify-end dark:bg-[#051C14] py-3 rounded-t-xl dark:border-primary dark:border px-4 "
             id="vendor-consolidation"
@@ -182,12 +165,12 @@ const MyTasks = () => {
             <div className="flex  items-center space-x-2 ">
               <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
                 <CustomDropDown
-                  multiSelect={true}
                   triggerClassName={"bg-gray-100"}
                   contentClassName={"bg-gray-100"}
                   Value={
                     searchParams.get("restaurant") || restaurantFilterValue
                   }
+                  multiSelect={true}
                   placeholder="All Restaurants"
                   className={"!max-w-fit"}
                   data={formatRestaurantsList(
@@ -395,6 +378,7 @@ const MyTasks = () => {
           </div>
 
           <InvoiceTable
+            review_later={false}
             data={data?.data}
             isLoading={isLoading}
             height={final}
@@ -414,4 +398,4 @@ const MyTasks = () => {
   );
 };
 
-export default MyTasks;
+export default NotSupportedDocuments;

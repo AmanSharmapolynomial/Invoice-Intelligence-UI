@@ -52,11 +52,12 @@ export const vendorNamesFormatter = (data = []) => {
   let returnArray = [];
 
   data?.length > 0 &&
-    data?.forEach(({ vendor_name, vendor_id, human_verified }) => {
+    data?.forEach(({ vendor_name, vendor_id, human_verified,archive_status }) => {
       returnArray.push({
         label: vendor_name,
         value: vendor_id,
-        human_verified: human_verified
+        human_verified: human_verified,
+        archived_status:archive_status
       });
     });
   returnArray.push({
@@ -101,7 +102,7 @@ export const formatCombineVendorsArray = (data = []) => {
 export const keysCapitalizer = (str) => {
   return str
     .split("_")
-    ?.map((word) => word[0].toUpperCase() + word.slice(1, word.length))
+    ?.map((word) => word[0]?.toUpperCase() + word?.slice(1, word.length))
     .join(" ");
 };
 
@@ -169,6 +170,24 @@ export function formatDateToReadable(dateString) {
 
   return `${monthName.slice(0, 3)} ${parseInt(day, 10)}, ${year}`;
 }
+
+export function formatDateTime(timestamp) {
+  const date = new Date(timestamp);
+
+  // Format the date part
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  const datePart = date.toLocaleDateString('en-US', options);
+
+  // Format the time part
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  const timePart = `${hours}:${minutes}:${seconds}`;
+
+  return `${datePart?.split(",")?.join("")}  ${timePart}`;
+}
+
+
 export function formatDateTimeToReadable(dateTimeString) {
   const months = [
     "January",

@@ -15,6 +15,8 @@ export const invoiceDetailStore = create((set, get) => ({
   added: false,
   history: [],
   combinedTableHistory: [],
+  allowModalDragging: true,
+  setAllowModalDragging: (val) => set({ allowModalDragging: val }),
 
   highlightRow: false,
   prefetchedLinks: {},
@@ -26,6 +28,8 @@ export const invoiceDetailStore = create((set, get) => ({
   editBranch: false,
   editVendor: false,
   totalPages: null,
+  review_later: false,
+  setReviewLater: (val) => set({ review_later: val }),
   setCombinedTableHistory: (history) => set({ combinedTableHistory: history }),
   setTotalPages: (pages) => set({ totalPages: pages }),
   setVendorChanged: (value) => set({ vendorChanged: value }),
@@ -35,6 +39,11 @@ export const invoiceDetailStore = create((set, get) => ({
   setEditBranch: (value) => set({ editBranch: value }),
   setEditVendor: (value) => set({ editVendor: value }),
   isModalOpen: false,
+  metadataTableCopy:{},
+  setMetadataTableCopy:(cpy)=>set({metadataTableCopy:cpy}),
+
+  showTextExtractionModal:false,
+  setShowTextExtractionModal:(val)=>set({showTextExtractionModal:val}),
   setIsModalOpen: (val) => set({ isModalOpen: val }),
   setUpdatedFields: (update) =>
     set((state) => ({
@@ -78,6 +87,8 @@ export const invoiceDetailStore = create((set, get) => ({
       newVendor: "",
       newBranch: "",
       editBranch: false,
-      editVendor: false
+      editVendor: false,
+      showTextExtractionModal:false,
+      metadataTableCopy:{}
     })
 }));
