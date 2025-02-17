@@ -32,6 +32,7 @@ import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { Switch } from "@/components/ui/switch";
 import { Link, useSearchParams } from "react-router-dom";
 import TablePagination from "@/components/common/TablePagination";
+import { Textarea } from "@/components/ui/textarea";
 
 const VendorItemMasterTable = ({
   data = [],
@@ -240,7 +241,7 @@ const VendorItemMasterTable = ({
                     return (
                       <TableRow
                         key={item?.item_uuid}
-                        className="!border-none cursor-pointer !h-14 w-full flex !flex-1"
+                        className="!border-none cursor-pointer !min-h-14 w-full flex !flex-1"
                       >
                         {data?.data?.required_columns?.map((col, index) => (
                           <TableCell
@@ -251,14 +252,16 @@ const VendorItemMasterTable = ({
                                 : col == "category"
                                 ? "!min-w-[15%]"
                                 : "min-w-[10%]"
-                            }  !border-b  flex w-full border-r !min-h-14 !text-left items-center justify-start pl-6 !font-normal !text-gray-800   `}
+                            }  !border-b  flex w-full border-r  !text-left items-center justify-start pl-6 !font-normal !text-gray-800    `}
                           >
                             <>
                               {col === "category" ? (
-                                <CustomDropDown
+                               
+                                  
+                                  <CustomDropDown
                                   Value={item?.[col]?.["category_id"]}
-                                  className="!min-w-[300px] !max-w-[400px]"
-                                  triggerClassName={"bg-gray-100 !min-w-full"}
+                                  className="!min-w-[300px] !max-w-[400px]  "
+                                  triggerClassName={"bg-gray-100 !min-w-full  "}
                                   contentClassName={"bg-gray-100 !min-w-full"}
                                   data={additionalData?.data?.category_choices?.map(
                                     ({ name, category_id }) => {
@@ -287,18 +290,22 @@ const VendorItemMasterTable = ({
                                   placeholder="None"
                                   searchPlaceholder="Category"
                                 />
+
                               ) : (
-                                <CustomInput
+                                <Textarea
+                                rows={1}
+
+                                
                                   value={
                                     col == "category"
                                       ? item?.[col]?.["name"]
                                       : item[col]
                                   }
-                                  onChange={(val) => {
+                                  onChange={(e) => {
                                     let copyObj = { ...data };
                                     let { items } = data?.data;
 
-                                    items[ind][col] = val;
+                                    items[ind][col] = e.target.value;
 
                                     queryClient.setQueryData(
                                       ["vendor-item-master"],
