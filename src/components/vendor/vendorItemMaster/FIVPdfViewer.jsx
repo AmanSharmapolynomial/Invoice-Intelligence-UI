@@ -3,6 +3,8 @@ import { Document, Page } from "react-pdf";
 import zoom_in from "@/assets/image/zoom_in.svg";
 import zoom_out from "@/assets/image/zoom_out.svg";
 import { Skeleton } from "@/components/ui/skeleton";
+import { pdfjs } from "react-pdf";
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 const FIVPdfViewer = ({
   document_link,
@@ -42,8 +44,8 @@ const FIVPdfViewer = ({
     return {
       position: "absolute",
       top: bb.box.top * height * scaleFactor,
-      left: bb.box.left * width * scaleFactor-2,
-      width: (bb.box.width) * (width) * scaleFactor +10,
+      left: bb.box.left * width * scaleFactor - 2,
+      width: bb.box.width * width * scaleFactor + 10,
       height: bb.box.height * height * scaleFactor,
       border: "1.5px solid red",
       background: "rgba(144,238,144,0.4)",
@@ -55,40 +57,43 @@ const FIVPdfViewer = ({
     };
   };
 
-  
-  
   const [manualZoom, setManualZoom] = useState(false);
 
   const zoomToBoundingBox = () => {
-    if (!boundingBoxes.length || !pageDimensions.width || !pageDimensions.height || manualZoom)
+    if (
+      !boundingBoxes.length ||
+      !pageDimensions.width ||
+      !pageDimensions.height ||
+      manualZoom
+    )
       return; // Prevent overriding manual zoom
-  
+
     const box = boundingBoxes[0].box;
     const viewer = pdfWrapperRef.current;
-  
+
     if (!viewer) return;
-  
+
     const boxWidth = box.width * pageDimensions.width;
     const boxHeight = box.height * pageDimensions.height;
-  
+
     const scaleFactor = Math.min(
       viewer.clientWidth / boxWidth,
       viewer.clientHeight / boxHeight,
       3
     );
-  
+
     setPdfScale(scaleFactor * 1); // Default zoom, only when not manually zoomed
-  
+
     setTimeout(() => {
       const scaledWidth = pageDimensions.width * scaleFactor;
       const scaledHeight = pageDimensions.height * scaleFactor;
-  
+
       const boxCenterX = (box.left + box.width / 2) * scaledWidth;
       const boxCenterY = (box.top + box.height / 2) * scaledHeight;
-  
+
       const scrollLeft = boxCenterX - viewer.clientWidth / 2;
       const scrollTop = boxCenterY - viewer.clientHeight / 2;
-  
+
       viewer.scrollTo({
         top: Math.max(0, scrollTop),
         left: Math.max(0, scrollLeft),
@@ -96,29 +101,37 @@ const FIVPdfViewer = ({
       });
     }, 200);
   };
-  
+
   // Manual Zoom Handlers
   const handleZoomIn = () => {
     setManualZoom(true);
     setPdfScale((prev) => Math.min(prev * 1.2, 8));
   };
-  
+
   const handleZoomOut = () => {
     setManualZoom(true);
     setPdfScale((prev) => Math.max(prev / 1.2, 0.5));
   };
-  
+
   // Reset manual zoom when document changes
   useEffect(() => {
     // setManualZoom(false);
     zoomToBoundingBox();
   }, [lineItem, isLoading, document_source, boundingBoxes]);
-  
+  const prevDocumentLink = useRef(null);
+
+  useEffect(() => {
+    if (document_link && document_link !== prevDocumentLink.current) {
+      prevDocumentLink.current = document_link;
+      setPageNum(1); // Reset pageNum only when document changes
+    }
+  }, [document_link]);
+
   return (
     <>
       {isLoading ? (
         <div className="w-full h-full">
-          <Skeleton className={"w-full h-[26vh]"}/>
+          <Skeleton className={"w-full h-[26vh]"} />
         </div>
       ) : (
         <div className="max-h-fit w-[80rem] overflow-auto border rounded-sm hide-scrollbar">
@@ -136,9 +149,7 @@ const FIVPdfViewer = ({
                   src={zoom_out}
                   alt="Zoom Out"
                   className="cursor-pointer h-5 w-5"
-                  onClick={() =>
-                  handleZoomOut()
-                  }
+                  onClick={() => handleZoomOut()}
                 />
               </div>
             </div>
@@ -168,7 +179,7 @@ const FIVPdfViewer = ({
                       })
                     }
                     // loading={<span className="w-[75rem] overflow-hidden h-[20vh] flex items-center justify-center"><span>Loading Page...</span></span>}
-                    
+
                     renderTextLayer={false}
                     className="relative"
                   >
@@ -187,10 +198,9 @@ const FIVPdfViewer = ({
             </div>
           ) : (
             <div className="flex w-full justify-center items-center h-[26vh]">
-              
-           <p className="font-poppins font-semibold text-sm">
-            No PDF Specified
-           </p>
+              <p className="font-poppins font-semibold text-sm">
+                No PDF Specified
+              </p>
             </div>
           )}
         </div>

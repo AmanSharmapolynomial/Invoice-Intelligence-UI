@@ -153,7 +153,7 @@ const VendorItemMasterTable = ({
 
 
   return (
-    <div className="w-full overflow-auto   ">
+    <div className="w-full overflow-hidden   ">
       <div className="w-full overflow-auto ">
         {(loadingAdditionalData || isLoading) && (
           <TableRow className="flex  text-base  !border-none !w-full !pb-0 !mb-0 ">
@@ -187,7 +187,7 @@ const VendorItemMasterTable = ({
           new Array(1).fill(1)?.map((_, index) => {
             return (
               <TableRow key={index} className="flex w-full justify-between">
-                {new Array(5).fill(5)?.map((_, ind) => {
+                {new Array(4).fill(4)?.map((_, ind) => {
                   return (
                     <TableHead
                       key={ind}
@@ -426,32 +426,7 @@ const VendorItemMasterTable = ({
                           </TableCell>
                         )}
 
-                        <TableCell className="flex  border-r !min-h-10 !text-left items-center justify-center !font-normal !text-gray-800 !min-w-[9.16%] w-full border-b  ">
-                          <Button
-                            disabled={saveError || updatingVendorItemMaster}
-                            className="hover:bg-transparent bg-transparent shadow-none"
-                            onClick={() =>
-                              handleUpdateVendorItemMaster(
-                                item?.item_uuid,
-                                item
-                              )
-                            }
-                          >
-                            <Save className="h-5 w-5 text-primary" />
-                          </Button>
-
-                          <Button
-                            onClick={() => {
-                              setOpen(true);
-                              setCurrentDesc(item?.["item_description"]);
-                              setRowUUID(item?.item_uuid);
-                            }}
-                            className="hover:bg-transparent bg-transparent shadow-none"
-                            disabled={saveError || updatingVendorItemMaster}
-                          >
-                            <Trash2 className="h-5 w-5 text-red-500" />
-                          </Button>
-                        </TableCell>
+                   
                       </TableRow>
                     );
                   })
@@ -461,10 +436,7 @@ const VendorItemMasterTable = ({
           </Table>
         )}
       </div>
-      <TablePagination
-        totalPages={data?.total_pages}
-        isFinalPage={data?.is_final_page}
-      />
+      
       
       <Modal
         open={open}

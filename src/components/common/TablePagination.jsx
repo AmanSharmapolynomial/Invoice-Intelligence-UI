@@ -90,14 +90,13 @@ const TablePagination = ({
           className="cursor-pointer"
           onClick={handleNavigateStart}
         >
-           <Button className="border-none p-0 bg-transparent hover:bg-transparent ring-0 outline-none shadow-none">
-
-          <img src={navigate_start} alt="" className="h-[0.8rem]" />
-           </Button>
+          <Button className="border-none !p-0 bg-transparent hover:bg-transparent ring-0  outline-none shadow-none">
+            <img src={navigate_start} alt="" className="h-[0.8rem]" />
+          </Button>
         </PaginationItem>
         <PaginationItem className="cursor-pointer" onClick={handlePreviousPage}>
-        <Button className="border-none p-0 bg-transparent hover:bg-transparent ring-0 outline-none shadow-none">
-          <img src={navigate_back} alt="" className="h-6 w-6" />
+          <Button className="border-none p-0 bg-transparent hover:bg-transparent ring-0 outline-none shadow-none">
+            <img src={navigate_back} alt="" className="h-6 w-6" />
           </Button>
         </PaginationItem>
         <PaginationItem className="flex justify-center items-center h-10 z-20">
@@ -133,8 +132,8 @@ const TablePagination = ({
           </Button>
         </PaginationItem>
         <PaginationItem className="cursor-pointer" onClick={handleNavigateEnd}>
-        <Button className="border-none p-0 bg-transparent hover:bg-transparent ring-0 outline-none shadow-none">
-          <img src={navigate_end} alt="" className="h-[0.8rem]" />
+          <Button className="border-none p-0 bg-transparent hover:bg-transparent ring-0 outline-none shadow-none">
+            <img src={navigate_end} alt="" className="h-[0.8rem]" />
           </Button>
         </PaginationItem>
       </PaginationContent>

@@ -2,12 +2,14 @@ import approved from "@/assets/image/approved.svg";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import Sidebar from "@/components/common/Sidebar";
+import TablePagination from "@/components/common/TablePagination";
 import {
   useGetItemMasterPdfs,
   useGetItemMastSimilarItems
 } from "@/components/invoice/api";
 import BreadCrumb from "@/components/ui/Custom/BreadCrumb";
 import ProgressBar from "@/components/ui/Custom/ProgressBar";
+import { Modal, ModalDescription } from "@/components/ui/Modal";
 import {
   Accordion,
   AccordionContent,
@@ -18,6 +20,7 @@ import { Button } from "@/components/ui/button";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  useDeleteVendorItemMaster,
   useGetVendorItemMaster,
   useMergeVendorItemMaster,
   useUpdateVendorItemMaster
@@ -27,7 +30,7 @@ import SimilarItems from "@/components/vendor/vendorItemMaster/SImilarItems";
 import VendorItemMasterTable from "@/components/vendor/vendorItemMaster/VendorItemMasterTable";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { queryClient } from "@/lib/utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import {
   Link,
@@ -43,7 +46,8 @@ const FastItemVerification = () => {
   const [loadingState, setLoadingState] = useState({
     nextAndSaving: false,
     nextAndApproving: false,
-    groupingAndApproving: false
+    groupingAndApproving: false,
+    deletingAndNext: false
   });
   const [updateHumanVerified, setUpdateHumanVerified] = useState({
     status: null,
@@ -51,6 +55,8 @@ const FastItemVerification = () => {
     key: null
   });
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteType, setDeleteType] = useState("");
 
   const [selectedItems, setSelectedItems] = useState([]);
   let vendor_name = searchParams.get("vendor_name");
@@ -70,13 +76,27 @@ const FastItemVerification = () => {
   });
 
   const item_uuid = data?.data?.items[0]?.item_uuid;
-  const is_bounding_box = data?.data?.items[0]?.is_bounding_box_present;
+
   const updateParams = useUpdateParams();
   const { data: pdfsData, isLoading: loadingPdfs } =
     useGetItemMasterPdfs(item_uuid);
   const { data: similarItems, isLoading: loadinSimilarItems } =
     useGetItemMastSimilarItems({ item_uuid: item_uuid, threshold: 60 });
-  const navigate = useNavigate();
+  const { data: dataForLocalStorage, isLoading: loadingDataForLocalStorage } =
+    useGetVendorItemMaster({
+      page: 1,
+
+      vendor_id,
+      document_uuid: pdfsData?.data[0]?.document_uuid,
+      human_verified: "",
+      category_review_required: "",
+      verified_by: "",
+      item_code: "",
+      item_description: "",
+      // page: page,
+      is_bounding_box_present: true
+    });
+
   const { mutate: mergeItemMaster, isPending: mergingItemMaster } =
     useMergeVendorItemMaster();
   const {
@@ -84,6 +104,20 @@ const FastItemVerification = () => {
     isPending: updatingVendorItemMaster
   } = useUpdateVendorItemMaster();
 
+  const { mutate: deleteVendorItem } = useDeleteVendorItemMaster();
+
+  useEffect(() => {
+    setIsAccordionOpen(false);
+  }, [page]);
+
+  useEffect(() => {
+    if (dataForLocalStorage?.data?.items?.length == 1) {
+      return;
+    } else {
+    }
+  }, [dataForLocalStorage]);
+
+  // Handlers
   const approveAndNextHandler = (uuid, payload) => {
     setLoadingState((prev) => ({ ...prev, nextAndApproving: true }));
 
@@ -207,6 +241,30 @@ const FastItemVerification = () => {
       }
     );
   };
+  const deleteAndNextHandler = (type) => {
+    setLoadingState((prev) => ({ ...prev, deletingAndNext: true }));
+    deleteVendorItem(
+      {
+        type: type,
+        item_uuid: data?.data?.items?.[0]?.item_uuid
+      },
+      {
+        onSuccess: () => {
+          setShowDeleteModal(false);
+          setLoadingState((prev) => ({
+            ...prev,
+            deletingAndNext: false
+          }));
+        },
+        onError: () => {
+          setLoadingState((prev) => ({
+            ...prev,
+            deletingAndNext: false
+          }));
+        }
+      }
+    );
+  };
 
   return (
     <div className="h-screen flex w- overflow-x-hidden" id="maindiv">
@@ -238,12 +296,14 @@ const FastItemVerification = () => {
             </div>
           ) : (
             <div className="md:px-44  flex items-center justify-center">
-              {!isAccordionOpen&&<FIVPdfViewer
-                document_source={pdfsData?.data[0]?.document_source}
-                document_link={pdfsData?.data[0]?.document_link}
-                isLoading={loadingPdfs}
-                lineItem={pdfsData?.data?.[0]?.line_item}
-              />}
+              {!isAccordionOpen && (
+                <FIVPdfViewer
+                  document_source={pdfsData?.data[0]?.document_source}
+                  document_link={pdfsData?.data[0]?.document_link}
+                  isLoading={loadingPdfs}
+                  lineItem={pdfsData?.data?.[0]?.line_item}
+                />
+              )}
             </div>
           )}
           <div className="flex flex-col gap-y-2 mt-4 px-16 ">
@@ -251,33 +311,9 @@ const FastItemVerification = () => {
               data={data}
               pdfsData={pdfsData}
               isLoading={isLoading}
-              extraHeaders={["Approved", "Actions"]}
+              extraHeaders={["Approved"]}
             />
           </div>
-
-          {/* Similar Items Accordion */}
-          {similarItems?.data?.total_matches > 0 && (
-            <div className="px-16 mt-6">
-              <Accordion type="single" collapsible value={isAccordionOpen ? "item-1" : ""} onValueChange={(val) => setIsAccordionOpen(val === "item-1")}>
-                <AccordionItem
-                  value="item-1"
-                  className="border  rounded-md px-4 border-[#E0E0E0] "
-                >
-                  <AccordionTrigger className="hover:no-underline  border-b font-poppins font-semibold text-sm">
-                    Similar Items ({similarItems?.data?.total_matches || 0})
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <SimilarItems
-                      selectedItems={selectedItems}
-                      setSelectedItems={setSelectedItems}
-                      data={similarItems}
-                      isLoading={loadinSimilarItems}
-                    />
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </div>
-          )}
           <div className="min-w-full justify-between  flex items-center mt-4 px-16">
             <div>
               <Button
@@ -296,7 +332,8 @@ const FastItemVerification = () => {
               <Button
                 disabled={
                   !pdfsData?.data?.[0]?.document_uuid ||
-                  loadingState?.nextAndApproving
+                  loadingState?.nextAndApproving ||
+                  loadingState.groupingAndApproving
                 }
                 onClick={() => {
                   if (selectedItems?.length > 0) {
@@ -336,10 +373,85 @@ const FastItemVerification = () => {
               >
                 {loadingState?.nextAndSaving ? "Saving..." : "Save & Next"}
               </Button>
+              <Button
+                onClick={() => {
+                  setShowDeleteModal(true);
+                }}
+                className="rounded-sm font-poppins font-normal text-sm bg-transparent hover:bg-transparent border-primary text-black border"
+              >
+                {"Delete & Next"}
+              </Button>
             </div>
+          </div>
+          {/* Similar Items Accordion */}
+          {similarItems?.data?.total_matches > 0 && (
+            <div className="px-16 mt-6">
+              <Accordion
+                type="single"
+                collapsible
+                value={isAccordionOpen ? "item-1" : ""}
+                onValueChange={(val) => setIsAccordionOpen(val === "item-1")}
+              >
+                <AccordionItem
+                  value="item-1"
+                  className="border  rounded-md px-4 border-[#E0E0E0] "
+                >
+                  <AccordionTrigger className="hover:no-underline  border-b font-poppins font-semibold text-sm">
+                    Similar Items ({similarItems?.data?.total_matches || 0})
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <SimilarItems
+                      selectedItems={selectedItems}
+                      setSelectedItems={setSelectedItems}
+                      data={similarItems}
+                      isLoading={loadinSimilarItems}
+                    />
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </div>
+          )}
+          <div className="px-16 mt-4">
+            <TablePagination
+              totalPages={data?.total_pages}
+              className={"h-9"}
+              isFinalPage={data?.is_final_page}
+            />
           </div>
         </Layout>
       </div>
+      <Modal
+        open={showDeleteModal}
+        setOpen={setShowDeleteModal}
+        title={"  Are you sure to delete this item ?"}
+      >
+        <ModalDescription>
+          <p className="font-normal font-poppins text-base  text-black"></p>
+          <div className="mt-2 flex items-center gap-x-2 justify-end">
+            <Button
+              disabled={true}
+              onClick={() => {
+                deleteAndNextHandler("hard");
+              }}
+              className="bg-red-500 rounded-sm font-poppins text-xs px-3 hover:bg-red-500"
+            >
+              Hard Delete
+            </Button>
+            <Button
+              onClick={() => {
+                deleteAndNextHandler("soft");
+              }}
+              disabled={loadingState?.deletingAndNext}
+              className=" font-poppins rounded-sm text-xs px-3 "
+            >
+              {loadingState?.deletingAndNext ? "Deleting.." : "Soft Delete"}
+            </Button>
+            <Button className="rounded-sm font-poppins font-normal text-xs px-3 bg-transparent border border-primary text-black hover:bg-transparent">
+              Close
+            </Button>
+          </div>
+        </ModalDescription>
+      </Modal>
     </div>
   );
 };
