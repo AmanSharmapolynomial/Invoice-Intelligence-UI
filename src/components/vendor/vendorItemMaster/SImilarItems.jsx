@@ -9,7 +9,23 @@ import {
 } from "@/components/ui/table";
 import React from "react";
 
-const SimilarItems = ({ data, isLoading }) => {
+const SimilarItems = ({
+  data,
+  isLoading,
+  isPending,
+  mutate,
+  selectedItems,
+  setSelectedItems
+}) => {
+  const handleCheckboxChange = (item_uuid) => {
+    setSelectedItems(
+      (prev) =>
+        prev.includes(item_uuid)
+          ? prev.filter((id) => id !== item_uuid) // Remove if already selected
+          : [...prev, item_uuid] // Add if not selected
+    );
+  };
+
   return (
     <Table>
       <TableHeader>
@@ -21,7 +37,21 @@ const SimilarItems = ({ data, isLoading }) => {
               "cursor-pointer font-poppins !px-[0.75rem] font-semibold text-black leading-5 text-sm border-r border-l items-center flex gap-x-4"
             }
           >
-            <Checkbox />
+            <Checkbox
+              onCheckedChange={(checked) => {
+                if (checked) {
+                  setSelectedItems(
+                    data?.data?.matching_items?.map((item) => item.item_uuid)
+                  );
+                } else {
+                  setSelectedItems([]);
+                }
+              }}
+              checked={
+                selectedItems.length > 0 &&
+                selectedItems.length === data?.data?.matching_items?.length
+              }
+            />
             <span className="mt-1"> Item Code</span>
           </TableHead>
           <TableHead
@@ -42,20 +72,26 @@ const SimilarItems = ({ data, isLoading }) => {
       </TableHeader>
       <TableBody>
         {data?.data?.matching_items?.map(
-          ({ item_code, item_description, match_percentage }, index) => {
+          (
+            { item_code, item_description, match_percentage, item_uuid },
+            index
+          ) => {
             return (
               <TableRow
                 key={index}
                 className={` !rounded-md w-full grid grid-cols-3 items-center justify-center text-xs sm:text-sm `}
               >
-                <TableCell className="border-r border-l border-b h-full font-poppins px-[0.8rem] capitalize text-sm font-normal flex items-center gap-x-4 ">
-                  <Checkbox />
+                <TableCell className="border-r border-l border-b h-full font-poppins px-[0.75rem] capitalize text-sm font-normal flex items-center gap-x-4 ">
+                  <Checkbox
+                    checked={selectedItems.includes(item_uuid)}
+                    onCheckedChange={() => handleCheckboxChange(item_uuid)}
+                  />
                   <span className="mt-1"> {item_code}</span>
                 </TableCell>
-                <TableCell className="border-r border-b  h-full font-poppins px-[0.8rem] capitalize text-sm font-normal">
+                <TableCell className="border-r border-b  h-full font-poppins px-[0.75rem] capitalize text-sm font-normal">
                   {item_description}
                 </TableCell>
-                <TableCell className="border-r h-full  border-b font-poppins px-[0.8rem] capitalize text-sm font-normal">
+                <TableCell className="border-r h-full  border-b font-poppins px-[0.75rem] capitalize text-sm font-normal">
                   {match_percentage}%
                 </TableCell>
               </TableRow>

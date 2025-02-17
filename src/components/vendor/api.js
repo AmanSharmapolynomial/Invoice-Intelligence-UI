@@ -337,7 +337,15 @@ export const useUpdateVendorItemMaster = () => {
       );
     },
     onError: (data) => {
-      toast.error(data?.message);
+      const errorMessage = data?.message || "An error occurred";
+      const validationErrors = data?.errors
+        ? Object.entries(data.errors)
+            .map(([field, messages]) => `${field} : ${messages.join(", ")}`)
+            .join("\n")
+        : null;
+
+      toast.error(validationErrors);
+
       return data;
     }
   });

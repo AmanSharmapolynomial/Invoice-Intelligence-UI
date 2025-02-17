@@ -49,10 +49,7 @@ const VendorItemMasterTable = ({
   const [currentDesc, setCurrentDesc] = useState(null);
   const [saveError, setSaveError] = useState(false);
   const [editableRow, setEditableRow] = useState(null);
-  const [loadingState, setLoadingState] = useState({
-    nextAndSaving: false,
-    nextAndApproving: false
-  });
+ 
   const [updateHumanVerified, setUpdateHumanVerified] = useState({
     status: null,
     index: -1,
@@ -154,72 +151,6 @@ const VendorItemMasterTable = ({
     );
   };
 
-  const approveAndNextHandler = (uuid, payload) => {
-    setLoadingState((prev) => ({ ...prev, nextAndApproving: true }));
-
-    updateVendorItemMaster(
-      { item_uuid: uuid, data: payload },
-      {
-        onSuccess: () => {
-          setLoadingState((prev) => ({ ...prev, nextAndApproving: false }));
-
-          setEditableRow(null);
-          if (updateHumanVerified.key == "human_verified") {
-            setUpdateHumanVerified((prevState) => ({
-              ...prevState,
-              status: true
-            }));
-          }
-          let copyObj = { ...data };
-          let { items } = copyObj.data;
-
-          items.find((it) => it.item_uuid == uuid).human_verified = true;
-
-          queryClient.setQueryData(["vendor-item-master"], copyObj);
-          if (page !== data?.total_pages) {
-            updateParams({ page: Number(page) + 1 });
-          }
-        },
-        onError: (e) => {
-          let copyObj = { ...data };
-          let { items } = copyObj.data;
-
-          items.find((it) => it.item_uuid == uuid).human_verified = false;
-
-          queryClient.setQueryData(["vendor-item-master"], copyObj);
-          setLoadingState((prev) => ({ ...prev, nextAndApproving: false }));
-        }
-      }
-    );
-  };
-
-  const saveAndNextHandler = (uuid, payload) => {
-    setLoadingState((prev) => ({ ...prev, nextAndSaving: true }));
-
-    updateVendorItemMaster(
-      { item_uuid: uuid, data: payload },
-      {
-        onSuccess: () => {
-          setLoadingState((prev) => ({ ...prev, nextAndSaving: false }));
-
-          setEditableRow(null);
-          if (updateHumanVerified.key == "human_verified") {
-            setUpdateHumanVerified((prevState) => ({
-              ...prevState,
-              status: true
-            }));
-          }
-
-          if (page !== data?.total_pages) {
-            updateParams({ page: Number(page) + 1 });
-          }
-        },
-        onError: (e) => {
-          setLoadingState((prev) => ({ ...prev, nextAndSaving: false }));
-        }
-      }
-    );
-  };
 
   return (
     <div className="w-full overflow-auto   ">
@@ -534,45 +465,7 @@ const VendorItemMasterTable = ({
         totalPages={data?.total_pages}
         isFinalPage={data?.is_final_page}
       />
-      <div className="min-w-full justify-between  flex items-center mt-4">
-        <div>
-          <Button disabled={!pdfsData?.data?.[0]?.document_uuid} className="rounded-sm font-poppins font-normal text-sm bg-transparent hover:bg-transparent border-primary text-black border">
-            <Link
-              to={`/invoice-details?document_uuid=${pdfsData?.data[0]?.document_uuid}`}
-              target="_blank"
-            >
-              View Invoice
-            </Link>
-          </Button>
-        </div>
-        <div className="flex items-center gap-x-4">
-          <Button
-           disabled={!pdfsData?.data?.[0]?.document_uuid||loadingState?.nextAndApproving}
-            onClick={() => {
-              approveAndNextHandler(data?.data?.items?.[0]?.item_uuid, {
-                ...data?.data?.items?.[0],
-                human_verified: true
-              });
-            }}
-
-            className="rounded-sm font-poppins font-normal text-sm bg-transparent hover:bg-transparent border-primary text-black border"
-          >
-            {loadingState?.nextAndApproving ? "Approving..." : "Approve & Next"}
-          </Button>
-          <Button
-           disabled={!pdfsData?.data?.[0]?.document_uuid||loadingState?.nextAndSaving}
-            onClick={() => {
-              saveAndNextHandler(data?.data?.items?.[0]?.item_uuid, {
-                ...data?.data?.items?.[0]
-              });
-            }}
-            className="rounded-sm font-poppins font-normal text-sm bg-transparent hover:bg-transparent border-primary text-black border"
-          >
-            {loadingState?.nextAndSaving ? "Saving..." : "Save & Next"}
-          </Button>
-        </div>
-      </div>
-
+      
       <Modal
         open={open}
         setOpen={setOpen}

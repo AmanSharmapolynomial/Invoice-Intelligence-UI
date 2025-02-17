@@ -155,7 +155,7 @@ const FIVPdfViewer = ({
               {document_link ? (
                 <Document
                   file={document_link}
-                  loading={<span className="w-[75rem] overflow-hidden h-[20vh] flex items-center justify-center"><span>Loading PDF...</span></span>}
+                  // loading={<span className="w-[75rem] overflow-hidden h-[20vh] flex items-center justify-center"><span>Loading PDF...</span></span>}
                   onLoadSuccess={({ numPages }) => setPageNum(1)}
                 >
                   <Page
@@ -167,7 +167,7 @@ const FIVPdfViewer = ({
                         height: originalHeight
                       })
                     }
-                    loading={<span className="w-[75rem] overflow-hidden h-[20vh] flex items-center justify-center"><span>Loading Page...</span></span>}
+                    // loading={<span className="w-[75rem] overflow-hidden h-[20vh] flex items-center justify-center"><span>Loading Page...</span></span>}
                     
                     renderTextLayer={false}
                     className="relative"
