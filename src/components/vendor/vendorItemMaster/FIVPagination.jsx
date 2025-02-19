@@ -52,7 +52,7 @@ const FIVPagination = ({ data }) => {
       setFIVCurrentItem(fiv_items[fiv_item_number + 1]);
     } else {
       if (fiv_item_number >= total_items - 1) {
-        if (!data?.is_final_page) {
+        if ((page<=data?.data?.total_item_count)) {
           updateParams({ page: Number(page) + 1 });
         }
         setFIVItemNumber(0);
@@ -102,6 +102,7 @@ const FIVPagination = ({ data }) => {
         <img src={navigate_back} alt="Previous" className="h-8 w-8" />
       </Button>
       <Button
+        disabled={data?.is_final_page}
         className="rounded-sm px-1 flex items-center"
         onClick={handleNext}
       >

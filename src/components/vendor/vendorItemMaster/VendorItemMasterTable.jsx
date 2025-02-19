@@ -70,18 +70,35 @@ const VendorItemMasterTable = ({ isLoading, extraHeaders, similarItems }) => {
     <Table className="mt-4">
       <TableHeader className="w-full ">
         <TableRow
-          className={`min-h-12 rounded-sm  items-center ${isLoading?"flex w-full justify-between":`grid  grid-cols-${cols}`} relative border`}
+          className={`min-h-12 rounded-sm  items-center ${
+            isLoading
+              ? "grid grid-cols-3"
+              : `grid  grid-cols-${cols}`
+          } ${
+            fiv_current_item?.required_columns?.length == 0 &&
+            "grid grid-cols-3"
+          } relative border`}
         >
           {isLoading ? (
             ["item_code", "item_description"]?.map((it, index) => (
+              <TableCell
+                key={index}
+                className={` border-r w-72 flex items-center h-full border-b-0 font-poppins font-semibold text-sm`}
+              >
+                {keysCapitalizer(it)}
+              </TableCell>
+            ))
+          ) : !(fiv_current_item?.required_columns?.length > 0) ? (
+            <>
+              {["item_code", "item_description"]?.map((it, index) => (
                 <TableCell
                   key={index}
                   className={` border-r flex items-center h-full border-b-0 font-poppins font-semibold text-sm`}
                 >
                   {keysCapitalizer(it)}
                 </TableCell>
-              ))
-            
+              ))}
+            </>
           ) : (
             fiv_current_item?.required_columns?.map((it, index) => (
               <TableCell
