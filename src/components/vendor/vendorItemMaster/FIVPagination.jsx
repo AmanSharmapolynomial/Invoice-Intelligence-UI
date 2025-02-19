@@ -102,7 +102,7 @@ const FIVPagination = ({ data }) => {
         <img src={navigate_back} alt="Previous" className="h-8 w-8" />
       </Button>
       <Button
-        disabled={page==data?.data?.total_item_count}
+        disabled={page==data?.is_final_page}
         className="rounded-sm px-1 flex items-center"
         onClick={handleNext}
       >
