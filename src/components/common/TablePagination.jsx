@@ -1,6 +1,6 @@
 import navigate_back from "@/assets/image/navigate_back.svg";
-import navigate_end from "@/assets/image/navigate_end.svg";
 import navigate_next from "@/assets/image/navigate_next.svg";
+import navigate_end from "@/assets/image/navigate_end.svg";
 import navigate_start from "@/assets/image/navigate_start.svg";
 import slash from "@/assets/image/slash.svg";
 import { Input } from "@/components/ui/input";

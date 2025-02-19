@@ -2,11 +2,7 @@ import approved from "@/assets/image/approved.svg";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import Sidebar from "@/components/common/Sidebar";
-import TablePagination from "@/components/common/TablePagination";
-import {
-  useGetItemMasterPdfs,
-  useGetItemMastSimilarItems
-} from "@/components/invoice/api";
+import { useGetItemMastSimilarItems } from "@/components/invoice/api";
 import BreadCrumb from "@/components/ui/Custom/BreadCrumb";
 import ProgressBar from "@/components/ui/Custom/ProgressBar";
 import { Modal, ModalDescription } from "@/components/ui/Modal";
@@ -22,43 +18,54 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   useDeleteVendorItemMaster,
   useGetVendorItemMaster,
+  useGetVendorItemMasterAllItems,
   useMergeVendorItemMaster,
   useUpdateVendorItemMaster
 } from "@/components/vendor/api";
+import FIVPagination from "@/components/vendor/vendorItemMaster/FIVPagination";
 import FIVPdfViewer from "@/components/vendor/vendorItemMaster/FIVPdfViewer";
 import SimilarItems from "@/components/vendor/vendorItemMaster/SImilarItems";
 import VendorItemMasterTable from "@/components/vendor/vendorItemMaster/VendorItemMasterTable";
+import { OLD_UI } from "@/config";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
-import { queryClient } from "@/lib/utils";
+import fastItemVerificationStore from "@/store/fastItemVerificationStore";
+import { truncate } from "lodash";
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import {
-  Link,
-  useNavigate,
-  useParams,
-  useSearchParams
-} from "react-router-dom";
+import { Toaster } from "react-hot-toast";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 const FastItemVerification = () => {
   const { vendor_id } = useParams();
   const [searchParams] = useSearchParams();
   let document_uuid = searchParams.get("document_uuid") || "";
   let page = searchParams.get("page") || 1;
+  const [isAccordionOpen, setIsAccordionOpen] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [loadingState, setLoadingState] = useState({
     nextAndSaving: false,
     nextAndApproving: false,
     groupingAndApproving: false,
     deletingAndNext: false
   });
-  const [updateHumanVerified, setUpdateHumanVerified] = useState({
-    status: null,
-    index: -1,
-    key: null
-  });
-  const [isAccordionOpen, setIsAccordionOpen] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deleteType, setDeleteType] = useState("");
+
+  const {
+    setFIVDocumentLink,
+    setFIVDocumentSource,
+    setFIVCurrentItem,
+    setFIVBoundingBoxes,
+    setFIVDocumentUUID,
+    fiv_document_uuid,
+    is_good_document,
+    setIsGoodDocument,
+    fiv_items,
+    setFIVItems,
+    fiv_current_item,
+    resetStore,
+    setFIVItemNumber,
+    fiv_item_number
+  } = fastItemVerificationStore();
 
   const [selectedItems, setSelectedItems] = useState([]);
+  const updateParams = useUpdateParams();
   let vendor_name = searchParams.get("vendor_name");
   let human_verified = searchParams.get("human_verified");
   const { data, isLoading } = useGetVendorItemMaster({
@@ -75,27 +82,17 @@ const FastItemVerification = () => {
     is_bounding_box_present: true
   });
 
-  const item_uuid = data?.data?.items[0]?.item_uuid;
+  const item_uuid = fiv_current_item?.item_uuid;
+  useEffect(() => {
+    setFIVDocumentLink(data?.data?.item?.[0]?.document_link);
+    setFIVDocumentSource(data?.data?.item?.[0]?.document_source);
+    setFIVCurrentItem(data?.data?.item?.[0]);
+  }, [data, isLoading]);
 
-  const updateParams = useUpdateParams();
-  const { data: pdfsData, isLoading: loadingPdfs } =
-    useGetItemMasterPdfs(item_uuid);
+  const total_items = fiv_items?.length || 0;
   const { data: similarItems, isLoading: loadinSimilarItems } =
     useGetItemMastSimilarItems({ item_uuid: item_uuid, threshold: 60 });
-  const { data: dataForLocalStorage, isLoading: loadingDataForLocalStorage } =
-    useGetVendorItemMaster({
-      page: 1,
-
-      vendor_id,
-      document_uuid: pdfsData?.data[0]?.document_uuid,
-      human_verified: "",
-      category_review_required: "",
-      verified_by: "",
-      item_code: "",
-      item_description: "",
-      // page: page,
-      is_bounding_box_present: true
-    });
+  const { mutate: getAllItems } = useGetVendorItemMasterAllItems();
 
   const { mutate: mergeItemMaster, isPending: mergingItemMaster } =
     useMergeVendorItemMaster();
@@ -111,72 +108,99 @@ const FastItemVerification = () => {
   }, [page]);
 
   useEffect(() => {
-    if (dataForLocalStorage?.data?.items?.length == 1) {
-      return;
-    } else {
+    if (is_good_document) {
+      setFIVDocumentUUID(data?.data?.item?.[0]?.document_uuid);
+
+      getAllItems(
+        {
+          vendor_id,
+          document_uuid: data?.data?.item?.[0]?.document_uuid,
+          page: page
+        },
+        {
+          onSuccess: (data) => {
+            setFIVItems(data?.data?.items);
+            setIsGoodDocument(false);
+            setFIVCurrentItem(data?.data?.items[0]);
+          }
+        }
+      );
     }
-  }, [dataForLocalStorage]);
+  }, [is_good_document, loadingState?.nextAndApproving]);
 
   // Handlers
-  const approveAndNextHandler = (uuid, payload) => {
+  const approveAndNextHandler = () => {
     setLoadingState((prev) => ({ ...prev, nextAndApproving: true }));
 
     updateVendorItemMaster(
-      { item_uuid: uuid, data: payload },
+      {
+        item_uuid: fiv_current_item?.item_uuid,
+        data: { human_verified: true }
+      },
       {
         onSuccess: () => {
           setLoadingState((prev) => ({ ...prev, nextAndApproving: false }));
 
-          if (updateHumanVerified.key == "human_verified") {
-            setUpdateHumanVerified((prevState) => ({
-              ...prevState,
-              status: true
-            }));
-          }
-          let copyObj = { ...data };
-          let { items } = copyObj.data;
+          // Update item verification state
+          const updatedItems = fiv_items.map((item) =>
+            item.item_uuid === fiv_current_item?.item_uuid
+              ? { ...item, human_verified: true }
+              : item
+          );
 
-          items.find((it) => it.item_uuid == uuid).human_verified = true;
+          setFIVItems(updatedItems);
+          setIsGoodDocument(fiv_items.length === 0);
 
-          queryClient.setQueryData(["vendor-item-master"], copyObj);
-          if (page !== data?.total_pages) {
+          // Handle pagination & moving to the next item
+          if (fiv_item_number < total_items - 1) {
+            setFIVItemNumber(fiv_item_number + 1);
+            setFIVCurrentItem(fiv_items[fiv_item_number + 1]);
+          } else if (!data?.is_final_page) {
             updateParams({ page: Number(page) + 1 });
+            resetStore();
           }
         },
-        onError: (e) => {
-          let copyObj = { ...data };
-          let { items } = copyObj.data;
-
-          items.find((it) => it.item_uuid == uuid).human_verified = false;
-
-          queryClient.setQueryData(["vendor-item-master"], copyObj);
+        onError: () => {
           setLoadingState((prev) => ({ ...prev, nextAndApproving: false }));
         }
       }
     );
   };
 
-  const saveAndNextHandler = (uuid, payload) => {
+  const saveAndNextHandler = () => {
     setLoadingState((prev) => ({ ...prev, nextAndSaving: true }));
 
+    // Construct payload from required columns
+    let payload = fiv_current_item?.required_columns?.reduce((acc, key) => {
+      if (key !== "category" && fiv_current_item?.line_item?.[key]) {
+        acc[key] = fiv_current_item.line_item[key].text || "";
+      }
+      return acc;
+    }, {});
+
+    payload.human_verified = fiv_current_item?.human_verified;
+
     updateVendorItemMaster(
-      { item_uuid: uuid, data: payload },
+      { item_uuid: fiv_current_item?.item_uuid, data: payload },
       {
         onSuccess: () => {
           setLoadingState((prev) => ({ ...prev, nextAndSaving: false }));
 
-          if (updateHumanVerified.key == "human_verified") {
-            setUpdateHumanVerified((prevState) => ({
-              ...prevState,
-              status: true
-            }));
-          }
+          // Move to next page if needed
 
-          if (page !== data?.total_pages) {
-            updateParams({ page: Number(page) + 1 });
+          if (fiv_item_number < total_items - 1) {
+            setFIVItemNumber(Number(fiv_item_number) + 1);
+            setFIVCurrentItem(fiv_items[Number(fiv_item_number) + 1]);
+          } else {
+            if (fiv_item_number >= total_items - 1) {
+              updateParams({ page: Number(page) + 1 });
+              setFIVItemNumber(0);
+              setFIVCurrentItem({});
+              resetStore();
+            }
           }
         },
-        onError: (e) => {
+        onError: () => {
           setLoadingState((prev) => ({ ...prev, nextAndSaving: false }));
         }
       }
@@ -184,58 +208,44 @@ const FastItemVerification = () => {
   };
 
   const groupAndApproveAndNextHandler = () => {
-    if (!data?.data?.items?.[0]?.category?.category_id) {
-      toast.error("Category cannot be None.");
-      return;
-    }
     setLoadingState((prev) => ({ ...prev, groupingAndApproving: true }));
+
     updateVendorItemMaster(
       {
-        item_uuid: data?.data?.items?.[0]?.item_uuid,
-        data: { ...data?.data?.items?.[0], human_verified: true }
+        item_uuid: fiv_current_item?.item_uuid,
+        data: { human_verified: true }
       },
       {
         onSuccess: () => {
-          setLoadingState((prev) => ({ ...prev, groupingAndApproving: false }));
-          if (updateHumanVerified.key == "human_verified") {
-            setUpdateHumanVerified((prevState) => ({
-              ...prevState,
-              status: true
-            }));
-          }
-          let copyObj = { ...data };
-          let { items } = copyObj.data;
-
-          items.find((it) => it.item_uuid == uuid).human_verified = true;
-
-          queryClient.setQueryData(["vendor-item-master"], copyObj);
+          setFIVCurrentItem({ ...fiv_current_item, human_verified: true });
         },
-        onError: (e) => {
-          let copyObj = { ...data };
-          let { items } = copyObj.data;
-
-          items.find((it) => it.item_uuid == uuid).human_verified = false;
-
-          queryClient.setQueryData(["vendor-item-master"], copyObj);
-          setLoadingState((prev) => ({ ...prev, groupingAndApproving: false }));
+        onError: () => {
+          setFIVCurrentItem({ ...fiv_current_item, human_verified: false });
         }
       }
     );
-    setLoadingState((prev) => ({ ...prev, groupingAndApproving: true }));
+
     mergeItemMaster(
       {
-        master_item_uuid: data?.data?.items?.[0]?.item_uuid,
+        master_item_uuid: fiv_current_item?.item_uuid,
         items_to_merge: selectedItems
       },
       {
         onSuccess: () => {
-          if (page !== data?.total_pages) {
+          if (fiv_items.length === 0 && page !== data?.total_pages) {
             updateParams({ page: Number(page) + 1 });
           }
-          setLoadingState((prev) => ({ ...prev, groupingAndApproving: false }));
+
+          setFIVCurrentItem({
+            ...fiv_current_item,
+            human_verified: true
+          });
+
           setSelectedItems([]);
+          setLoadingState((prev) => ({ ...prev, groupingAndApproving: false }));
         },
         onError: () => {
+          setFIVCurrentItem({ ...fiv_current_item, human_verified: false });
           setLoadingState((prev) => ({ ...prev, groupingAndApproving: false }));
         }
       }
@@ -243,24 +253,40 @@ const FastItemVerification = () => {
   };
   const deleteAndNextHandler = (type) => {
     setLoadingState((prev) => ({ ...prev, deletingAndNext: true }));
+
     deleteVendorItem(
-      {
-        type: type,
-        item_uuid: data?.data?.items?.[0]?.item_uuid
-      },
+      { type, item_uuid: fiv_current_item?.item_uuid },
       {
         onSuccess: () => {
           setShowDeleteModal(false);
-          setLoadingState((prev) => ({
-            ...prev,
-            deletingAndNext: false
-          }));
+          setLoadingState((prev) => ({ ...prev, deletingAndNext: false }));
+
+          // Filter out the deleted item from fiv_items
+          const updatedItems = fiv_items.filter(
+            (item) => item.item_uuid !== fiv_current_item?.item_uuid
+          );
+
+          setFIVItems(updatedItems);
+
+          if (updatedItems.length > 0) {
+            // Set next item as current if available
+            if (fiv_item_number < updatedItems.length) {
+              setFIVCurrentItem(updatedItems[fiv_item_number]);
+            } else {
+              // If we deleted the last item in the array, go to previous index
+              setFIVItemNumber(updatedItems.length - 1);
+              setFIVCurrentItem(updatedItems[updatedItems.length - 1]);
+            }
+          } else {
+            // If no items left, move to next page or reset
+            if (!data?.is_final_page) {
+              updateParams({ page: Number(page) + 1 });
+            }
+            resetStore();
+          }
         },
         onError: () => {
-          setLoadingState((prev) => ({
-            ...prev,
-            deletingAndNext: false
-          }));
+          setLoadingState((prev) => ({ ...prev, deletingAndNext: false }));
         }
       }
     );
@@ -272,12 +298,19 @@ const FastItemVerification = () => {
       <div className="w-full">
         <Navbar />
         <Layout>
+          <Toaster />
           <BreadCrumb
             showCustom={true}
             title={`Fast Item Verification ${
               vendor_name && "| "
             } ${vendor_name}`}
-            crumbs={[{ path: null, label: "Fast Item Verification" }]}
+            crumbs={[
+              { path: null, label: "Fast Item Verification" },
+              {
+                path: `${OLD_UI}/vendor-consolidation-v2/${vendor_id}`,
+                label: vendor_name
+              }
+            ]}
           >
             {human_verified && (
               <img src={approved} alt="" className="h-4 w-4" />
@@ -296,32 +329,27 @@ const FastItemVerification = () => {
             </div>
           ) : (
             <div className="md:px-44  flex items-center justify-center">
-              {!isAccordionOpen && (
-                <FIVPdfViewer
-                  document_source={pdfsData?.data[0]?.document_source}
-                  document_link={pdfsData?.data[0]?.document_link}
-                  isLoading={loadingPdfs}
-                  lineItem={pdfsData?.data?.[0]?.line_item}
-                />
-              )}
+              {!isAccordionOpen && <FIVPdfViewer />}
             </div>
           )}
           <div className="flex flex-col gap-y-2 mt-4 px-16 ">
             <VendorItemMasterTable
-              data={data}
-              pdfsData={pdfsData}
+              required_columns={data?.data?.required_columns?.filter(
+                (it) => it !== "category"
+              )}
               isLoading={isLoading}
+              human_verified={data?.data?.human_verified}
               extraHeaders={["Approved"]}
             />
           </div>
           <div className="min-w-full justify-between  flex items-center mt-4 px-16">
             <div>
               <Button
-                disabled={!pdfsData?.data?.[0]?.document_uuid}
+                disabled={!data?.data?.item?.[0]?.document_uuid}
                 className="rounded-sm font-poppins font-normal text-sm bg-transparent hover:bg-transparent border-primary text-black border"
               >
                 <Link
-                  to={`/invoice-details?document_uuid=${pdfsData?.data[0]?.document_uuid}`}
+                  to={`/invoice-details?document_uuid=${data?.data?.item?.[0]?.document_uuid}`}
                   target="_blank"
                 >
                   View Invoice
@@ -331,7 +359,7 @@ const FastItemVerification = () => {
             <div className="flex items-center gap-x-4">
               <Button
                 disabled={
-                  !pdfsData?.data?.[0]?.document_uuid ||
+                  !data?.data?.item?.[0]?.document_uuid ||
                   loadingState?.nextAndApproving ||
                   loadingState.groupingAndApproving
                 }
@@ -339,8 +367,7 @@ const FastItemVerification = () => {
                   if (selectedItems?.length > 0) {
                     groupAndApproveAndNextHandler();
                   } else {
-                    approveAndNextHandler(data?.data?.items?.[0]?.item_uuid, {
-                      ...data?.data?.items?.[0],
+                    approveAndNextHandler(fiv_current_item?.item_uuid, {
                       human_verified: true
                     });
                   }
@@ -360,14 +387,9 @@ const FastItemVerification = () => {
                   : "Approve & Next"}
               </Button>
               <Button
-                disabled={
-                  !pdfsData?.data?.[0]?.document_uuid ||
-                  loadingState?.nextAndSaving
-                }
+                disabled={loadingState?.nextAndSaving}
                 onClick={() => {
-                  saveAndNextHandler(data?.data?.items?.[0]?.item_uuid, {
-                    ...data?.data?.items?.[0]
-                  });
+                  saveAndNextHandler();
                 }}
                 className="rounded-sm font-poppins font-normal text-sm bg-transparent hover:bg-transparent border-primary text-black border"
               >
@@ -381,6 +403,8 @@ const FastItemVerification = () => {
               >
                 {"Delete & Next"}
               </Button>
+
+              <FIVPagination />
             </div>
           </div>
           {/* Similar Items Accordion */}
@@ -411,13 +435,6 @@ const FastItemVerification = () => {
               </Accordion>
             </div>
           )}
-          <div className="px-16 mt-4">
-            <TablePagination
-              totalPages={data?.total_pages}
-              className={"h-9"}
-              isFinalPage={data?.is_final_page}
-            />
-          </div>
         </Layout>
       </div>
       <Modal
@@ -446,7 +463,10 @@ const FastItemVerification = () => {
             >
               {loadingState?.deletingAndNext ? "Deleting.." : "Soft Delete"}
             </Button>
-            <Button className="rounded-sm font-poppins font-normal text-xs px-3 bg-transparent border border-primary text-black hover:bg-transparent">
+            <Button
+              onClick={() => setShowDeleteModal(false)}
+              className="rounded-sm font-poppins font-normal text-xs px-3 bg-transparent border border-primary text-black hover:bg-transparent"
+            >
               Close
             </Button>
           </div>

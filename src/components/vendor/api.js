@@ -133,6 +133,17 @@ export const useGetVendorItemMaster = (payload) => {
   });
 };
 
+export const useGetVendorItemMasterAllItems = (payload) => {
+  return useMutation({
+    mutationFn: async (payload) => {
+      const { vendor_id, document_uuid, page } = payload;
+      const apiUrl = `/api/item-master/fast-item-verification/${vendor_id}/?page=${page}&document_uuid=${document_uuid}`;
+      const response = await axiosInstance.get(apiUrl);
+      return response;
+    }
+  });
+};
+
 export const useCombineVendors = () => {
   return useMutation({
     mutationFn: async (payload) => {
@@ -340,11 +351,11 @@ export const useUpdateVendorItemMaster = () => {
       const errorMessage = data?.message || "An error occurred";
       const validationErrors = data?.errors
         ? Object.entries(data.errors)
+
             .map(([field, messages]) => `${field} : ${messages.join(", ")}`)
             .join("\n")
         : null;
-
-      toast.error(validationErrors);
+      toast(validationErrors || errorMessage);
 
       return data;
     }

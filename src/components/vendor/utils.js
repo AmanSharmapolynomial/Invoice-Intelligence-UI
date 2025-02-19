@@ -96,7 +96,7 @@ export const getVendorItemMaster = async (payload) => {
     document_uuid,
     page_size,is_bounding_box_present
   } = payload;
-  const apiUrl = `/api/item-master/vendor/${vendor_id}/?page=${page}&human_verified=${human_verified}&category_review_required=${category_review_required}&verified_by=${verified_by}&item_code=${item_code}&item_description=${item_description}&document_uuid=${document_uuid}&page_size=${page_size}&is_bounding_box_present=${is_bounding_box_present}`;
+  const apiUrl = `/api/item-master/fast-item-verification/${vendor_id}/?page=${page}&page_size=${page_size}&document_uuid=${document_uuid}`;
   const response = await axiosInstance.get(apiUrl);
   return response;
 };
@@ -150,7 +150,7 @@ export const disapproveAllVendorItems = async (vendor_id) => {
 
 export const updateVendorItemMaster = async (payload) => {
   const { item_uuid, data } = payload;
-  const apiUrl = `/api/item-master/${item_uuid}/details/`;
+  const apiUrl = `/api/item-master/${item_uuid}/details/?from_fast_item_master_verification=true`;
   const response = await axiosInstance.put(apiUrl, { ...data });
   return response;
 };

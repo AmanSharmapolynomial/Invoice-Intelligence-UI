@@ -6,7 +6,8 @@ import CustomInput from "@/components/ui/Custom/CustomInput";
 import CustomDropDown from "@/components/ui/CustomDropDown";
 import { useGetItemMasterVendors } from "@/components/vendor/api";
 import VendorsTable from "@/components/vendor/VendorsTable";
-import React, { useState, useMemo } from "react";
+import fastItemVerificationStore from "@/store/fastItemVerificationStore";
+import React, { useState, useMemo, useEffect } from "react";
 
 const columns = [
   { key: `vendor[vendor_name]`, label: "Vendor Name" },
@@ -33,7 +34,10 @@ const ItemMasterVendors = () => {
   const [selectedApproval, setSelectedApproval] = useState(null);
   const [selectedPercentage, setSelectedPercentage] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
-
+  const { resetStore } = fastItemVerificationStore();
+  useEffect(() => {
+    resetStore();
+  }, []);
   const getValue = (obj, key) => {
     return key.includes("[")
       ? key
@@ -103,7 +107,7 @@ const ItemMasterVendors = () => {
                 onChange={setSelectedApproval}
                 showSearch={false}
                 className="!min-w-[12rem] "
-                     commandGroupClassName="!min-h-[0rem] !max-h-[8rem]"
+                commandGroupClassName="!min-h-[0rem] !max-h-[8rem]"
                 placeholder="Vendor Approval"
               />
 
@@ -111,7 +115,7 @@ const ItemMasterVendors = () => {
                 data={percentageOptions}
                 Value={selectedPercentage}
                 onChange={setSelectedPercentage}
-                       commandGroupClassName="!min-h-[0rem] !max-h-[8rem]"
+                commandGroupClassName="!min-h-[0rem] !max-h-[8rem]"
                 showSearch={false}
                 className="!min-w-[12rem]"
                 placeholder="Vendor Approval Percentage"
