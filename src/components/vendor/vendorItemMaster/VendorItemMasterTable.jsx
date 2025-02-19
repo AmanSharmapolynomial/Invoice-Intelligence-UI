@@ -60,17 +60,17 @@ const VendorItemMasterTable = ({ isLoading, extraHeaders, similarItems }) => {
       }
     );
   };
-  let cols = isLoading
+  let cols = `grid-cols-${isLoading
     ? 4
     : Number(fiv_current_item?.required_columns?.length) +
       1 +
-      Number(extraHeaders?.length);
+      Number(extraHeaders?.length)}`;
 
   return (
     <Table className="mt-4">
       <TableHeader>
         <TableRow
-          className={`min-h-12 bg-gray-100 rounded-sm border grid grid-cols-${cols} items-center`}
+          className={`min-h-12 bg-gray-100 rounded-sm border grid ${cols} items-center`}
         >
           {isLoading ? (
             <>
@@ -113,7 +113,7 @@ const VendorItemMasterTable = ({ isLoading, extraHeaders, similarItems }) => {
               item["human_verified"] &&item['item_uuid']==fiv_current_item?.item_uuid
           ) && <p className=" top-0 w-fit mt-1 ml-1  bg-red-400 text-white rounded-sm px-2 py-1 text-xs ">Duplicate</p>}
         <TableRow
-          className={`min-h-12 rounded-sm grid grid-cols-${cols} items-center relative`}
+          className={`min-h-12 rounded-sm grid ${cols} items-center relative`}
         >
        
           {isLoading ? (
