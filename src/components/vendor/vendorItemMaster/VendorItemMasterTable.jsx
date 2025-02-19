@@ -1,5 +1,5 @@
 import approved from "@/assets/image/approved.svg";
-import unApproved from "@/assets/image/unApproved.svg";
+import unApproved from "@/assets/image/unapproved.svg";
 import { Button } from "@/components/ui/button";
 import {
   Table,
