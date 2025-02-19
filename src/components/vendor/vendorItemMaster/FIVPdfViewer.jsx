@@ -13,8 +13,8 @@ const FIVPdfViewer = ({}) => {
     fiv_current_item: lineItem,
     setFIVBoundingBoxes
   } = fastItemVerificationStore();
-  const boundingBoxes = lineItem
-    ? Object.values(lineItem?.line_item)
+  const boundingBoxes = lineItem?.line_item
+    ? Object?.values(lineItem?.line_item)
         .map(({ bounding_boxes, page_index }) => ({
           box: bounding_boxes,
           page_index

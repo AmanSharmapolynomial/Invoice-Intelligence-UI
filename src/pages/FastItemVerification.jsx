@@ -61,7 +61,8 @@ const FastItemVerification = () => {
     fiv_current_item,
     resetStore,
     setFIVItemNumber,
-    fiv_item_number
+    fiv_item_number,
+    isGoodDocument
   } = fastItemVerificationStore();
 
   const [selectedItems, setSelectedItems] = useState([]);
@@ -151,6 +152,10 @@ const FastItemVerification = () => {
           setIsGoodDocument(fiv_items.length === 0);
 
           // Handle pagination & moving to the next item
+          if (!isGoodDocument && fiv_items?.length == 0) {
+            setIsGoodDocument(true);
+            return
+          }
           if (fiv_item_number < total_items - 1) {
             setFIVItemNumber(fiv_item_number + 1);
             setFIVCurrentItem(fiv_items[fiv_item_number + 1]);
@@ -292,9 +297,9 @@ const FastItemVerification = () => {
   };
 
   return (
-    <div className="h-screen flex w- overflow-x-hidden" id="maindiv">
+    <div className="h-screen  flex w-full " id="maindiv">
       <Sidebar />
-      <div className="w-full">
+      <div className="w-full ">
         <Navbar />
         <Layout>
           <Toaster />
@@ -305,17 +310,14 @@ const FastItemVerification = () => {
             } ${vendor_name}`}
             crumbs={[
               { path: null, label: "Fast Item Verification" },
-              {
-                path: `${OLD_UI}/vendor-consolidation-v2/${vendor_id}`,
-                label: vendor_name
-              }
+            
             ]}
           >
-            {human_verified && (
+            {human_verified=="true" && (
               <img src={approved} alt="" className="h-4 w-4" />
             )}
           </BreadCrumb>
-          <div className="w-full flex justify-end items-center px-16 ">
+          <div className="w-full flex justify-end items-center ">
             <ProgressBar
               title={"Verified Items"}
               currentValue={data?.data?.verified_item_count}

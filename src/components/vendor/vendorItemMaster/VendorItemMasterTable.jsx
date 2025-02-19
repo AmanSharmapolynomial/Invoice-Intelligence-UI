@@ -63,19 +63,15 @@ const VendorItemMasterTable = ({ isLoading, extraHeaders }) => {
       }
     );
   };
+  let cols =isLoading?4:
+    fiv_current_item?.required_columns?.filter((c) => c !== "category")
+      ?.length +
+    extraHeaders?.length 
   return (
     <Table className="mt-4">
       <TableHeader>
         <TableRow
-          className={`min-h-12 bg-gray-100 rounded-sm border grid grid-cols-${
-            isLoading
-              ? 4
-              : fiv_current_item?.required_columns?.filter(
-                  (c) => c !== "category"
-                )?.length +
-                extraHeaders?.length +
-                1
-          } items-center`}
+          className={`min-h-12 bg-gray-100 rounded-sm border grid grid-cols-${cols} items-center`}
         >
           {isLoading ? (
             <>
@@ -83,8 +79,8 @@ const VendorItemMasterTable = ({ isLoading, extraHeaders }) => {
                 <TableCell
                   key={index}
                   className={`${
-                    it == "item_description" ? "col-span-2" : "col-span-1"
-                  }  border-r flex  items-center h-full border-b-0 font-poppins font-semibold text-sm`}
+                    it === "item_description" ? "col-span-2" : "col-span-1"
+                  } border-r flex items-center h-full border-b-0 font-poppins font-semibold text-sm`}
                 >
                   {keysCapitalizer(it)}
                 </TableCell>
@@ -97,8 +93,8 @@ const VendorItemMasterTable = ({ isLoading, extraHeaders }) => {
                 <TableCell
                   key={index}
                   className={`${
-                    it == "item_description" ? "col-span-2" : "col-span-1"
-                  }  border-r flex  items-center h-full border-b-0 font-poppins font-semibold text-sm`}
+                    it === "item_description" ? "col-span-2" : "col-span-1"
+                  }   border-r flex items-center h-full border-b-0 font-poppins font-semibold text-sm`}
                 >
                   {keysCapitalizer(it)}
                 </TableCell>
@@ -107,7 +103,7 @@ const VendorItemMasterTable = ({ isLoading, extraHeaders }) => {
           {extraHeaders?.map((it, index) => (
             <TableCell
               key={index}
-              className=" border-r justify-center border-b-0 h-full flex items-center font-poppins font-semibold text-sm "
+              className="border-r justify-center col-span-1 border-b-0 h-full flex items-center font-poppins font-semibold text-sm"
             >
               {it}
             </TableCell>
@@ -116,15 +112,7 @@ const VendorItemMasterTable = ({ isLoading, extraHeaders }) => {
       </TableHeader>
       <TableBody>
         <TableRow
-          className={`min-h-12 rounded-sm grid grid-cols-${
-            isLoading
-              ? 4
-              : fiv_current_item?.required_columns?.filter(
-                  (c) => c !== "category"
-                )?.length +
-                extraHeaders?.length +
-                1
-          } items-center`}
+          className={`min-h-12 rounded-sm grid grid-cols-${cols} items-center`}
         >
           {isLoading ? (
             <>
@@ -166,19 +154,21 @@ const VendorItemMasterTable = ({ isLoading, extraHeaders }) => {
                 );
               })
           )}
-         {!isLoading&& <TableCell className="flex items-center justify-center border-r border-b h-full">
-            <Button
-              disabled={updatingVendorItemMaster}
-              className="border-none bg-transparent hover:bg-transparent shadow-none"
-              onClick={() => approveHandler()}
-            >
-              {fiv_current_item?.human_verified ? (
-                <img src={approved} alt="" className="h-5 w-5" />
-              ) : (
-                <img src={unApproved} alt="" className="h-5 w-5" />
-              )}
-            </Button>
-          </TableCell>}
+          {!isLoading && (
+            <TableCell className="flex items-center justify-center border-r border-b h-full">
+              <Button
+                disabled={updatingVendorItemMaster}
+                className="border-none bg-transparent hover:bg-transparent shadow-none"
+                onClick={() => approveHandler()}
+              >
+                {fiv_current_item?.human_verified ? (
+                  <img src={approved} alt="" className="h-5 w-5" />
+                ) : (
+                  <img src={unApproved} alt="" className="h-5 w-5" />
+                )}
+              </Button>
+            </TableCell>
+          )}
         </TableRow>
       </TableBody>
     </Table>
