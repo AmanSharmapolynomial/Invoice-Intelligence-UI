@@ -342,7 +342,36 @@ const FastItemVerification = () => {
               extraHeaders={["Approved"]}
             />
           </div>
-          <div className="min-w-full justify-between  flex items-center mt-4 px-16">
+         
+          {/* Similar Items Accordion */}
+          {similarItems?.data?.total_matches > 0 && (
+            <div className="px-16 mt-6">
+              <Accordion
+                type="single"
+                collapsible
+                value={isAccordionOpen ? "item-1" : ""}
+                onValueChange={(val) => setIsAccordionOpen(val === "item-1")}
+              >
+                <AccordionItem
+                  value="item-1"
+                  className="border  rounded-md px-4 border-[#E0E0E0] "
+                >
+                  <AccordionTrigger className="hover:no-underline  border-b font-poppins font-semibold text-sm">
+                    Similar Items ({similarItems?.data?.total_matches || 0})
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <SimilarItems
+                      selectedItems={selectedItems}
+                      setSelectedItems={setSelectedItems}
+                      data={similarItems}
+                      isLoading={loadinSimilarItems}
+                    />
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </div>
+          )}
+           <div className="min-w-full justify-between  flex items-center mt-4 px-16">
             <div>
               <Button
                 disabled={!data?.data?.item?.[0]?.document_uuid}
@@ -407,34 +436,6 @@ const FastItemVerification = () => {
               <FIVPagination />
             </div>
           </div>
-          {/* Similar Items Accordion */}
-          {similarItems?.data?.total_matches > 0 && (
-            <div className="px-16 mt-6">
-              <Accordion
-                type="single"
-                collapsible
-                value={isAccordionOpen ? "item-1" : ""}
-                onValueChange={(val) => setIsAccordionOpen(val === "item-1")}
-              >
-                <AccordionItem
-                  value="item-1"
-                  className="border  rounded-md px-4 border-[#E0E0E0] "
-                >
-                  <AccordionTrigger className="hover:no-underline  border-b font-poppins font-semibold text-sm">
-                    Similar Items ({similarItems?.data?.total_matches || 0})
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <SimilarItems
-                      selectedItems={selectedItems}
-                      setSelectedItems={setSelectedItems}
-                      data={similarItems}
-                      isLoading={loadinSimilarItems}
-                    />
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </div>
-          )}
         </Layout>
       </div>
       <Modal
