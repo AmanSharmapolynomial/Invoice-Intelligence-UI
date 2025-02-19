@@ -40,7 +40,7 @@ export function CreateUser() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       first_name: "",
-      first_name: "",
+      
       username: "",
       email: "",
       user_role: "",
