@@ -91,7 +91,7 @@ const FastItemVerification = () => {
 
   const total_items = fiv_items?.length || 0;
   const { data: similarItems, isLoading: loadinSimilarItems } =
-    useGetItemMastSimilarItems({ item_uuid: item_uuid, threshold: 1 });
+    useGetItemMastSimilarItems({ item_uuid: item_uuid, threshold: 60 });
   const { mutate: getAllItems } = useGetVendorItemMasterAllItems();
 
   const { mutate: mergeItemMaster, isPending: mergingItemMaster } =
