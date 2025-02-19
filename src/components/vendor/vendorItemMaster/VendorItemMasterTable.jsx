@@ -168,7 +168,11 @@ const VendorItemMasterTable = ({ isLoading, extraHeaders, similarItems }) => {
           {!isLoading && (
             <TableCell className="flex items-center justify-center border-r border-b h-full">
               <Button
-                disabled={updatingVendorItemMaster}
+                disabled={()=>{
+                  if(!fiv_current_item?.human_verified){
+                    updatingVendorItemMaster()
+                  }
+                }}
                 className="border-none bg-transparent hover:bg-transparent shadow-none"
                 onClick={() => approveHandler()}
               >
