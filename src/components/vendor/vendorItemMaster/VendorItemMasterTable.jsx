@@ -11,7 +11,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { keysCapitalizer } from "@/lib/helpers";
 import fastItemVerificationStore from "@/store/fastItemVerificationStore";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useUpdateVendorItemMaster } from "../api";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -60,26 +60,31 @@ const VendorItemMasterTable = ({ isLoading, extraHeaders, similarItems }) => {
       }
     );
   };
-  let cols = `grid-cols-${isLoading
-    ? 4
-    : Number(fiv_current_item?.required_columns?.length) +
-      1 +
-      Number(extraHeaders?.length)}`;
+  const [cols, setCols] = useState(3);
+
+  useEffect(() => {
+    setCols(fiv_current_item?.required_columns?.length + 2);
+  }, [fiv_current_item]);
+
+  const gridClass =
+    {
+      3: "grid-cols-3",
+      4: "grid-cols-4",
+      5: "grid-cols-5",
+      6: "grid-cols-6"
+    }[cols] || "grid-cols-3"; // Default fallback
 
   return (
     <Table className="mt-4">
       <TableHeader>
-        <TableRow
-          className={`min-h-12 bg-gray-100 rounded-sm border grid ${cols} items-center`}
-        >
+      <TableRow className={`min-h-12 rounded-sm grid ${isLoading ? "grid-cols-3" : `grid-cols-${cols || 3}`} items-center relative border`} >
+
           {isLoading ? (
             <>
               {["item_code", "item_description"]?.map((it, index) => (
                 <TableCell
                   key={index}
-                  className={`${
-                    it === "item_description" ? "col-span-2" : "col-span-1"
-                  } border-r flex items-center h-full border-b-0 font-poppins font-semibold text-sm`}
+                  className={` border-r flex items-center h-full border-b-0 font-poppins font-semibold text-sm`}
                 >
                   {keysCapitalizer(it)}
                 </TableCell>
@@ -108,21 +113,25 @@ const VendorItemMasterTable = ({ isLoading, extraHeaders, similarItems }) => {
         </TableRow>
       </TableHeader>
       <TableBody>
-      {similarItems?.data?.matching_items?.find(
-            (item) =>
-              item["human_verified"] &&item['item_uuid']==fiv_current_item?.item_uuid
-          ) && <p className=" top-0 w-fit mt-1 ml-1  bg-red-400 text-white rounded-sm px-2 py-1 text-xs ">Duplicate</p>}
+        {similarItems?.data?.matching_items?.find(
+          (item) =>
+            item["human_verified"] &&
+            item["item_uuid"] == fiv_current_item?.item_uuid
+        ) && (
+          <p className=" top-0 w-fit mt-1 ml-1  bg-red-400 text-white rounded-sm px-2 py-1 text-xs ">
+            Duplicate
+          </p>
+        )}
         <TableRow
-          className={`min-h-12 rounded-sm grid ${cols} items-center relative`}
+          className={`min-h-12 rounded-sm grid ${isLoading ? "grid-cols-3" : `grid-cols-${cols || 3}`}  items-center relative`}
         >
-       
           {isLoading ? (
             <>
               {[0, 1, 2]?.map((i) => (
                 <TableCell
                   key={i}
                   className={`${
-                    i == 1 ? "col-span-2" : "col-span-1"
+                    i == 1 ? "col-span-1" : "col-span-1"
                   } border-r border-b ${i == 0 && "border-l"} border-t-0`}
                 >
                   <Skeleton className={"w-full h-5"} />
