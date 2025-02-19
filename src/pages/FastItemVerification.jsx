@@ -69,7 +69,6 @@ const FastItemVerification = () => {
   let vendor_name = searchParams.get("vendor_name");
   let human_verified = searchParams.get("human_verified");
   const { data, isLoading } = useGetVendorItemMaster({
-    page: 1,
     page_size: 1,
     vendor_id,
     document_uuid: document_uuid,
