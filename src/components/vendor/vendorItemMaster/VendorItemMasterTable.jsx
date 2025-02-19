@@ -15,7 +15,7 @@ import { useEffect, useRef } from "react";
 import { useUpdateVendorItemMaster } from "../api";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const VendorItemMasterTable = ({ isLoading, extraHeaders }) => {
+const VendorItemMasterTable = ({ isLoading, extraHeaders, similarItems }) => {
   const {
     mutate: updateVendorItemMaster,
     isPending: updatingVendorItemMaster
@@ -48,9 +48,6 @@ const VendorItemMasterTable = ({ isLoading, extraHeaders }) => {
       },
       {
         onSuccess: () => {
-          if (!isGoodDocument && fiv_items?.length == 0) {
-            setIsGoodDocument(true);
-          }
           const updatedItems = fiv_items.map((item) =>
             item.item_uuid === fiv_current_item?.item_uuid
               ? { ...item, human_verified: true }
@@ -63,10 +60,12 @@ const VendorItemMasterTable = ({ isLoading, extraHeaders }) => {
       }
     );
   };
-  let cols =isLoading?4:
-    fiv_current_item?.required_columns?.filter((c) => c !== "category")
-      ?.length +
-    extraHeaders?.length 
+  let cols = isLoading
+    ? 4
+    : Number(fiv_current_item?.required_columns?.length) +
+      1 +
+      Number(extraHeaders?.length);
+
   return (
     <Table className="mt-4">
       <TableHeader>
@@ -87,18 +86,16 @@ const VendorItemMasterTable = ({ isLoading, extraHeaders }) => {
               ))}
             </>
           ) : (
-            fiv_current_item?.required_columns
-              ?.filter((c) => c !== "category")
-              ?.map((it, index) => (
-                <TableCell
-                  key={index}
-                  className={`${
-                    it === "item_description" ? "col-span-2" : "col-span-1"
-                  }   border-r flex items-center h-full border-b-0 font-poppins font-semibold text-sm`}
-                >
-                  {keysCapitalizer(it)}
-                </TableCell>
-              ))
+            fiv_current_item?.required_columns?.map((it, index) => (
+              <TableCell
+                key={index}
+                className={`${
+                  it === "item_description" ? "col-span-2" : "col-span-1"
+                }   border-r flex items-center h-full border-b-0 font-poppins font-semibold text-sm`}
+              >
+                {keysCapitalizer(it)}
+              </TableCell>
+            ))
           )}
           {extraHeaders?.map((it, index) => (
             <TableCell
@@ -111,9 +108,14 @@ const VendorItemMasterTable = ({ isLoading, extraHeaders }) => {
         </TableRow>
       </TableHeader>
       <TableBody>
+      {similarItems?.data?.matching_items?.find(
+            (item) =>
+              item["human_verified"] &&item['item_uuid']==fiv_current_item?.item_uuid
+          ) && <p className=" top-0 w-fit mt-1 ml-1  bg-red-400 text-white rounded-sm px-2 py-1 text-xs ">Duplicate</p>}
         <TableRow
-          className={`min-h-12 rounded-sm grid grid-cols-${cols} items-center`}
+          className={`min-h-12 rounded-sm grid grid-cols-${cols} items-center relative`}
         >
+       
           {isLoading ? (
             <>
               {[0, 1, 2]?.map((i) => (
@@ -128,31 +130,31 @@ const VendorItemMasterTable = ({ isLoading, extraHeaders }) => {
               ))}
             </>
           ) : (
-            fiv_current_item?.required_columns
-              ?.filter((c) => c !== "category")
-              ?.map((col, i) => {
-                return (
-                  <TableCell
-                    key={i}
-                    className={`${
-                      col == "item_description" ? "col-span-2" : "col-span-1"
-                    } border-r border-b ${i == 0 && "border-l"} border-t-0`}
-                  >
-                    <Textarea
-                      ref={(el) => (textAreaRefs.current[i] = el)}
-                      value={fiv_current_item?.line_item?.[col]?.text || ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        let copyObj = JSON.parse(
-                          JSON.stringify(fiv_current_item)
-                        );
-                        copyObj.line_item[col].text = val;
-                        setFIVCurrentItem(copyObj);
-                      }}
-                    />
-                  </TableCell>
-                );
-              })
+            fiv_current_item?.required_columns?.map((col, i) => {
+              return (
+                <TableCell
+                  key={i}
+                  className={`${
+                    col == "item_description" ? "col-span-2" : "col-span-1"
+                  } border-r border-b ${i == 0 && "border-l"} border-t-0`}
+                >
+                  <Textarea
+                    disabled={col == "category"}
+                    className="disabled:!text-black disabled:!bg-none disabled:opacity-100 "
+                    ref={(el) => (textAreaRefs.current[i] = el)}
+                    value={fiv_current_item?.line_item?.[col]?.text || ""}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      let copyObj = JSON.parse(
+                        JSON.stringify(fiv_current_item)
+                      );
+                      copyObj.line_item[col].text = val;
+                      setFIVCurrentItem(copyObj);
+                    }}
+                  />
+                </TableCell>
+              );
+            })
           )}
           {!isLoading && (
             <TableCell className="flex items-center justify-center border-r border-b h-full">

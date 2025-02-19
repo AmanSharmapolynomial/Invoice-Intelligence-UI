@@ -17,7 +17,7 @@ import useThemeStore from "@/store/themeStore";
 import CustomTooltip from "../ui/Custom/CustomTooltip";
 import useFilterStore from "@/store/filtersStore";
 
-const Sidebar = () => {
+const Sidebar = ({className}) => {
   const { expanded, setExpanded } = useSidebarStore();
   const { theme } = useThemeStore();
   const { pathname } = useLocation();
@@ -99,9 +99,9 @@ const Sidebar = () => {
     expanded === undefined ? "18rem" : expanded ? "18rem" : "3.75rem";
   const { setDefault } = useFilterStore();
   return (
-    <div className="relative ">
+    <div className={`${className} relative  h-screen`}>
       <div
-        className="border h-screen w-full dark:border-white/10  overflow-y-auto sticky z top-0 dark:!bg-[#051C14] bg-white  transition-all z-50 duration-300 ease-in-out"
+        className="border  h-full w-full dark:border-white/10  overflow-y-auto sticky z top-0 dark:!bg-[#051C14] bg-white  transition-all z-50 duration-300 ease-in-out"
         style={{
           width: width,
           boxShadow: "0px 2px 8px 0px rgba(0, 0, 0, 0.08)"

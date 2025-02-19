@@ -108,7 +108,7 @@ const FastItemVerification = () => {
   }, [page]);
 
   useEffect(() => {
-    if (is_good_document) {
+    if (fiv_items?.length == 0) {
       setFIVDocumentUUID(data?.data?.item?.[0]?.document_uuid);
 
       getAllItems(
@@ -119,15 +119,24 @@ const FastItemVerification = () => {
         },
         {
           onSuccess: (data) => {
-            setFIVItems(data?.data?.items);
+            setFIVItems(
+              data?.data?.items?.filter(
+                (it) => it.item_uuid !== fiv_current_item?.item_uuid
+              )
+            );
             setIsGoodDocument(false);
-            setFIVCurrentItem(data?.data?.items[0]);
+
+            setFIVCurrentItem(data?.data?.items[fiv_item_number + 2]);
           }
         }
       );
     }
-  }, [is_good_document, loadingState?.nextAndApproving]);
-
+  }, [fiv_items]);
+  useEffect(() => {
+    if (fiv_items?.length !== 0) {
+      setIsGoodDocument(true);
+    }
+  }, [data]);
   // Handlers
   const approveAndNextHandler = () => {
     setLoadingState((prev) => ({ ...prev, nextAndApproving: true }));
@@ -152,10 +161,7 @@ const FastItemVerification = () => {
           setIsGoodDocument(fiv_items.length === 0);
 
           // Handle pagination & moving to the next item
-          if (!isGoodDocument && fiv_items?.length == 0) {
-            setIsGoodDocument(true);
-            return
-          }
+
           if (fiv_item_number < total_items - 1) {
             setFIVItemNumber(fiv_item_number + 1);
             setFIVCurrentItem(fiv_items[fiv_item_number + 1]);
@@ -297,7 +303,7 @@ const FastItemVerification = () => {
   };
 
   return (
-    <div className="h-screen  flex w-full " id="maindiv">
+    <div className="flex w-full  " id="maindiv">
       <Sidebar />
       <div className="w-full ">
         <Navbar />
@@ -308,12 +314,9 @@ const FastItemVerification = () => {
             title={`Fast Item Verification ${
               vendor_name && "| "
             } ${vendor_name}`}
-            crumbs={[
-              { path: null, label: "Fast Item Verification" },
-            
-            ]}
+            crumbs={[{ path: null, label: "Fast Item Verification" }]}
           >
-            {human_verified=="true" && (
+            {human_verified == "true" && (
               <img src={approved} alt="" className="h-4 w-4" />
             )}
           </BreadCrumb>
@@ -335,6 +338,7 @@ const FastItemVerification = () => {
           )}
           <div className="flex flex-col gap-y-2 mt-4 px-16 ">
             <VendorItemMasterTable
+            similarItems={similarItems}
               required_columns={data?.data?.required_columns?.filter(
                 (it) => it !== "category"
               )}
@@ -343,36 +347,40 @@ const FastItemVerification = () => {
               extraHeaders={["Approved"]}
             />
           </div>
-         
+
           {/* Similar Items Accordion */}
-          {similarItems?.data?.total_matches > 0 && (
-            <div className="px-16 mt-6">
-              <Accordion
-                type="single"
-                collapsible
-                value={isAccordionOpen ? "item-1" : ""}
-                onValueChange={(val) => setIsAccordionOpen(val === "item-1")}
+
+          <div className="px-16 mt-6">
+            <Accordion
+              type="single"
+              collapsible
+              value={isAccordionOpen ? "item-1" : ""}
+              onValueChange={(val) => {
+                if (similarItems?.data?.total_matches > 0) {
+                  setIsAccordionOpen(val === "item-1");
+                }
+              }}
+            >
+              <AccordionItem
+                value="item-1"
+                className="border  rounded-md px-4 border-[#E0E0E0] "
               >
-                <AccordionItem
-                  value="item-1"
-                  className="border  rounded-md px-4 border-[#E0E0E0] "
-                >
-                  <AccordionTrigger className="hover:no-underline  border-b font-poppins font-semibold text-sm">
-                    Similar Items ({similarItems?.data?.total_matches || 0})
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <SimilarItems
-                      selectedItems={selectedItems}
-                      setSelectedItems={setSelectedItems}
-                      data={similarItems}
-                      isLoading={loadinSimilarItems}
-                    />
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </div>
-          )}
-           <div className="min-w-full justify-between  flex items-center mt-4 px-16">
+                <AccordionTrigger className="hover:no-underline  border-b font-poppins font-semibold text-sm">
+                  Similar Items ({similarItems?.data?.total_matches || 0})
+                </AccordionTrigger>
+                <AccordionContent>
+                  <SimilarItems
+                    selectedItems={selectedItems}
+                    setSelectedItems={setSelectedItems}
+                    data={similarItems}
+                    isLoading={loadinSimilarItems}
+                  />
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+
+          <div className="min-w-full justify-between  flex items-center mt-4 px-16">
             <div>
               <Button
                 disabled={!data?.data?.item?.[0]?.document_uuid}
@@ -402,7 +410,7 @@ const FastItemVerification = () => {
                     });
                   }
                 }}
-                className="rounded-sm font-poppins font-normal text-sm bg-transparent hover:bg-transparent border-primary text-black border"
+                className={`${fiv_current_item?.human_verified && selectedItems?.length==0 &&"hidden"} rounded-sm font-poppins font-normal text-sm bg-transparent hover:bg-transparent border-primary text-black border`}
               >
                 {(
                   selectedItems?.length > 0
@@ -434,7 +442,7 @@ const FastItemVerification = () => {
                 {"Delete & Next"}
               </Button>
 
-              <FIVPagination />
+              <FIVPagination data={data} />
             </div>
           </div>
         </Layout>
@@ -442,6 +450,7 @@ const FastItemVerification = () => {
       <Modal
         open={showDeleteModal}
         setOpen={setShowDeleteModal}
+        className={"z-50"}
         title={"  Are you sure to delete this item ?"}
       >
         <ModalDescription>

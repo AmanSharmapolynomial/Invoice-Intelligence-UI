@@ -1,4 +1,5 @@
 import { Checkbox } from "@/components/ui/checkbox";
+import approved from "@/assets/image/approved.svg";
 import {
   Table,
   TableBody,
@@ -73,7 +74,13 @@ const SimilarItems = ({
       <TableBody>
         {data?.data?.matching_items?.map(
           (
-            { item_code, item_description, match_percentage, item_uuid },
+            {
+              item_code,
+              item_description,
+              match_percentage,
+              item_uuid,
+              human_verified
+            },
             index
           ) => {
             return (
@@ -87,6 +94,7 @@ const SimilarItems = ({
                     onCheckedChange={() => handleCheckboxChange(item_uuid)}
                   />
                   <span className="mt-1"> {item_code}</span>
+                  {human_verified && <img src={approved} alt="" />}
                 </TableCell>
                 <TableCell className="border-r border-b  h-full font-poppins px-[0.75rem] capitalize text-sm font-normal">
                   {item_description}
