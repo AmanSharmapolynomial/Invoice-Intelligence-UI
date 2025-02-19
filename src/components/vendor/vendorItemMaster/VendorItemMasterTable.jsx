@@ -63,39 +63,31 @@ const VendorItemMasterTable = ({ isLoading, extraHeaders, similarItems }) => {
   const [cols, setCols] = useState(3);
 
   useEffect(() => {
-    setCols(fiv_current_item?.required_columns?.length + 2);
+    setCols(Number(fiv_current_item?.required_columns?.length) + 1);
   }, [fiv_current_item]);
-
-  const gridClass =
-    {
-      3: "grid-cols-3",
-      4: "grid-cols-4",
-      5: "grid-cols-5",
-      6: "grid-cols-6"
-    }[cols] || "grid-cols-3"; // Default fallback
 
   return (
     <Table className="mt-4">
-      <TableHeader>
-      <TableRow className={`min-h-12 rounded-sm grid ${isLoading ? "grid-cols-3" : `grid-cols-${cols || 3}`} items-center relative border`} >
-
+      <TableHeader className="w-full ">
+        <TableRow
+          className={`min-h-12 rounded-sm  items-center ${isLoading?"flex w-full justify-between":`grid  grid-cols-${cols}`} relative border`}
+        >
           {isLoading ? (
-            <>
-              {["item_code", "item_description"]?.map((it, index) => (
+            ["item_code", "item_description"]?.map((it, index) => (
                 <TableCell
                   key={index}
                   className={` border-r flex items-center h-full border-b-0 font-poppins font-semibold text-sm`}
                 >
                   {keysCapitalizer(it)}
                 </TableCell>
-              ))}
-            </>
+              ))
+            
           ) : (
             fiv_current_item?.required_columns?.map((it, index) => (
               <TableCell
                 key={index}
                 className={`${
-                  it === "item_description" ? "col-span-2" : "col-span-1"
+                  it === "item_description" ? "col-span-1" : "col-span-1"
                 }   border-r flex items-center h-full border-b-0 font-poppins font-semibold text-sm`}
               >
                 {keysCapitalizer(it)}
@@ -123,7 +115,9 @@ const VendorItemMasterTable = ({ isLoading, extraHeaders, similarItems }) => {
           </p>
         )}
         <TableRow
-          className={`min-h-12 rounded-sm grid ${isLoading ? "grid-cols-3" : `grid-cols-${cols || 3}`}  items-center relative`}
+          className={`min-h-12 rounded-sm grid ${
+            isLoading ? "grid-cols-3" : `grid-cols-${cols || 3}`
+          }  items-center relative`}
         >
           {isLoading ? (
             <>
@@ -144,7 +138,7 @@ const VendorItemMasterTable = ({ isLoading, extraHeaders, similarItems }) => {
                 <TableCell
                   key={i}
                   className={`${
-                    col == "item_description" ? "col-span-2" : "col-span-1"
+                    col == "item_description" ? "col-span-1" : "col-span-1"
                   } border-r border-b ${i == 0 && "border-l"} border-t-0`}
                 >
                   <Textarea
@@ -168,9 +162,9 @@ const VendorItemMasterTable = ({ isLoading, extraHeaders, similarItems }) => {
           {!isLoading && (
             <TableCell className="flex items-center justify-center border-r border-b h-full">
               <Button
-                disabled={()=>{
-                  if(!fiv_current_item?.human_verified){
-                    updatingVendorItemMaster()
+                disabled={() => {
+                  if (!fiv_current_item?.human_verified) {
+                    updatingVendorItemMaster();
                   }
                 }}
                 className="border-none bg-transparent hover:bg-transparent shadow-none"
