@@ -292,7 +292,7 @@ const FastItemVerification = () => {
       },
       {
         onSuccess: () => {
-          setFIVCurrentItem({ ...fiv_current_item, human_verified: true });
+          
           setFIVVerifiedItemsCount(Number(fiv_verified_items_count) + 1);
         },
         onError: () => {
@@ -332,17 +332,22 @@ const FastItemVerification = () => {
               }
             );
           }
+          setFIVCurrentItem({
+            ...fiv_current_item,
+            human_verified: true
+          });
           if (fiv_item_number < total_items - 1) {
-            setFIVCurrentItem(fiv_items[Number(fiv_item_number) + 2]);
+            console.log("entered  1")
+            setFIVCurrentItem(fiv_items?.filter((it)=>it.item_uuid!==fiv_current_item?.item_uuid)[fiv_item_number]);
             setFIVItemNumber(Number(fiv_item_number) + 1);
           } else if (!data?.is_final_page) {
             updateParams({ page: Number(page) + 1 });
             resetStore();
           }
-          setFIVCurrentItem({
-            ...fiv_current_item,
-            human_verified: true
-          });
+          
+          
+          
+          
 
           setSelectedItems([]);
           setMasterUUID(null);
@@ -355,6 +360,8 @@ const FastItemVerification = () => {
         }
       }
     );
+
+    setFIVCurrentItem({ ...fiv_current_item, human_verified: true });
   };
 
   const deleteAndNextHandler = (type) => {
@@ -512,7 +519,7 @@ const FastItemVerification = () => {
                   fiv_total_items_count === fiv_verified_items_count
                 }
                 onClick={() => {
-                  if (selectedItems?.length > 0) {
+                  if (selectedItems?.length > 0 || masterUUID) {
                     groupAndApproveAndNextHandler();
                   } else {
                     approveAndNextHandler(fiv_current_item?.item_uuid, {

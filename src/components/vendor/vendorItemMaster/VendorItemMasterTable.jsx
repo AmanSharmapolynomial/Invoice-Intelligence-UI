@@ -93,7 +93,9 @@ const VendorItemMasterTable = ({
         <Table className="min-w-full mt-4">
           <TableHeader className="min-w-full ">
             <TableRow
-              className={`min-h-12 rounded-sm  ${isLoading&&"grid grid-cols-3"} items-center   w-full relative border`}
+              className={`min-h-12 rounded-sm  ${
+                isLoading && "grid grid-cols-3"
+              } items-center   w-full relative border`}
             >
               {isLoading
                 ? ["item_code", "item_description"]?.map((it, index) => (
@@ -108,9 +110,9 @@ const VendorItemMasterTable = ({
                     (it, index) => (
                       <TableCell
                         key={index}
-                        className={` !min-w-[${
-                          100 / cols
-                        }%]   border-r  items-center h-full  border-b-0 font-poppins font-semibold text-sm`}
+                        className={`${it=="item_description"?"!w-[40%]":`!min-w-[${
+                          60/ cols-1
+                        }%]`}   border-r  items-center h-full  border-b-0 font-poppins font-semibold text-sm`}
                       >
                         {keysCapitalizer(it)}
                       </TableCell>
@@ -123,7 +125,9 @@ const VendorItemMasterTable = ({
           </TableHeader>
           <TableBody>
             <TableRow
-              className={`min-h-12 rounded-sm  items-center ${isLoading && "grid grid-cols-3"}   w-full relative border`}
+              className={`min-h-12 rounded-sm  items-center ${
+                isLoading && "grid grid-cols-3"
+              }   w-full relative border`}
             >
               {isLoading
                 ? [0, 1, 2]?.map((i) => (
