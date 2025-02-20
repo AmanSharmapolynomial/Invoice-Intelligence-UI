@@ -10,6 +10,8 @@ const initialState = {
   fiv_document_uuid: null,
   fiv_document_source: null,
   fiv_item_number: 0,
+  fiv_total_items_count: 0,
+  fiv_verified_items_count: 0
 };
 
 const fastItemVerificationStore = create(
@@ -24,10 +26,12 @@ const fastItemVerificationStore = create(
       setFIVDocumentSource: (source) => set({ fiv_document_source: source }),
       setFIVDocumentUUID: (id) => set({ fiv_document_uuid: id }),
       setFIVItemNumber: (no) => set({ fiv_item_number: no }),
-      resetStore: () => set(initialState),
+      setFIVVerifiedItemsCount: (v) => set({ fiv_verified_items_count: v }),
+      setFIVTotalItemsCount: (v) => set({ fiv_total_items_count: v }),
+      resetStore: () => set(initialState)
     }),
     {
-      name: "fat-item-verification-store",
+      name: "fat-item-verification-store"
     }
   )
 );

@@ -31,7 +31,7 @@ import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import fastItemVerificationStore from "@/store/fastItemVerificationStore";
 import { truncate } from "lodash";
 import { useEffect, useState } from "react";
-import { Toaster } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 const FastItemVerification = () => {
   const { vendor_id } = useParams();
@@ -62,11 +62,16 @@ const FastItemVerification = () => {
     resetStore,
     setFIVItemNumber,
     fiv_item_number,
-    isGoodDocument
+    isGoodDocument,
+    setFIVVerifiedItemsCount,
+    setFIVTotalItemsCount,
+    fiv_total_items_count,
+    fiv_verified_items_count
   } = fastItemVerificationStore();
 
   const [selectedItems, setSelectedItems] = useState([]);
   const updateParams = useUpdateParams();
+  const [masterUUID, setMasterUUID] = useState(null);
   let vendor_name = searchParams.get("vendor_name");
   let human_verified = searchParams.get("human_verified");
   const { data, isLoading } = useGetVendorItemMaster({
@@ -108,7 +113,7 @@ const FastItemVerification = () => {
   }, [page]);
 
   useEffect(() => {
-    if (fiv_items?.length == 0) {
+    if (fiv_items?.length == 0 && data?.data?.item?.[0]?.document_uuid) {
       setFIVDocumentUUID(data?.data?.item?.[0]?.document_uuid);
 
       getAllItems(
@@ -125,18 +130,24 @@ const FastItemVerification = () => {
               )
             );
             setIsGoodDocument(false);
-
-            setFIVCurrentItem(data?.data?.items[fiv_item_number + 2]);
+            setFIVTotalItemsCount(data?.data?.total_item_count);
+            setFIVVerifiedItemsCount(data?.data?.verified_item_count);
+            setFIVCurrentItem(
+              data?.data?.items?.length == 1
+                ? data?.data?.items[fiv_item_number]
+                : data?.data?.items[fiv_item_number + 1]
+            );
           }
         }
       );
     }
-  }, [fiv_items]);
+  }, [fiv_items, data]);
   useEffect(() => {
     if (fiv_items?.length !== 0) {
       setIsGoodDocument(true);
     }
   }, [data]);
+
   // Handlers
   const approveAndNextHandler = () => {
     setLoadingState((prev) => ({ ...prev, nextAndApproving: true }));
@@ -159,16 +170,44 @@ const FastItemVerification = () => {
 
           setFIVItems(updatedItems);
           setIsGoodDocument(fiv_items.length === 0);
+          setFIVVerifiedItemsCount(Number(fiv_verified_items_count) + 1);
 
           // Handle pagination & moving to the next item
-
-          if (fiv_item_number < total_items - 1) {
-            setFIVItemNumber(fiv_item_number + 1);
-            setFIVCurrentItem(fiv_items[fiv_item_number + 1]);
-          } else if (!data?.is_final_page) {
-            updateParams({ page: Number(page) + 1 });
-            resetStore();
+          if (fiv_items?.length == 0) {
+            getAllItems(
+              {
+                vendor_id,
+                document_uuid: data?.data?.item?.[0]?.document_uuid,
+                page: page
+              },
+              {
+                onSuccess: (data) => {
+                  setFIVItems(
+                    data?.data?.items?.filter(
+                      (it) => it.item_uuid !== fiv_current_item?.item_uuid
+                    )
+                  );
+                  setIsGoodDocument(false);
+      
+                  setFIVCurrentItem(data?.data?.items[fiv_item_number + 2]);
+                }
+              }
+            );
           }
+          if (fiv_item_number < total_items - 1) {
+            setFIVItemNumber(Number(fiv_item_number) + 1);
+            setFIVCurrentItem(fiv_items[Number(fiv_item_number)]);
+          } else {
+            if (fiv_item_number >= total_items - 1) {
+              if ((page<=data?.data?.total_item_count)) {
+                updateParams({ page: Number(page) + 1 });
+              }
+              setFIVItemNumber(0);
+              setFIVCurrentItem({});
+              resetStore();
+            }
+          }
+      
         },
         onError: () => {
           setLoadingState((prev) => ({ ...prev, nextAndApproving: false }));
@@ -196,18 +235,44 @@ const FastItemVerification = () => {
         onSuccess: () => {
           setLoadingState((prev) => ({ ...prev, nextAndSaving: false }));
 
-          // Move to next page if needed
+          // Update item verification state
+          const updatedItems = fiv_items.map((item) =>
+            item.item_uuid === fiv_current_item?.item_uuid
+              ? { ...item, payload }
+              : item
+          );
+
+          setFIVItems(updatedItems);
+          setIsGoodDocument(fiv_items.length === 0);
+          if (fiv_items?.length == 0) {
+            getAllItems(
+              {
+                vendor_id,
+                document_uuid: data?.data?.item?.[0]?.document_uuid,
+                page: page
+              },
+              {
+                onSuccess: (data) => {
+                  setFIVItems(
+                    data?.data?.items?.filter(
+                      (it) => it.item_uuid !== fiv_current_item?.item_uuid
+                    )
+                  );
+                  setIsGoodDocument(false);
+
+                  setFIVCurrentItem(data?.data?.items[fiv_item_number + 2]);
+                }
+              }
+            );
+          }
+          // Handle pagination & moving to the next item
 
           if (fiv_item_number < total_items - 1) {
-            setFIVItemNumber(Number(fiv_item_number) + 1);
-            setFIVCurrentItem(fiv_items[Number(fiv_item_number) + 1]);
-          } else {
-            if (fiv_item_number >= total_items - 1) {
-              updateParams({ page: Number(page) + 1 });
-              setFIVItemNumber(0);
-              setFIVCurrentItem({});
-              resetStore();
-            }
+            setFIVItemNumber(fiv_item_number + 1);
+            setFIVCurrentItem(fiv_items[fiv_item_number + 1]);
+          } else if (!data?.is_final_page) {
+            updateParams({ page: Number(page) + 1 });
+            resetStore();
           }
         },
         onError: () => {
@@ -228,6 +293,7 @@ const FastItemVerification = () => {
       {
         onSuccess: () => {
           setFIVCurrentItem({ ...fiv_current_item, human_verified: true });
+          setFIVVerifiedItemsCount(Number(fiv_verified_items_count) + 1);
         },
         onError: () => {
           setFIVCurrentItem({ ...fiv_current_item, human_verified: false });
@@ -237,21 +303,50 @@ const FastItemVerification = () => {
 
     mergeItemMaster(
       {
-        master_item_uuid: fiv_current_item?.item_uuid,
-        items_to_merge: selectedItems
+        master_item_uuid: masterUUID ? masterUUID : fiv_current_item?.item_uuid,
+        items_to_merge: [
+          ...selectedItems,
+          masterUUID && fiv_current_item?.item_uuid
+        ]?.filter((it) => it !== masterUUID)
       },
       {
         onSuccess: () => {
-          if (fiv_items.length === 0 && page !== data?.total_pages) {
-            updateParams({ page: Number(page) + 1 });
-          }
+          if (fiv_items?.length == 0) {
+            getAllItems(
+              {
+                vendor_id,
+                document_uuid: data?.data?.item?.[0]?.document_uuid,
+                page: page
+              },
+              {
+                onSuccess: (data) => {
+                  setFIVItems(
+                    data?.data?.items?.filter(
+                      (it) => it.item_uuid !== fiv_current_item?.item_uuid
+                    )
+                  );
+                  setIsGoodDocument(false);
 
+                  setFIVCurrentItem(data?.data?.items[fiv_item_number + 2]);
+                }
+              }
+            );
+          }
+          if (fiv_item_number < total_items - 1) {
+            setFIVCurrentItem(fiv_items[Number(fiv_item_number) + 2]);
+            setFIVItemNumber(Number(fiv_item_number) + 1);
+          } else if (!data?.is_final_page) {
+            updateParams({ page: Number(page) + 1 });
+            resetStore();
+          }
           setFIVCurrentItem({
             ...fiv_current_item,
             human_verified: true
           });
 
           setSelectedItems([]);
+          setMasterUUID(null);
+          setIsAccordionOpen(false);
           setLoadingState((prev) => ({ ...prev, groupingAndApproving: false }));
         },
         onError: () => {
@@ -261,6 +356,7 @@ const FastItemVerification = () => {
       }
     );
   };
+
   const deleteAndNextHandler = (type) => {
     setLoadingState((prev) => ({ ...prev, deletingAndNext: true }));
 
@@ -302,10 +398,21 @@ const FastItemVerification = () => {
     );
   };
 
+  useEffect(() => {
+    if (
+      fiv_total_items_count !== 0 &&
+      fiv_verified_items_count !== 0 &&
+      fiv_total_items_count == fiv_verified_items_count
+    ) {
+      setFIVCurrentItem({});
+      setIsAccordionOpen(false);
+    }
+  }, [fiv_total_items_count, fiv_verified_items_count]);
+
   return (
-    <div className="flex w-full  " id="maindiv">
+    <div className="h-screen  flex w-full " id="maindiv">
       <Sidebar />
-      <div className="w-full ">
+      <div className="w-full h-full ml-14">
         <Navbar />
         <Layout>
           <Toaster />
@@ -323,8 +430,8 @@ const FastItemVerification = () => {
           <div className="w-full flex justify-end items-center ">
             <ProgressBar
               title={"Verified Items"}
-              currentValue={data?.data?.verified_item_count}
-              totalValue={data?.data?.total_item_count}
+              currentValue={fiv_verified_items_count}
+              totalValue={fiv_total_items_count}
             />
           </div>
           {isLoading ? (
@@ -338,10 +445,9 @@ const FastItemVerification = () => {
           )}
           <div className="flex flex-col gap-y-2 mt-4 px-16 ">
             <VendorItemMasterTable
-            similarItems={similarItems}
-              required_columns={data?.data?.required_columns?.filter(
-                (it) => it !== "category"
-              )}
+              data={data}
+              similarItems={similarItems}
+              required_columns={data?.data?.required_columns}
               isLoading={isLoading}
               human_verified={data?.data?.human_verified}
               extraHeaders={["Approved"]}
@@ -373,6 +479,8 @@ const FastItemVerification = () => {
                     selectedItems={selectedItems}
                     setSelectedItems={setSelectedItems}
                     data={similarItems}
+                    masterUUID={masterUUID}
+                    setMasterUUID={setMasterUUID}
                     isLoading={loadinSimilarItems}
                   />
                 </AccordionContent>
@@ -399,7 +507,9 @@ const FastItemVerification = () => {
                 disabled={
                   !data?.data?.item?.[0]?.document_uuid ||
                   loadingState?.nextAndApproving ||
-                  loadingState.groupingAndApproving
+                  loadingState.groupingAndApproving ||
+                  data?.data?.item?.length == 0 ||
+                  fiv_total_items_count === fiv_verified_items_count
                 }
                 onClick={() => {
                   if (selectedItems?.length > 0) {
@@ -410,22 +520,30 @@ const FastItemVerification = () => {
                     });
                   }
                 }}
-                className={`${fiv_current_item?.human_verified && selectedItems?.length==0 &&"hidden"} rounded-sm font-poppins font-normal text-sm bg-transparent hover:bg-transparent border-primary text-black border`}
+                className={`${
+                  fiv_current_item?.human_verified &&
+                  selectedItems?.length == 0 &&
+                  "hidden"
+                } rounded-sm font-poppins font-normal text-sm bg-transparent hover:bg-transparent border-primary text-black border`}
               >
                 {(
                   selectedItems?.length > 0
                     ? loadingState.groupingAndApproving
                     : loadingState?.nextAndApproving
                 )
-                  ? selectedItems?.length > 0
+                  ? selectedItems?.length > 0 || masterUUID
                     ? "Grouping & Approving..."
                     : "Approving..."
-                  : selectedItems?.length > 0
+                  : selectedItems?.length > 0 || masterUUID
                   ? "Group & Approve & Next"
                   : "Approve & Next"}
               </Button>
               <Button
-                disabled={loadingState?.nextAndSaving}
+                disabled={
+                  loadingState?.nextAndSaving ||
+                  data?.data?.item?.length == 0 ||
+                  fiv_total_items_count === fiv_verified_items_count
+                }
                 onClick={() => {
                   saveAndNextHandler();
                 }}
@@ -434,6 +552,10 @@ const FastItemVerification = () => {
                 {loadingState?.nextAndSaving ? "Saving..." : "Save & Next"}
               </Button>
               <Button
+                disabled={
+                  data?.data?.item?.length == 0 ||
+                  fiv_total_items_count === fiv_verified_items_count
+                }
                 onClick={() => {
                   setShowDeleteModal(true);
                 }}
@@ -442,7 +564,15 @@ const FastItemVerification = () => {
                 {"Delete & Next"}
               </Button>
 
-              <FIVPagination data={data} />
+              <FIVPagination
+                data={data}
+                selectedItems={selectedItems}
+                setSelectedItems={setSelectedItems}
+                masterUUID={masterUUID}
+                isAccordionOpen={isAccordionOpen}
+                setIsAccordionOpen={setIsAccordionOpen}
+                setMasterUUID={setMasterUUID}
+              />
             </div>
           </div>
         </Layout>

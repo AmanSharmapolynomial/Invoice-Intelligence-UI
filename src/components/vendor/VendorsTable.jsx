@@ -70,10 +70,10 @@ const VendorsTable = ({ columns, data, isLoading }) => {
   return (
     <div className="w-full mt-4">
       <div className="rounded-md border overflow-x-auto">
-        <Table className="!rounded-md !relative !min-h-full box-border flex flex-col min-w-full">
-          <TableHeader className="w-full sticky top-0 z-10 pr-[0.7rem]">
+        <Table className="!rounded-md !relative !min-h-full box-border flex flex-col min-w-full max-h-[74vh] 2xl:max-h-[78vh] overflow-auto">
+          <TableHeader className="w-full sticky top-0 z-10 bg-white  ">
             <TableRow
-              className={`!text-white !rounded-md w-full grid grid-cols-${columns?.length} items-center justify-center text-xs sm:text-sm `}
+              className={`!text-white !rounded-md w-full  grid grid-cols-${columns?.length} items-center justify-center text-xs sm:text-sm `}
             >
               {columns.map((column) => (
                 <TableHead
@@ -88,7 +88,7 @@ const VendorsTable = ({ columns, data, isLoading }) => {
               ))}
             </TableRow>
           </TableHeader>
-          <TableBody className="max-h-[44rem] overflow-auto w-full">
+          <TableBody>
             {isLoading ? (
               Array.from({ length: 25 }).map((_, i) => (
                 <TableRow

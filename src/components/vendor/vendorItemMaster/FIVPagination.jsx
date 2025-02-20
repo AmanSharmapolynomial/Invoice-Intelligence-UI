@@ -7,7 +7,7 @@ import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { useParams, useSearchParams } from "react-router-dom";
 import { useGetVendorItemMasterAllItems } from "../api";
 
-const FIVPagination = ({ data }) => {
+const FIVPagination = ({ data ,masterUUID,setMasterUUID,selectedItems,setSelectedItems,setIsAccordionOpen,isAccordionOpen}) => {
   const {
     fiv_current_item,
     fiv_items,
@@ -15,7 +15,9 @@ const FIVPagination = ({ data }) => {
     fiv_item_number,
     setFIVItemNumber,
     resetStore,
-    setFIVItems
+    setFIVItems,
+    fiv_total_items_count,
+    fiv_verified_items_count
   } = fastItemVerificationStore();
   const { mutate: getAllItems } = useGetVendorItemMasterAllItems();
 
@@ -48,8 +50,8 @@ const FIVPagination = ({ data }) => {
       );
     }
     if (fiv_item_number < total_items - 1) {
-      setFIVItemNumber(fiv_item_number + 1);
-      setFIVCurrentItem(fiv_items[fiv_item_number + 1]);
+      setFIVItemNumber(Number(fiv_item_number) + 1);
+      setFIVCurrentItem(fiv_items[Number(fiv_item_number)]);
     } else {
       if (fiv_item_number >= total_items - 1) {
         if ((page<=data?.data?.total_item_count)) {
@@ -60,13 +62,20 @@ const FIVPagination = ({ data }) => {
         resetStore();
       }
     }
+
+    setSelectedItems([])
+    setMasterUUID(null)
+    setIsAccordionOpen(false)
   };
 
   const handlePrevious = () => {
     if (fiv_item_number > 0) {
       setFIVItemNumber(fiv_item_number - 1);
-      setFIVCurrentItem(fiv_items[fiv_item_number - 1]);
+      setFIVCurrentItem(fiv_items[fiv_item_number]);
     }
+    setSelectedItems([])
+    setMasterUUID(null)
+    setIsAccordionOpen(false)
   };
 
   useEffect(() => {
@@ -97,13 +106,13 @@ const FIVPagination = ({ data }) => {
       <Button
         className="rounded-sm px-1 flex items-center disabled:bg-gray-500"
         onClick={handlePrevious}
-        disabled={fiv_item_number <= 0}
+        disabled={fiv_item_number <= 0|| fiv_total_items_count==fiv_verified_items_count}
       >
         <img src={navigate_back} alt="Previous" className="h-8 w-8" />
       </Button>
       <Button
-        disabled={page==data?.is_final_page}
-        className="rounded-sm px-1 flex items-center"
+        disabled={page==data?.is_final_page || !(data?.data?.item?.[0]?.document_uuid) || fiv_total_items_count===fiv_verified_items_count}
+        className="rounded-sm px-1 flex items-center disabled:bg-gray-500"
         onClick={handleNext}
       >
         <img src={navigate_next} alt="Next" className="h-8 w-8" />

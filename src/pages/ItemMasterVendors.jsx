@@ -90,9 +90,11 @@ const ItemMasterVendors = () => {
   }, [filteredData, sortConfig]);
 
   return (
-    <div className="h-screen flex w-full">
+    <div className="overflow-hidden flex w-full">
+
       <Sidebar />
-      <div className="w-full">
+    
+      <div className="w-full ml-12">
         <Navbar />
         <Layout>
           <BreadCrumb
