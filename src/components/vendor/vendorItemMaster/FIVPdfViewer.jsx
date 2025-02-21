@@ -99,7 +99,7 @@ const FIVPdfViewer = ({}) => {
       const boxCenterX = (box.left + box.width / 2) * scaledWidth;
       const boxCenterY = (box.top + box.height / 2) * scaledHeight;
 
-      const scrollLeft = boxCenterX - viewer.clientWidth / 2;
+      const scrollLeft = boxCenterX - viewer.clientWidth / 2.7;
       const scrollTop = boxCenterY - viewer.clientHeight / 2;
 
       viewer.scrollTo({
