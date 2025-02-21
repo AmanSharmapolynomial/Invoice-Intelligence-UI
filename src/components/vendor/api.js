@@ -52,7 +52,7 @@ export const createVendorMutation = () => {
 export const useGetVendorNames = (non_summary) => {
   return useQuery({
     queryKey: ["vendor-names-list"],
-    queryFn: ()=>getVendorNamesList(non_summary)
+    queryFn: () => getVendorNamesList(non_summary)
   });
 };
 
@@ -130,6 +130,17 @@ export const useGetVendorItemMaster = (payload) => {
   return useQuery({
     queryKey: ["vendor-item-master", payload],
     queryFn: () => getVendorItemMaster(payload)
+  });
+};
+
+export const useGetVendorItemMasterAllItems = (payload) => {
+  return useMutation({
+    mutationFn: async (payload) => {
+      const { vendor_id, document_uuid, page } = payload;
+      const apiUrl = `/api/item-master/fast-item-verification/${vendor_id}/?page=${page}&document_uuid=${document_uuid}`;
+      const response = await axiosInstance.get(apiUrl);
+      return response;
+    }
   });
 };
 
@@ -337,8 +348,16 @@ export const useUpdateVendorItemMaster = () => {
       );
     },
     onError: (data) => {
-      toast.error(data?.message);
-      return data
+      const errorMessage = data?.message || "An error occurred";
+      const validationErrors = data?.errors
+        ? Object.entries(data.errors)
+
+            .map(([field, messages]) => `${field} : ${messages.join(", ")}`)
+            .join("\n")
+        : null;
+      toast(validationErrors || errorMessage);
+
+      return data;
     }
   });
 };
@@ -363,6 +382,22 @@ export const useMergeVendorItemMaster = () => {
     },
     onError: (data) => {
       toast.error(data?.message);
+    }
+  });
+};
+
+export const useGetItemMasterVendors = () => {
+  return useQuery({
+    queryKey: ["item-master-vendors"],
+    queryFn: async () => {
+      try {
+        let response = await axiosInstance.get(
+          `/api/item-master/vendors-item-master-overview/`
+        );
+        return response?.data;
+      } catch (error) {
+        return error?.data?.message;
+      }
     }
   });
 };

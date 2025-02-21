@@ -161,7 +161,7 @@ const MyTasks = () => {
   return (
     <div className="h-screen  flex w-full " id="maindiv">
       <Sidebar />
-      <div className="w-full">
+      <div className="w-full ml-12">
         {" "}
         <Navbar />
         <Layout>

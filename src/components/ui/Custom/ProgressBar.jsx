@@ -3,9 +3,11 @@ const ProgressBar = ({ title, currentValue, totalValue, className }) => {
 
   return (
     <div
-      className={`w-[${progressValue + 20}%] flex items-center  p-4 font-sans`}
+      className={`w-[${
+        progressValue + 20
+      }%] flex items-center p-4 font-sans min-w-[30rem] `}
     >
-      <div className="font-semibold text-textColor/950 font-poppins text-sm dark:text-[#FFFFFF]">
+      <div className="font-semibold text-textColor/950 max-w-fit font-poppins text-sm dark:text-[#FFFFFF]">
         {title}
       </div>
       <div className="mx-4 w-64 h-[1.25rem] bg-gray-200 dark:bg-[#454545] rounded-full relative">
@@ -15,18 +17,28 @@ const ProgressBar = ({ title, currentValue, totalValue, className }) => {
           } flex items-center justify-center`}
           style={{ width: `${progressValue}%` }}
         >
-          <span className={`${currentValue==0 && "pl-4 !text-primary"} text-white text-xs font-normal font-poppins `}>
-            {currentValue && currentValue.toString()?.length == 1
-              ? `0${currentValue}`
-              : currentValue}
-          </span>
+          {currentValue == 0 && totalValue == 0 ? (
+            <span className="text-white font-poppins text-sm font-normal">
+              0
+            </span>
+          ) : (
+            <span
+              className={`${
+                currentValue == 0 && "pl-4 !text-primary"
+              } text-white text-xs font-normal font-poppins `}
+            >
+              {currentValue && currentValue.toString()?.length == 1
+                ? `0${currentValue}`
+                : currentValue}
+            </span>
+          )}
         </div>
       </div>
-      <div>
-        <span className="text-textColor/950 font-medium text-sm font-poppins dark:text-[#FFFFFF]">
-          Total: {totalValue}
-        </span>
-      </div>
+      {/* <div> */}
+      <span className="text-textColor/950 font-medium text-sm font-poppins max-w-fit dark:text-[#FFFFFF]">
+        Total: {totalValue || 0}
+      </span>
+      {/* </div> */}
     </div>
   );
 };

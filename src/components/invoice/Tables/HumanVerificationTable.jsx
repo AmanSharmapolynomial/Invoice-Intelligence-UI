@@ -33,7 +33,7 @@ import CustomInput from "@/components/ui/Custom/CustomInput";
 import { useAutoCalculate } from "../api";
 import { Label } from "@/components/ui/label";
 import CustomToolTip from "@/components/ui/CustomToolTip";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const HumanVerificationTable = ({
   data,
@@ -73,6 +73,7 @@ const HumanVerificationTable = ({
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [editMode, setEditMode] = useState({ rowIndex: null, cellIndex: null });
   const [cellValue, setCellValue] = useState("");
+  const navigate=useNavigate()
   const [contextMenu, setContextMenu] = useState({
     visible: false,
     position: { x: 0, y: 0 },
@@ -1078,7 +1079,6 @@ const HumanVerificationTable = ({
   };
 
   const existing_column_names=data?.data?.processed_table?.columns?.filter((c)=>c?.selected_column)?.map(({bounding_box,column_order,selected_column,column_uuid,...rest})=>rest?.column_name?.toLowerCase());
-console.log(data,"Human Verification Table")
 
   return (
     <>
@@ -1513,6 +1513,7 @@ console.log(data,"Human Verification Table")
                                 ) : row?.item_master?.human_verified ==
                                   false ? (
                                   <img
+                                  onClick={()=>navigate(`/item-master-details/${row?.item_master?.item_uuid}`)}
                                     src={unapproved}
                                     alt=""
                                     className="h-5 w-5 mt-[0.8px] cursor-pointer"

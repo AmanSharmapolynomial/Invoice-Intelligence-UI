@@ -52,14 +52,16 @@ export const vendorNamesFormatter = (data = []) => {
   let returnArray = [];
 
   data?.length > 0 &&
-    data?.forEach(({ vendor_name, vendor_id, human_verified,archive_status }) => {
-      returnArray.push({
-        label: vendor_name,
-        value: vendor_id,
-        human_verified: human_verified,
-        archived_status:archive_status
-      });
-    });
+    data?.forEach(
+      ({ vendor_name, vendor_id, human_verified, archive_status }) => {
+        returnArray.push({
+          label: vendor_name,
+          value: vendor_id,
+          human_verified: human_verified,
+          archived_status: archive_status
+        });
+      }
+    );
   returnArray.push({
     label: "None",
     value: "none"
@@ -161,8 +163,8 @@ export function formatDateToReadable(dateString) {
     "December"
   ];
 
-  if(!dateString){
-    return
+  if (!dateString) {
+    return;
   }
 
   const [year, month, day] = dateString?.split("-");
@@ -175,18 +177,17 @@ export function formatDateTime(timestamp) {
   const date = new Date(timestamp);
 
   // Format the date part
-  const options = { year: 'numeric', month: 'long', day: 'numeric' };
-  const datePart = date.toLocaleDateString('en-US', options);
+  const options = { year: "numeric", month: "long", day: "numeric" };
+  const datePart = date.toLocaleDateString("en-US", options);
 
   // Format the time part
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  const seconds = String(date.getSeconds()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
   const timePart = `${hours}:${minutes}:${seconds}`;
 
   return `${datePart?.split(",")?.join("")}  ${timePart}`;
 }
-
 
 export function formatDateTimeToReadable(dateTimeString) {
   const months = [
@@ -228,7 +229,6 @@ export function formatDateTimeToReadable(dateTimeString) {
   return `${monthName.slice(0, 3)} ${day}, ${year} ${hours}:${minutes} ${amPm}`;
 }
 
-
 export function calculateTimeDifference(dueDate) {
   const now = new Date();
   const timeDiff = dueDate - now;
@@ -265,3 +265,23 @@ export const categoryNamesFormatter = (categories) => {
     return obj;
   });
 };
+
+export const columnsSorter = (columns) => {
+  let columns_order = [
+    "category",
+    "item_code",
+    "item_description",
+    "quantity",
+    "unit_of_measure",
+    "upc",
+    "brand",
+    "vintage",
+    "origin",
+    "extended_price"
+  ];
+
+  return columns?.sort((a, b) => {
+    return columns_order.indexOf(a) - columns_order.indexOf(b);
+  });
+};
+

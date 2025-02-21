@@ -1,8 +1,7 @@
+import useFilterStore from "@/store/filtersStore";
 import useSidebarStore from "@/store/sidebarStore";
-import { ChevronRight, Menu } from "lucide-react";
-import React from "react";
+import useThemeStore from "@/store/themeStore";
 import { Link, useLocation } from "react-router-dom";
-
 import review_later_white from "@/assets/image/review_later_white.svg";
 import review_later_black from "@/assets/image/review_later_black.svg";
 import all_invoices_black from "@/assets/image/all_invoices_black.svg";
@@ -13,14 +12,13 @@ import my_tasks_white from "@/assets/image/check_book_white.svg";
 import my_tasks_black from "@/assets/image/check_book_black.svg";
 import book_user_white from "@/assets/image/book_user_white.svg";
 import book_user_black from "@/assets/image/book_user_black.svg";
-import useThemeStore from "@/store/themeStore";
 import CustomTooltip from "../ui/Custom/CustomTooltip";
-import useFilterStore from "@/store/filtersStore";
-
-const Sidebar = () => {
+import { ChevronRight, Menu } from "lucide-react";
+const Sidebar = ({ className }) => {
   const { expanded, setExpanded } = useSidebarStore();
   const { theme } = useThemeStore();
   const { pathname } = useLocation();
+  const { setDefault } = useFilterStore();
 
   const options = [
     {
@@ -58,63 +56,25 @@ const Sidebar = () => {
       image: theme === "light" ? book_user_black : book_user_white,
       hoverImage: book_user_white
     }
-    // {
-    //   path: "/custom",
-    //   icon: null,
-    //   text: "All Items",
-    //   image: theme === "light" ? image : image_white,
-    //   hoverImage: image_white
-    // },
-    // {
-    //   path: "/custom",
-    //   icon: null,
-    //   text: "My Statistics",
-    //   image: theme === "light" ? image : image_white,
-    //   hoverImage: image_white
-    // },
-    // {
-    //   path: "/custom",
-    //   icon: null,
-    //   text: "Calendar Management",
-    //   image: theme === "light" ? image : image_white,
-    //   hoverImage: image_white
-    // },
-    // {
-    //   path: "/custom",
-    //   icon: null,
-    //   text: "Communication",
-    //   image: theme === "light" ? image : image_white,
-    //   hoverImage: image_white
-    // },
-    // {
-    //   path: "/custom",
-    //   icon: null,
-    //   text: "Issue Reporting",
-    //   image: theme === "light" ? image : image_white,
-    //   hoverImage: image_white
-    // }
   ];
 
   const width =
     expanded === undefined ? "18rem" : expanded ? "18rem" : "3.75rem";
-  const { setDefault } = useFilterStore();
+
   return (
-    <div className="relative ">
-      <div
-        className="border h-screen w-full dark:border-white/10  overflow-y-auto sticky z top-0 dark:!bg-[#051C14] bg-white  transition-all z-50 duration-300 ease-in-out"
-        style={{
-          width: width,
-          boxShadow: "0px 2px 8px 0px rgba(0, 0, 0, 0.08)"
-        }}
-      >
-        {expanded ? (
+    <div
+      className={`fixed top-0 left-0 h-screen overflow-y-auto transition-all z-50 duration-300 ease-in-out`}
+      style={{ width }}
+    >
+      <div className="border h-full dark:border-white/10 bg-white dark:!bg-[#051C14] shadow-lg">
+        {expanded && (
           <div
             onClick={() => setExpanded()}
             className="cursor-pointer flex justify-end w-full"
           >
             <Menu className="cursor-pointer absolute right-2 top-5 dark:text-white" />
           </div>
-        ) : null}
+        )}
 
         <div className="mt-24 space-y-2 flex flex-col">
           {options.map((option, index) => {
@@ -127,11 +87,8 @@ const Sidebar = () => {
               >
                 <Link
                   to={option.path !== pathname ? option.path : null}
-                  onClick={() => {
-                    setDefault();
-                  }}
-                  // key={index}
-                  className={`group cursor-pointer overflow-hidden flex items-center px-4 gap-2 py-3 text-sm font-normal font-poppins transition-all duration-300 ease-in-out 
+                  onClick={() => setDefault()}
+                  className={`group cursor-pointer flex items-center px-4 gap-2 py-3 text-sm font-normal transition-all duration-300 
                 ${
                   isActive
                     ? "bg-primary text-white"
@@ -152,9 +109,9 @@ const Sidebar = () => {
                       <img
                         src={option.hoverImage}
                         alt={option.text}
-                        className={`${
-                          isActive && "opacity-100"
-                        } absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity`}
+                        className={`absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity ${
+                          isActive ? "opacity-100" : ""
+                        }`}
                       />
                     </div>
                   )}
@@ -178,11 +135,12 @@ const Sidebar = () => {
           })}
         </div>
       </div>
+
       <div
         onClick={() => setExpanded()}
-        className={`bg-primary w-5 h-5 rounded-r-sm cursor-pointer  fixed  mt-1 top-16 left-[3.75rem] !z-20 flex justify-center items-center 
+        className={`bg-primary w-5 h-5 rounded-r-sm cursor-pointer fixed top-16 left-[3.75rem] !z-20 flex justify-center items-center 
           ${expanded ? "opacity-0" : "opacity-100"}
-          transition-opacity duration-300 ease-in-out`}
+          transition-opacity duration-300`}
       >
         <ChevronRight className="text-white h-3.5 w-3.5" />
       </div>

@@ -20,18 +20,19 @@ import ReviewLaterTasks from "@/pages/ReviewLaterTasks";
 import MyTasks from "@/pages/MyTasks";
 import Test from "@/pages/Test";
 import NotSupportedDocuments from "@/pages/NotSupportedDocuments";
+import ItemMasterVendors from "@/pages/ItemMasterVendors";
+import ItemMasterDetails from "@/pages/ItemMasterDetails";
 
 const publicRoutes = [
   {
     path: "/login",
     element: <Login />
   },
-  
+
   {
     path: "/test",
     element: <Test />
-  },
-
+  }
 ];
 const protectedRoutes = [
   {
@@ -70,7 +71,7 @@ const protectedRoutes = [
     path: "/my-tasks",
     element: (
       <Protected>
-        <MyTasks/>
+        <MyTasks />
       </Protected>
     )
   },
@@ -117,8 +118,25 @@ const protectedRoutes = [
       </Protected>
     )
   },
+  {
+    path: "/item-master-details/:item_uuid",
+    element: (
+      <Protected>
+        <ItemMasterDetails />
+      </Protected>
+    )
+  },
 
   // Vendor Pages Routes
+
+  {
+    path: "/item-master-vendors",
+    element: (
+      <Protected>
+        <ItemMasterVendors />
+      </Protected>
+    )
+  },
   {
     path: "/vendor-consolidation",
     element: (

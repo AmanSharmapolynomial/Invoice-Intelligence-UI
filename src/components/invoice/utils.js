@@ -12,17 +12,21 @@ export const getInvoiceMetaData = async (payload) => {
       payload?.invoice_type
     }&invoice_detection_status=${
       payload?.invoice_detection_status
-    }&rerun_status=${""}&auto_accepted=${
-      payload?.auto_accepted
-    }&start_date=${payload?.start_date}&end_date=${
-      payload?.end_date
-    }&clickbacon_status=${payload.clickbacon_status}&human_verified=${
-      payload?.human_verified
-    }&sort_order=${payload?.sort_order}&restaurant=${
-      payload?.restaurant
-    }&human_verification_required=${payload?.human_verification}&assigned_to=${
-      payload?.assigned_to || ""
-    }&review_later=${payload?.review_later}&auto_accepted_by_vda=${payload?.auto_accepted_by_vda}&${payload?.from_view=="not-supported-documents"?"&supported_documents=false":""}`;
+    }&rerun_status=${""}&auto_accepted=${payload?.auto_accepted}&start_date=${
+      payload?.start_date
+    }&end_date=${payload?.end_date}&clickbacon_status=${
+      payload.clickbacon_status
+    }&human_verified=${payload?.human_verified}&sort_order=${
+      payload?.sort_order
+    }&restaurant=${payload?.restaurant}&human_verification_required=${
+      payload?.human_verification
+    }&assigned_to=${payload?.assigned_to || ""}&review_later=${
+      payload?.review_later
+    }&auto_accepted_by_vda=${payload?.auto_accepted_by_vda}&${
+      payload?.from_view == "not-supported-documents"
+        ? "&supported_documents=false"
+        : ""
+    }`;
   }
 
   const response = await axiosInstance.get(apiUrl);
@@ -36,6 +40,11 @@ export const getDuplicateInvoices = async (document_uuid) => {
 };
 export const getMasterItemPdfs = async (item_uuid) => {
   const apiUrl = `/api/item-master/${item_uuid}/pdf/`;
+  const response = await axiosInstance.get(apiUrl);
+  return response;
+};
+export const getItemMasterSimilarItems = async (payload) => {
+  const apiUrl = `/api/item-master/${payload?.item_uuid}/similar-items/?threshold=${payload?.threshold}`;
   const response = await axiosInstance.get(apiUrl);
   return response;
 };
