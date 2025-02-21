@@ -827,7 +827,7 @@ export const PdfViewer = ({
           id="react-pdf__Wrapper"
           ref={pdfWrapperRef}
           style={{
-            height: "58vh",
+            height: "62vh",
             overflow: "auto",
             maxWidth: "100%",
             position: "relative"

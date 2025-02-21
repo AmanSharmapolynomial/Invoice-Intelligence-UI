@@ -156,7 +156,8 @@ const Home = () => {
       <div className="w-full ml-12">
         {" "}
         <Navbar />
-        <Layout>
+        
+          <Layout>
           <BreadCrumb
             title={"Invoice Balancing"}
             crumbs={[
@@ -390,6 +391,7 @@ const Home = () => {
             />
           </div>
         </Layout>
+        
       </div>
     </div>
   );

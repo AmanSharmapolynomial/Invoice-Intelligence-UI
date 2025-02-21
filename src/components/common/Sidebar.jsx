@@ -13,7 +13,7 @@ import my_tasks_black from "@/assets/image/check_book_black.svg";
 import book_user_white from "@/assets/image/book_user_white.svg";
 import book_user_black from "@/assets/image/book_user_black.svg";
 import CustomTooltip from "../ui/Custom/CustomTooltip";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Menu } from "lucide-react";
 const Sidebar = ({ className }) => {
   const { expanded, setExpanded } = useSidebarStore();
   const { theme } = useThemeStore();
