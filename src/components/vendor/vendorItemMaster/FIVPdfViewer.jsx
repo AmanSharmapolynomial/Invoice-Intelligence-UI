@@ -1,18 +1,25 @@
 import zoom_in from "@/assets/image/zoom_in.svg";
 import zoom_out from "@/assets/image/zoom_out.svg";
 import fastItemVerificationStore from "@/store/fastItemVerificationStore";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 const FIVPdfViewer = ({}) => {
+  const [currentPdfIndex, setCurrentPdfIndex] = useState(0);
   const {
-    fiv_document_link: document_link,
-    fiv_document_source: document_source,
+    fiv_document_link,
+    fiv_document_source,
 
     fiv_current_item: lineItem,
-    setFIVBoundingBoxes
+    setFIVBoundingBoxes,
+    fiv_item_array,
+    setFIVCurrentItem
   } = fastItemVerificationStore();
+  const document_link = fiv_item_array?.[currentPdfIndex]?.document_link;
+  const document_source = fiv_item_array?.[currentPdfIndex]?.document_source;
+
   const boundingBoxes = lineItem?.line_item
     ? Object?.values(lineItem?.line_item)
         .map(({ bounding_boxes, page_index }) => ({
@@ -133,7 +140,7 @@ const FIVPdfViewer = ({}) => {
       <div className="max-h-fit w-[80rem] overflow-auto border rounded-sm hide-scrollbar">
         {(document_source === "azure_blob" ||
           document_source === "clickbacon") && (
-          <div className="flex justify-start px-4 my-2 border-b h-10 items-center">
+          <div className="flex justify-between px-4 my-2 border-b h-10 items-center">
             <div className="flex items-center gap-x-8">
               <img
                 src={zoom_in}
@@ -146,6 +153,32 @@ const FIVPdfViewer = ({}) => {
                 alt="Zoom Out"
                 className="cursor-pointer h-5 w-5"
                 onClick={() => handleZoomOut()}
+              />
+            </div>
+
+            <div className="font-poppins font-medium text-sm  flex items-center gap-x-2">
+              <ChevronLeft
+                className="h-5 w-5 cursor-pointer"
+                onClick={() => {
+                  if (currentPdfIndex !== 0) {
+                    setCurrentPdfIndex(currentPdfIndex - 1);
+                    setFIVCurrentItem(fiv_item_array[currentPdfIndex]);
+                  }
+                }}
+              />
+              <p>
+                {" "}
+                <span> {currentPdfIndex + 1}</span>/{" "}
+                <span>{fiv_item_array?.length}</span>
+              </p>
+              <ChevronRight
+                className="w-5 h-5 cursor-pointer"
+                onClick={() => {
+                  if (currentPdfIndex < fiv_item_array?.length - 1) {
+                    setCurrentPdfIndex(Number(currentPdfIndex) + 1);
+                    setFIVCurrentItem(fiv_item_array[currentPdfIndex]);
+                  }
+                }}
               />
             </div>
           </div>

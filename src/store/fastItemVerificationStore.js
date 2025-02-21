@@ -11,7 +11,10 @@ const initialState = {
   fiv_document_source: null,
   fiv_item_number: 0,
   fiv_total_items_count: 0,
-  fiv_verified_items_count: 0
+  fiv_verified_items_count: 0,
+  fiv_item_array: [],
+  fiv_current_pdf_index:0,
+
 };
 
 const fastItemVerificationStore = create(
@@ -28,6 +31,8 @@ const fastItemVerificationStore = create(
       setFIVItemNumber: (no) => set({ fiv_item_number: no }),
       setFIVVerifiedItemsCount: (v) => set({ fiv_verified_items_count: v }),
       setFIVTotalItemsCount: (v) => set({ fiv_total_items_count: v }),
+      setFIVItemArray: (arr) => set({ fiv_item_array: arr }),
+      setFIVCurrentPdfIndex:(ind)=>set({fiv_current_pdf_index:ind}),
       resetStore: () => set(initialState)
     }),
     {

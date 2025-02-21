@@ -95,7 +95,7 @@ const VendorsTable = ({ columns, data, isLoading }) => {
                   key={i}
                   className={`grid grid-cols-${columns?.length} w-full items-center text-xs sm:text-sm`}
                 >
-                  {[0, 2, 3, 4].map((cel) => (
+                  {[0, 2, 3, 4,5].map((cel) => (
                     <TableCell
                       key={cel}
                       className="border-r h-full font-poppins px-[0.8rem] capitalize text-sm font-normal"
