@@ -97,52 +97,58 @@ const Navbar = ({ children, className }) => {
       </div>
       {children}
       {/* {access_token && ( */}
-     {role&& <div className="flex gap-x-8 items-center">
-        <div className="flex items-center gap-x-3">
-          <div>
-            <Avatar>
-              <AvatarImage src={avatarUrl} />
-              <AvatarFallback>{username?.[0]}</AvatarFallback>
-            </Avatar>
-          </div>
+      {pathname!=="/login"&&role && (
+        <div className="flex gap-x-8 items-center">
+          <div className="flex items-center gap-x-3">
+            <div>
+              <Avatar>
+                <AvatarImage src={avatarUrl} />
+                <AvatarFallback>{username?.[0]}</AvatarFallback>
+              </Avatar>
+            </div>
 
-          <div className="flex flex-col gap-y-0 items-start justify-center">
-            <p className="font-poppins font-medium text-sm text-textColor/900 dark:text-[#FFFFFF]">
-              {username}
-            </p>
-            <span className="text-textColor/400 font-poppins capitalize font-normal text-xs  dark:text-textColor/200">
-              {role}
-            </span>
+            <div className="flex flex-col gap-y-0 items-start justify-center">
+              <p className="font-poppins font-medium text-sm text-textColor/900 dark:text-[#FFFFFF]">
+                {username}
+              </p>
+              <span className="text-textColor/400 font-poppins capitalize font-normal text-xs  dark:text-textColor/200">
+                {role}
+              </span>
+            </div>
+          </div>
+          <div className="flex gap-x-3 items-center">
+            <DropdownMenu>
+              <DropdownMenuTrigger className="focus:!outline-none focus:!ring-0">
+                {" "}
+                <Button className="bg-transparent shadow-none border h-[2.5rem] w-[2.5rem] hover:bg-transparent  p-0 border-textColor/200">
+                  <img src={settings} alt="" className="dark:hidden" />
+                  <img
+                    src={settings_white}
+                    alt=""
+                    className="dark:flex hidden"
+                  />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="font-poppins font-normal text-[#000000] text-sm leading-5 flex gap-2 items-center"
+                >
+                  <img src={logout} alt="" />
+                  <span>Logout</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Button
+              className="bg-primary shadow-none border h-[2.5rem] w-[2.5rem] p-0 border-primary"
+              onClick={handleToggleTheme}
+            >
+              <img src={moon} alt="" />
+            </Button>
           </div>
         </div>
-        <div className="flex gap-x-3 items-center">
-          <DropdownMenu>
-            <DropdownMenuTrigger className="focus:!outline-none focus:!ring-0">
-              {" "}
-              <Button className="bg-transparent shadow-none border h-[2.5rem] w-[2.5rem] hover:bg-transparent  p-0 border-textColor/200">
-                <img src={settings} alt="" className="dark:hidden" />
-                <img src={settings_white} alt="" className="dark:flex hidden" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem
-                onClick={handleLogout}
-                className="font-poppins font-normal text-[#000000] text-sm leading-5 flex gap-2 items-center"
-              >
-                <img src={logout} alt="" />
-                <span>Logout</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <Button
-            className="bg-primary shadow-none border h-[2.5rem] w-[2.5rem] p-0 border-primary"
-            onClick={handleToggleTheme}
-          >
-            <img src={moon} alt="" />
-          </Button>
-        </div>
-      </div>}
+      )}
       {/* )} */}
     </div>
   );
