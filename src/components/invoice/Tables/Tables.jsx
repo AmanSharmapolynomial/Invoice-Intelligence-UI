@@ -37,7 +37,7 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
   let layout = searchParams.get("layout") || null;
   let assigned_to = searchParams.get("assigned_to");
   let auto_accepted_by_vda = searchParams.get("auto_accepted_by_vda") || "all";
-  let from_view=searchParams.get("from_view")||""
+  let from_view = searchParams.get("from_view") || "";
   let payload = {
     page: page,
     page_size: filters?.page_size,
@@ -158,7 +158,11 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
               <div
                 key={value}
                 onClick={() => {
-                  setCurrentTab(value);
+                  if (isLoading || loadingCombinedTable) {
+                    return;
+                  } else {
+                    setCurrentTab(value);
+                  }
                 }}
                 className={`text-center h-[3.2rem] cursor-pointer   ${styling} items-center  font-poppins font-medium text-sm leading-4 flex justify-center `}
               >

@@ -263,7 +263,9 @@ export const PdfViewer = ({
       ? pdfScale
       : Math.min(viewerWidth / boxWidth, viewerHeight / boxHeight, 3.0) * 0.7;
 
-    setPdfScale(targetScale < 1 ? 1 : targetScale);
+    setPdfScale(targetScale < 1 ? 0.7 : targetScale);
+
+    // Calculate the top-left position of the bounding box in the scaled viewer coordinates
     const topLeftX = bb.box.polygon[0].X * width * targetScale;
     const topLeftY = bb.box.polygon[0].Y * height * targetScale;
 
