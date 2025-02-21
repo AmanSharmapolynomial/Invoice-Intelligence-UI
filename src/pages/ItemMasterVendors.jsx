@@ -11,8 +11,9 @@ import React, { useState, useMemo, useEffect } from "react";
 
 const columns = [
   { key: `vendor[vendor_name]`, label: "Vendor Name" },
-  { key: "unverified_item_count", label: "Unverified Item Count" },
+  { key: `total_items`, label: "Total Items" },
   { key: "percentage_approved", label: "Percentage Approved" },
+  { key: "unverified_item_count", label: "Unverified Item Count" },
   { key: "vendor[recent_addition_date]", label: "Last Item Update" }
 ];
 
@@ -91,9 +92,8 @@ const ItemMasterVendors = () => {
 
   return (
     <div className="overflow-hidden flex w-full">
-
       <Sidebar />
-    
+
       <div className="w-full ml-12">
         <Navbar />
         <Layout>
