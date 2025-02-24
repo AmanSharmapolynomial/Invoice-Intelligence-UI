@@ -3,14 +3,35 @@ import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import Sidebar from "@/components/common/Sidebar";
 import BreadCrumb from "@/components/ui/Custom/BreadCrumb";
-import { Table, TableCell, TableHeader, TableRow } from "@/components/ui/table";
-import { useUpdateVendorItemMaster } from "@/components/vendor/api";
+import CustomDropDown from "@/components/ui/CustomDropDown";
+import approved from "@/assets/image/approved.svg";
+import unApproved from "@/assets/image/unapproved.svg";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  useGetAdditionalData,
+  useUpdateVendorItemMaster
+} from "@/components/vendor/api";
+import { categoryNamesFormatter, keysCapitalizer } from "@/lib/helpers";
 import { useQuery } from "@tanstack/react-query";
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
+import { Switch } from "@/components/ui/switch";
+import { queryClient } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { da } from "date-fns/locale";
+import toast, { Toaster } from "react-hot-toast";
 
 const ItemMasterDetails = () => {
-    const {mutate,isPending}=useUpdateVendorItemMaster()
+  const { mutate, isPending } = useUpdateVendorItemMaster();
+  const [updating, setUpdating] = useState(false);
   const { item_uuid } = useParams();
 
   const { data, isLoading } = useQuery({
@@ -26,11 +47,29 @@ const ItemMasterDetails = () => {
       }
     }
   });
+  const { data: additionalData, isLoading: loadingAdditionalData } =
+    useGetAdditionalData();
   console.log(data);
+  if (!data) {
+    return;
+  }
+  const {
+    required_invoice_columns_for_item_master,
+    archive_status,
+    human_verified,
+    category_review_required,
+    created_date,
+    last_modified_date,
+    category
+  } = data;
+
+  const textAreaRefs = useRef({}); // Store multiple refs in an object
+
 
   return (
     <div className="w-full">
       <Sidebar />
+      <Toaster />
       <div className="ml-12">
         <Navbar />
         <Layout>
@@ -43,19 +82,163 @@ const ItemMasterDetails = () => {
               }
             ]}
           />
-
-
-          <Table>
-            <TableHeader>
-                <TableRow>
-                    <TableCell></TableCell>
-                    <TableCell></TableCell>
-                    <TableCell></TableCell>
-                    <TableCell></TableCell>
-                    <TableCell></TableCell>
+          <div className="w-full px-16 mt-8">
+            <Table className="">
+              <TableHeader className="text-black">
+                <TableRow className="items-center   w-full relative border !min-h-12">
+                  <TableCell className="border-r  items-center h-full  border-b-0 font-poppins font-semibold text-sm text-black ">
+                    Category
+                  </TableCell>
+                  {required_invoice_columns_for_item_master
+                    ?.filter((it) => it !== "category")
+                    ?.map((it, i) => {
+                      return (
+                        <TableCell
+                          key={i}
+                          className="border-r  items-center h-full  border-b-0 font-poppins font-semibold text-sm text-black "
+                        >
+                          {" "}
+                          {keysCapitalizer(it)}
+                        </TableCell>
+                      );
+                    })}
+                  <TableCell className="border-r  items-center h-full  border-b-0 font-poppins font-semibold text-sm text-black ">
+                    Human Verified
+                  </TableCell>
+                  <TableCell className="border-r  items-center h-full  border-b-0 font-poppins font-semibold text-sm text-black ">
+                    Category Review Required
+                  </TableCell>
                 </TableRow>
-                </TableHeader>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                <TableRow className="border !min-h-12">
+                  <TableCell className="border">
+                    <CustomDropDown
+                      Value={category?.category_id}
+                      className="!min-w-[16rem]"
+                      onChange={(v, obj) => {
+                        let copyObj = { ...data };
+                        copyObj.category = {
+                          name: obj?.label,
+                          category_id: obj?.value
+                        };
+
+                        queryClient.setQueryData(
+                          ["item-master-details", item_uuid],
+                          copyObj
+                        );
+                      }}
+                      commandGroupClassName={"px-0"}
+                      data={[
+                        ...categoryNamesFormatter(
+                          additionalData?.data?.category_choices
+                        ),
+                        { label: "NA", value: null }
+                      ]}
+                    />
+                  </TableCell>
+
+                  {required_invoice_columns_for_item_master
+                    ?.filter((it) => it !== "category")
+                    ?.map((it, i) => {
+                      return (
+                        <TableCell
+                          key={i}
+                          className="border-r  items-center h-full   border-b font-poppins font-normal text-sm text-black "
+                        >
+                          <Textarea
+                            ref={(el) => {
+                              if (el) textAreaRefs.current[it] = el; // Store ref for each `it`
+                            }}
+                            onChange={(e) => {
+                              const { selectionStart } = e.target;
+                              const newValue = e.target.value;
+
+                              queryClient.setQueryData(
+                                ["item-master-details", item_uuid],
+                                (oldData) => {
+                                  if (!oldData) return {};
+                                  return {
+                                    ...oldData,
+                                    [`${it?.split(" ")?.join("_")}`]: newValue
+                                  };
+                                }
+                              );
+
+                              setTimeout(() => {
+                                if (textAreaRefs.current[it]) {
+                                  textAreaRefs.current[it].setSelectionRange(
+                                    selectionStart,
+                                    selectionStart
+                                  );
+                                }
+                              }, 0);
+                            }}
+                            value={data[`${it?.split(" ")?.join("_")}`] || ""}
+                          />
+                        </TableCell>
+                      );
+                    })}
+                  <TableCell className="border-r  items-center h-full   justify-center  border-b font-poppins font-normal text-sm text-black ">
+                    <div className="w-full h-full flex items-center justify-start pl-10">
+                      {human_verified ? (
+                        <img src={approved} className="h-5 w-5" />
+                      ) : (
+                        <img
+                          src={unApproved}
+                          className="h-5 w-5"
+                          onClick={() => {
+                            let copyObj = { ...data };
+                            copyObj[`human_verified`] = true;
+                            queryClient.setQueryData(
+                              ["item-master-details", item_uuid],
+                              copyObj
+                            );
+                          }}
+                        />
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell className="border-r  items-center h-full  border-b font-poppins pl-10 font-normal text-sm text-black ">
+                    <Switch
+                      checked={category_review_required}
+                      onCheckedChange={(v) => {
+                        let copyObj = { ...data };
+                        copyObj["category_review_required"] = v;
+                        queryClient.setQueryData(
+                          ["item-master-details", item_uuid],
+                          copyObj
+                        );
+                      }}
+                    />
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+
+            <div className="w-full flex items-center justify-end mt-4">
+              <Button
+                disabled={updating}
+                className="rounded-sm text-sm font-normal"
+                onClick={() => {
+                  setUpdating(true);
+                  mutate(
+                    { data: { ...data }, item_uuid },
+                    {
+                      onSuccess: () => {
+                        setUpdating(false);
+                      },
+                      onError: () => {
+                        setUpdating(false);
+                      }
+                    }
+                  );
+                }}
+              >
+                {updating ? "Updating...." : "Update"}
+              </Button>
+            </div>
+          </div>
         </Layout>
       </div>
     </div>

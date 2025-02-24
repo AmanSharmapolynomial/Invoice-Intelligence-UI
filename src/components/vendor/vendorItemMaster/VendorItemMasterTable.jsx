@@ -39,7 +39,7 @@ const VendorItemMasterTable = ({
   } = fastItemVerificationStore();
   useEffect(() => {}, [fiv_current_item]);
 
-  const textAreaRefs = useRef([]);
+  const textAreaRefs = useRef({});
 
   useEffect(() => {
     setTimeout(() => {
@@ -156,20 +156,28 @@ const VendorItemMasterTable = ({
                               Duplicate
                             </p>
                           )}
-                        <Textarea
-                          disabled={col == "category"}
-                          className="disabled:!text-black  w-full disabled:!bg-none disabled:opacity-100 "
-                          ref={(el) => (textAreaRefs.current[i] = el)}
-                          value={fiv_current_item?.line_item?.[col]?.text || ""}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            let copyObj = JSON.parse(
-                              JSON.stringify(fiv_current_item)
-                            );
-                            copyObj.line_item[col].text = val;
-                            setFIVCurrentItem(copyObj);
-                          }}
-                        />
+                      <Textarea
+  disabled={col === "category"}
+  className="disabled:!text-black w-full disabled:!bg-none disabled:opacity-100"
+  ref={(el) => {
+    if (el) textAreaRefs.current[`${i}-${col}`] = el; // Store ref uniquely
+  }}
+  value={fiv_current_item?.line_item?.[col]?.text || ""}
+  onChange={(e) => {
+    const { selectionStart } = e.target;
+    const val = e.target.value;
+
+    let copyObj = JSON.parse(JSON.stringify(fiv_current_item));
+    copyObj.line_item[col].text = val;
+    setFIVCurrentItem(copyObj);
+
+    setTimeout(() => {
+      if (textAreaRefs.current[`${i}-${col}`]) {
+        textAreaRefs.current[`${i}-${col}`].setSelectionRange(selectionStart, selectionStart);
+      }
+    }, 0);
+  }}
+/>
                       </TableCell>
                     );
                   })}

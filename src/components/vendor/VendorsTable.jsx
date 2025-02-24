@@ -71,9 +71,9 @@ const VendorsTable = ({ columns, data, isLoading }) => {
     <div className="w-full mt-4">
       <div className="rounded-md border overflow-x-auto">
         <Table className="!rounded-md !relative !min-h-full box-border flex flex-col min-w-full max-h-[74vh] 2xl:max-h-[78vh] overflow-auto">
-          <TableHeader className="w-full sticky top-0 z-10 bg-white  ">
+          <TableHeader className="w-full sticky top-0 z-10 bg-white dark:bg-primary  ">
             <TableRow
-              className={`!text-white !rounded-md w-full  grid grid-cols-${columns?.length} items-center justify-center text-xs sm:text-sm `}
+              className={`!text-white  !rounded-md w-full  grid grid-cols-${columns?.length} items-center justify-center text-xs sm:text-sm `}
             >
               {columns.map((column) => (
                 <TableHead
@@ -95,7 +95,7 @@ const VendorsTable = ({ columns, data, isLoading }) => {
                   key={i}
                   className={`grid grid-cols-${columns?.length} w-full items-center text-xs sm:text-sm`}
                 >
-                  {[0, 2, 3, 4,5].map((cel) => (
+                  {[0, 2, 3, 4, 5].map((cel) => (
                     <TableCell
                       key={cel}
                       className="border-r h-full font-poppins px-[0.8rem] capitalize text-sm font-normal"
@@ -120,9 +120,9 @@ const VendorsTable = ({ columns, data, isLoading }) => {
                     {columns.map((column) => (
                       <TableCell
                         key={column.key}
-                        className="border-r h-full font-poppins px-[0.8rem] capitalize text-sm font-normal"
+                        className="border-r h-full font-poppins !break-word dark:text-white !truncate whitespace-normal  px-[0.8rem] capitalize text-sm font-normal"
                       >
-                        <div className="flex gap-x-4">
+                        <div className="flex gap-x-4 !break-word whitespace-normal">
                           {column?.key === "vendor[recent_addition_date]"
                             ? formatDateTimeToReadable(
                                 getValue(row, column?.key)

@@ -158,7 +158,7 @@ const ReviewLaterTasks = () => {
   return (
     <div className="h-screen  flex w-full " id="maindiv">
       <Sidebar />
-      <div className="w-full ml-12">
+      <div className="w-full pl-12">
         {" "}
         <Navbar />
         <Layout>

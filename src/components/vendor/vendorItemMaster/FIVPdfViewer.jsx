@@ -68,48 +68,56 @@ const FIVPdfViewer = ({}) => {
   const [manualZoom, setManualZoom] = useState(false);
 
   const zoomToBoundingBox = () => {
-    if (
-      !boundingBoxes.length ||
-      !pageDimensions.width ||
-      !pageDimensions.height ||
-      manualZoom
-    )
+    if (!boundingBoxes.length || !pageDimensions.width || !pageDimensions.height || manualZoom) 
       return; // Prevent overriding manual zoom
-
-    const box = boundingBoxes[0].box;
+  
     const viewer = pdfWrapperRef.current;
-
     if (!viewer) return;
-
-    const boxWidth = box.width * pageDimensions.width;
-    const boxHeight = box.height * pageDimensions.height;
-
-    const scaleFactor = Math.min(
-      viewer.clientWidth / boxWidth,
-      viewer.clientHeight / boxHeight,
-      3
-    );
-
-    setPdfScale(scaleFactor * 1); // Default zoom, only when not manually zoomed
-
+  
+    // Get bounding boxes for the current page
+    const pageBoundingBoxes = boundingBoxes.filter(bb => bb.page_index + 1 === pageNum);
+    if (!pageBoundingBoxes.length) return;
+  
+    // Calculate the union of all bounding boxes (to fit all in view)
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    pageBoundingBoxes.forEach(bb => {
+      const box = bb.box;
+      minX = Math.min(minX, box.left);
+      minY = Math.min(minY, box.top);
+      maxX = Math.max(maxX, box.left + box.width);
+      maxY = Math.max(maxY, box.top + box.height);
+    });
+  
+    // Convert to absolute dimensions
+    const boxWidth = (maxX - minX) * pageDimensions.width;
+    const boxHeight = (maxY - minY) * pageDimensions.height;
+  
+    // Determine appropriate scale factor
+    const scaleFactor = Math.min(viewer.clientWidth / boxWidth, viewer.clientHeight / boxHeight, 3)-0.2;
+  
+    // Apply zoom level
+    setPdfScale(scaleFactor);
+  
     setTimeout(() => {
       const scaledWidth = pageDimensions.width * scaleFactor;
       const scaledHeight = pageDimensions.height * scaleFactor;
-
-      const boxCenterX = (box.left + box.width / 2) * scaledWidth;
-      const boxCenterY = (box.top + box.height / 2) * scaledHeight;
-
-      const scrollLeft = boxCenterX - viewer.clientWidth / 2.7;
+  
+      // Calculate center of the bounding box area
+      const boxCenterX = (minX + (maxX - minX) / 2) * scaledWidth;
+      const boxCenterY = (minY + (maxY - minY) / 2) * scaledHeight;
+  
+      // Adjust scroll to center the bounding box
+      const scrollLeft = boxCenterX - viewer.clientWidth / 2;
       const scrollTop = boxCenterY - viewer.clientHeight / 2;
-
+  
       viewer.scrollTo({
         top: Math.max(0, scrollTop),
         left: Math.max(0, scrollLeft),
-        behavior: "smooth"
+        behavior: "smooth",
       });
     }, 200);
   };
-
+  
   // Manual Zoom Handlers
   const handleZoomIn = () => {
     setManualZoom(true);

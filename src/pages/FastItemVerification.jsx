@@ -421,7 +421,7 @@ const FastItemVerification = () => {
   return (
     <div className="h-screen  flex w-full " id="maindiv">
       <Sidebar />
-      <div className="w-full h-full ml-14">
+      <div className="w-full pl-12">
         <Navbar />
         <Layout>
           <Toaster />

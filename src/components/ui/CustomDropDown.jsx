@@ -228,7 +228,7 @@ setFocusedIndex(sortedData.findIndex((item)=>item.value===value))
                     <div style={style} key={item.value}>
                       <CommandItem
                         className={cn(
-                          "text-left border mb-1.5 break-word  truncate whitespace-break-spaces !max-h-[3rem] overflow-hidden !pl-0 border-[#E0E0E0] !bg-gray-200/70 !ml-0 ",
+                          "text-left border mb-1.5 break-word  truncate whitespace-break-spaces !max-h-[3rem] overflow-hidden !pl-0 border-[#E0E0E0]   !bg-gray-200/70 !ml-0 ",
                           multiSelect && "!pl-2" 
                         )}
                         onBlur={onBlur}
@@ -245,7 +245,7 @@ setFocusedIndex(sortedData.findIndex((item)=>item.value===value))
                           />
                         )}
                         <div className="flex justify-between w-full items-center !pl-0 font-poppins text-xs font-normal dark:!text-[#FFFFFF] gap-x-4 break-word truncate whitespace-normal">
-                          <div className="flex gap-x-1 items-center">
+                          <div className="flex gap-x-1 items-center ">
                             <span>
                               {item?.archived_status ? (
                                 <Archive className="h-4 w-4 text-yellow-500" />
