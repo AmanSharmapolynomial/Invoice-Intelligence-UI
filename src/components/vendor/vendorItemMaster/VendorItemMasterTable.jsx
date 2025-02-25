@@ -76,7 +76,12 @@ const VendorItemMasterTable = ({
   useEffect(() => {
     setCols(Number(fiv_current_item?.required_columns?.length) + 1);
   }, [fiv_current_item, isLoading]);
-
+  const adjustHeight = (textArea) => {
+    if (textArea) {
+      textArea.style.height = "auto";
+      textArea.style.height = `${textArea.scrollHeight}px`;
+    }
+  };
   return (
     <>
       {!isLoading &&
@@ -110,9 +115,11 @@ const VendorItemMasterTable = ({
                     (it, index) => (
                       <TableCell
                         key={index}
-                        className={`${it=="item_description"?"!w-[40%]":`!min-w-[${
-                          60/ cols-1
-                        }%]`}   border-r  items-center h-full  border-b-0 font-poppins font-semibold text-sm`}
+                        className={`${
+                          it == "item_description"
+                            ? "!w-[40%]"
+                            : `!min-w-[${60 / cols - 1}%]`
+                        }   border-r  items-center h-full  border-b-0 font-poppins font-semibold text-sm`}
                       >
                         {keysCapitalizer(it)}
                       </TableCell>
@@ -125,7 +132,7 @@ const VendorItemMasterTable = ({
           </TableHeader>
           <TableBody>
             <TableRow
-              className={`min-h-12 rounded-sm  items-center ${
+              className={` min-h-12 rounded-sm  items-center ${
                 isLoading && "grid grid-cols-3"
               }   w-full relative border`}
             >
@@ -156,28 +163,34 @@ const VendorItemMasterTable = ({
                               Duplicate
                             </p>
                           )}
-                      <Textarea
-  disabled={col === "category"}
-  className="disabled:!text-black w-full disabled:!bg-none disabled:opacity-100"
-  ref={(el) => {
-    if (el) textAreaRefs.current[`${i}-${col}`] = el; // Store ref uniquely
-  }}
-  value={fiv_current_item?.line_item?.[col]?.text || ""}
-  onChange={(e) => {
-    const { selectionStart } = e.target;
-    const val = e.target.value;
+                        <Textarea
+                          disabled={col === "category"}
+                          className="disabled:!text-black disabled:!bg-none disabled:opacity-100 resize-none"
+                          ref={(el) => {
+                            if (el) {
+                              textAreaRefs.current[`${i}-${col}`] = el;
+                              setTimeout(() => {
+                                adjustHeight(el);
+                              }, 0);
+                            }
+                          }}
+                          value={fiv_current_item?.line_item?.[col]?.text || ""}
+                          onChange={(e) => {
+                            const { selectionStart } = e.target;
+                            const val = e.target.value;
 
-    let copyObj = JSON.parse(JSON.stringify(fiv_current_item));
-    copyObj.line_item[col].text = val;
-    setFIVCurrentItem(copyObj);
-
-    setTimeout(() => {
-      if (textAreaRefs.current[`${i}-${col}`]) {
-        textAreaRefs.current[`${i}-${col}`].setSelectionRange(selectionStart, selectionStart);
-      }
-    }, 0);
-  }}
-/>
+                            let copyObj = JSON.parse(
+                              JSON.stringify(fiv_current_item)
+                            );
+                            copyObj.line_item[col].text = val;
+                            setFIVCurrentItem(copyObj);
+                            adjustHeight(e.target);
+                            e.target.setSelectionRange(
+                              selectionStart,
+                              selectionStart
+                            );
+                          }}
+                        />
                       </TableCell>
                     );
                   })}

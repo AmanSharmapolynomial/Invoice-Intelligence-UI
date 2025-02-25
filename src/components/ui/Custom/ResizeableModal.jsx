@@ -2,10 +2,10 @@ import { invoiceDetailStore } from "@/store/invoiceDetailStore";
 import { Grip, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-const ResizableModal = ({ isOpen, onClose, children, className }) => {
+const ResizableModal = ({ isOpen, onClose, children, className,x=300,y=200,height=400,width=800 }) => {
   const { allowModalDragging } = invoiceDetailStore();
-  const [position, setPosition] = useState({ x: 300, y: 200 });
-  const [size, setSize] = useState({ width: 800, height: 400 });
+  const [position, setPosition] = useState({ x: x, y: y });
+  const [size, setSize] = useState({ width: width, height: height });
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const dialogRef = useRef(null);
