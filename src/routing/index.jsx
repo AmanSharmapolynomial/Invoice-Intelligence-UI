@@ -22,6 +22,7 @@ import Test from "@/pages/Test";
 import NotSupportedDocuments from "@/pages/NotSupportedDocuments";
 import ItemMasterVendors from "@/pages/ItemMasterVendors";
 import ItemMasterDetails from "@/pages/ItemMasterDetails";
+import BulkCategoriesListing from "@/pages/BulkCategoriesListing";
 
 const publicRoutes = [
   {
@@ -198,6 +199,15 @@ const protectedRoutes = [
     element: (
       <Protected>
         <FastItemVerification />
+      </Protected>
+    )
+  },
+
+  {
+    path: "/bulk-categorization",
+    element: (
+      <Protected>
+        <BulkCategoriesListing/>
       </Protected>
     )
   }

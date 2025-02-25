@@ -1508,20 +1508,23 @@ const HumanVerificationTable = ({
                                   <img
                                     src={approved}
                                     alt=""
-                                    onDoubleClick={()=>navigate(`/item-master-details/${row?.item_master?.item_uuid}`)}s
+                                    onDoubleClick={()=>window.open(`/item-master-details/${row?.item_master?.item_uuid}`,"_blank"
+                                    )}
                                     className="h-5 w-5 mt-[0.8px] cursor-pointer"
                                   />
                                 ) : row?.item_master?.human_verified ==
                                   false ? (
                                   <img
-                                  onDoubleClick={()=>navigate(`/item-master-details/${row?.item_master?.item_uuid}`)}
+                                  onDoubleClick={()=>window.open(`/item-master-details/${row?.item_master?.item_uuid}`,"_blank"
+                                  )}
                                     src={unapproved}
                                     alt=""
                                     className="h-5 w-5 mt-[0.8px] cursor-pointer"
                                   />
                                 ) : (
                                   <img
-                                  onDoubleClick={()=>navigate(`/item-master-details/${row?.item_master?.item_uuid}`)}
+                                  onDoubleClick={()=>window.open(`/item-master-details/${row?.item_master?.item_uuid}`,"_blank"
+                                  )}
                                     className="h-5  cursor-pointer"
                                     src={warning_mark}
                                   />
