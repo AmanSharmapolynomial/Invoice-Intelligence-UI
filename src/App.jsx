@@ -96,7 +96,7 @@ function App() {
             className={"cursor-pointer"}
             showIcon={true}
             onClick={() => navigate(`/bulk-categorization`)}
-            title="Bulk Categorization"
+            title="Bulk Item Categorization"
             content="Manage and delegate invoice tasks seamlessly."
           />
         </div>

@@ -6,7 +6,13 @@ import BreadCrumb from "@/components/ui/Custom/BreadCrumb";
 import CustomInput from "@/components/ui/Custom/CustomInput";
 import React, { useState } from "react";
 import { useSearchParams } from "react-router-dom";
-
+const columns = [
+    { label: "Category", key: "category[category_id]" },
+    { label: "Items Count", key: "items_count" },
+    { label: "Vendors", key: "vendors_count" },
+    { label: "Approved Items", key: "approved_items_count" },
+    { label: "Not Approved Items", key: "not_approved_items_count" }
+  ];
 const BulkCategoriesListing = () => {
   const [searchParams] = useSearchParams();
   const [searchTerm,setSearchTerm]=useState("")
@@ -17,13 +23,7 @@ const BulkCategoriesListing = () => {
     page_size
   });
 
-  const columns = [
-    { label: "Category", key: "category[category_id]" },
-    { label: "Items Count", key: "items_count" },
-    { label: "Vendors", key: "vendors_count" },
-    { label: "Approved Items", key: "approved_items_count" },
-    { label: "Not Approved Items", key: "not_approved_items_count" }
-  ];
+ 
   return (
     <div className="w-full">
       <Navbar />
@@ -44,15 +44,17 @@ const BulkCategoriesListing = () => {
             onKeyDown={(e) => {
                 
             }}
-            className="min-w-72 max-w-96 border border-gray-200 relative  focus:!ring-0 focus:!outline-none remove-number-spinner"
+            className="min-w-72 max-w-96 border border-gray-200 relative   focus:!ring-0 focus:!outline-none remove-number-spinner"
           />
         </div>
-        <BulkCategorizationTable
+       <div className="w-full h-full">
+       <BulkCategorizationTable
           columns={columns}
           data={data}
           searchTerm={searchTerm}
           isLoading={isLoading}
         />
+       </div>
         <TablePagination
           totalPages={data?.total_pages}
           isFinalPage={data?.is_final_page}

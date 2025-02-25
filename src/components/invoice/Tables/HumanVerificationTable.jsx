@@ -73,7 +73,7 @@ const HumanVerificationTable = ({
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [editMode, setEditMode] = useState({ rowIndex: null, cellIndex: null });
   const [cellValue, setCellValue] = useState("");
-  const navigate=useNavigate()
+  const navigate = useNavigate();
   const [contextMenu, setContextMenu] = useState({
     visible: false,
     position: { x: 0, y: 0 },
@@ -360,11 +360,16 @@ const HumanVerificationTable = ({
     // setStopHovering(false);
   };
   const handleKeyPress = (event, rowIndex, cellIndex, value) => {
-    if (event.key === "Enter" && !event.ctrlKey && !event.shiftKey && !event.altKey && !event.metaKey) {
+    if (
+      event.key === "Enter" &&
+      !event.ctrlKey &&
+      !event.shiftKey &&
+      !event.altKey &&
+      !event.metaKey
+    ) {
       handleSaveCell(rowIndex, cellIndex, value);
     }
   };
-  
 
   const undoLastAction = () => {
     if (operations?.length !== 0) {
@@ -398,7 +403,6 @@ const HumanVerificationTable = ({
     }
   };
 
-  
   const deleteRow = (rowIndex) => {
     saveHistory();
     let copyData = JSON.parse(JSON.stringify(data));
@@ -425,7 +429,7 @@ const HumanVerificationTable = ({
 
   const handleRowShifting = (rowIndex, shiftType) => {
     let copyObj = JSON.parse(JSON.stringify(data));
-  
+
     // Check if the rowIndex is valid and avoid shifting the first or last row beyond bounds
     if (rowIndex === 0 && shiftType === "up") {
       return; // Can't shift the first row up
@@ -435,55 +439,59 @@ const HumanVerificationTable = ({
     ) {
       return; // Can't shift the last row down
     }
-  
+
     saveHistory();
-  
+
     // Determine the index of the row we are shifting to
     let shiftToIndex = shiftType === "up" ? rowIndex - 1 : rowIndex + 1;
-  
+
     // Swap rows logic
     let temp;
     let newOperation = {
       type: "swap_rows",
       operation_order: operations?.length + 1,
       data: {
-        row_1_uuid: copyObj.data.processed_table.rows[rowIndex]?.transaction_uuid,
-        row_2_uuid: copyObj.data.processed_table.rows[shiftToIndex]?.transaction_uuid
+        row_1_uuid:
+          copyObj.data.processed_table.rows[rowIndex]?.transaction_uuid,
+        row_2_uuid:
+          copyObj.data.processed_table.rows[shiftToIndex]?.transaction_uuid
       }
     };
-  
+
     // Swap the rows
     temp = copyObj.data.processed_table.rows[rowIndex];
-    copyObj.data.processed_table.rows[rowIndex] = copyObj.data.processed_table.rows[shiftToIndex];
+    copyObj.data.processed_table.rows[rowIndex] =
+      copyObj.data.processed_table.rows[shiftToIndex];
     copyObj.data.processed_table.rows[shiftToIndex] = temp;
-  
+
     // Update the row orders after the swap
     copyObj.data.processed_table.rows.forEach((row, index) => {
       row.row_order = index + 1; // Recalculate the row_order based on the new index
     });
-  
+
     // Add the operation to the history
     setOperations([...operations, newOperation]);
-  
+
     // Update the query data with the modified rows
     queryClient.setQueryData(["combined-table", document_uuid], copyObj);
   };
-  
+
   const addEmptyColumn = () => {
     saveHistory(); // Save the current state for undo/redo functionality
-  
+
     const newColumn = {
       column_uuid: uuidv4(),
       column_name: "Select an option",
       column_order:
-        data?.data?.processed_table?.columns?.[data?.data?.processed_table?.columns?.length - 1]
-          ?.column_order + 1 || 0,
+        data?.data?.processed_table?.columns?.[
+          data?.data?.processed_table?.columns?.length - 1
+        ]?.column_order + 1 || 0,
       bounding_boxes: null,
       selected_column: true
     };
-  
+
     const updatedColumns = [...data?.data?.processed_table?.columns, newColumn];
-  
+
     const updatedRows = data?.data?.processed_table?.rows?.map((row) => ({
       ...row,
       cells: [
@@ -500,7 +508,7 @@ const HumanVerificationTable = ({
         }
       ]
     }));
-  
+
     const updatedData = {
       ...data,
       data: {
@@ -512,7 +520,7 @@ const HumanVerificationTable = ({
         }
       }
     };
-  
+
     const operation = {
       type: "create_column",
       operation_order: operations.length + 1,
@@ -523,22 +531,23 @@ const HumanVerificationTable = ({
         cells: updatedRows.map((row) => ({
           row_uuid: row.transaction_uuid,
           column_uuid: newColumn.column_uuid,
-          cell_uuid: row.cells.find((cell) => cell.column_uuid === newColumn.column_uuid).cell_uuid,
+          cell_uuid: row.cells.find(
+            (cell) => cell.column_uuid === newColumn.column_uuid
+          ).cell_uuid,
           text: ""
         }))
       }
     };
-  
+
     setOperations([...operations, operation]);
     queryClient.setQueryData(["combined-table", document_uuid], updatedData);
-  
+
     setContextMenu({
       visible: false,
       position: { x: 0, y: 0 }
     });
   };
 
-  
   const addEmptyRow = () => {
     saveHistory();
     let copyData = JSON.parse(JSON.stringify(data));
@@ -575,26 +584,32 @@ const HumanVerificationTable = ({
   };
   const handleSaveCell = async (rowIndex, cellIndex, value) => {
     const originalValue =
-      data?.data?.processed_table?.rows?.[rowIndex]?.cells?.[cellIndex]?.text || "";
-  
-      if (value !== originalValue) {
-        saveHistory();
-        
-        const updatedData = JSON.parse(JSON.stringify(data)); 
+      data?.data?.processed_table?.rows?.[rowIndex]?.cells?.[cellIndex]?.text ||
+      "";
+
+    if (value !== originalValue) {
+      saveHistory();
+
+      const updatedData = JSON.parse(JSON.stringify(data));
       // Create a deep copy of the data
-      
-      const targetCell = updatedData?.data?.processed_table?.rows?.[rowIndex]?.cells?.filter((c)=>selectedColumnIds?.includes(c.column_uuid))?.[cellIndex];
-      
+
+      const targetCell = updatedData?.data?.processed_table?.rows?.[
+        rowIndex
+      ]?.cells?.filter((c) => selectedColumnIds?.includes(c.column_uuid))?.[
+        cellIndex
+      ];
+
       if (!targetCell) {
         toast.error("Invalid cell reference.");
         return;
       }
-      
+
       // Update the cell's text
       targetCell.text = value;
-      updatedData.data.processed_table.rows[rowIndex].cells[cellIndex].text=value
-      let copyObj=JSON.parse(JSON.stringify(updatedData))
-      copyObj.data.processed_table.rows[rowIndex].cells[cellIndex].text=value
+      updatedData.data.processed_table.rows[rowIndex].cells[cellIndex].text =
+        value;
+      let copyObj = JSON.parse(JSON.stringify(updatedData));
+      copyObj.data.processed_table.rows[rowIndex].cells[cellIndex].text = value;
 
       // Create an operation to track the update
       const operation = {
@@ -602,23 +617,24 @@ const HumanVerificationTable = ({
         operation_order: operations.length + 1,
         data: {
           cell_uuid: targetCell.cell_uuid,
-          row_uuid: updatedData.data.processed_table.rows[rowIndex].transaction_uuid,
+          row_uuid:
+            updatedData.data.processed_table.rows[rowIndex].transaction_uuid,
           column_uuid: targetCell.column_uuid,
-          text: value,
-        },
+          text: value
+        }
       };
       updatedData.data.processed_table.rows[rowIndex].cells.forEach((c, i) => {
         c["column_name"] = data.data.processed_table.columns[i]?.column_name;
       });
       let extPriceCellColumnUUID =
-      updatedData.data.processed_table.columns?.find(
-        (col) => col?.column_name === "Extended Price"
-      )?.["column_uuid"];
+        updatedData.data.processed_table.columns?.find(
+          (col) => col?.column_name === "Extended Price"
+        )?.["column_uuid"];
 
-    // Copy operations for recalculation
-    let copyOperations = JSON.parse(
-      JSON.stringify([...operations, operation])
-    );
+      // Copy operations for recalculation
+      let copyOperations = JSON.parse(
+        JSON.stringify([...operations, operation])
+      );
       // Add the operation to the state
       setOperations([...operations, operation]);
       if (autoCalculate) {
@@ -669,7 +685,7 @@ const HumanVerificationTable = ({
     // Exit edit mode after saving
     setEditMode({ rowIndex: null, cellIndex: null });
   };
-  
+
   const copyRow = (rowIndex, copyType) => {
     // Prevent copying outside table bounds
     if (rowIndex < 0 || rowIndex >= data?.data?.processed_table?.rows?.length) {
@@ -807,7 +823,6 @@ const HumanVerificationTable = ({
     // Update the query data with the new row
     queryClient.setQueryData(["combined-table", document_uuid], copyData);
 
-    
     // Hide the context menu
     setContextMenu({
       visible: false,
@@ -1013,8 +1028,6 @@ const HumanVerificationTable = ({
     toast.success("Cell deleted successfully.");
   };
 
-
-
   const addTax = () => {
     const newData = { ...metaData };
     newData["document_metadata"]["added_taxes"].push(0);
@@ -1078,7 +1091,12 @@ const HumanVerificationTable = ({
     });
   };
 
-  const existing_column_names=data?.data?.processed_table?.columns?.filter((c)=>c?.selected_column)?.map(({bounding_box,column_order,selected_column,column_uuid,...rest})=>rest?.column_name?.toLowerCase());
+  const existing_column_names = data?.data?.processed_table?.columns
+    ?.filter((c) => c?.selected_column)
+    ?.map(
+      ({ bounding_box, column_order, selected_column, column_uuid, ...rest }) =>
+        rest?.column_name?.toLowerCase()
+    );
 
   return (
     <>
@@ -1296,10 +1314,18 @@ const HumanVerificationTable = ({
                                 triggerClassName={
                                   "!max-w-full !h-[2.25rem] !min-w-[10.5rem]  "
                                 }
-                                data={[...(headerNamesFormatter(
-                                  additionalData?.data
-                                    ?.processed_table_header_candidates
-                                )?.filter((col)=>!existing_column_names?.includes(col?.label?.toLowerCase()))),{label:"NA",value:"NA"}]}
+                                data={[
+                                  ...headerNamesFormatter(
+                                    additionalData?.data
+                                      ?.processed_table_header_candidates
+                                  )?.filter(
+                                    (col) =>
+                                      !existing_column_names?.includes(
+                                        col?.label?.toLowerCase()
+                                      )
+                                  ),
+                                  { label: "NA", value: "NA" }
+                                ]}
                                 onChange={(c, item) => {
                                   handleDropdownChange(column_uuid, c);
                                 }}
@@ -1310,20 +1336,20 @@ const HumanVerificationTable = ({
                       )}
                   </div>
                   {/* <div className="w-full sticky right-0   flex items-center "> */}
-                    {(viewDeleteColumn ||
-                      viewShiftColumn ||
-                      viewVerificationColumn) && (
-                      <TableCell
-                        className={`${
-                          viewDeleteColumn &&
-                          viewShiftColumn &&
-                          viewVerificationColumn &&
-                          "w-[6.2rem]"
-                        } !border-l  sticky !max-w-[6.2rem]  min-w-[6.3rem]   flex justify-center items-center font-poppins font-normal text-xs !p-0 min-h-full bg-white/90  !right-[0px]`}
-                      >
-                        Actions
-                      </TableCell>
-                    )}
+                  {(viewDeleteColumn ||
+                    viewShiftColumn ||
+                    viewVerificationColumn) && (
+                    <TableCell
+                      className={`${
+                        viewDeleteColumn &&
+                        viewShiftColumn &&
+                        viewVerificationColumn &&
+                        "w-[6.2rem]"
+                      } !border-l  sticky !max-w-[6.2rem]  min-w-[6.3rem]   flex justify-center items-center font-poppins font-normal text-xs !p-0 min-h-full bg-white/90  !right-[0px]`}
+                    >
+                      Actions
+                    </TableCell>
+                  )}
                   {/* </div> */}
                 </div>
 
@@ -1395,8 +1421,7 @@ const HumanVerificationTable = ({
                                     <>
                                       {cell?.column_uuid ===
                                       categoryColumnId ? (
-                                        <div
-                                        >
+                                        <div>
                                           <CustomDropDown
                                             Value={
                                               additionalData?.data?.category_choices?.find(
@@ -1427,13 +1452,18 @@ const HumanVerificationTable = ({
                                           }
                                           onClick={(e) => {
                                             e.preventDefault();
-                                            e.stopPropagation()
+                                            e.stopPropagation();
                                           }}
                                           onDoubleClick={(e) => {
                                             e.preventDefault();
                                           }}
                                           onKeyPress={(e) => {
-                                            handleKeyPress(e, index, i,cellValue);
+                                            handleKeyPress(
+                                              e,
+                                              index,
+                                              i,
+                                              cellValue
+                                            );
                                           }}
                                           onChange={(e) => {
                                             setCellValue(e.target.value);
@@ -1508,28 +1538,40 @@ const HumanVerificationTable = ({
                                   <img
                                     src={approved}
                                     alt=""
-                                    onDoubleClick={()=>window.open(`/item-master-details/${row?.item_master?.item_uuid}`,"_blank"
-                                    )}
+                                    onDoubleClick={() =>
+                                      window.open(
+                                        `/item-master-details/${row?.item_master?.item_uuid}`,
+                                        "_blank"
+                                      )
+                                    }
                                     className="h-5 w-5 mt-[0.8px] cursor-pointer"
                                   />
                                 ) : row?.item_master?.human_verified ==
                                   false ? (
                                   <img
-                                  onDoubleClick={()=>window.open(`/item-master-details/${row?.item_master?.item_uuid}`,"_blank"
-                                  )}
+                                    onDoubleClick={() =>
+                                      window.open(
+                                        `/item-master-details/${row?.item_master?.item_uuid}`,
+                                        "_blank"
+                                      )
+                                    }
                                     src={unapproved}
                                     alt=""
                                     className="h-5 w-5 mt-[0.8px] cursor-pointer"
                                   />
                                 ) : (
                                   <img
-                                  onDoubleClick={()=>window.open(`/item-master-details/${row?.item_master?.item_uuid}`,"_blank"
-                                  )}
+                                    onDoubleClick={() =>
+                                      window.open(
+                                        `/item-master-details/${row?.item_master?.item_uuid}`,
+                                        "_blank"
+                                      )
+                                    }
                                     className="h-5  cursor-pointer"
                                     src={warning_mark}
                                   />
                                 ))}
-                                {/* <Link target="_blank" to={`https://www.google.com/search?q=${row?.cells?.[2]?.text}`}>
+                              {/* <Link target="_blank" to={`https://www.google.com/search?q=${row?.cells?.[2]?.text}`}>
                                   <Globe/>
                                 </Link> */}
                             </CustomTooltip>
@@ -1562,7 +1604,6 @@ const HumanVerificationTable = ({
                             )}
                           </TableCell>
                         )}
-                      
                       </div>
                     );
                   })}
