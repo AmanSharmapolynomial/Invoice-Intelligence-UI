@@ -22,6 +22,8 @@ import Test from "@/pages/Test";
 import NotSupportedDocuments from "@/pages/NotSupportedDocuments";
 import ItemMasterVendors from "@/pages/ItemMasterVendors";
 import ItemMasterDetails from "@/pages/ItemMasterDetails";
+import BulkCategoriesListing from "@/pages/BulkCategoriesListing";
+import CategoryWiseItems from "@/pages/CategoryWiseItems";
 
 const publicRoutes = [
   {
@@ -198,6 +200,23 @@ const protectedRoutes = [
     element: (
       <Protected>
         <FastItemVerification />
+      </Protected>
+    )
+  },
+
+  {
+    path: "/bulk-categorization",
+    element: (
+      <Protected>
+        <BulkCategoriesListing/>
+      </Protected>
+    )
+  },
+  {
+    path: "/category-wise-items/:category_id",
+    element: (
+      <Protected>
+        <CategoryWiseItems/>
       </Protected>
     )
   }

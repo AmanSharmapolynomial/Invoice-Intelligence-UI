@@ -75,7 +75,7 @@ const BreadCrumb = ({
   };
   return (
     <div
-      className="flex w-full items-center justify-between py-4 pr-2   "
+      className="flex w-full items-center justify-between py-3 pr-2   "
       id="bread"
     >
       <p className="text-textColor/950 font-poppins font-semibold  dark:text-[#FFFFFF] flex items-center gap-x-2">

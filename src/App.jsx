@@ -32,7 +32,7 @@ function App() {
     setFilteredVendors(vendorNamesList?.data?.vendor_names);
   }, [vendorNamesList]);
   const { theme } = useThemeStore();
-  const {clearStore}=invoiceDetailStore()
+  const { clearStore } = invoiceDetailStore();
 
   const navigate = useNavigate();
 
@@ -42,7 +42,7 @@ function App() {
   const { setDefault } = useFilterStore();
   useEffect(() => {
     setDefault();
-    clearStore()
+    clearStore();
   }, []);
 
   return (
@@ -80,9 +80,7 @@ function App() {
             className={"cursor-pointer"}
             title="Check Item Master"
             onClick={() => {
-              // setOpen(true);
-              // setIsItemMaster(true);
-              navigate(`/item-master-vendors`)
+              navigate(`/item-master-vendors`);
             }}
             content="Speed up item master verification for seamless operations."
           />
@@ -90,18 +88,17 @@ function App() {
             Icon={frame15}
             showIcon={true}
             className={"cursor-pointer"}
-            // onClick={() => navigate("/user-activity")}
             title="View User Activity"
             content="Access a comprehensive log of all user activities."
           />
-          <CustomCard
+          {/* <CustomCard
             Icon={frame15}
             className={"cursor-pointer"}
             showIcon={true}
-            title="Invoice Assignment"
+            onClick={() => navigate(`/bulk-categorization`)}
+            title="Bulk Item Categorization"
             content="Manage and delegate invoice tasks seamlessly."
-          />
-       
+          /> */}
         </div>
       </Layout>
       <Modal

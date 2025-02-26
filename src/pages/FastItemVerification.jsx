@@ -339,7 +339,7 @@ const FastItemVerification = () => {
             human_verified: true
           });
           if (fiv_item_number < total_items - 1) {
-            console.log("entered  1");
+  
             setFIVCurrentItem(
               fiv_items?.filter(
                 (it) => it.item_uuid !== fiv_current_item?.item_uuid
@@ -421,7 +421,7 @@ const FastItemVerification = () => {
   return (
     <div className="h-screen  flex w-full " id="maindiv">
       <Sidebar />
-      <div className="w-full h-full ml-14">
+      <div className="w-full pl-12">
         <Navbar />
         <Layout>
           <Toaster />

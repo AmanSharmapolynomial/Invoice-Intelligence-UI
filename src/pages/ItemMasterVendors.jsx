@@ -1,13 +1,26 @@
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import Sidebar from "@/components/common/Sidebar";
+import { Button } from "@/components/ui/button";
 import BreadCrumb from "@/components/ui/Custom/BreadCrumb";
 import CustomInput from "@/components/ui/Custom/CustomInput";
 import CustomDropDown from "@/components/ui/CustomDropDown";
+import CustomSelect from "@/components/ui/CustomSelect";
+import { Label } from "@/components/ui/label";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger
+} from "@/components/ui/sheet";
 import { useGetItemMasterVendors } from "@/components/vendor/api";
 import VendorsTable from "@/components/vendor/VendorsTable";
+import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import fastItemVerificationStore from "@/store/fastItemVerificationStore";
+import { ArrowRight, Filter } from "lucide-react";
 import React, { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 
 const columns = [
   { key: `vendor[vendor_name]`, label: "Vendor Name" },
@@ -31,9 +44,15 @@ const percentageOptions = [
 
 const ItemMasterVendors = () => {
   const { data, isLoading } = useGetItemMasterVendors();
+  const [searchParams] = useSearchParams();
+  const updateParams = useUpdateParams();
+  let selected_approval = searchParams.get("selected_approval") || null;
+  let selected_percentage = searchParams.get("selected_percentage") || null;
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedApproval, setSelectedApproval] = useState(null);
-  const [selectedPercentage, setSelectedPercentage] = useState(null);
+  const [selectedApproval, setSelectedApproval] = useState(selected_approval);
+  const [selectedPercentage, setSelectedPercentage] =
+    useState(selected_percentage);
+
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
   const { resetStore } = fastItemVerificationStore();
   useEffect(() => {
@@ -89,7 +108,14 @@ const ItemMasterVendors = () => {
       return 0;
     });
   }, [filteredData, sortConfig]);
+  const [showFilters, setShowFilters] = useState(false);
 
+
+   const handleReset=()=>{
+    setSelectedApproval(null)
+    setSelectedPercentage(null)
+    updateParams({selected_approval:null,selected_percentage:null})
+   }
   return (
     <div className="overflow-hidden flex w-full">
       <Sidebar />
@@ -102,26 +128,85 @@ const ItemMasterVendors = () => {
             crumbs={[{ path: null, label: "Vendors" }]}
           />
           <div className="flex items-center gap-x-2 justify-end">
-            <div className="flex items-center gap-x-2">
-              <CustomDropDown
-                data={approvalOptions}
-                Value={selectedApproval}
-                onChange={setSelectedApproval}
-                showSearch={false}
-                className="!min-w-[12rem] "
-                commandGroupClassName="!min-h-[0rem] !max-h-[8rem]"
-                placeholder="Vendor Approval"
-              />
-
-              <CustomDropDown
-                data={percentageOptions}
-                Value={selectedPercentage}
-                onChange={setSelectedPercentage}
-                commandGroupClassName="!min-h-[0rem] !max-h-[8rem]"
-                showSearch={false}
-                className="!min-w-[12rem]"
-                placeholder="Vendor Approval Percentage"
-              />
+            <div className="flex items-center gap-x-3">
+              <Sheet
+                open={showFilters}
+                onOpenChange={() => setShowFilters(!showFilters)}
+              >
+                <SheetTrigger>
+                  <Button
+                    className={`${
+                      selected_percentage || selected_approval
+                        ? "bg-primary"
+                        : "bg-transparent hover:bg-transparent"
+                    } rounded-sm h-[2.5rem] w-[2.5rem]  border  shadow-none`}
+                  >
+                    <Filter
+                      className={`${
+                        (selected_percentage || selected_approval) &&
+                        "text-white"
+                      } text-black/40 dark:text-white/50 h-5 `}
+                    />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent className="flex flex-col gap-y-4">
+                  <SheetHeader>
+                    <SheetTitle>
+                      <div className="flex justify-between items-center">
+                        <p>Filters</p>
+                        <div
+                          className="flex items-center gap-x-2 cursor-pointer"
+                          onClick={() => setShowFilters(!showFilters)}
+                        >
+                          <p className="text-sm font-poppins font-normal text-[#000000]">
+                            Collapse
+                          </p>
+                          <ArrowRight className="h-4 w-4 text-[#000000]" />
+                        </div>
+                      </div>
+                    </SheetTitle>
+                  </SheetHeader>
+                  <div className="flex flex-col gap-y-0.5">
+                    <CustomSelect
+                      data={approvalOptions}
+                      Value={selected_approval}
+                      label="Vendor Approval"
+                      onSelect={(v) => {
+                        setSelectedApproval(v);
+                        updateParams({ selected_approval: v });
+                      }}
+                      showSearch={false}
+                      className="!min-w-[12rem] !z-50 "
+                      commandGroupClassName="!min-h-[0rem] !max-h-[8rem] !z-50"
+                      contentClassName={"!z-50"}
+                      placeholder={selectedApproval || "All"}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-y-0.5">
+                    <CustomSelect
+                      data={percentageOptions}
+                      Value={selected_percentage}
+                      label="Vendor Approval Percentage"
+                      onSelect={(v) => {
+                        setSelectedPercentage(v);
+                        updateParams({ selected_percentage: v });
+                      }}
+                      commandGroupClassName="!min-h-[0rem] !max-h-[8rem]"
+                      showSearch={false}
+                      className="!min-w-[12rem]"
+                      placeholder={selectedPercentage || "All"}
+                    />
+                  </div>
+                  <div className="w-full flex items-center justify-end">
+                    <Button
+                      className="bg-primary hover:bg-primary/95 font-poppins !font-normal !rounded-sm text-white text-xs"
+                      onClick={handleReset}
+                    >
+                        Reset
+                    </Button>
+                  </div>
+                </SheetContent>
+              </Sheet>
 
               <CustomInput
                 showIcon

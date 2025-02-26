@@ -273,6 +273,8 @@ export const columnsSorter = (columns) => {
     "item_description",
     "quantity",
     "unit_of_measure",
+    "pack",
+    "size",
     "upc",
     "brand",
     "vintage",
