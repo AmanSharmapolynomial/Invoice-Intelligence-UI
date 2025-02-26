@@ -11,7 +11,7 @@ import { Skeleton } from "../ui/skeleton";
 import { useNavigate } from "react-router-dom";
 
 const BulkCategorizationTable = ({ data, isLoading, columns }) => {
-    const navigate=useNavigate()
+  const navigate = useNavigate();
   return (
     <div className="w-full mt-4">
       <div className="relative rounded-lg  overflow-hidden">
@@ -45,7 +45,7 @@ const BulkCategorizationTable = ({ data, isLoading, columns }) => {
                   <TableRow key={index} className="border-none h-[3.75rem]">
                     {[0, 1, 2, 3, 4]?.map((it) => (
                       <TableCell key={it}>
-                        <Skeleton className={"w-full h-4"} />
+                        <Skeleton className={"w-full h-[2.5rem]"} />
                       </TableCell>
                     ))}
                   </TableRow>
@@ -55,9 +55,10 @@ const BulkCategorizationTable = ({ data, isLoading, columns }) => {
               {data?.data?.map((item, index) => (
                 <TableRow
                   key={index}
-                  onClick={()=>{
-                    navigate(`/category-wise-items/${item?.category?.category_id}?category_name=${item?.category?.name}`)
-
+                  onClick={() => {
+                    navigate(
+                      `/category-wise-items/${item?.category?.category_id}?category_name=${item?.category?.name}`
+                    );
                   }}
                   className="border-none h-[3.75rem] cursor-pointer"
                 >
