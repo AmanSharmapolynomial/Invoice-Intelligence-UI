@@ -65,13 +65,12 @@ export const useGetRemovedVendorItems = (payload) => {
   return useQuery({
     queryKey: ["removed-vendor-items", payload],
     queryFn: async () => {
-      console.log(payload);
       if (!payload?.vendor_id || !payload?.category_id) {
         return;
       }
 
       try {
-        console.log(payload);
+       
         let response = await axiosInstance.get(
           `/api/category/${payload?.category_id}/vendor/${payload?.vendor_id}/removed-items/`
         );
@@ -91,13 +90,21 @@ export const useRemoveVendorItem = () => {
       );
       return response;
     },
-    onError:(data)=>{
-      toast.error(data?.message);
-      
-    },
-    onSuccess:(data)=>{
-      toast.success(data?.message);
-      queryClient.invalidateQueries({queryKey:["removed-vendor-items"]});
+    onError: (data) => {},
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["removed-vendor-items"] });
     }
   });
 };
+
+
+export const useUpdateBulkItemsCategory=()=>{
+  return useMutation({
+    mutationFn:async(items_category)=>{
+      let apiUrl=`/api/category/item-master/bulk-update/`;
+      let response=await axiosInstance.post(apiUrl,items_category);
+      return response
+    },
+    
+  })
+}

@@ -24,6 +24,7 @@ import ItemMasterVendors from "@/pages/ItemMasterVendors";
 import ItemMasterDetails from "@/pages/ItemMasterDetails";
 import BulkCategoriesListing from "@/pages/BulkCategoriesListing";
 import CategoryWiseItems from "@/pages/CategoryWiseItems";
+import ItemsCategorization from "@/pages/ItemsCategorization";
 
 const publicRoutes = [
   {
@@ -217,6 +218,14 @@ const protectedRoutes = [
     element: (
       <Protected>
         <CategoryWiseItems/>
+      </Protected>
+    )
+  },
+  {
+    path: "/items-categorization/:category_id/:vendor_id",
+    element: (
+      <Protected>
+        <ItemsCategorization/>
       </Protected>
     )
   }

@@ -10,7 +10,7 @@ import {
 import { Skeleton } from "../ui/skeleton";
 import { useNavigate } from "react-router-dom";
 
-const BulkCategorizationTable = ({ data, isLoading, columns }) => {
+const BulkCategorizationTable = ({ data, isLoading, columns, searchTerm }) => {
   const navigate = useNavigate();
   return (
     <div className="w-full mt-4">
@@ -37,7 +37,7 @@ const BulkCategorizationTable = ({ data, isLoading, columns }) => {
             </TableRow>
           </TableHeader>
         </Table>
-        <div className="md:max-h-[60vh] 2xl:max-h-[65vh]  3xl:max-h-[68vh] overflow-y-auto">
+        <div className="md:h-[60vh] 2xl:h-[65vh]  3xl:h-[68vh] overflow-y-auto">
           <Table className="w-full min-w-[600px] mb-8">
             <TableBody>
               {isLoading &&
@@ -52,40 +52,46 @@ const BulkCategorizationTable = ({ data, isLoading, columns }) => {
                 ))}
 
               {/* Table Data */}
-              {data?.data?.map((item, index) => (
-                <TableRow
-                  key={index}
-                  onClick={() => {
-                    navigate(
-                      `/category-wise-items/${item?.category?.category_id}?category_name=${item?.category?.name}`
-                    );
-                  }}
-                  className="border-none h-[3.75rem] cursor-pointer"
-                >
-                  {columns?.map(({ key }) => (
-                    <TableCell
-                      key={key}
-                      className={`!font-poppins !font-normal text-sm md:text-base leading-5 text-black w-1/5 px-4 md:px-6 ${
-                        key?.includes("[") ? "pl-4 md:pl-6" : ""
-                      }`}
-                    >
-                      <div
-                        className={`flex ${
-                          key?.includes("[")
-                            ? "justify-start"
-                            : "justify-center"
-                        } items-center `}
+              {data?.data
+                ?.filter((item) =>
+                  item?.category?.name
+                    ?.toLowerCase()
+                    ?.includes(searchTerm?.toLowerCase())
+                )
+                ?.map((item, index) => (
+                  <TableRow
+                    key={index}
+                    onClick={() => {
+                      navigate(
+                        `/category-wise-items/${item?.category?.category_id}?category_name=${item?.category?.name}`
+                      );
+                    }}
+                    className="border-none h-[3.75rem] cursor-pointer"
+                  >
+                    {columns?.map(({ key }) => (
+                      <TableCell
+                        key={key}
+                        className={`!font-poppins !font-normal text-sm md:text-base leading-5 text-black w-1/5 px-4 md:px-6 ${
+                          key?.includes("[") ? "pl-4 md:pl-6" : ""
+                        }`}
                       >
-                        {key?.includes("[")
-                          ? key.split("[")[0] === "category"
-                            ? item.category.name
-                            : item[key]
-                          : item[key]}
-                      </div>
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))}
+                        <div
+                          className={`flex ${
+                            key?.includes("[")
+                              ? "justify-start"
+                              : "justify-center"
+                          } items-center `}
+                        >
+                          {key?.includes("[")
+                            ? key.split("[")[0] === "category"
+                              ? item.category.name
+                              : item[key]
+                            : item[key]}
+                        </div>
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </div>

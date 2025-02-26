@@ -27,8 +27,13 @@ import {
   ListX
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Toaster } from "react-hot-toast";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import toast, { Toaster } from "react-hot-toast";
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams
+} from "react-router-dom";
 const CategoryWiseItems = () => {
   const { category_id } = useParams();
   const [searchParams] = useSearchParams();
@@ -55,7 +60,7 @@ const CategoryWiseItems = () => {
       vendor_id: selectedVendor?.vendor?.vendor_id
     });
   const { mutate: removeItem, isPending: removingItem } = useRemoveVendorItem();
-
+  const navigate = useNavigate();
   useEffect(() => {
     const handleKeyDown = (e) => {
       const tagName = document.activeElement.tagName.toLowerCase();
@@ -86,9 +91,22 @@ const CategoryWiseItems = () => {
             (item, i) => i == Number(e.key)
           );
           if (matchedItemIndex > -1) {
-            removeItem({
-              item_uuid: items?.data?.items[matchedItemIndex]?.item_uuid
-            });
+            removeItem(
+              {
+                item_uuid: items?.data?.items[matchedItemIndex]?.item_uuid
+              },
+              {
+                onSuccess: (data) => {
+                  toast.success(
+                    items?.data?.items[matchedItemIndex]?.item_description +
+                      " removed successfully"
+                  );
+                },
+                onError: (data) => {
+                  toast.error(data?.message);
+                }
+              }
+            );
           }
         }
       }
@@ -130,7 +148,22 @@ const CategoryWiseItems = () => {
             </p>
           )}
 
-          <Button className="rounded-sm font-normal leading-6 w-[9rem] h-[2.3rem] text-sm  text-white">
+          <Button
+            disabled={
+              removingItem ||
+              !selectedVendor ||
+              !items?.data?.items?.length ||
+              page == items?.total_pages
+            }
+            className="rounded-sm font-normal leading-6 w-[9rem] h-[2.3rem] text-sm  text-white"
+            onClick={() => {
+              if (page < items?.total_pages) {
+                updateParams({
+                  page: Number(page) + 1
+                });
+              }
+            }}
+          >
             Save & Next
           </Button>
         </div>
@@ -158,15 +191,20 @@ const CategoryWiseItems = () => {
               />
             </div>
 
-            <div className="max-h-[40vh]  mt-2  overflow-auto">
-              {vendors?.data
+            <div className="h-[40vh]  mt-2  overflow-auto">
+              {loadingVendors?<div className="flex w-full flex-col gap-y-2">
+                {
+                  [0,1,2,3,5,6,7,8,9,10,11]?.map((_,index)=>(
+                    <Skeleton className={"w-full h-[2.5rem]"}/>
+                  ))
+                }
+              </div>:vendors?.data
                 ?.filter((v) =>
                   v?.vendor?.vendor_name
                     ?.toLowerCase()
                     ?.includes(searchTerm?.toLowerCase())
                 )
                 ?.sort((a, b) =>
-                  //  selectedVendorNameontop
                   a?.vendor?.vendor_id === selectedVendor?.vendor?.vendor_id
                     ? -1
                     : 1
@@ -183,7 +221,9 @@ const CategoryWiseItems = () => {
                         updateParams({ page: 1 });
                       }}
                       className={`${isSelected && "bg-primary"}  
-                  flex items-center justify-between cursor-pointer min-h-[2.5rem] max-h-[5rem] break-words truncate gap-x-4 mt-4 px-4`}
+                  flex items-center justify-between cursor-pointer min-h-[2.5rem] max-h-[5rem] break-words truncate gap-x-4 mt-4 px-4 ${
+                    isSelected && "sticky top-0"
+                  }`}
                     >
                       <div className="font-poppins flex items-center gap-x-4 py-2 capitalize font-normal text-sm leading-5 text-black">
                         {isSelected ? (
@@ -213,7 +253,16 @@ const CategoryWiseItems = () => {
             </div>
             <div className="border-b  border-b-[#D9D9D9] mt-3" />
 
-            <div className="  flex items-center justify-between cursor-pointer h-[2.5rem] gap-x-4 mt-2 pl-4 xl:pr-[1.7rem] md:pr-[1.1rem] ">
+            <div
+              onClick={() => {
+                if (selectedVendor) {
+                  navigate(
+                    `/items-categorization/${category_id}/${selectedVendor?.vendor?.vendor_id}?category_name=${category_name}`
+                  );
+                }
+              }}
+              className="  flex items-center justify-between  cursor-pointer h-[2.5rem] gap-x-4 mt-2 pl-4 xl:pr-[1.7rem] md:pr-[1.1rem] "
+            >
               <div className="font-poppins flex items-center gap-x-[0.70rem] capitalize font-normal text-sm leading-5 text-black">
                 <ListX className="text-[#F15156]" />
                 <span
@@ -249,10 +298,14 @@ const CategoryWiseItems = () => {
               </div>
             ) : (
               <>
-                {!selectedVendor || loadingItems? (
+                {!selectedVendor || loadingItems ? (
                   <div className="flex items-center justify-center    md:min-h-[25rem] 2xl:min-h-[30rem] max-h-[30rem] w-full">
                     <div className="flex flex-col justify-center items-center gap-y-4">
-                      <img src={no_items} alt="" className="h-[70%] w-[60%] mt-8" />
+                      <img
+                        src={no_items}
+                        alt=""
+                        className="h-[70%] w-[60%] mt-8"
+                      />
                       <p className="text-[#040807] font-poppins font-normal  text-[0.9rem] leading-5">
                         To proceed, kindly choose a vendor from the side
                         navigation menu.
@@ -264,7 +317,16 @@ const CategoryWiseItems = () => {
                     return (
                       <div
                         key={index}
-                        className="border rounded-sm w-full px-4 border-[#D9D9D9] min-h-[2.5rem] flex items-center justify-between"
+                        className={
+                          // #E4897B
+                          ` ${
+                            removedItems?.data?.length > 0 &&
+                            removedItems?.data?.find(
+                              (it) => it?.item_uuid == item?.item_uuid
+                            ) &&
+                            "border-[#E4897B]"
+                          } border rounded-sm w-full px-4 border-[#D9D9D9] min-h-[2.5rem] flex items-center justify-between`
+                        }
                       >
                         <div className="flex items-center gap-x-4">
                           <span className="font-poppins font-normal text-xs leading-5 capitalize flex items-center gap-x-2 text-black">
@@ -415,7 +477,7 @@ const CategoryWiseItems = () => {
         </div>
       </div>
 
-      <p className="text-[#666666] font-poppins font-normal text-base leading-5 mt-4">
+      <p className="text-[#666666] font-poppins font-normal text-base leading-5 mt-4 absolute bottom-10">
         Note: Once done, click on “Next” to proceed. You can categorises the
         deselected items later.
       </p>
