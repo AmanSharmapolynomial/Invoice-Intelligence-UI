@@ -266,7 +266,7 @@ const CategoryWiseItems = () => {
 
         <div className="flex gap-x-4 items-start h-full">
           <div className="w-[40%]  bg-[#FAFAFA] flex items-center justify-center h-full py-8">
-            <div className="w-[80%] h-full">
+            <div className="w-[90%] h-full">
               <p className="font-poppins font-semibold text-base leading-6 pl-3 text-[#3D3D3D]">
                 Vendors List
               </p>
@@ -285,7 +285,7 @@ const CategoryWiseItems = () => {
                 />
               </div>
 
-              <div className="h-[40vh]  mt-2  overflow-auto">
+              <div className="md:h-[42vh] 2xl:h-[50vh]  mt-2  overflow-auto">
                 {loadingVendors ? (
                   <div className="flex w-full flex-col gap-y-2">
                     {[0, 1, 2, 3, 5, 6, 7, 8, 9, 10, 11]?.map((_, index) => (
@@ -387,7 +387,7 @@ const CategoryWiseItems = () => {
 
           {/* Items List */}
           <div className="w-[60%]  h-full pt-8 relative">
-            <div className="flex flex-col gap-y-2 md:min-h-[25rem] 2xl:min-h-[30rem] max-h-[30rem]">
+            <div className="flex flex-col gap-y-2 md:min-h-[25rem] 2xl:min-h-[30rem] max-h-[40rem]">
               {removingItem && (
                 <Loader className="absolute top-[40%]  right-[50%]" />
               )}
@@ -402,7 +402,7 @@ const CategoryWiseItems = () => {
               ) : (
                 <>
                   {!selectedVendor || loadingItems ? (
-                    <div className="flex items-center justify-center    md:min-h-[25rem] 2xl:min-h-[30rem] max-h-[30rem] w-full">
+                    <div className="flex items-center justify-center    md:min-h-[25rem] 2xl:min-h-[30rem] 2xl:h-[40rem]  w-full">
                       <div className="flex flex-col justify-center items-center gap-y-4">
                         <img
                           src={no_items}
