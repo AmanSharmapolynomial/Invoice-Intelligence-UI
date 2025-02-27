@@ -36,7 +36,9 @@ const BreadCrumb = ({
       navigate("/");
     }else if (pathname=="/item-master-vendors"){
       navigate("/")
-    } 
+    } else if (pathname=="/bulk-categorization"){
+      navigate('/')
+    }
     
     else if (from_view == "item-master-vendors") {
       navigate("/item-master-vendors");
