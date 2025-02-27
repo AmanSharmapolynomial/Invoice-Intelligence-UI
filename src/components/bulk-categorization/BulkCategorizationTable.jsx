@@ -30,7 +30,8 @@ const BulkCategorizationTable = ({ data, isLoading, columns, searchTerm }) => {
     if (!sortableKeys.includes(key)) return; // Skip non-sortable columns
 
     const currentOrder = searchParams.get(key) || "all";
-    const newOrder = currentOrder === "asc" ? "desc" : currentOrder === "desc" ? "all" : "asc";
+    const newOrder =
+      currentOrder === "asc" ? "desc" : currentOrder === "desc" ? "all" : "asc";
 
     updateParams({ [key]: newOrder });
   };
@@ -45,23 +46,27 @@ const BulkCategorizationTable = ({ data, isLoading, columns, searchTerm }) => {
                 <TableHead
                   key={key}
                   onClick={() => handleSort(sorting_key)}
-                  className={`${key?.includes("[") ? "pl-4 md:pl-6" : ""
-                    } !font-poppins !font-semibold text-sm w-1/5 md:text-base  leading-5 text-black px-4 md:px-6`}
+                  className={`${
+                    key?.includes("[") ? "pl-4 md:pl-6" : ""
+                  } !font-poppins !font-semibold text-sm w-1/5 md:text-base  leading-5 text-black px-4 md:px-6`}
                 >
                   <div
-                    className={`flex ${key?.includes("[") ? "justify-start" : "justify-center "
-                      } items-center `}
+                    className={`flex ${
+                      key?.includes("[") ? "justify-start" : "justify-center "
+                    } items-center `}
                   >
                     <div className="flex items-center gap-x-2">
                       <span>{label}</span>
-                      <span className="cursor-pointer">{sortableKeys.includes(sorting_key) &&
-                        (searchParams.get(sorting_key) === "asc" ? (
-                          <ArrowUp size={16} />
-                        ) : searchParams.get(sorting_key) === "desc" ? (
-                          <ArrowDown size={16} />
-                        ) : (
-                          <ArrowUpDown size={16} className="opacity-50" />
-                        ))}</span>
+                      <span className="cursor-pointer">
+                        {sortableKeys.includes(sorting_key) &&
+                          (searchParams.get(sorting_key) === "asc" ? (
+                            <ArrowUp size={16} />
+                          ) : searchParams.get(sorting_key) === "desc" ? (
+                            <ArrowDown size={16} />
+                          ) : (
+                            <ArrowUpDown size={16} className="opacity-50" />
+                          ))}
+                      </span>
                     </div>
                   </div>
                 </TableHead>
@@ -70,7 +75,7 @@ const BulkCategorizationTable = ({ data, isLoading, columns, searchTerm }) => {
           </TableHeader>
         </Table>
 
-        <div className="md:h-[60vh] overflow-y-auto">
+        <div className="md:h-[60vh] 2xl:h-[67vh] overflow-y-auto">
           <Table className="w-full min-w-[600px] mb-8">
             <TableBody>
               {isLoading &&
@@ -87,7 +92,9 @@ const BulkCategorizationTable = ({ data, isLoading, columns, searchTerm }) => {
               {/* Table Data */}
               {data?.data
                 ?.filter((item) =>
-                  item?.category?.name?.toLowerCase()?.includes(searchTerm?.toLowerCase())
+                  item?.category?.name
+                    ?.toLowerCase()
+                    ?.includes(searchTerm?.toLowerCase())
                 )
                 ?.map((item, index) => (
                   <TableRow
@@ -102,14 +109,16 @@ const BulkCategorizationTable = ({ data, isLoading, columns, searchTerm }) => {
                     {columns?.map(({ key }) => (
                       <TableCell
                         key={key}
-                        className={`!font-poppins !font-normal text-sm md:text-base leading-5 text-black w-1/5 px-4 md:px-6 ${key?.includes("[") ? "pl-4 md:pl-6" : ""
-                          }`}
+                        className={`!font-poppins !font-normal text-sm md:text-base leading-5 text-black w-1/5 px-4 md:px-6 ${
+                          key?.includes("[") ? "pl-4 md:pl-6" : ""
+                        }`}
                       >
                         <div
-                          className={`flex ${key?.includes("[")
-                            ? "justify-start"
-                            : "justify-center"
-                            } items-center `}
+                          className={`flex ${
+                            key?.includes("[")
+                              ? "justify-start"
+                              : "justify-center"
+                          } items-center `}
                         >
                           {key?.includes("[")
                             ? key.split("[")[0] === "category"
@@ -121,7 +130,6 @@ const BulkCategorizationTable = ({ data, isLoading, columns, searchTerm }) => {
                     ))}
                   </TableRow>
                 ))}
-
             </TableBody>
           </Table>
         </div>

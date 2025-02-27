@@ -12,12 +12,17 @@ import { queryClient } from "@/lib/utils";
 import { ArrowLeft, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams
+} from "react-router-dom";
 
 const ItemsCategorization = () => {
   const { category_id, vendor_id } = useParams();
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   let category_name = searchParams.get("category_name");
   let selected_vendor_id = searchParams.get("selected_vendor_id");
   let page = searchParams.get("page") || 1;
@@ -60,17 +65,18 @@ const ItemsCategorization = () => {
           onSuccess: (data) => {
             setUpdating(false);
             toast.success(data?.message);
-            setSelectedCategory(null)
+            setSelectedCategory(null);
             setSelectedItems([]);
-            queryClient.invalidateQueries({ queryKey: ['removed-vendor-items'] })
+            queryClient.invalidateQueries({
+              queryKey: ["removed-vendor-items"]
+            });
           }
         }
       );
     }
-  }
+  };
   useEffect(() => {
     const handleKeyDown = (e) => {
-    
       if (/^[0-9]$/?.test(e.key)) {
         let matchedItem = data?.data?.[Number(e.key)];
 
@@ -81,19 +87,14 @@ const ItemsCategorization = () => {
             (it) => it?.item_uuid === matchedItem?.item_uuid
           )
             ? prevSelectedItems.filter(
-              (it) => it?.item_uuid !== matchedItem?.item_uuid
-            )
+                (it) => it?.item_uuid !== matchedItem?.item_uuid
+              )
             : [...prevSelectedItems, matchedItem];
         });
       }
       if (e.altKey && e.key == "Enter") {
-
-        updateHandler()
-      } 
-
-      
-      
-      
+        updateHandler();
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -106,9 +107,14 @@ const ItemsCategorization = () => {
     <div className="py-4 ">
       {/* Navbar */}
       <div className="flex items-center gap-x-2 w-full md:px-8 px-4">
-        <ArrowLeft className="cursor-pointer" onClick={() => {
-          navigate(`/category-wise-items/${category_id}?category_name=${category_name}&page=${page}&selected_vendor_id=${selected_vendor_id}`)
-        }} />
+        <ArrowLeft
+          className="cursor-pointer"
+          onClick={() => {
+            navigate(
+              `/category-wise-items/${category_id}?category_name=${category_name}&page=${page}&selected_vendor_id=${selected_vendor_id}`
+            );
+          }}
+        />
         <Link
           to={"/"}
           className="font-bold !text-[1.25rem]  font-poppins text-color/900 dark:text-[#FFFFFF]"
@@ -131,7 +137,7 @@ const ItemsCategorization = () => {
           <div className="flex items-center gap-x-4 font-normal ">
             <Button
               className="rounded-sm font-normal leading-6 w-[9rem] h-[2.3rem] text-sm  text-white"
-              onClick={() => { }}
+              onClick={() => {}}
             >
               Save
             </Button>
@@ -148,15 +154,20 @@ const ItemsCategorization = () => {
                   ))}
                 </div>
               ) : (
-                data?.data?.length > 0 && data?.data?.map((item, index) => {
+                data?.data?.length > 0 &&
+                data?.data?.map((item, index) => {
                   return (
                     <div
                       key={index}
-                      className={`${selectedItems?.includes(item)&&"border-primary"} flex justify-between items-center px-4 border border-[#D9D9D9] rounded-sm min-h-[2.5rem]`}
+                      className={`${
+                        selectedItems?.includes(item) && "border-primary"
+                      } flex justify-between items-center px-4 border border-[#D9D9D9] rounded-sm min-h-[2.5rem]`}
                     >
                       <span className="font-poppins text-xs flex items-center gap-x-3 font-normal leading-4 text-[#888888]">
                         {" "}
-                        <span className="font-semibold text-black">{index}.</span>
+                        <span className="font-semibold text-black">
+                          {index}.
+                        </span>
                         <span>{item?.item_description}</span>
                       </span>
                       <Checkbox
@@ -225,12 +236,12 @@ const ItemsCategorization = () => {
                           loadingAdditionalData
                             ? []
                             : [
-                              ...categoryNamesFormatter(
-                                additionalData?.data?.category_choices
-                              ),
-                              { label: "NA", value: "NA" },
-                              { label: "None", value: null }
-                            ]
+                                ...categoryNamesFormatter(
+                                  additionalData?.data?.category_choices
+                                ),
+                                { label: "NA", value: "NA" },
+                                { label: "None", value: null }
+                              ]
                         }
                         onChange={(v, obj) => {
                           setSelectedCategory(obj.value);
@@ -271,7 +282,7 @@ const ItemsCategorization = () => {
             </div>
           </div>
         </div>
-        <p className="text-[#666666] font-poppins font-normal text-base leading-5 mt-4 2xl:absolute 2xl:-bottom-2 2xl:pb-4 bottom-0">
+        <p className="text-[#666666] font-poppins font-normal text-base leading-5 mt-4 2xl:absolute 2xl:bottom-4 2xl:pb-4 bottom-0">
           Note: Once done, click on “Next” to proceed. You can categorises the
           deselected items later.
         </p>

@@ -40,23 +40,24 @@ const CategoryWiseItems = () => {
   const { category_id } = useParams();
   const [searchParams] = useSearchParams();
   const updateParams = useUpdateParams();
-  const selected_vendor_id = searchParams.get('selected_vendor_id')
+  const selected_vendor_id = searchParams.get("selected_vendor_id");
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   let category_name = searchParams.get("category_name");
   let page = searchParams.get("page") || 1;
   let page_size = searchParams.get("page_size") || 10;
-  const inputRef = useRef()
+  const inputRef = useRef();
   const { data: vendors, isLoading: loadingVendors } = useGetCategoryWiseVendor(
     { category_id }
   );
 
   useEffect(() => {
     if (selected_vendor_id) {
-      setSelectedVendor((vendors?.data?.find((v) => v?.vendor?.vendor_id == selected_vendor_id)))
+      setSelectedVendor(
+        vendors?.data?.find((v) => v?.vendor?.vendor_id == selected_vendor_id)
+      );
     }
-
-  }, [selected_vendor_id, searchParams])
+  }, [selected_vendor_id, searchParams]);
 
   const { data: items, isLoading: loadingItems } =
     useGetCategoryWiseVendorItems({
@@ -83,7 +84,7 @@ const CategoryWiseItems = () => {
         `/items-categorization/${category_id}/${selectedVendor?.vendor?.vendor_id}?category_name=${category_name}&page=${page}&selected_vendor_id=${selected_vendor_id}`
       );
     }
-  }
+  };
   useEffect(() => {
     const handleKeyDown = (e) => {
       const tagName = document.activeElement.tagName.toLowerCase();
@@ -93,16 +94,15 @@ const CategoryWiseItems = () => {
         tagName === "textarea" ||
         tagName === "select";
       if (e.key == "/") {
-        setSearchTerm('')
-        inputRef.current.focus()
-
+        setSearchTerm("");
+        inputRef.current.focus();
       }
 
       if (e.altKey && e.key == "N") {
-        saveAndNextHandler()
+        saveAndNextHandler();
       }
       if (e.altKey && e.key == "r") {
-        alert("s")
+        alert("s");
         if (selectedVendor) {
           navigate(
             `/items-categorization/${category_id}/${selectedVendor?.vendor?.vendor_id}?category_name=${category_name}&page=${page}&selected_vendor_id=${selected_vendor_id}`
@@ -110,7 +110,7 @@ const CategoryWiseItems = () => {
         }
       }
       if (isEditable && inputRef.current.focus && /^[0-9]$/?.test(e.key)) {
-        inputRef.current.blur()
+        inputRef.current.blur();
         let matchedItemIndex = items?.data?.items.findIndex(
           (item, i) => i == Number(e.key)
         );
@@ -123,7 +123,7 @@ const CategoryWiseItems = () => {
               onSuccess: (data) => {
                 toast.success(
                   items?.data?.items[matchedItemIndex]?.item_description +
-                  " removed successfully"
+                    " removed successfully"
                 );
               },
               onError: (data) => {
@@ -134,19 +134,19 @@ const CategoryWiseItems = () => {
         }
       }
 
-      if (inputRef?.current) {
-        if (e.key == "Enter") {
-
-          setSelectedVendor(vendors?.data
-            ?.filter((v) =>
-              v?.vendor?.vendor_name
-                ?.toLowerCase()
-                ?.includes(searchTerm?.toLowerCase())
-            )[0])
-          // inputRef.current.blur()
+      if (e.key == "Enter") {
+        if (inputRef.current) {
+          setSelectedVendor(
+            vendors?.data
+              ?.filter((v) =>
+                v?.vendor?.vendor_name
+                  ?.toLowerCase()
+                  ?.includes(searchTerm?.toLowerCase())
+              )
+              [0]
+          );
         }
       }
-
 
       if (!isEditable) {
         if (e.key === "ArrowLeft") {
@@ -164,12 +164,10 @@ const CategoryWiseItems = () => {
           }
         }
 
-
-
         let numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
         if (!removingItem) {
           if (numbers.includes(Number(e.key))) {
-            inputRef.current.blur()
+            inputRef.current.blur();
             let matchedItemIndex = items?.data?.items.findIndex(
               (item, i) => i == Number(e.key)
             );
@@ -182,7 +180,7 @@ const CategoryWiseItems = () => {
                   onSuccess: (data) => {
                     toast.success(
                       items?.data?.items[matchedItemIndex]?.item_description +
-                      " removed successfully"
+                        " removed successfully"
                     );
                   },
                   onError: (data) => {
@@ -200,15 +198,25 @@ const CategoryWiseItems = () => {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [items, removedItems, selectedVendor, searchParams,selected_vendor_id]);
+  }, [
+    items,
+    removedItems,
+    selectedVendor,
+    searchParams,
+    selected_vendor_id,
+    searchTerm
+  ]);
 
   return (
     <div className="py-4 ">
       {/* Navbar */}
       <div className="flex items-center gap-x-2 w-full md:px-8 px-4">
-        <ArrowLeft className="cursor-pointer" onClick={() => {
-          navigate(`/bulk-categorization`)
-        }} />
+        <ArrowLeft
+          className="cursor-pointer"
+          onClick={() => {
+            navigate(`/bulk-categorization`);
+          }}
+        />
         <Link
           to={"/"}
           className="font-bold !text-[1.25rem]  font-poppins text-color/900 dark:text-[#FFFFFF]"
@@ -239,14 +247,14 @@ const CategoryWiseItems = () => {
 
             <Button
               disabled={
-                (removingItem ||
-                  !selectedVendor ||
-                  items?.data?.items?.length == 0 ||
-                  page == items?.total_pages)
+                removingItem ||
+                !selectedVendor ||
+                items?.data?.items?.length == 0 ||
+                page == items?.total_pages
               }
               className="rounded-sm font-normal leading-6 w-[9rem] h-[2.3rem] text-sm  text-white"
               onClick={() => {
-                saveAndNextHandler()
+                saveAndNextHandler();
               }}
             >
               Save & Next
@@ -272,67 +280,76 @@ const CategoryWiseItems = () => {
                   onChange={(value) => {
                     setSearchTerm(value);
                   }}
-                  onKeyDown={(e) => { }}
+                  onKeyDown={(e) => {}}
                   className="min-w-72 max-w-96 border border-gray-200 relative   focus:!ring-0 focus:!outline-none remove-number-spinner"
                 />
               </div>
 
               <div className="h-[40vh]  mt-2  overflow-auto">
-                {loadingVendors ? <div className="flex w-full flex-col gap-y-2">
-                  {
-                    [0, 1, 2, 3, 5, 6, 7, 8, 9, 10, 11]?.map((_, index) => (
+                {loadingVendors ? (
+                  <div className="flex w-full flex-col gap-y-2">
+                    {[0, 1, 2, 3, 5, 6, 7, 8, 9, 10, 11]?.map((_, index) => (
                       <Skeleton className={"w-full h-[2.5rem]"} />
-                    ))
-                  }
-                </div> : vendors?.data?.length > 0 && vendors?.data
-                  ?.filter((v) =>
-                    v?.vendor?.vendor_name
-                      ?.toLowerCase()
-                      ?.includes(searchTerm?.toLowerCase())
-                  )
-                  ?.sort((a, b) =>
-                    a?.vendor?.vendor_id === selectedVendor?.vendor?.vendor_id
-                      ? -1
-                      : 1
-                  )
-                  ?.map((vendor, index) => {
-                    let isSelected =
-                      selectedVendor?.vendor?.vendor_id ===
-                      vendor?.vendor?.vendor_id;
-                    return (
-                      <div
-                        key={index}
-                        onClick={() => {
-                          setSelectedVendor(vendor);
-                          updateParams({ page: 1, selected_vendor_id: vendor?.vendor?.vendor_id });
-                        }}
-                        className={`${isSelected && "bg-primary"}  
-                  flex items-center justify-between cursor-pointer min-h-[2.5rem] max-h-[5rem] break-words truncate gap-x-4 mt-4 px-4 ${isSelected && "sticky top-0"
-                          }`}
-                      >
-                        <div className="font-poppins flex items-center gap-x-4 py-2 capitalize font-normal text-sm leading-5 text-black">
-                          {isSelected ? (
-                            <img src={user_white} alt="" />
-                          ) : (
-                            <img src={user_grey} alt="" />
-                          )}
-                          <span
-                            className={` ${isSelected && "text-white"
+                    ))}
+                  </div>
+                ) : (
+                  vendors?.data?.length > 0 &&
+                  vendors?.data
+                    ?.filter((v) =>
+                      v?.vendor?.vendor_name
+                        ?.toLowerCase()
+                        ?.includes(searchTerm?.toLowerCase())
+                    )
+                    ?.sort((a, b) =>
+                      a?.vendor?.vendor_id === selectedVendor?.vendor?.vendor_id
+                        ? -1
+                        : 1
+                    )
+                    ?.map((vendor, index) => {
+                      let isSelected =
+                        selectedVendor?.vendor?.vendor_id ===
+                        vendor?.vendor?.vendor_id;
+                      return (
+                        <div
+                          key={index}
+                          onClick={() => {
+                            setSelectedVendor(vendor);
+                            updateParams({
+                              page: 1,
+                              selected_vendor_id: vendor?.vendor?.vendor_id
+                            });
+                          }}
+                          className={`${isSelected && "bg-primary"}  
+                  flex items-center justify-between cursor-pointer min-h-[2.5rem] max-h-[5rem] break-words truncate gap-x-4 mt-4 px-4 ${
+                    isSelected && "sticky top-0"
+                  }`}
+                        >
+                          <div className="font-poppins flex items-center gap-x-4 py-2 capitalize font-normal text-sm leading-5 text-black">
+                            {isSelected ? (
+                              <img src={user_white} alt="" />
+                            ) : (
+                              <img src={user_grey} alt="" />
+                            )}
+                            <span
+                              className={` ${
+                                isSelected && "text-white"
                               } text-[#222222] font-poppins truncate break-word max-w-56 whitespace-normal font-normal text-[0.9rem] leading-5`}
+                            >
+                              {" "}
+                              {vendor?.vendor?.vendor_name}
+                            </span>
+                          </div>
+                          <span
+                            className={`${
+                              isSelected ? "text-white" : "text-[#AEAEAE]"
+                            }   font-poppins font-medium text-xs leading-4`}
                           >
-                            {" "}
-                            {vendor?.vendor?.vendor_name}
+                            {vendor?.items_count}
                           </span>
                         </div>
-                        <span
-                          className={`${isSelected ? "text-white" : "text-[#AEAEAE]"
-                            }   font-poppins font-medium text-xs leading-4`}
-                        >
-                          {vendor?.items_count}
-                        </span>
-                      </div>
-                    );
-                  })}
+                      );
+                    })
+                )}
               </div>
               <div className="border-b  border-b-[#D9D9D9] mt-3" />
 
@@ -349,16 +366,18 @@ const CategoryWiseItems = () => {
                 <div className="font-poppins flex items-center gap-x-[0.70rem] capitalize font-normal text-sm leading-5 text-black">
                   <ListX className="text-[#F15156]" />
                   <span
-                    className={` ${false && "text-white"
-                      } text-[#222222] font-poppins font-normal text-[0.9rem] leading-5`}
+                    className={` ${
+                      false && "text-white"
+                    } text-[#222222] font-poppins font-normal text-[0.9rem] leading-5`}
                   >
                     {" "}
                     Removed Items
                   </span>
                 </div>
                 <span
-                  className={`${false ? "text-white" : "text-[#AEAEAE]"
-                    }   font-poppins font-medium text-xs leading-4`}
+                  className={`${
+                    false ? "text-white" : "text-[#AEAEAE]"
+                  }   font-poppins font-medium text-xs leading-4`}
                 >
                   {removedItems?.total_records || 0}
                 </span>
@@ -369,7 +388,9 @@ const CategoryWiseItems = () => {
           {/* Items List */}
           <div className="w-[60%]  h-full pt-8 relative">
             <div className="flex flex-col gap-y-2 md:min-h-[25rem] 2xl:min-h-[30rem] max-h-[30rem]">
-              {removingItem && <Loader className="absolute top-[40%]  right-[50%]" />}
+              {removingItem && (
+                <Loader className="absolute top-[40%]  right-[50%]" />
+              )}
               {loadingItems ? (
                 <div className="flex flex-col gap-y-4 h-[50vh]">
                   {new Array(10).fill(0).map((_, index) => {
@@ -399,15 +420,15 @@ const CategoryWiseItems = () => {
                       return (
                         <div
                           key={index}
-                          className={
-
-                            ` ${removedItems?.data?.length > 0 &&
+                          className={` ${
+                            removedItems?.data?.length > 0 &&
                             removedItems?.data?.find(
                               (it) => it?.item_uuid == item?.item_uuid
                             ) &&
                             "border-[#E4897B]"
-                            } ${removingItem && "opacity-50"} border rounded-sm w-full px-4 border-[#D9D9D9] min-h-[2.5rem] flex items-center justify-between`
-                          }
+                          } ${
+                            removingItem && "opacity-50"
+                          } border rounded-sm w-full px-4 border-[#D9D9D9] min-h-[2.5rem] flex items-center justify-between`}
                         >
                           <div className="flex items-center gap-x-4">
                             <span className="font-poppins font-normal text-xs leading-5 capitalize flex items-center gap-x-2 text-black">
@@ -423,8 +444,12 @@ const CategoryWiseItems = () => {
                               (it) => it?.item_uuid == item?.item_uuid
                             )
                           ) && (
-                              <img src={check_circle} alt="" className="h-5 w-5" />
-                            )}
+                            <img
+                              src={check_circle}
+                              alt=""
+                              className="h-5 w-5"
+                            />
+                          )}
                         </div>
                       );
                     })
@@ -437,7 +462,10 @@ const CategoryWiseItems = () => {
                 <div className="grid grid-cols-5 gap-x-3 px-4">
                   {new Array(5).fill(0).map((_, index) => {
                     return (
-                      <Skeleton key={index} className={"w-[2.5rem] h-[2.5rem]"} />
+                      <Skeleton
+                        key={index}
+                        className={"w-[2.5rem] h-[2.5rem]"}
+                      />
                     );
                   })}
                 </div>
@@ -485,9 +513,10 @@ const CategoryWiseItems = () => {
                               className="!text-sm font-semibold cursor-pointer"
                             >
                               <PaginationLink
-                                className={`${page == index + 1 &&
+                                className={`${
+                                  page == index + 1 &&
                                   "bg-primary hover:bg-primary !text-white"
-                                  } text-[#000000] dark:text-[#F6F6F6] border  rounded-lg font-poppins font-semibold text-sm border-[#F1F1F1]`}
+                                } text-[#000000] dark:text-[#F6F6F6] border  rounded-lg font-poppins font-semibold text-sm border-[#F1F1F1]`}
                                 active={index + 1 === page}
                                 onClick={() => {
                                   updateParams({
@@ -508,9 +537,10 @@ const CategoryWiseItems = () => {
                       {items?.total_pages > 1 && (
                         <PaginationItem className="!text-sm font-semibold cursor-pointer">
                           <PaginationLink
-                            className={`${page == items?.total_pages &&
+                            className={`${
+                              page == items?.total_pages &&
                               "bg-primary !text-white hover:bg-primary"
-                              } text-[#000000] border border-[#F1F1F1] rounded-lg font-poppins font-semibold text-sm dark:text-[#F6F6F6]`}
+                            } text-[#000000] border border-[#F1F1F1] rounded-lg font-poppins font-semibold text-sm dark:text-[#F6F6F6]`}
                             onClick={() => {
                               updateParams({
                                 page: items?.total_pages
