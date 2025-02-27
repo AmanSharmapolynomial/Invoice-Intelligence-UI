@@ -48,7 +48,7 @@ const BulkCategorizationTable = ({ data, isLoading, columns, searchTerm }) => {
                   onClick={() => handleSort(sorting_key)}
                   className={`${
                     key?.includes("[") ? "pl-4 md:pl-6" : ""
-                  } !font-poppins !font-semibold text-sm w-1/5 md:text-base  leading-5 text-black px-4 md:px-6`}
+                  } !font-poppins !font-semibold text-sm w-1/5 text-sm  leading-5 text-black px-4 md:px-6`}
                 >
                   <div
                     className={`flex ${

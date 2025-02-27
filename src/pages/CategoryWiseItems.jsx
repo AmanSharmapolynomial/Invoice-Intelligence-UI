@@ -102,7 +102,7 @@ const CategoryWiseItems = () => {
         saveAndNextHandler();
       }
       if (e.altKey && e.key == "r") {
-        alert("s");
+    
         if (selectedVendor) {
           navigate(
             `/items-categorization/${category_id}/${selectedVendor?.vendor?.vendor_id}?category_name=${category_name}&page=${page}&selected_vendor_id=${selected_vendor_id}`
@@ -137,13 +137,11 @@ const CategoryWiseItems = () => {
       if (e.key == "Enter") {
         if (inputRef.current) {
           setSelectedVendor(
-            vendors?.data
-              ?.filter((v) =>
-                v?.vendor?.vendor_name
-                  ?.toLowerCase()
-                  ?.includes(searchTerm?.toLowerCase())
-              )
-              [0]
+            vendors?.data?.filter((v) =>
+              v?.vendor?.vendor_name
+                ?.toLowerCase()
+                ?.includes(searchTerm?.toLowerCase())
+            )[0]
           );
         }
       }
@@ -387,7 +385,7 @@ const CategoryWiseItems = () => {
 
           {/* Items List */}
           <div className="w-[60%]  h-full pt-8 relative">
-            <div className="flex flex-col gap-y-2 md:min-h-[25rem] 2xl:min-h-[30rem] max-h-[40rem]">
+            <div className="flex flex-col gap-y-2 md:min-h-[25rem] 2xl:min-h-[35rem] max-h-[40rem]">
               {removingItem && (
                 <Loader className="absolute top-[40%]  right-[50%]" />
               )}
@@ -402,7 +400,7 @@ const CategoryWiseItems = () => {
               ) : (
                 <>
                   {!selectedVendor || loadingItems ? (
-                    <div className="flex items-center justify-center    md:min-h-[25rem] 2xl:min-h-[30rem] 2xl:h-[40rem]  w-full">
+                    <div className="flex items-center justify-center    md:min-h-[25rem] 2xl:min-h-[30rem] h-[30rem] w-full">
                       <div className="flex flex-col justify-center items-center gap-y-4">
                         <img
                           src={no_items}

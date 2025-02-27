@@ -5,12 +5,22 @@ import {
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import CustomDropDown from "@/components/ui/CustomDropDown";
+import CustomSelect from "@/components/ui/CustomSelect";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetAdditionalData } from "@/components/vendor/api";
 import { categoryNamesFormatter, headerNamesFormatter } from "@/lib/helpers";
 import { queryClient } from "@/lib/utils";
 import { ArrowLeft, X } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import {
   Link,
@@ -37,6 +47,7 @@ const ItemsCategorization = () => {
   });
   const { data: additionalData, isLoading: loadingAdditionalData } =
     useGetAdditionalData();
+  const dropDownRef = useRef();
   const handleCheckboxChange = (value, item) => {
     if (value == true) {
       if (!selectedItems?.find((it) => it.item_uuid == item.item_uuid)) {
@@ -95,6 +106,10 @@ const ItemsCategorization = () => {
       if (e.altKey && e.key == "Enter") {
         updateHandler();
       }
+      if (e.altKey && e.key == "c") {
+      
+        dropDownRef.current.focus();
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -105,6 +120,7 @@ const ItemsCategorization = () => {
 
   return (
     <div className="py-4 ">
+      <Toaster/>
       {/* Navbar */}
       <div className="flex items-center gap-x-2 w-full md:px-8 px-4">
         <ArrowLeft
@@ -230,8 +246,11 @@ const ItemsCategorization = () => {
                     </p>
 
                     <div className="mt-2 ">
-                      <CustomDropDown
-                        Value={selectedCategory}
+                      <CustomSelect
+                        value={selectedCategory}
+                        placeholder="Select Category"
+                        contentClassName="max-h-[15rem]"
+                        ref={dropDownRef}
                         data={
                           loadingAdditionalData
                             ? []
@@ -243,11 +262,11 @@ const ItemsCategorization = () => {
                                 { label: "None", value: null }
                               ]
                         }
-                        onChange={(v, obj) => {
-                          setSelectedCategory(obj.value);
+                        onSelect={(v) => {
+                          setSelectedCategory(v);
                         }}
                         triggerClassName={
-                          "!shadow-sm !bg-white  border-opacity-50"
+                          "!shadow-sm !bg-white  !font-poppins !font-normal !text-sm border-opacity-50"
                         }
                       />
                     </div>
