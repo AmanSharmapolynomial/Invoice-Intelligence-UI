@@ -152,10 +152,13 @@ const ItemsCategorization = () => {
           </div>
           <div className="flex items-center gap-x-4 font-normal ">
             <Button
+            disabled={!(data?.data)||!(Object?.keys(data?.data)?.length==0)}
               className="rounded-sm font-normal leading-6 w-[9rem] h-[2.3rem] text-sm  text-white"
-              onClick={() => {}}
+              onClick={() => {
+                navigate(`/bulk-categorization`)
+              }}
             >
-              Save
+              Next
             </Button>
           </div>
         </div>
@@ -200,7 +203,7 @@ const ItemsCategorization = () => {
             </div>
           </div>
 
-          <div className="w-[40%]  flex items-center justify-center 2xl:h-[32rem] md:max-h-[35rem]">
+          <div className="w-[40%]  flex items-center justify-center 2xl:h-[42rem] md:max-h-[55rem]">
             <div className="bg-[#FAFAFA] border border-[#ECECEC] w-[100%] max-w-lg pt-5 flex flex-col justify-between pb-8 rounded-2xl h-full relative">
               <div>
                 <div className="w-full flex justify-center items-center">
@@ -247,20 +250,19 @@ const ItemsCategorization = () => {
 
                     <div className="mt-2 ">
                       <CustomSelect
+                      
                         value={selectedCategory}
                         placeholder="Select Category"
+                        showSearch={true}
                         contentClassName="max-h-[15rem]"
                         ref={dropDownRef}
-                        data={
-                          loadingAdditionalData
-                            ? []
-                            : [
-                                ...categoryNamesFormatter(
+                        data={[
+                                ...(categoryNamesFormatter(
                                   additionalData?.data?.category_choices
-                                ),
+                                )),
                                 { label: "NA", value: "NA" },
                                 { label: "None", value: null }
-                              ]
+                              ]||[]
                         }
                         onSelect={(v) => {
                           setSelectedCategory(v);
@@ -302,8 +304,7 @@ const ItemsCategorization = () => {
           </div>
         </div>
         <p className="text-[#666666] font-poppins font-normal text-base leading-5 mt-4 2xl:absolute 2xl:bottom-4 2xl:pb-4 bottom-0">
-          Note: Once done, click on “Next” to proceed. You can categorises the
-          deselected items later.
+          Note: Once done, click on “Next” to proceed. 
         </p>
       </div>
     </div>

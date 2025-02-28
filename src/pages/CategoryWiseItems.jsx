@@ -1,7 +1,7 @@
 import check_circle from "@/assets/image/check_circle.svg";
+import no_items from "@/assets/image/no_items.svg";
 import user_grey from "@/assets/image/user_grey.svg";
 import user_white from "@/assets/image/user_white.svg";
-import no_items from "@/assets/image/no_items.svg";
 import {
   useApproveCategoryVendorItems,
   useGetCategoryWiseVendor,
@@ -11,6 +11,7 @@ import {
 } from "@/components/bulk-categorization/api";
 import { Button } from "@/components/ui/button";
 import CustomInput from "@/components/ui/Custom/CustomInput";
+import Loader from "@/components/ui/Loader";
 import {
   Pagination,
   PaginationContent,
@@ -20,6 +21,7 @@ import {
 } from "@/components/ui/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
+import { queryClient } from "@/lib/utils";
 import {
   ArrowLeft,
   ChevronLeft,
@@ -36,13 +38,11 @@ import {
   useParams,
   useSearchParams
 } from "react-router-dom";
-import Loader from "@/components/ui/Loader";
 const CategoryWiseItems = () => {
   const { category_id } = useParams();
   const [searchParams] = useSearchParams();
   const updateParams = useUpdateParams();
   const selected_vendor_id = searchParams.get("selected_vendor_id");
-  const [selectedVendor, setSelectedVendor] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   let category_name = searchParams.get("category_name");
   let page = searchParams.get("page") || 1;
@@ -51,15 +51,17 @@ const CategoryWiseItems = () => {
   const { data: vendors, isLoading: loadingVendors } = useGetCategoryWiseVendor(
     { category_id }
   );
+  const [selectedVendor, setSelectedVendor] = useState(
+    vendors?.data?.find((v) => v?.vendor?.vendor_id == selected_vendor_id)
+  );
 
   useEffect(() => {
-    if (selected_vendor_id) {
-      setSelectedVendor(
-        vendors?.data?.find((v) => v?.vendor?.vendor_id == selected_vendor_id)
-      );
-    }
-  }, [selected_vendor_id, searchParams]);
+    setSelectedVendor(
+      vendors?.data?.find((v) => v?.vendor?.vendor_id == selected_vendor_id)
+    );
+  }, [vendors]);
 
+  const [saving, setSaving] = useState();
   const { data: items, isLoading: loadingItems } =
     useGetCategoryWiseVendorItems({
       category_id,
@@ -74,29 +76,45 @@ const CategoryWiseItems = () => {
     });
   const { mutate: removeItem, isPending: removingItem } = useRemoveVendorItem();
   const navigate = useNavigate();
-  const {mutate:approveVendorItems,isPending:approvingVendorItems}=useApproveCategoryVendorItems()
+  const { mutate: approveVendorItems, isPending: approvingVendorItems } =
+    useApproveCategoryVendorItems();
 
   const saveAndNextHandler = () => {
-    //  let item_uuids=
-    // approveVendorItems()
-       
+    setSaving(true);
+    let item_uuids = items?.data?.items
+      ?.filter(
+        (it) => !removedItems?.data?.some((ri) => ri.item_uuid === it.item_uuid)
+      )
+      ?.map((it) => it.item_uuid);
 
-    return 
-    
-
-
-    if (page < items?.total_pages) {
-
-      updateParams({
-        page: Number(page) + 1
+    if (item_uuids?.length > 0) {
+      approveVendorItems(item_uuids, {
+        onSuccess: (data) => {
+          toast.success(data?.message);
+          setSaving(false);
+          queryClient.invalidateQueries({ queryKey: ["category-wise-items"] });
+        },
+        onError: (data) => {
+          toast.error(data?.message);
+          setSaving(false);
+        }
       });
-    } else {
-      navigate(
-        `/items-categorization/${category_id}/${selectedVendor?.vendor?.vendor_id}?category_name=${category_name}&page=${page}&selected_vendor_id=${selected_vendor_id}`
-      );
+    }
+
+    if (item_uuids?.length == 0) {
+      if (page < items?.total_pages) {
+        setSaving(false);
+        updateParams({
+          page: Number(page) + 1
+        });
+      } else {
+        setSaving(false);
+        navigate(
+          `/items-categorization/${category_id}/${selectedVendor?.vendor?.vendor_id}?category_name=${category_name}&page=${page}&selected_vendor_id=${selected_vendor_id}`
+        );
+      }
     }
   };
-
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -108,14 +126,15 @@ const CategoryWiseItems = () => {
         tagName === "select";
       if (e.key == "/") {
         setSearchTerm("");
+        setSearchTerm("");
+        setSearchTerm("");
         inputRef.current.focus();
       }
 
-      if (e.altKey && e.key == "N") {
+      if (e.altKey && e.key == "n") {
         saveAndNextHandler();
       }
       if (e.altKey && e.key == "r") {
-    
         if (selectedVendor) {
           navigate(
             `/items-categorization/${category_id}/${selectedVendor?.vendor?.vendor_id}?category_name=${category_name}&page=${page}&selected_vendor_id=${selected_vendor_id}`
@@ -260,15 +279,14 @@ const CategoryWiseItems = () => {
               disabled={
                 removingItem ||
                 !selectedVendor ||
-                items?.data?.items?.length == 0 ||
-                page == items?.total_pages
+                items?.data?.items?.length == 0
               }
               className="rounded-sm font-normal leading-6 w-[9rem] h-[2.3rem] text-sm  text-white"
               onClick={() => {
                 saveAndNextHandler();
               }}
             >
-              Save & Next
+              {saving ? "Saving.." : " Save & Next"}
             </Button>
           </div>
         </div>
@@ -286,6 +304,8 @@ const CategoryWiseItems = () => {
                   showIcon={true}
                   variant="search"
                   placeholder="Search Vendor"
+                  onSearch={(query) => console.log("Searching for:", query)}
+                  debounceTime={500}
                   value={searchTerm}
                   ref={inputRef}
                   onChange={(value) => {
