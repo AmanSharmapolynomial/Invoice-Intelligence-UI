@@ -179,7 +179,7 @@ const ItemMasterDetails = () => {
                                   if (!oldData) return {};
                                   return {
                                     ...oldData,
-                                    [`${it?.split(" ")?.join("_")}`]: newValue
+                                    [`${it?.split(" ")?.join("_")?.toLowerCase()}`]: newValue
                                   };
                                 }
                               );

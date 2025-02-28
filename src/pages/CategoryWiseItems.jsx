@@ -79,6 +79,8 @@ const CategoryWiseItems = () => {
   const saveAndNextHandler = () => {
     //  let item_uuids=
     // approveVendorItems()
+   
+
 
     if (page < items?.total_pages) {
 
