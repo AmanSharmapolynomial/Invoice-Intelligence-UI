@@ -9,7 +9,7 @@ export const useGetCategoriesForBulkCategorization = (payload) => {
     queryFn: async () => {
       try {
         const response = await axiosInstance.get(
-          `/api/category/?page=${payload.page}&page_size=${payload.page_size}&items_count_order=${payload.items_count_order}&vendors_count_order=${payload.vendors_count_order}&approved_items_count_order=${payload.approved_items_count_order}&not_approved_items_count_order=${payload.not_approved_items_count_order}`
+          `/api/category/?page=${payload.page}&page_size=${payload.page_size}&items_count_order=${payload.items_count_order}&vendors_count_order=${payload.vendors_count_order}&approved_items_count_order=${payload.approved_items_count_order}&not_approved_items_count_order=${payload.not_approved_items_count_order}&name=${payload.name}`
         );
         return response;
       } catch (error) {

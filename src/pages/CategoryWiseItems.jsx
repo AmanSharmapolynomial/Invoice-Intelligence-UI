@@ -81,11 +81,11 @@ const CategoryWiseItems = () => {
 
   const saveAndNextHandler = () => {
  
-    let item_uuids = (items?.data && removedItems?.length>0 && items?.data?.items
+    let item_uuids =  items?.data?.items
       ?.filter(
         (it) => !(removedItems?.data?.some((ri) => ri.item_uuid === it.item_uuid))
       )
-      ?.map((it) => it.item_uuid))||[];
+      ?.map((it) => it.item_uuid)||[];
 
     if (item_uuids?.length > 0) {
       setSaving(true);
@@ -168,7 +168,7 @@ const CategoryWiseItems = () => {
         }
       }
 
-      if (e.key == "Enter") {
+      if (e.key == "Enter"&&inputRef.current) {
         if (inputRef.current) {
           setSelectedVendor(
             vendors?.data?.filter((v) =>

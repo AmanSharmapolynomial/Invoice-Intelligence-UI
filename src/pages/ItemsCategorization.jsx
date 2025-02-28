@@ -125,7 +125,7 @@ const ItemsCategorization = () => {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [data, updateHandler,selected_vendor_id,category_id,category_name]);
+  }, [data, updateHandler,selected_vendor_id,category_id,category_name,searchParams]);
 
   return (
     <div className="py-4 ">
