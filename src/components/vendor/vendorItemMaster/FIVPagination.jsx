@@ -44,7 +44,7 @@ const FIVPagination = ({ data ,masterUUID,setMasterUUID,selectedItems,setSelecte
             );
             setIsGoodDocument(false);
 
-            setFIVCurrentItem(data?.data?.items[fiv_item_number + 2]);
+            setFIVCurrentItem(data?.data?.items[fiv_item_number + 1]);
           }
         }
       );

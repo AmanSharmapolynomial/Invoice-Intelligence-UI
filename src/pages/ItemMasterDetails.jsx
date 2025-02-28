@@ -90,7 +90,7 @@ const ItemMasterDetails = () => {
                     Category
                   </TableCell>
                   {data?.required_invoice_columns_for_item_master
-                    ?.filter((it) => it !== "category")
+                    ?.filter((it) => it?.toLowerCase() !== "category")
                     ?.map((it, i) => {
                       return (
                         <TableCell
@@ -148,16 +148,16 @@ const ItemMasterDetails = () => {
                       }}
                       commandGroupClassName={"px-0"}
                       data={[
-                        ...categoryNamesFormatter(
+                        ...(categoryNamesFormatter(
                           additionalData?.data?.category_choices
-                        ),
+                        )),
                         { label: "NA", value: null }
                       ]}
                     />
                   </TableCell>
 
                   {data?.required_invoice_columns_for_item_master
-                    ?.filter((it) => it !== "category")
+                    ?.filter((it) => it?.toLowerCase() !== "category")
                     ?.map((it, i) => {
                       return (
                         <TableCell
@@ -178,7 +178,7 @@ const ItemMasterDetails = () => {
                                   if (!oldData) return {};
                                   return {
                                     ...oldData,
-                                    [`${it?.split(" ")?.join("_")}`]: newValue
+                                    [`${it?.split(" ")?.join("_")?.toLowerCase()}`]: newValue
                                   };
                                 }
                               );
@@ -192,7 +192,7 @@ const ItemMasterDetails = () => {
                                 }
                               }, 0);
                             }}
-                            value={data[`${it?.split(" ")?.join("_")}`] || ""}
+                            value={data[`${it?.split(" ")?.join("_")?.toLowerCase()}`] || ""}
                           />
                         </TableCell>
                       );
