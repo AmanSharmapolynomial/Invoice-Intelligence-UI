@@ -95,7 +95,7 @@ const FastItemVerification = () => {
     setFIVDocumentLink(data?.data?.item?.[0]?.document_link);
     setFIVDocumentSource(data?.data?.item?.[0]?.document_source);
     setFIVCurrentItem(data?.data?.item?.[0]);
-    setFIVItemArray(data?.data?.item)
+    setFIVItemArray(data?.data?.item);
   }, [data, isLoading]);
 
   const total_items = fiv_items?.length || 0;
@@ -117,13 +117,19 @@ const FastItemVerification = () => {
   }, [page]);
 
   useEffect(() => {
-    if (fiv_items?.length == 0 && data?.data?.item?.[fiv_current_pdf_index]?.document_uuid) {
-      setFIVDocumentUUID(data?.data?.item?.[fiv_current_pdf_index]?.document_uuid);
+    if (
+      fiv_items?.length == 0 &&
+      data?.data?.item?.[fiv_current_pdf_index]?.document_uuid
+    ) {
+      setFIVDocumentUUID(
+        data?.data?.item?.[fiv_current_pdf_index]?.document_uuid
+      );
 
       getAllItems(
         {
           vendor_id,
-          document_uuid: data?.data?.item?.[fiv_current_pdf_index]?.document_uuid,
+          document_uuid:
+            data?.data?.item?.[fiv_current_pdf_index]?.document_uuid,
           page: page
         },
         {
@@ -155,11 +161,16 @@ const FastItemVerification = () => {
   // Handlers
   const approveAndNextHandler = () => {
     setLoadingState((prev) => ({ ...prev, nextAndApproving: true }));
-
+    let payload = fiv_current_item?.required_columns?.reduce((acc, key) => {
+      if (key !== "category" && fiv_current_item?.line_item?.[key]) {
+        acc[key] = fiv_current_item.line_item[key].text || "";
+      }
+      return acc;
+    }, {});
     updateVendorItemMaster(
       {
         item_uuid: fiv_current_item?.item_uuid,
-        data: { human_verified: true }
+        data: { human_verified: true, ...payload }
       },
       {
         onSuccess: () => {
@@ -181,7 +192,8 @@ const FastItemVerification = () => {
             getAllItems(
               {
                 vendor_id,
-                document_uuid: data?.data?.item?.[fiv_current_pdf_index]?.document_uuid,
+                document_uuid:
+                  data?.data?.item?.[fiv_current_pdf_index]?.document_uuid,
                 page: page
               },
               {
@@ -193,7 +205,7 @@ const FastItemVerification = () => {
                   );
                   setIsGoodDocument(false);
 
-                  setFIVCurrentItem(data?.data?.items[fiv_item_number + 2]);
+                  setFIVCurrentItem(data?.data?.items[fiv_item_number + 1]);
                 }
               }
             );
@@ -251,7 +263,8 @@ const FastItemVerification = () => {
             getAllItems(
               {
                 vendor_id,
-                document_uuid: data?.data?.item?.[fiv_current_pdf_index]?.document_uuid,
+                document_uuid:
+                  data?.data?.item?.[fiv_current_pdf_index]?.document_uuid,
                 page: page
               },
               {
@@ -263,7 +276,7 @@ const FastItemVerification = () => {
                   );
                   setIsGoodDocument(false);
 
-                  setFIVCurrentItem(data?.data?.items[fiv_item_number + 2]);
+                  setFIVCurrentItem(data?.data?.items[fiv_item_number + 1]);
                 }
               }
             );
@@ -272,7 +285,7 @@ const FastItemVerification = () => {
 
           if (fiv_item_number < total_items - 1) {
             setFIVItemNumber(fiv_item_number + 1);
-            setFIVCurrentItem(fiv_items[fiv_item_number + 1]);
+            setFIVCurrentItem(fiv_items[fiv_item_number ]);
           } else if (!data?.is_final_page) {
             updateParams({ page: Number(page) + 1 });
             resetStore();
@@ -317,7 +330,8 @@ const FastItemVerification = () => {
             getAllItems(
               {
                 vendor_id,
-                document_uuid: data?.data?.item?.[fiv_current_pdf_index]?.document_uuid,
+                document_uuid:
+                  data?.data?.item?.[fiv_current_pdf_index]?.document_uuid,
                 page: page
               },
               {
@@ -339,7 +353,6 @@ const FastItemVerification = () => {
             human_verified: true
           });
           if (fiv_item_number < total_items - 1) {
-  
             setFIVCurrentItem(
               fiv_items?.filter(
                 (it) => it.item_uuid !== fiv_current_item?.item_uuid
@@ -500,7 +513,9 @@ const FastItemVerification = () => {
           <div className="min-w-full justify-between  flex items-center mt-4 px-16">
             <div>
               <Button
-                disabled={!data?.data?.item?.[fiv_current_pdf_index]?.document_uuid}
+                disabled={
+                  !data?.data?.item?.[fiv_current_pdf_index]?.document_uuid
+                }
                 className="rounded-sm font-poppins font-normal text-sm bg-transparent hover:bg-transparent border-primary text-black border"
               >
                 <Link
