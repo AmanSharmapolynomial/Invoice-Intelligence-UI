@@ -3,6 +3,7 @@ import user_grey from "@/assets/image/user_grey.svg";
 import user_white from "@/assets/image/user_white.svg";
 import no_items from "@/assets/image/no_items.svg";
 import {
+  useApproveCategoryVendorItems,
   useGetCategoryWiseVendor,
   useGetCategoryWiseVendorItems,
   useGetRemovedVendorItems,
@@ -73,9 +74,14 @@ const CategoryWiseItems = () => {
     });
   const { mutate: removeItem, isPending: removingItem } = useRemoveVendorItem();
   const navigate = useNavigate();
+  const {mutate:approveVendorItems,isPending:approvingVendorItems}=useApproveCategoryVendorItems()
 
   const saveAndNextHandler = () => {
+    //  let item_uuids=
+    // approveVendorItems()
+
     if (page < items?.total_pages) {
+
       updateParams({
         page: Number(page) + 1
       });
@@ -85,6 +91,8 @@ const CategoryWiseItems = () => {
       );
     }
   };
+
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       const tagName = document.activeElement.tagName.toLowerCase();
