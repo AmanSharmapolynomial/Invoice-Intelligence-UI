@@ -103,11 +103,20 @@ const ItemsCategorization = () => {
             : [...prevSelectedItems, matchedItem];
         });
       }
+
+      if (e.key == "Backspace") {
+        navigate(
+          `/category-wise-items/${category_id}?category_name=${category_name}&page=${page}&selected_vendor_id=${selected_vendor_id}`
+        );
+      }
       if (e.altKey && e.key == "Enter") {
-        updateHandler();
+        if (!data?.data || !(Object?.keys(data?.data)?.length == 0)) {
+          updateHandler();
+        } else {
+          navigate("/bulk-categorization");
+        }
       }
       if (e.altKey && e.key == "c") {
-      
         dropDownRef.current.focus();
       }
     };
@@ -116,11 +125,11 @@ const ItemsCategorization = () => {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [data, updateHandler]);
+  }, [data, updateHandler,selected_vendor_id,category_id,category_name]);
 
   return (
     <div className="py-4 ">
-      <Toaster/>
+      <Toaster />
       {/* Navbar */}
       <div className="flex items-center gap-x-2 w-full md:px-8 px-4">
         <ArrowLeft
@@ -152,10 +161,10 @@ const ItemsCategorization = () => {
           </div>
           <div className="flex items-center gap-x-4 font-normal ">
             <Button
-            disabled={!(data?.data)||!(Object?.keys(data?.data)?.length==0)}
+              disabled={!data?.data || !(Object?.keys(data?.data)?.length == 0)}
               className="rounded-sm font-normal leading-6 w-[9rem] h-[2.3rem] text-sm  text-white"
               onClick={() => {
-                navigate(`/bulk-categorization`)
+                navigate("/bulk-categorization");
               }}
             >
               Next
@@ -250,19 +259,19 @@ const ItemsCategorization = () => {
 
                     <div className="mt-2 ">
                       <CustomSelect
-                      
                         value={selectedCategory}
                         placeholder="Select Category"
                         showSearch={true}
                         contentClassName="max-h-[15rem]"
                         ref={dropDownRef}
-                        data={[
-                                ...(categoryNamesFormatter(
-                                  additionalData?.data?.category_choices
-                                )),
-                                { label: "NA", value: "NA" },
-                                { label: "None", value: null }
-                              ]||[]
+                        data={
+                          [
+                            ...categoryNamesFormatter(
+                              additionalData?.data?.category_choices
+                            ),
+                            { label: "NA", value: "NA" },
+                            { label: "None", value: null }
+                          ] || []
                         }
                         onSelect={(v) => {
                           setSelectedCategory(v);
@@ -304,7 +313,7 @@ const ItemsCategorization = () => {
           </div>
         </div>
         <p className="text-[#666666] font-poppins font-normal text-base leading-5 mt-4 2xl:absolute 2xl:bottom-4 2xl:pb-4 bottom-0">
-          Note: Once done, click on “Next” to proceed. 
+          Note: Once done, click on “Next” to proceed.
         </p>
       </div>
     </div>

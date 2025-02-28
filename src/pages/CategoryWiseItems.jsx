@@ -80,14 +80,15 @@ const CategoryWiseItems = () => {
     useApproveCategoryVendorItems();
 
   const saveAndNextHandler = () => {
-    setSaving(true);
-    let item_uuids = items?.data?.items
+ 
+    let item_uuids = (items?.data && removedItems?.length>0 && items?.data?.items
       ?.filter(
-        (it) => !removedItems?.data?.some((ri) => ri.item_uuid === it.item_uuid)
+        (it) => !(removedItems?.data?.some((ri) => ri.item_uuid === it.item_uuid))
       )
-      ?.map((it) => it.item_uuid);
+      ?.map((it) => it.item_uuid))||[];
 
     if (item_uuids?.length > 0) {
+      setSaving(true);
       approveVendorItems(item_uuids, {
         onSuccess: (data) => {
           toast.success(data?.message);
@@ -102,6 +103,7 @@ const CategoryWiseItems = () => {
     }
 
     if (item_uuids?.length == 0) {
+   
       if (page < items?.total_pages) {
         setSaving(false);
         updateParams({
