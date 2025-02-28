@@ -5,6 +5,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import CustomDropDown from "@/components/ui/CustomDropDown";
+import no_unchecked_items from "@/assets/image/no_unchecked_items.svg";
 import CustomSelect from "@/components/ui/CustomSelect";
 import {
   Select,
@@ -125,7 +126,14 @@ const ItemsCategorization = () => {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [data, updateHandler,selected_vendor_id,category_id,category_name,searchParams]);
+  }, [
+    data,
+    updateHandler,
+    selected_vendor_id,
+    category_id,
+    category_name,
+    searchParams
+  ]);
 
   return (
     <div className="py-4 ">
@@ -181,8 +189,7 @@ const ItemsCategorization = () => {
                     <Skeleton key={index} className={"w-full h-[2.5rem]"} />
                   ))}
                 </div>
-              ) : (
-                data?.data?.length > 0 &&
+              ) : data?.data?.length > 0 ? (
                 data?.data?.map((item, index) => {
                   return (
                     <div
@@ -208,6 +215,11 @@ const ItemsCategorization = () => {
                     </div>
                   );
                 })
+              ) : (
+                <div className="w-full flex items-center justify-center flex-col h-full gap-y-8  md:max-h-[35rem] 2xl:h-[40rem] ">
+                  <img src={no_unchecked_items} alt="" className="h-[60%] w-[60%]" />
+                    <p className="font-poppins font-normal text-[0.9rem] leading-5 text-[#040807] max-w-xl text-center ">All items have been successfully mapped, and there are no additional items remaining in the list.</p>
+                </div>
               )}
             </div>
           </div>

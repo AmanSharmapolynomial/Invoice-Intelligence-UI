@@ -43,7 +43,7 @@ const CategoryWiseItems = () => {
   const [searchParams] = useSearchParams();
   const updateParams = useUpdateParams();
   const selected_vendor_id = searchParams.get("selected_vendor_id");
-  const [searchTerm, setSearchTerm] = useState("");
+  let searchTerm=searchParams.get("search_term")||""
   let category_name = searchParams.get("category_name");
   let page = searchParams.get("page") || 1;
   let page_size = searchParams.get("page_size") || 10;
@@ -99,6 +99,7 @@ const CategoryWiseItems = () => {
           toast.success(data?.message);
           setSaving(false);
           queryClient.invalidateQueries({ queryKey: ["category-wise-items"] });
+          updateParams({search_term:""})
         },
         onError: (data) => {
           toast.error(data?.message);
@@ -121,7 +122,7 @@ const CategoryWiseItems = () => {
       }
     }
   };
-
+let timer;
   useEffect(() => {
     const handleKeyDown = (e) => {
       const tagName = document.activeElement.tagName.toLowerCase();
@@ -131,10 +132,11 @@ const CategoryWiseItems = () => {
         tagName === "textarea" ||
         tagName === "select";
       if (e.key == "/") {
-        setSearchTerm("");
-        setSearchTerm("");
-        setSearchTerm("");
-        inputRef.current.focus();
+     clearTimeout(timer)
+       timer= setTimeout(() => {
+          inputRef.current.focus();
+          updateParams({search_term:""})
+        }, 200);
       }
 
       if (e.altKey && e.key == "n") {
@@ -311,12 +313,12 @@ const CategoryWiseItems = () => {
                   showIcon={true}
                   variant="search"
                   placeholder="Search Vendor"
-                  onSearch={(query) => console.log("Searching for:", query)}
+                  
                   debounceTime={500}
                   value={searchTerm}
                   ref={inputRef}
                   onChange={(value) => {
-                    setSearchTerm(value);
+                    updateParams({search_term:value});
                   }}
                   onKeyDown={(e) => {}}
                   className="min-w-72 max-w-96 border border-gray-200 relative   focus:!ring-0 focus:!outline-none remove-number-spinner"
