@@ -80,13 +80,17 @@ const CategoryWiseItems = () => {
     useApproveCategoryVendorItems();
 
   const saveAndNextHandler = () => {
- 
-    let item_uuids =  items?.data?.items
-      ?.filter(
-        (it) => !(removedItems?.data?.some((ri) => ri.item_uuid === it.item_uuid))
-      )
-      ?.map((it) => it.item_uuid)||[];
+    const removedItemsIDs= removedItems?.length>0?removedItems?.data?.map((ri) => ri?.item_uuid):[];
+    
+    let item_uuids =
+    items?.data?.items
+    ?.filter(
+          (it) =>
+            !(removedItemsIDs?.includes(it?.item_uuid))
+        )
+        ?.map((it) => it.item_uuid) || [];
 
+       
     if (item_uuids?.length > 0) {
       setSaving(true);
       approveVendorItems(item_uuids, {
@@ -103,7 +107,6 @@ const CategoryWiseItems = () => {
     }
 
     if (item_uuids?.length == 0) {
-   
       if (page < items?.total_pages) {
         setSaving(false);
         updateParams({
@@ -134,6 +137,7 @@ const CategoryWiseItems = () => {
       }
 
       if (e.altKey && e.key == "n") {
+      
         saveAndNextHandler();
       }
       if (e.altKey && e.key == "r") {
@@ -168,7 +172,7 @@ const CategoryWiseItems = () => {
         }
       }
 
-      if (e.key == "Enter"&&inputRef.current) {
+      if (e.key == "Enter" && searchTerm!=="") {
         if (inputRef.current) {
           setSelectedVendor(
             vendors?.data?.filter((v) =>
@@ -279,6 +283,7 @@ const CategoryWiseItems = () => {
 
             <Button
               disabled={
+                saving ||
                 removingItem ||
                 !selectedVendor ||
                 items?.data?.items?.length == 0
@@ -288,7 +293,7 @@ const CategoryWiseItems = () => {
                 saveAndNextHandler();
               }}
             >
-              {saving ? "Saving.." : " Save & Next"}
+              {saving ? "Saving..." : " Save & Next"}
             </Button>
           </div>
         </div>
@@ -420,8 +425,8 @@ const CategoryWiseItems = () => {
 
           {/* Items List */}
           <div className="w-[60%]  h-full pt-8 relative">
-            <div className="flex flex-col gap-y-2 md:min-h-[25rem] 2xl:min-h-[35rem] max-h-[40rem]">
-              {removingItem && (
+            <div className="flex flex-col gap-y-2 md:min-h-[30rem] 2xl:min-h-[35rem] max-h-[40rem]">
+              {removingItem ||saving&& (
                 <Loader className="absolute top-[40%]  right-[50%]" />
               )}
               {loadingItems ? (
@@ -460,7 +465,7 @@ const CategoryWiseItems = () => {
                             ) &&
                             "border-[#E4897B]"
                           } ${
-                            removingItem && "opacity-50"
+                            removingItem||saving && "opacity-50 border-opacity-50"
                           } border rounded-sm w-full px-4 border-[#D9D9D9] min-h-[2.5rem] flex items-center justify-between`}
                         >
                           <div className="flex items-center gap-x-4">
@@ -566,7 +571,23 @@ const CategoryWiseItems = () => {
                       {items?.total_pages > 2 && (
                         <PaginationEllipsis className="!text-sm font-semibold font-poppins " />
                       )}
-
+   {items?.total_pages > 3  && page>2&& page<items?.total_pages&& (
+                        <PaginationItem className="!text-sm font-semibold cursor-pointer">
+                          <PaginationLink
+                            className={`${
+                              true&&
+                              "bg-primary !text-white hover:bg-primary"
+                            } text-[#000000] border border-[#F1F1F1] rounded-lg font-poppins font-semibold text-sm dark:text-[#F6F6F6]`}
+                            onClick={() => {
+                              updateParams({
+                                page: items?.total_pages
+                              });
+                            }}
+                          >
+                            {page}
+                          </PaginationLink>
+                        </PaginationItem>
+                      )}
                       {items?.total_pages > 1 && (
                         <PaginationItem className="!text-sm font-semibold cursor-pointer">
                           <PaginationLink
