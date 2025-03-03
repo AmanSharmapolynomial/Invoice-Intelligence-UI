@@ -412,7 +412,7 @@ const FIVPdfViewer = ({}) => {
             </div>
             {isPending ? (
               <>
-                <Skeleton className={"min-w-full bg-primary/10 h-[4rem]"} />
+                <Skeleton className={"min-w-full bg-primary/10 h-[5rem]"} />
               </>
             ) : (
               <Textarea

@@ -386,15 +386,25 @@ export const useMergeVendorItemMaster = () => {
   });
 };
 
-export const useGetItemMasterVendors = () => {
+export const useGetItemMasterVendors = (payload) => {
   return useQuery({
-    queryKey: ["item-master-vendors"],
+    queryKey: ["item-master-vendors", payload],
     queryFn: async () => {
+      const {
+        page,
+        page_size,
+        percentage_approved,
+        unverified_item_count,
+        human_verified,
+        vendor_name,
+        recent_addition_date,
+        total_items_count
+      } = payload;
       try {
         let response = await axiosInstance.get(
-          `/api/item-master/vendors-item-master-overview/`
+          `/api/item-master/vendors-item-master-overview/?page=${page}&page_size=${page_size}&percentage_approved=${percentage_approved}&human_verified=${human_verified}&unverified_item_count=${unverified_item_count}&vendor_name=${vendor_name}&recent_addition_date=${recent_addition_date}&total_items_count=${total_items_count}`
         );
-        return response?.data;
+        return response;
       } catch (error) {
         return error?.data?.message;
       }

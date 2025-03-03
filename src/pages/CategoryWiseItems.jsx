@@ -43,7 +43,7 @@ const CategoryWiseItems = () => {
   const [searchParams] = useSearchParams();
   const updateParams = useUpdateParams();
   const selected_vendor_id = searchParams.get("selected_vendor_id");
-  let searchTerm=searchParams.get("search_term")||""
+  let searchTerm = searchParams.get("search_term") || "";
   let category_name = searchParams.get("category_name");
   let page = searchParams.get("page") || 1;
   let page_size = searchParams.get("page_size") || 10;
@@ -87,10 +87,8 @@ const CategoryWiseItems = () => {
 
     let item_uuids =
       items?.data?.items
-        ?.filter((it) => !(removedItemsIDs?.includes(it?.item_uuid)))
+        ?.filter((it) => !removedItemsIDs?.includes(it?.item_uuid))
         ?.map((it) => it.item_uuid) || [];
-
-
 
     if (item_uuids?.length > 0) {
       setSaving(true);
@@ -99,7 +97,7 @@ const CategoryWiseItems = () => {
           toast.success(data?.message);
           setSaving(false);
           queryClient.invalidateQueries({ queryKey: ["category-wise-items"] });
-          updateParams({search_term:""})
+          updateParams({ search_term: "" });
         },
         onError: (data) => {
           toast.error(data?.message);
@@ -122,7 +120,7 @@ const CategoryWiseItems = () => {
       }
     }
   };
-let timer;
+  let timer;
   useEffect(() => {
     const handleKeyDown = (e) => {
       const tagName = document.activeElement.tagName.toLowerCase();
@@ -132,10 +130,10 @@ let timer;
         tagName === "textarea" ||
         tagName === "select";
       if (e.key == "/") {
-     clearTimeout(timer)
-       timer= setTimeout(() => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
           inputRef.current.focus();
-          updateParams({search_term:""})
+          updateParams({ search_term: "" });
         }, 200);
       }
 
@@ -313,12 +311,11 @@ let timer;
                   showIcon={true}
                   variant="search"
                   placeholder="Search Vendor"
-                  
                   debounceTime={500}
                   value={searchTerm}
                   ref={inputRef}
                   onChange={(value) => {
-                    updateParams({search_term:value});
+                    updateParams({ search_term: value });
                   }}
                   onKeyDown={(e) => {}}
                   className="min-w-72 max-w-96 border border-gray-200 relative   focus:!ring-0 focus:!outline-none remove-number-spinner"

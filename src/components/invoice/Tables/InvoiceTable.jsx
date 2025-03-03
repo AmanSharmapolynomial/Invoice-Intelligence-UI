@@ -240,17 +240,17 @@ const InvoiceTable = ({
             new Array(15)?.fill(1)?.map((_, index) => {
               return (
                 <TableRow
-                  className="flex  !text-sm !border-none min-h-14"
+                  className="flex  items-center gap-x-0 !text-sm !border-none min-h-14 w-full"
                   key={index}
                 >
-                  {new Array(9).fill(10 * Math.random())?.map((_, i) => {
+                  {new Array(10).fill(10 * Math.random())?.map((_, i) => {
                     return (
                       <TableHead
                         key={i}
-                        className="flex  !text-left items-center justify-start  pb-4 !font-semibold !text-[#1C1C1E] !min-w-[11.1111111%] border-b  "
+                        className={`!text-left  pb-4 flex justify-normal !font-semibold !text-[#1C1C1E]  border-b ${i==0?"!w-[3%]":"w-[10.55%]"}   `}
                       >
                         {" "}
-                        <Skeleton className={"w-28 h-5"} />
+                        <Skeleton className={`${i==0?"w-10":"w-32"} ${(i==9||i==8) && "w-36 ml-4"} h-5`} />
                       </TableHead>
                     );
                   })}
