@@ -1,5 +1,7 @@
 import { axiosInstance } from "@/axios/instance";
-import { useQuery } from "@tanstack/react-query";
+import { queryClient } from "@/lib/utils";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 export const useGetCategoriesForBulkCategorization = (payload) => {
   return useQuery({
@@ -7,7 +9,7 @@ export const useGetCategoriesForBulkCategorization = (payload) => {
     queryFn: async () => {
       try {
         const response = await axiosInstance.get(
-          `/api/category/?page=${payload.page}&page_size=${payload.page_size}`
+          `/api/category/?page=${payload.page}&page_size=${payload.page_size}&items_count_order=${payload.items_count_order}&vendors_count_order=${payload.vendors_count_order}&approved_items_count_order=${payload.approved_items_count_order}&not_approved_items_count_order=${payload.not_approved_items_count_order}&name=${payload.name}`
         );
         return response;
       } catch (error) {
@@ -38,8 +40,13 @@ export const useGetCategoryWiseVendorItems = (payload) => {
   return useQuery({
     queryKey: ["category-wise-items", payload],
     queryFn: async () => {
-      if((!payload?.vendor_id|| !payload?.category_id|| !payload?.page||!payload?.page_size)) {
-        return
+      if (
+        !payload?.vendor_id ||
+        !payload?.category_id ||
+        !payload?.page ||
+        !payload?.page_size
+      ) {
+        return;
       }
 
       try {
@@ -50,6 +57,64 @@ export const useGetCategoryWiseVendorItems = (payload) => {
       } catch (error) {
         return error?.response?.data?.message;
       }
+    }
+  });
+};
+
+export const useGetRemovedVendorItems = (payload) => {
+  return useQuery({
+    queryKey: ["removed-vendor-items", payload],
+    queryFn: async () => {
+      if (!payload?.vendor_id || !payload?.category_id) {
+        return;
+      }
+
+      try {
+        let response = await axiosInstance.get(
+          `/api/category/${payload?.category_id}/vendor/${payload?.vendor_id}/removed-items/`
+        );
+        return response;
+      } catch (error) {
+        return error?.response?.data?.message;
+      }
+    }
+  });
+};
+
+export const useRemoveVendorItem = () => {
+  return useMutation({
+    mutationFn: async (payload) => {
+      let response = await axiosInstance.post(
+        `/api/category/item-master/${payload?.item_uuid}/removed-items/`
+      );
+      return response;
+    },
+    onError: (data) => {},
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["removed-vendor-items"] });
+    }
+  });
+};
+
+export const useUpdateBulkItemsCategory = () => {
+  return useMutation({
+    mutationFn: async (items_category) => {
+      let apiUrl = `/api/category/item-master/bulk-update/`;
+      let response = await axiosInstance.post(apiUrl, items_category);
+      return response;
+    }
+  });
+};
+
+export const useApproveCategoryVendorItems = () => {
+  return useMutation({
+    mutationFn: async (item_uuids) => {
+      let apiUrl = `/api/category/item-master/bulk-approval/`;
+      let response = await axiosInstance.post(apiUrl, { item_uuids });
+      return response;
+    },
+    onError: (data) => {
+      toast.error(data?.message);
     }
   });
 };

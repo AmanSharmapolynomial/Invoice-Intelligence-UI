@@ -69,7 +69,9 @@ const FastItemVerification = () => {
     fiv_verified_items_count,
     fiv_item_array,
     setFIVItemArray,
-    fiv_current_pdf_index
+    fiv_current_pdf_index,
+    setFIVIsFinalPage,
+    fiv_is_final_page
   } = fastItemVerificationStore();
 
   const [selectedItems, setSelectedItems] = useState([]);
@@ -93,6 +95,9 @@ const FastItemVerification = () => {
   const item_uuid = fiv_current_item?.item_uuid;
   useEffect(() => {
     setFIVDocumentLink(data?.data?.item?.[0]?.document_link);
+    setFIVVerifiedItemsCount(data?.data?.verified_item_count || 0);
+    setFIVTotalItemsCount(data?.data?.total_item_count || 0);
+    setFIVIsFinalPage(data?.is_final_page || false);
     setFIVDocumentSource(data?.data?.item?.[0]?.document_source);
     setFIVCurrentItem(data?.data?.item?.[0]);
     setFIVItemArray(data?.data?.item);
@@ -100,7 +105,7 @@ const FastItemVerification = () => {
 
   const total_items = fiv_items?.length || 0;
   const { data: similarItems, isLoading: loadinSimilarItems } =
-    useGetItemMastSimilarItems({ item_uuid: item_uuid, threshold: 70 });
+    useGetItemMastSimilarItems({ item_uuid: item_uuid, threshold: 80 });
   const { mutate: getAllItems } = useGetVendorItemMasterAllItems();
 
   const { mutate: mergeItemMaster, isPending: mergingItemMaster } =
@@ -206,6 +211,8 @@ const FastItemVerification = () => {
                   setIsGoodDocument(false);
 
                   setFIVCurrentItem(data?.data?.items[fiv_item_number + 1]);
+                  setFIVTotalItemsCount(data?.data?.total_item_count);
+                  setFIVVerifiedItemsCount(data?.data?.verified_item_count);
                 }
               }
             );
@@ -216,7 +223,9 @@ const FastItemVerification = () => {
           } else {
             if (fiv_item_number >= total_items - 1) {
               if (page <= data?.data?.total_item_count) {
-                updateParams({ page: Number(page) + 1 });
+                if (!fiv_is_final_page) {
+                  updateParams({ page: Number(page) + 1 });
+                }
               }
               setFIVItemNumber(0);
               setFIVCurrentItem({});
@@ -285,9 +294,11 @@ const FastItemVerification = () => {
 
           if (fiv_item_number < total_items - 1) {
             setFIVItemNumber(fiv_item_number + 1);
-            setFIVCurrentItem(fiv_items[fiv_item_number ]);
+            setFIVCurrentItem(fiv_items[fiv_item_number]);
           } else if (!data?.is_final_page) {
-            updateParams({ page: Number(page) + 1 });
+            if (!fiv_is_final_page) {
+              updateParams({ page: Number(page) + 1 });
+            }
             resetStore();
           }
         },
@@ -360,7 +371,9 @@ const FastItemVerification = () => {
             );
             setFIVItemNumber(Number(fiv_item_number) + 1);
           } else if (!data?.is_final_page) {
-            updateParams({ page: Number(page) + 1 });
+            if (!fiv_is_final_page) {
+              updateParams({ page: Number(page) + 1 });
+            }
             resetStore();
           }
 
@@ -408,7 +421,9 @@ const FastItemVerification = () => {
           } else {
             // If no items left, move to next page or reset
             if (!data?.is_final_page) {
-              updateParams({ page: Number(page) + 1 });
+              if (!fiv_is_final_page) {
+                updateParams({ page: Number(page) + 1 });
+              }
             }
             resetStore();
           }
@@ -604,8 +619,9 @@ const FastItemVerification = () => {
       <Modal
         open={showDeleteModal}
         setOpen={setShowDeleteModal}
-        className={"z-50"}
+        className={"!z-50"}
         title={"  Are you sure to delete this item ?"}
+       
       >
         <ModalDescription>
           <p className="font-normal font-poppins text-base  text-black"></p>

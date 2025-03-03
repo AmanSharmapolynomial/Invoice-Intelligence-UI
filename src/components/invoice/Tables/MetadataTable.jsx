@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import CustomInput from "@/components/ui/Custom/CustomInput";
 import DatePicker from "@/components/ui/Custom/DatePicker";
 import CustomDropDown from "@/components/ui/CustomDropDown";
+import stringSimilarity from "string-similarity";
 
 import {
   AlertDialog,
@@ -263,7 +264,7 @@ const MetadataTable = ({
   }, [vendorTypesAndCategories]);
   let action_controls =
     data?.data?.[0]?.action_controls || data?.data?.action_controls;
-   
+
   return (
     <div className="w-full -mt-3 border border-[#F0F0F0] shadow-sm p-2 rounded-md">
       <div className="grid grid-cols-3 gap-x-4">
@@ -304,7 +305,6 @@ const MetadataTable = ({
             className={`!min-w-[300px] ${
               !invoice_type ? "!border-[#F97074]" : ""
             }`}
-
             data={vendorCategories?.slice(0, 3)}
             Value={invoice_type}
             onChange={(v) => {
@@ -437,7 +437,7 @@ const MetadataTable = ({
                 placeholder="Vendor Name"
                 onChange={(v) => {
                   setNewVendor(v);
-                  setVendorChanged(true)
+                  setVendorChanged(true);
                 }}
               />
             ) : (
@@ -464,7 +464,27 @@ const MetadataTable = ({
                       false
                     );
                   }}
-                  data={vendorNamesFormatter(vendorsData?.vendor_names)}
+                  data={(() => {
+                    // Format vendor names
+                    const formattedVendors = vendorNamesFormatter(
+                      vendorsData?.vendor_names
+                    );
+
+                    // Get the vendor name to compare
+                    const referenceString = vendor?.vendor_name || "";
+
+                    // Sort based on similarity
+                    return formattedVendors
+                      ?.map((item) => ({
+                        ...item,
+                        similarity: stringSimilarity?.compareTwoStrings(
+                          referenceString,
+                          item.label
+                        )
+                      }))
+                      ?.sort((a, b) => b?.similarity - a?.similarity)
+                      ?.map(({ similarity, ...rest }) => rest); // Remove similarity before passing data
+                  })()}
                 >
                   <p
                     onClick={() => setEditVendor(true)}
@@ -519,15 +539,12 @@ const MetadataTable = ({
             {editBranch ? (
               <CustomInput
                 value={branch?.vendor_address}
-              
                 className={`${
                   !newBranch ? "!border-[#F97074]" : ""
                 } !max-w-full`}
                 onChange={(v) => {
-                
-                    setNewBranch(v);
-                    setBranchChanged(true)
-                  
+                  setNewBranch(v);
+                  setBranchChanged(true);
                 }}
               />
             ) : (
@@ -855,7 +872,6 @@ const MetadataTable = ({
                     <p>Vendor Document Type</p>
                     <CustomDropDown
                       Value={types_and_categories?.document_types}
-
                       className={"min-w-[28rem]"}
                       data={makeKeyValueFromKey(
                         additionalData?.data?.vendor_invoice_document_types

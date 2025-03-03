@@ -257,6 +257,9 @@ export const headerNamesFormatter = (header_names) => {
 };
 
 export const categoryNamesFormatter = (categories) => {
+  if(!categories){
+    return []
+  }
   return categories?.map((c) => {
     let obj = {
       label: c?.name,

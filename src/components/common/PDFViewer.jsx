@@ -646,8 +646,11 @@ export const PdfViewer = ({
     setShowTextExtractionModal(false);
   }, [page]);
   return (
+    <>
+     {loadinMetadata ? <Skeleton className={"w-[50rem]  h-[38.25rem] mt-8"} />:
+  
     <div className="w-full  max-h-[42rem] overflow-auto  hide-scrollbar">
-      {loadinMetadata && <Skeleton className={"w-[50rem]  h-[60rem]"} />}
+     
       {(pdfUrls[currentPdfIndex]?.document_source == "azure_blob" ||
         pdfUrls[currentPdfIndex]?.document_source == "clickbacon") && (
         <div className="flex justify-center my-2 border-t border-t-[#E7E7E7] border-r-[#E7E7E7] border-b h-10 items-center ">
@@ -1032,5 +1035,7 @@ export const PdfViewer = ({
         </div>
       </ResizableModal>
     </div>
+}
+    </>
   );
 };

@@ -12,6 +12,7 @@ import CombinedTable from "./CombinedTable";
 import MetadataTable from "./MetadataTable";
 import HumanVerificationTable from "./HumanVerificationTable";
 import { Skeleton } from "@/components/ui/skeleton";
+import { LoaderIcon } from "react-hot-toast";
 const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [showWarningModal, setShowWarningModal] = useState(false);
@@ -166,14 +167,14 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
                 }}
                 className={`text-center h-[3.2rem] cursor-pointer   ${styling} items-center  font-poppins font-medium text-sm leading-4 flex justify-center `}
               >
-                {label}
+                {label} {isLoading && currentTab!==value && <LoaderIcon className="h-4 w-4 ml-2" />}
               </div>
             );
           })}
       </div>
       <div className=" gap-y-8 mt-4 flex flex-col">
         {isLoading &&
-          [1, 2, 3, 4, 5, 6, 7, 8.9, 10, 11, 12, 13].map((_, i) => {
+          [1, 2, 3, 4, 5, 6, 7, 8.9, 10, ,11,12].map((_, i) => {
             return (
               <div
                 key={i}

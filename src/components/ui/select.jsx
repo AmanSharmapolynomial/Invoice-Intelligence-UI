@@ -71,7 +71,7 @@ SelectScrollDownButton.displayName =
   SelectPrimitive.ScrollDownButton.displayName;
 
 const SelectContent = React.forwardRef(
-  ({ className, children, position = "popper", ...props }, ref) => (
+  ({ className, children, position = "popper",search, ...props }, ref) => (
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content
         ref={ref}
@@ -84,6 +84,8 @@ const SelectContent = React.forwardRef(
         position={position}
         {...props}
       >
+
+        {search}
         <SelectScrollUpButton />
         <SelectPrimitive.Viewport
           className={cn(

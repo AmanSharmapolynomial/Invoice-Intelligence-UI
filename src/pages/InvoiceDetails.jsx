@@ -78,6 +78,7 @@ import {
   useNavigate,
   useSearchParams
 } from "react-router-dom";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const rejectionReasons = [
   "Duplicate invoice",
@@ -564,7 +565,7 @@ const InvoiceDetails = () => {
         <BreadCrumb
           showCustom={true}
           hideTitle={true}
-          // title={`${selectedInvoiceRestaurantName}  | ${selectedInvoiceVendorName} `}
+          
           crumbs={[
             {
               path: null,
@@ -572,7 +573,13 @@ const InvoiceDetails = () => {
             }
           ]}
         >
-          <div className="flex gap-x-4 items-end">
+          {
+            isLoading?<div className="flex items-center gap-x-2">
+            <Skeleton className={"w-44 h-10  mb-1"}/>
+            <Skeleton className={"w-44 h-10  mb-1"}/>
+          
+            </div>:<>
+            <div className="flex gap-x-4 items-end">
             {(data?.data?.restaurant || data?.data?.[0]?.restaurant) && (
               <>
                 <div className="flex flex-col gap-y-0">
@@ -630,6 +637,8 @@ const InvoiceDetails = () => {
               </div>
             </div>
           </div>
+            </>
+          }
         </BreadCrumb>
         {(branchChanged || vendorChanged) && showWarningForBranchAndVendor && (
           <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
