@@ -1,16 +1,18 @@
+import approved from "@/assets/image/approved.svg";
+import unApproved from "@/assets/image/unapproved.svg";
 import { axiosInstance } from "@/axios/instance";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import Sidebar from "@/components/common/Sidebar";
+import { Button } from "@/components/ui/button";
 import BreadCrumb from "@/components/ui/Custom/BreadCrumb";
 import CustomDropDown from "@/components/ui/CustomDropDown";
-import approved from "@/assets/image/approved.svg";
-import unApproved from "@/assets/image/unapproved.svg";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
   TableHeader,
   TableRow
 } from "@/components/ui/table";
@@ -20,16 +22,11 @@ import {
   useUpdateVendorItemMaster
 } from "@/components/vendor/api";
 import { categoryNamesFormatter, keysCapitalizer } from "@/lib/helpers";
-import { useQuery } from "@tanstack/react-query";
-import React, { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
-import { Switch } from "@/components/ui/switch";
 import { queryClient } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { da } from "date-fns/locale";
-import toast, { Toaster } from "react-hot-toast";
-import { Skeleton } from "@/components/ui/skeleton";
-import stringSimilarity from "string-similarity";
+import { useQuery } from "@tanstack/react-query";
+import { useRef, useState } from "react";
+import { Toaster } from "react-hot-toast";
+import { useParams } from "react-router-dom";
 
 const ItemMasterDetails = () => {
   const { mutate, isPending } = useUpdateVendorItemMaster();
