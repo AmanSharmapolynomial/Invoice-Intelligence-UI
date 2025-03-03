@@ -619,8 +619,9 @@ const FastItemVerification = () => {
       <Modal
         open={showDeleteModal}
         setOpen={setShowDeleteModal}
-        className={"z-50"}
+        className={"!z-50"}
         title={"  Are you sure to delete this item ?"}
+       
       >
         <ModalDescription>
           <p className="font-normal font-poppins text-base  text-black"></p>
