@@ -5,7 +5,15 @@ import Sidebar from "@/components/common/Sidebar";
 import TablePagination from "@/components/common/TablePagination";
 import BreadCrumb from "@/components/ui/Custom/BreadCrumb";
 import CustomInput from "@/components/ui/Custom/CustomInput";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from "@/components/ui/tooltip";
+
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
+import { X } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 const columns = [
@@ -31,10 +39,13 @@ const columns = [
     sorting_key: "not_approved_items_count_order"
   }
 ];
+
 const BulkCategoriesListing = () => {
   const [searchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
+  const [showShortCuts, setShowShortCuts] = useState(true);
   let page = searchParams.get("page") || 1;
+
   const updateParams = useUpdateParams();
   let page_size = searchParams.get("page_size") || 10;
   let items_count_order = searchParams.get("items_count_order") || "all";
@@ -62,15 +73,17 @@ const BulkCategoriesListing = () => {
       if (e.key == "/") {
         setTimeout(() => {
           inputRef.current.focus();
+          setShowSlashShortCut(false);
         }, 200);
       }
     };
 
-    window.addEventListener("keydown",handleKeyDown);
-    return ()=>{
-      window.removeEventListener("keydown",handleKeyDown)
-    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
+
   return (
     <div className="w-full">
       <Sidebar />
@@ -81,33 +94,52 @@ const BulkCategoriesListing = () => {
             title={"Categories List"}
             crumbs={[{ path: null, label: "Categories List" }]}
           />
-          <div className="flex justify-end items-center mt-4">
-            <CustomInput
-              ref={inputRef}
-              showIcon={true}
-              variant="search"
-              placeholder="Search Category"
-              value={name}
-              onChange={(value) => {
-                clearTimeout(timer);
-                timer = setTimeout(() => {
-                  updateParams({ name: value });
-                }, 500);
-              }}
-              onKeyDown={(e) => {}}
-              className="min-w-72 max-w-96 border border-gray-200 relative   focus:!ring-0 focus:!outline-none remove-number-spinner"
-            />
+          <div className="flex justify-end items-center mt-4 relative">
+            <TooltipProvider>
+              <Tooltip open={showShortCuts}>
+                <TooltipTrigger>
+                  {" "}
+                  <CustomInput
+                    ref={inputRef}
+                    showIcon={true}
+                    variant="search"
+                    placeholder="Search Category"
+                    value={name}
+                    onChange={(value) => {
+                      clearTimeout(timer);
+                      timer = setTimeout(() => {
+                        updateParams({ name: value });
+                      }, 500);
+                    }}
+                    onKeyDown={(e) => {}}
+                    className="min-w-72 max-w-96 border border-gray-200 relative   focus:!ring-0 focus:!outline-none remove-number-spinner"
+                  />
+                </TooltipTrigger>
+                <TooltipContent className="bg-white border relative shadow-sm px-4 flex items-center  gap-x-1 w-40 h-10">
+                  <span className="mr-2 text-gray-800 text-sm ">
+                    Press <kbd>/</kbd> to search
+                  </span>
+                  <span onClick={() => setShowShortCuts(false)}>
+                    <X className="text-gray-800 h-[1rem] absolute w-[1rem] top-1 right-1 cursor-pointer" />
+                  </span>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
           <div className="w-full h-full">
             <BulkCategorizationTable
               columns={columns}
+              showShortCuts={showShortCuts}
+              setShowShortCuts={setShowShortCuts}
               data={data && Object?.keys(data?.data)?.length == 0 ? [] : data}
               searchTerm={searchTerm}
               isLoading={isLoading}
             />
           </div>
           <TablePagination
+            showShortCuts={showShortCuts}
             totalPages={data?.total_pages}
+            setShowSlashShortCut={setShowShortCuts}
             isFinalPage={data?.is_final_page}
           />
         </div>

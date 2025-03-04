@@ -21,6 +21,13 @@ import { useGetAdditionalData } from "@/components/vendor/api";
 import { categoryNamesFormatter, headerNamesFormatter } from "@/lib/helpers";
 import { queryClient } from "@/lib/utils";
 import { ArrowLeft, X } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from "@/components/ui/tooltip";
+
 import React, { useEffect, useRef, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import {
@@ -38,6 +45,7 @@ const ItemsCategorization = () => {
   let selected_vendor_id = searchParams.get("selected_vendor_id");
   let page = searchParams.get("page") || 1;
   const [selectedItems, setSelectedItems] = useState([]);
+  const [showShortCuts, setShowShortCuts] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const { mutate: updateCategoriesInBulk, isPending } =
     useUpdateBulkItemsCategory();
@@ -182,7 +190,23 @@ const ItemsCategorization = () => {
 
         <div className="w-full flex h-full gap-x-2 mt-8 md:px-4 2xl:px-10">
           <div className="w-[60%] px-8  ">
-            <div className="flex flex-col gap-y-3 md:max-h-[30rem] 2xl:max-h-[35rem] px-4 py-2 overflow-auto ">
+            {data?.data?.length > 0&&
+              <TooltipProvider>
+                <Tooltip open={showShortCuts} className="">
+                  <TooltipTrigger className=""></TooltipTrigger>
+                  <TooltipContent className="bg-white border  shadow-sm px-4 flex items-center ml-20  gap-x-1  h-10">
+                    <span className="mr-2 text-gray-800 text-sm ">
+                      Press <kbd>0-9</kbd> to check or uncheck items.
+                    </span>
+                    <span onClick={() => setShowShortCuts(false)}>
+                      <X className="text-gray-800 h-[1rem] absolute w-[1rem] top-1 right-1 cursor-pointer" />
+                    </span>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            }
+            <div className="flex flex-col  relative gap-y-3 md:max-h-[30rem] 2xl:max-h-[35rem] px-4 pb-2 overflow-auto ">
+              {" "}
               {isLoading ? (
                 <div className="flex flex-col gap-y-2 ">
                   {new Array(10).fill(Math.random(0, 10))?.map((_, index) => (
@@ -196,7 +220,7 @@ const ItemsCategorization = () => {
                       key={index}
                       className={`${
                         selectedItems?.includes(item) && "border-primary"
-                      } flex justify-between items-center px-4 border border-[#D9D9D9] rounded-sm min-h-[2.5rem]`}
+                      } flex justify-between items-center relative  px-4 border border-[#D9D9D9] rounded-sm min-h-[2.5rem]`}
                     >
                       <span className="font-poppins text-xs flex items-center gap-x-3 font-normal leading-4 text-[#888888]">
                         {" "}
@@ -217,8 +241,15 @@ const ItemsCategorization = () => {
                 })
               ) : (
                 <div className="w-full flex items-center justify-center flex-col h-full gap-y-8  md:max-h-[35rem] 2xl:h-[40rem] ">
-                  <img src={no_unchecked_items} alt="" className="h-[60%] w-[60%]" />
-                    <p className="font-poppins font-normal text-[0.9rem] leading-5 text-[#040807] max-w-xl text-center ">All items have been successfully mapped, and there are no additional items remaining in the list.</p>
+                  <img
+                    src={no_unchecked_items}
+                    alt=""
+                    className="h-[60%] w-[60%]"
+                  />
+                  <p className="font-poppins font-normal text-[0.9rem] leading-5 text-[#040807] max-w-xl text-center ">
+                    All items have been successfully mapped, and there are no
+                    additional items remaining in the list.
+                  </p>
                 </div>
               )}
             </div>
@@ -268,31 +299,46 @@ const ItemsCategorization = () => {
                     <p className="font-poppins font-normal text-sm leading-5 text-black">
                       Select New Category
                     </p>
+                    <TooltipProvider className="">
+                      <Tooltip open={showShortCuts} className="">
+                        <TooltipTrigger className="w-full">
+                          {" "}
+                          <div className="mt-2 ">
+                            <CustomSelect
+                              value={selectedCategory}
+                              placeholder="Select Category"
+                              showSearch={true}
+                              contentClassName="max-h-[15rem]"
+                              ref={dropDownRef}
+                              data={
+                                [
+                                  ...categoryNamesFormatter(
+                                    additionalData?.data?.category_choices
+                                  ),
+                                  { label: "NA", value: "NA" },
+                                  { label: "None", value: null }
+                                ] || []
+                              }
+                              onSelect={(v) => {
+                                setSelectedCategory(v);
+                              }}
+                              triggerClassName={
+                                "!shadow-sm !bg-white  !font-poppins !font-normal !text-sm border-opacity-50"
+                              }
+                            />
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent className="bg-white border relative shadow-sm px-4 flex items-center  gap-x-1  h-10">
+                          <span className="mr-2 text-gray-800 text-sm ">
+                            Press <kbd>Alt</kbd> + <kbd>C</kbd> to Focus
+                          </span>
+                          <span onClick={() => setShowShortCuts(false)}>
+                            <X className="text-gray-800 h-[1rem] absolute w-[1rem] top-1 right-1 cursor-pointer" />
+                          </span>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
 
-                    <div className="mt-2 ">
-                      <CustomSelect
-                        value={selectedCategory}
-                        placeholder="Select Category"
-                        showSearch={true}
-                        contentClassName="max-h-[15rem]"
-                        ref={dropDownRef}
-                        data={
-                          [
-                            ...categoryNamesFormatter(
-                              additionalData?.data?.category_choices
-                            ),
-                            { label: "NA", value: "NA" },
-                            { label: "None", value: null }
-                          ] || []
-                        }
-                        onSelect={(v) => {
-                          setSelectedCategory(v);
-                        }}
-                        triggerClassName={
-                          "!shadow-sm !bg-white  !font-poppins !font-normal !text-sm border-opacity-50"
-                        }
-                      />
-                    </div>
                     <p className="text-[#666666] font-poppins font-normal text-[0.7rem] max-w-xs leading-4 mt-4">
                       Note: The updated category will be displayed under the new
                       category directly.
@@ -312,13 +358,29 @@ const ItemsCategorization = () => {
                   >
                     Cancel
                   </Button>
-                  <Button
-                    disabled={updating}
-                    onClick={() => updateHandler()}
-                    className="w-[8.8rem] rounded-sm font-poppins text-[0.7rem] font-normal leading-4 text-white"
-                  >
-                    {updating ? "Updating..." : "Update"}
-                  </Button>
+
+                  <TooltipProvider>
+                    <Tooltip open={showShortCuts}>
+                      <TooltipTrigger>
+                        {" "}
+                        <Button
+                          disabled={updating}
+                          onClick={() => updateHandler()}
+                          className="w-[8.8rem] rounded-sm font-poppins text-[0.7rem] font-normal leading-4 text-white"
+                        >
+                          {updating ? "Updating..." : "Update"}
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-white border relative shadow-sm px-4 flex items-center  gap-x-1  h-10">
+                        <span className="mr-2 text-gray-800 text-sm ">
+                          Press <kbd>Alt</kbd> + <kbd>Enter </kbd> to update
+                        </span>
+                        <span onClick={() => setShowShortCuts(false)}>
+                          <X className="text-gray-800 h-[1rem] absolute w-[1rem] top-1 right-1 cursor-pointer" />
+                        </span>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
               </div>
             </div>
