@@ -152,7 +152,9 @@ const FIVPdfViewer = ({}) => {
 
   // Reset manual zoom when document changes
   useEffect(() => {
+  if(!isSelecting &&image==null){
     zoomToBoundingBox();
+  }
   }, [document_source, boundingBoxes]);
   const prevDocumentLink = useRef(null);
   const [selectPdfPortion, setSelectPdfPortion] = useState(false);
