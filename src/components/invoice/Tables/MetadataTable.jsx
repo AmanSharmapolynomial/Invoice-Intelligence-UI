@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import CustomInput from "@/components/ui/Custom/CustomInput";
 import DatePicker from "@/components/ui/Custom/DatePicker";
 import CustomDropDown from "@/components/ui/CustomDropDown";
-import stringSimilarity from "string-similarity";
+import Fuse from "fuse.js";
 
 import {
   AlertDialog,
@@ -473,17 +473,20 @@ const MetadataTable = ({
                     // Get the vendor name to compare
                     const referenceString = vendor?.vendor_name || "";
 
-                    // Sort based on similarity
-                    return formattedVendors
-                      ?.map((item) => ({
-                        ...item,
-                        similarity: stringSimilarity?.compareTwoStrings(
-                          referenceString,
-                          item.label
-                        )
-                      }))
-                      ?.sort((a, b) => b?.similarity - a?.similarity)
-                      ?.map(({ similarity, ...rest }) => rest); // Remove similarity before passing data
+                    // Configure Fuse.js
+                    const fuse = new Fuse(formattedVendors, {
+                      keys: ["label"], // Search based on label field
+                      threshold: 0.8// Adjust similarity sensitivity
+                    });
+
+                    // Perform the search and sort based on relevance
+                    const sortedVendors = referenceString
+                      ? fuse
+                          .search(referenceString)
+                          .map((result) => result.item) // Get only the sorted items
+                      : formattedVendors; // If no reference, return unfiltered list
+
+                    return sortedVendors;
                   })()}
                 >
                   <p
@@ -493,6 +496,7 @@ const MetadataTable = ({
                     + Add new Vendor
                   </p>
                 </CustomDropDown>
+                
               </div>
             )}
             <CustomTooltip
