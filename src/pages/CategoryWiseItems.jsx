@@ -20,6 +20,12 @@ import {
   PaginationLink
 } from "@/components/ui/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from "@/components/ui/tooltip";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { queryClient } from "@/lib/utils";
 import {
@@ -28,7 +34,8 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-  ListX
+  ListX,
+  X
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
@@ -128,19 +135,21 @@ const CategoryWiseItems = () => {
   const vendorListRef = useRef(null); // Ref for the scrollable container
   const vendorItemRefs = useRef([]); // Refs for each vendor item
 
-
-
   const [focusedVendor, setFocusedVendor] = useState(-1);
-
+  const [showShortCuts, setShowShortCuts] = useState(true);
   // **Filtered Vendors List**
   const filteredVendors =
-  vendors?.data?.length>0?  vendors?.data?.filter((v) =>
-      v?.vendor?.vendor_name?.toLowerCase()?.includes(searchTerm?.toLowerCase())
-    ) ?.sort((a, b) =>
-      a?.vendor?.vendor_id === selectedVendor?.vendor?.vendor_id
-        ? -1
-        : 1
-    ) :[]|| [];
+    vendors?.data?.length > 0
+      ? vendors?.data
+          ?.filter((v) =>
+            v?.vendor?.vendor_name
+              ?.toLowerCase()
+              ?.includes(searchTerm?.toLowerCase())
+          )
+          ?.sort((a, b) =>
+            a?.vendor?.vendor_id === selectedVendor?.vendor?.vendor_id ? -1 : 1
+          )
+      : [] || [];
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -151,9 +160,9 @@ const CategoryWiseItems = () => {
         tagName === "textarea" ||
         tagName === "select";
 
-        if(!isEditable && e.key=="Backspace"){
-          navigate('/bulk-categorization')
-        }
+      if (!isEditable && e.key == "Backspace") {
+        navigate("/bulk-categorization");
+      }
       if (e.key == "/") {
         clearTimeout(timer);
         timer = setTimeout(() => {
@@ -197,7 +206,7 @@ const CategoryWiseItems = () => {
         }
       }
 
-      if (e.key == "Enter" && searchTerm !== ""&& focusedVendor==-1) {
+      if (e.key == "Enter" && searchTerm !== "" && focusedVendor == -1) {
         if (inputRef.current) {
           setSelectedVendor(
             vendors?.data?.filter((v) =>
@@ -291,7 +300,9 @@ const CategoryWiseItems = () => {
     selectedVendor,
     searchParams,
     selected_vendor_id,
-    searchTerm,focusedVendor, filteredVendors
+    searchTerm,
+    focusedVendor,
+    filteredVendors
   ]);
 
   // Reset focus when search changes
@@ -299,7 +310,6 @@ const CategoryWiseItems = () => {
     setFocusedVendor(-1);
   }, [searchTerm]);
 
-  
   // Function to scroll to the focused vendor
   const scrollToFocusedVendor = (index) => {
     if (vendorItemRefs.current[index]) {
@@ -349,20 +359,34 @@ const CategoryWiseItems = () => {
               </p>
             )}
 
-            <Button
-              disabled={
-                saving ||
-                removingItem ||
-                !selectedVendor ||
-                items?.data?.items?.length == 0
-              }
-              className="rounded-sm font-normal leading-6 w-[9rem] h-[2.3rem] text-sm  text-white"
-              onClick={() => {
-                saveAndNextHandler();
-              }}
-            >
-              {saving ? "Saving..." : " Save & Next"}
-            </Button>
+            <TooltipProvider>
+              <Tooltip open={showShortCuts}>
+                <TooltipTrigger>
+                  <Button
+                    disabled={
+                      saving ||
+                      removingItem ||
+                      !selectedVendor ||
+                      items?.data?.items?.length == 0
+                    }
+                    className="rounded-sm font-normal leading-6 w-[9rem] h-[2.3rem] text-sm  text-white"
+                    onClick={() => {
+                      saveAndNextHandler();
+                    }}
+                  >
+                    {saving ? "Saving..." : " Save & Next"}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent className="bg-white border relative shadow-sm px-4 flex items-center  gap-x-1  h-10">
+                  <span className="mr-2 text-gray-800 text-sm ">
+                    Press <kbd>Alt</kbd> + <kbd>N</kbd> to Save & Next
+                  </span>
+                  <span onClick={() => setShowShortCuts(false)}>
+                    <X className="text-gray-800 h-[1rem] absolute w-[1rem] top-1 right-1 cursor-pointer" />
+                  </span>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
 
@@ -371,24 +395,38 @@ const CategoryWiseItems = () => {
         <div className="flex gap-x-4 items-start h-full">
           <div className="w-[40%]  bg-[#FAFAFA] flex items-center justify-center h-full py-8">
             <div className="w-[90%] h-full">
-              <p className="font-poppins font-semibold text-base leading-6 pl-3 text-[#3D3D3D]">
+              <p className="font-poppins font-semibold text-base pb-2 leading-6 pl-3 text-[#3D3D3D]">
                 Vendors List
               </p>
-              <div className="mt-4">
-                <CustomInput
-                  showIcon={true}
-                  variant="search"
-                  placeholder="Search Vendor"
-                  debounceTime={500}
-                  value={searchTerm}
-                  ref={inputRef}
-                  onChange={(value) => {
-                    updateParams({ search_term: value });
-                  }}
-                  onKeyDown={(e) => {}}
-                  className="min-w-72 max-w-96 border border-gray-200 relative   focus:!ring-0 focus:!outline-none remove-number-spinner"
-                />
-              </div>
+              <TooltipProvider>
+                <Tooltip open={showShortCuts}>
+                  <TooltipTrigger>
+                    <div className="">
+                      <CustomInput
+                        showIcon={true}
+                        variant="search"
+                        placeholder="Search Vendor"
+                        debounceTime={500}
+                        value={searchTerm}
+                        ref={inputRef}
+                        onChange={(value) => {
+                          updateParams({ search_term: value });
+                        }}
+                        onKeyDown={(e) => {}}
+                        className="min-w-72 max-w-96 border border-gray-200 relative   focus:!ring-0 focus:!outline-none remove-number-spinner"
+                      />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-white border relative mb-0 mt-0 shadow-sm px-4 ml-20 flex items-center  gap-x-1 w-40 h-10">
+                    <span className="mr-2 text-gray-800 text-sm ">
+                      Press <kbd>/</kbd> to search
+                    </span>
+                    <span onClick={() => setShowShortCuts(false)}>
+                      <X className="text-gray-800 h-[1rem] absolute w-[1rem] top-1 right-1 cursor-pointer" />
+                    </span>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
 
               <div
                 className="md:h-[42vh] 2xl:h-[50vh]  mt-2  overflow-auto"
@@ -432,7 +470,7 @@ const CategoryWiseItems = () => {
                   flex items-center justify-between cursor-pointer min-h-[2.5rem] max-h-[5rem] break-words truncate gap-x-4 mt-4 px-4 ${
                     isSelected && "sticky top-0"
                   }  ${
-                            focusedVendor === index
+                            focusedVendor === index && !isSelected
                               ? "bg-gray-200 "
                               : ""
                           }`}
@@ -445,7 +483,9 @@ const CategoryWiseItems = () => {
                             )}
                             <span
                               className={` ${isSelected && "text-white"} ${
-                                focusedVendor === index ? " !text-black" : ""
+                                focusedVendor === index && !isSelected
+                                  ? " !text-black"
+                                  : ""
                               } text-[#222222] font-poppins truncate break-word max-w-56 whitespace-normal font-normal text-[0.9rem] leading-5`}
                             >
                               {" "}
@@ -466,41 +506,70 @@ const CategoryWiseItems = () => {
               </div>
               <div className="border-b  border-b-[#D9D9D9] mt-3" />
 
-              <div
-                onClick={() => {
-                  if (selectedVendor) {
-                    navigate(
-                      `/items-categorization/${category_id}/${selectedVendor?.vendor?.vendor_id}?category_name=${category_name}&page=${page}&selected_vendor_id=${selected_vendor_id}`
-                    );
-                  }
-                }}
-                className="  flex items-center justify-between  cursor-pointer h-[2.5rem] gap-x-4 mt-2 pl-4 xl:pr-[1.7rem] md:pr-[1.1rem] "
-              >
-                <div className="font-poppins flex items-center gap-x-[0.70rem] capitalize font-normal text-sm leading-5 text-black">
-                  <ListX className="text-[#F15156]" />
-                  <span
-                    className={` ${
-                      false && "text-white"
-                    } text-[#222222] font-poppins font-normal text-[0.9rem] leading-5`}
-                  >
-                    {" "}
-                    Removed Items
-                  </span>
-                </div>
-                <span
-                  className={`${
-                    false ? "text-white" : "text-[#AEAEAE]"
-                  }   font-poppins font-medium text-xs leading-4`}
-                >
-                  {removedItems?.total_records || 0}
-                </span>
-              </div>
+              <TooltipProvider>
+                <Tooltip open={showShortCuts}>
+                  <TooltipTrigger>
+                    <div
+                      onClick={() => {
+                        if (selectedVendor) {
+                          navigate(
+                            `/items-categorization/${category_id}/${selectedVendor?.vendor?.vendor_id}?category_name=${category_name}&page=${page}&selected_vendor_id=${selected_vendor_id}`
+                          );
+                        }
+                      }}
+                      className="  flex items-center justify-between  cursor-pointer h-[2.5rem] gap-x-4 mt-2 pl-4 xl:pr-[1.7rem] md:pr-[1.1rem] "
+                    >
+                      <div className="font-poppins flex items-center gap-x-[0.70rem] capitalize font-normal text-sm leading-5 text-black">
+                        <ListX className="text-[#F15156]" />
+                        <span
+                          className={` ${
+                            false && "text-white"
+                          } text-[#222222] font-poppins font-normal text-[0.9rem] leading-5`}
+                        >
+                          {" "}
+                          Removed Items
+                        </span>
+                      </div>
+                      <span
+                        className={`${
+                          false ? "text-white" : "text-[#AEAEAE]"
+                        }   font-poppins font-medium text-xs leading-4`}
+                      >
+                        {removedItems?.total_records || 0}
+                      </span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-white border relative shadow-sm px-4 flex items-center  gap-x-1  h-10">
+                    <span className="mr-2 text-gray-800 text-sm ">
+                      Press <kbd>Alt</kbd> + <kbd>C</kbd> to navigate
+                    </span>
+                    <span onClick={() => setShowShortCuts(false)}>
+                      <X className="text-gray-800 h-[1rem] absolute w-[1rem] top-1 right-1 cursor-pointer" />
+                    </span>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           </div>
 
           {/* Items List */}
           <div className="w-[60%]  h-full pt-8 relative">
-            <div className="flex flex-col gap-y-2 md:min-h-[30rem] 2xl:min-h-[35rem] max-h-[40rem]">
+            <div className="flex flex-col gap-y-2 md:min-h-[30rem] 2xl:min-h-[35rem]   max-h-[40rem]">
+              {items?.data?.items?.length > 0 && (
+                <TooltipProvider>
+                  <Tooltip open={showShortCuts} className="">
+                    <TooltipTrigger className=""></TooltipTrigger>
+                    <TooltipContent className="bg-white border  shadow-sm px-4 flex items-center    gap-x-1  h-10">
+                      <span className="mr-2 text-gray-800 text-sm ">
+                        Press <kbd>0-9</kbd> to check or uncheck items.
+                      </span>
+                      <span onClick={() => setShowShortCuts(false)}>
+                        <X className="text-gray-800 h-[1rem] absolute w-[1rem] top-1 right-1 cursor-pointer" />
+                      </span>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
               {removingItem ||
                 (saving && (
                   <Loader className="absolute top-[40%]  right-[50%]" />

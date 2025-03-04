@@ -10,9 +10,22 @@ import {
 import { Skeleton } from "../ui/skeleton";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
-import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { ArrowUpDown, ArrowUp, ArrowDown, X } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from "../ui/tooltip";
 
-const BulkCategorizationTable = ({ data, isLoading, columns, searchTerm }) => {
+const BulkCategorizationTable = ({
+  data,
+  isLoading,
+  columns,
+  searchTerm,
+  showShortCuts,
+  setShowShortCuts
+}) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const updateParams = useUpdateParams();
@@ -70,8 +83,6 @@ const BulkCategorizationTable = ({ data, isLoading, columns, searchTerm }) => {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [focusedRow, filteredData, navigate]);
-
-  console.log(focusedRow)
 
   return (
     <div className="w-full mt-4">
@@ -136,14 +147,42 @@ const BulkCategorizationTable = ({ data, isLoading, columns, searchTerm }) => {
                   <TableRow
                     key={index}
                     onClick={() => {
-                      navigate(
-                        `/category-wise-items/${item?.category?.category_id}?category_name=${item?.category?.name}`
-                      );
+                      if (showShortCuts && index == 0) {
+                      } else {
+                        navigate(
+                          `/category-wise-items/${item?.category?.category_id}?category_name=${item?.category?.name}`
+                        );
+                      }
                     }}
                     className={`border-none h-[3.75rem] cursor-pointer ${
                       focusedRow === index ? "bg-gray-200" : ""
                     }`}
                   >
+                    {" "}
+                    <div>
+                      {index == 0 && (
+                        <TooltipProvider>
+                          <Tooltip open={showShortCuts}>
+                            <TooltipTrigger> </TooltipTrigger>
+                            <TooltipContent className="bg-white border relative shadow-sm px-4 flex items-center  gap-x-1  h-10 ml-[16rem]">
+                              <span className="mr-2 text-gray-800 text-sm flex min-w-fit  items-center gap-x-1 ">
+                                <span> Press </span>
+                                <kbd>
+                                  <ArrowDown className="w-4 h-4" />
+                                </kbd>
+                                <kbd>
+                                  <ArrowUp className="w-4 h-4" />
+                                </kbd>{" "}
+                                <span>to move up or down</span>
+                              </span>
+                              <span onClick={() => setShowShortCuts(false)}>
+                                <X className="text-gray-800 h-[1rem] absolute w-[1rem] top-1 right-1 cursor-pointer" />
+                              </span>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
+                    </div>
                     {columns?.map(({ key }) => (
                       <TableCell
                         key={key}
