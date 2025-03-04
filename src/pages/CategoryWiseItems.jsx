@@ -134,13 +134,13 @@ const CategoryWiseItems = () => {
 
   // **Filtered Vendors List**
   const filteredVendors =
-    vendors?.data?.filter((v) =>
+  vendors?.data?.length>0?  vendors?.data?.filter((v) =>
       v?.vendor?.vendor_name?.toLowerCase()?.includes(searchTerm?.toLowerCase())
     ) ?.sort((a, b) =>
       a?.vendor?.vendor_id === selectedVendor?.vendor?.vendor_id
         ? -1
         : 1
-    ) || [];
+    ) :[]|| [];
 
   useEffect(() => {
     const handleKeyDown = (e) => {
