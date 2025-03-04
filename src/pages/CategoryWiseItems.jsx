@@ -52,20 +52,24 @@ const CategoryWiseItems = () => {
     { category_id }
   );
   const [selectedVendor, setSelectedVendor] = useState(
-    vendors?.data?.find((v) => v?.vendor?.vendor_id == selected_vendor_id)
+    vendors?.data?.length > 0
+      ? vendors?.data?.find((v) => v?.vendor?.vendor_id == selected_vendor_id)
+      : null
   );
 
   useEffect(() => {
-    setSelectedVendor(
-      vendors?.data?.find((v) => v?.vendor?.vendor_id == selected_vendor_id)
-    );
+    if (vendors?.data?.length > 0) {
+      setSelectedVendor(
+        vendors?.data?.find((v) => v?.vendor?.vendor_id == selected_vendor_id)
+      );
+    }
   }, [vendors]);
 
   const [saving, setSaving] = useState();
   const { data: items, isLoading: loadingItems } =
     useGetCategoryWiseVendorItems({
       category_id,
-      vendor_id: selectedVendor?.vendor?.vendor_id,
+      vendor_id: selectedVendor?.vendor?.vendor_id || null,
       page,
       page_size
     });
@@ -121,6 +125,23 @@ const CategoryWiseItems = () => {
     }
   };
   let timer;
+  const vendorListRef = useRef(null); // Ref for the scrollable container
+  const vendorItemRefs = useRef([]); // Refs for each vendor item
+
+
+
+  const [focusedVendor, setFocusedVendor] = useState(-1);
+
+  // **Filtered Vendors List**
+  const filteredVendors =
+    vendors?.data?.filter((v) =>
+      v?.vendor?.vendor_name?.toLowerCase()?.includes(searchTerm?.toLowerCase())
+    ) ?.sort((a, b) =>
+      a?.vendor?.vendor_id === selectedVendor?.vendor?.vendor_id
+        ? -1
+        : 1
+    ) || [];
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       const tagName = document.activeElement.tagName.toLowerCase();
@@ -129,6 +150,10 @@ const CategoryWiseItems = () => {
         tagName === "input" ||
         tagName === "textarea" ||
         tagName === "select";
+
+        if(!isEditable && e.key=="Backspace"){
+          navigate('/bulk-categorization')
+        }
       if (e.key == "/") {
         clearTimeout(timer);
         timer = setTimeout(() => {
@@ -172,7 +197,7 @@ const CategoryWiseItems = () => {
         }
       }
 
-      if (e.key == "Enter" && searchTerm !== "") {
+      if (e.key == "Enter" && searchTerm !== ""&& focusedVendor==-1) {
         if (inputRef.current) {
           setSelectedVendor(
             vendors?.data?.filter((v) =>
@@ -228,6 +253,32 @@ const CategoryWiseItems = () => {
           }
         }
       }
+      if (!filteredVendors.length) return;
+
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setFocusedVendor((prev) => {
+          let newIndex = prev < filteredVendors.length - 1 ? prev + 1 : prev;
+          scrollToFocusedVendor(newIndex);
+          return newIndex;
+        });
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setFocusedVendor((prev) => {
+          let newIndex = prev > 0 ? prev - 1 : prev;
+          scrollToFocusedVendor(newIndex);
+          return newIndex;
+        });
+      } else if (e.key === "Enter" && focusedVendor !== -1) {
+        e.preventDefault();
+        const selected = filteredVendors[focusedVendor];
+        setSelectedVendor(selected);
+        setFocusedVendor(-1);
+        updateParams({
+          page: 1,
+          selected_vendor_id: selected?.vendor?.vendor_id
+        });
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -240,8 +291,25 @@ const CategoryWiseItems = () => {
     selectedVendor,
     searchParams,
     selected_vendor_id,
-    searchTerm
+    searchTerm,focusedVendor, filteredVendors
   ]);
+
+  // Reset focus when search changes
+  useEffect(() => {
+    setFocusedVendor(-1);
+  }, [searchTerm]);
+
+  
+  // Function to scroll to the focused vendor
+  const scrollToFocusedVendor = (index) => {
+    if (vendorItemRefs.current[index]) {
+      vendorItemRefs.current[index].scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        top: 20
+      });
+    }
+  };
 
   return (
     <div className="py-4 ">
@@ -322,7 +390,10 @@ const CategoryWiseItems = () => {
                 />
               </div>
 
-              <div className="md:h-[42vh] 2xl:h-[50vh]  mt-2  overflow-auto">
+              <div
+                className="md:h-[42vh] 2xl:h-[50vh]  mt-2  overflow-auto"
+                ref={vendorListRef}
+              >
                 {loadingVendors ? (
                   <div className="flex w-full flex-col gap-y-2">
                     {[0, 1, 2, 3, 5, 6, 7, 8, 9, 10, 11]?.map((_, index) => (
@@ -356,10 +427,15 @@ const CategoryWiseItems = () => {
                               selected_vendor_id: vendor?.vendor?.vendor_id
                             });
                           }}
+                          ref={(el) => (vendorItemRefs.current[index] = el)}
                           className={`${isSelected && "bg-primary"}  
                   flex items-center justify-between cursor-pointer min-h-[2.5rem] max-h-[5rem] break-words truncate gap-x-4 mt-4 px-4 ${
                     isSelected && "sticky top-0"
-                  }`}
+                  }  ${
+                            focusedVendor === index
+                              ? "bg-gray-200 "
+                              : ""
+                          }`}
                         >
                           <div className="font-poppins flex items-center gap-x-4 py-2 capitalize font-normal text-sm leading-5 text-black">
                             {isSelected ? (
@@ -368,8 +444,8 @@ const CategoryWiseItems = () => {
                               <img src={user_grey} alt="" />
                             )}
                             <span
-                              className={` ${
-                                isSelected && "text-white"
+                              className={` ${isSelected && "text-white"} ${
+                                focusedVendor === index ? " !text-black" : ""
                               } text-[#222222] font-poppins truncate break-word max-w-56 whitespace-normal font-normal text-[0.9rem] leading-5`}
                             >
                               {" "}

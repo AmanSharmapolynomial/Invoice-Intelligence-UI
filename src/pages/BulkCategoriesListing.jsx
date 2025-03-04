@@ -31,6 +31,9 @@ const columns = [
     sorting_key: "not_approved_items_count_order"
   }
 ];
+
+
+
 const BulkCategoriesListing = () => {
   const [searchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
@@ -66,11 +69,13 @@ const BulkCategoriesListing = () => {
       }
     };
 
-    window.addEventListener("keydown",handleKeyDown);
-    return ()=>{
-      window.removeEventListener("keydown",handleKeyDown)
-    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
+
+  
   return (
     <div className="w-full">
       <Sidebar />
