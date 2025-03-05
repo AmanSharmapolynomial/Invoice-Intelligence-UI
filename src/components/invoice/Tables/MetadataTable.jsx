@@ -553,6 +553,7 @@ const MetadataTable = ({
               />
             ) : (
               <div className="flex items-center gap-x-4 w-full">
+                
                 <CustomDropDown
                   Value={branch}
                   vendor_id={vendor?.vendor_id}
@@ -579,11 +580,14 @@ const MetadataTable = ({
                   }}
                   showBranchAsLink={true}
                   data={(() => {
+                    if(loadingAddresses){
+                      return []
+                    }
                     const formattedVendorAddresses = vendorAddressFormatter(
                       vendorAddress?.branches
                     );
 
-                    const referenceString = branch?.label || "";
+                    const referenceString = branch?.vendor_address||"";
                     const fuse = new Fuse(formattedVendorAddresses, {
                       keys: ["label"], // Search based on label field
                       threshold: 0.8 // Adjust similarity sensitivity
