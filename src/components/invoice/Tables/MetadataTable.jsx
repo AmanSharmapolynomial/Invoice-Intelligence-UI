@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import CustomInput from "@/components/ui/Custom/CustomInput";
 import DatePicker from "@/components/ui/Custom/DatePicker";
 import CustomDropDown from "@/components/ui/CustomDropDown";
+import Fuse from "fuse.js";
 
 import {
   AlertDialog,
@@ -263,7 +264,7 @@ const MetadataTable = ({
   }, [vendorTypesAndCategories]);
   let action_controls =
     data?.data?.[0]?.action_controls || data?.data?.action_controls;
-   
+
   return (
     <div className="w-full -mt-3 border border-[#F0F0F0] shadow-sm p-2 rounded-md">
       <div className="grid grid-cols-3 gap-x-4">
@@ -304,7 +305,6 @@ const MetadataTable = ({
             className={`!min-w-[300px] ${
               !invoice_type ? "!border-[#F97074]" : ""
             }`}
-
             data={vendorCategories?.slice(0, 3)}
             Value={invoice_type}
             onChange={(v) => {
@@ -437,13 +437,14 @@ const MetadataTable = ({
                 placeholder="Vendor Name"
                 onChange={(v) => {
                   setNewVendor(v);
-                  setVendorChanged(true)
+                  setVendorChanged(true);
                 }}
               />
             ) : (
               <div className="!w-full overflow-auto    flex gap-x-4">
                 <CustomDropDown
                   Value={vendor?.vendor_id}
+                  placeholder={loadingVendors ? "Loading..." : "Select Vendor"}
                   className={`!max-w-full !min-w-full ${
                     !vendor?.vendor_id ? "!border-[#F97074]" : ""
                   }`}
@@ -464,7 +465,30 @@ const MetadataTable = ({
                       false
                     );
                   }}
-                  data={vendorNamesFormatter(vendorsData?.vendor_names)}
+                  data={(() => {
+                    // Format vendor names
+                    const formattedVendors = vendorNamesFormatter(
+                      vendorsData?.vendor_names
+                    );
+
+                    // Get the vendor name to compare
+                    const referenceString = vendor?.vendor_name || "";
+
+                    // Configure Fuse.js
+                    const fuse = new Fuse(formattedVendors, {
+                      keys: ["label"], // Search based on label field
+                      threshold: 0.8 // Adjust similarity sensitivity
+                    });
+
+                    // Perform the search and sort based on relevance
+                    const sortedVendors = referenceString
+                      ? fuse
+                          .search(referenceString)
+                          .map((result) => result.item) // Get only the sorted items
+                      : formattedVendors; // If no reference, return unfiltered list
+
+                    return sortedVendors;
+                  })()}
                 >
                   <p
                     onClick={() => setEditVendor(true)}
@@ -519,22 +543,23 @@ const MetadataTable = ({
             {editBranch ? (
               <CustomInput
                 value={branch?.vendor_address}
-              
                 className={`${
                   !newBranch ? "!border-[#F97074]" : ""
                 } !max-w-full`}
                 onChange={(v) => {
-                
-                    setNewBranch(v);
-                    setBranchChanged(true)
-                  
+                  setNewBranch(v);
+                  setBranchChanged(true);
                 }}
               />
             ) : (
               <div className="flex items-center gap-x-4 w-full">
+                
                 <CustomDropDown
                   Value={branch}
                   vendor_id={vendor?.vendor_id}
+                  placeholder={
+                    loadingAddresses ? "Loading...." : "Select Vendor Address"
+                  }
                   className={`min-w-[30rem] ${
                     !branch?.branch_id ? "!border-[#F97074]" : ""
                   }`}
@@ -554,7 +579,27 @@ const MetadataTable = ({
                     setBranchChanged(true);
                   }}
                   showBranchAsLink={true}
-                  data={vendorAddressFormatter(vendorAddress?.branches)}
+                  data={(() => {
+                    if(loadingAddresses){
+                      return []
+                    }
+                    const formattedVendorAddresses = vendorAddressFormatter(
+                      vendorAddress?.branches
+                    );
+
+                    const referenceString = branch?.vendor_address||"";
+                    const fuse = new Fuse(formattedVendorAddresses, {
+                      keys: ["label"], // Search based on label field
+                      threshold: 0.8 // Adjust similarity sensitivity
+                    });
+                    const sortedVendorAddresses = referenceString
+                      ? fuse
+                          .search(referenceString)
+                          .map((result) => result.item) // Get only the sorted items
+                      : formattedVendorAddresses; // If no reference, return unfiltered list
+
+                    return sortedVendorAddresses;
+                  })()}
                 >
                   <p
                     onClick={() => setEditBranch(true)}
@@ -855,7 +900,6 @@ const MetadataTable = ({
                     <p>Vendor Document Type</p>
                     <CustomDropDown
                       Value={types_and_categories?.document_types}
-
                       className={"min-w-[28rem]"}
                       data={makeKeyValueFromKey(
                         additionalData?.data?.vendor_invoice_document_types

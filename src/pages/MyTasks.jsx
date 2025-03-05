@@ -152,7 +152,7 @@ const MyTasks = () => {
       calculateDivHeightInVh("div2") +
       calculateDivHeightInVh("div2") +
       calculateDivHeightInVh("pagination") +
-      8.5);
+      9.5);
   let timer;
 
   useEffect(() => {

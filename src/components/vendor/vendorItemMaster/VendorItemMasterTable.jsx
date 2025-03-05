@@ -144,7 +144,7 @@ const VendorItemMasterTable = ({
                         i == 0 && "border-l"
                       } border-t-0`}
                     >
-                      <Skeleton className={"w-full h-5"} />
+                      <Skeleton className={"w-full h-10"} />
                     </TableCell>
                   ))
                 : fiv_current_item?.required_columns?.map((col, i) => {

@@ -63,7 +63,7 @@ const FIVPdfViewer = ({}) => {
       height: bb.box.height * height * scaleFactor,
       border: "1.5px solid red",
       background: "rgba(144,238,144,0.4)",
-      zIndex: 9999,
+      zIndex: 10,
       borderRadius: 5,
       paddingLeft: 20,
       paddingRight: 20,
@@ -152,16 +152,19 @@ const FIVPdfViewer = ({}) => {
 
   // Reset manual zoom when document changes
   useEffect(() => {
+  if(!isSelecting &&image==null){
     zoomToBoundingBox();
-  }, [lineItem, , document_source, boundingBoxes]);
+  }
+  }, [document_source, boundingBoxes]);
   const prevDocumentLink = useRef(null);
   const [selectPdfPortion, setSelectPdfPortion] = useState(false);
   useEffect(() => {
     if (document_link && document_link !== prevDocumentLink.current) {
       prevDocumentLink.current = document_link;
-      setPageNum(1); 
+      setPageNum(1);
     }
   }, [document_link]);
+
   const [text, setText] = useState("");
   const [showTextExtractionModal, setShowTextExtractionModal] = useState(false);
   const [isSelecting, setIsSelecting] = useState(false);
@@ -397,7 +400,6 @@ const FIVPdfViewer = ({}) => {
           setText("");
           setImage(null);
           setSelectPdfPortion(false);
-  
         }}
       >
         <div className="flex items-start gap-x-2 h-full flex-col">
@@ -412,7 +414,7 @@ const FIVPdfViewer = ({}) => {
             </div>
             {isPending ? (
               <>
-                <Skeleton className={"min-w-full bg-primary/10 h-[4rem]"} />
+                <Skeleton className={"min-w-full bg-primary/10 h-[5rem]"} />
               </>
             ) : (
               <Textarea
