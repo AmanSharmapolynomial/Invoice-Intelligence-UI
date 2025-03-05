@@ -58,6 +58,7 @@ const CategoryWiseItems = () => {
   const { data: vendors, isLoading: loadingVendors } = useGetCategoryWiseVendor(
     { category_id }
   );
+  const [unCheckedItems, setUnCheckedItems] = useState([]);
   const [selectedVendor, setSelectedVendor] = useState(
     vendors?.data?.length > 0
       ? vendors?.data?.find((v) => v?.vendor?.vendor_id == selected_vendor_id)
@@ -175,7 +176,7 @@ const CategoryWiseItems = () => {
         saveAndNextHandler();
       }
       if (e.altKey && e.key == "r") {
-        if (selectedVendor!==null) {
+        if (selectedVendor !== null) {
           navigate(
             `/items-categorization/${category_id}/${selectedVendor?.vendor?.vendor_id}?category_name=${category_name}&page=${page}&selected_vendor_id=${selected_vendor_id}`
           );
@@ -446,6 +447,7 @@ const CategoryWiseItems = () => {
                         ?.toLowerCase()
                         ?.includes(searchTerm?.toLowerCase())
                     )
+                    ?.sort((a, b) => b.items_count - a.items_count)
                     ?.sort((a, b) =>
                       a?.vendor?.vendor_id === selectedVendor?.vendor?.vendor_id
                         ? -1
@@ -570,7 +572,7 @@ const CategoryWiseItems = () => {
                   </Tooltip>
                 </TooltipProvider>
               )}
-           
+
               {loadingItems ? (
                 <div className="flex flex-col gap-y-4 h-[50vh]">
                   {new Array(10).fill(0).map((_, index) => {
@@ -600,8 +602,8 @@ const CategoryWiseItems = () => {
                       return (
                         <div
                           key={index}
-                          onClick={()=>{
-                            removeItem({item_uuid:item?.item_uuid})
+                          onClick={() => {
+                            removeItem({ item_uuid: item?.item_uuid });
                           }}
                           className={` ${
                             removedItems?.data?.length > 0 &&
@@ -610,8 +612,8 @@ const CategoryWiseItems = () => {
                             ) &&
                             "border-[#E4897B]"
                           } ${
-                            ((removingItem ||
-                            saving )&& "opacity-50 border-opacity-50")
+                            (removingItem || saving) &&
+                            "opacity-50 border-opacity-50"
                           } border rounded-sm w-full px-4 cursor-pointer border-[#D9D9D9] min-h-[2.5rem] flex items-center justify-between`}
                         >
                           <div className="flex items-center gap-x-4">

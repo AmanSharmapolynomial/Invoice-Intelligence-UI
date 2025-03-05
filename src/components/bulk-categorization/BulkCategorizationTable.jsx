@@ -147,12 +147,9 @@ const BulkCategorizationTable = ({
                   <TableRow
                     key={index}
                     onClick={() => {
-                      if (showShortCuts && index == 0) {
-                      } else {
-                        navigate(
-                          `/category-wise-items/${item?.category?.category_id}?category_name=${item?.category?.name}`
-                        );
-                      }
+                      navigate(
+                        `/category-wise-items/${item?.category?.category_id}?category_name=${item?.category?.name}`
+                      );
                     }}
                     className={`border-none h-[3.75rem] cursor-pointer ${
                       focusedRow === index ? "bg-gray-200" : ""
@@ -175,7 +172,12 @@ const BulkCategorizationTable = ({
                                 </kbd>{" "}
                                 <span>to move up or down</span>
                               </span>
-                              <span onClick={() => setShowShortCuts(false)}>
+                              <span
+                                onClick={(e) => {
+                                  setShowShortCuts(false);
+                                  e.stopPropagation();
+                                }}
+                              >
                                 <X className="text-gray-800 h-[1rem] absolute w-[1rem] top-1 right-1 cursor-pointer" />
                               </span>
                             </TooltipContent>
