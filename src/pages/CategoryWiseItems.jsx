@@ -506,11 +506,12 @@ const CategoryWiseItems = () => {
                     })
                 )}
               </div>
-              <div className="border-b  border-b-[#D9D9D9] mt-3" />
+              <div className="border-b  border-b-[#D9D9D9] mt-3 w-full" />
 
-              <TooltipProvider>
-                <Tooltip open={showShortCuts}>
-                  <TooltipTrigger>
+          <div className="w-full">
+          <TooltipProvider>
+                <Tooltip open={showShortCuts} className="w-full">
+                  <TooltipTrigger className="w-full">
                     <div
                       onClick={() => {
                         if (selectedVendor) {
@@ -551,6 +552,7 @@ const CategoryWiseItems = () => {
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
+          </div>
             </div>
           </div>
 
