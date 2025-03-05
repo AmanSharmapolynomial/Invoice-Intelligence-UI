@@ -30,25 +30,21 @@ const SimilarItems = ({
     setMasterUUID((prev) => (prev === item_uuid ? null : item_uuid));
   };
 
-  let similarCondition = data?.data?.matching_items?.some(
-    (item) => item["human_verified"]
-  );
+  
 
   return (
     <div className="max-h-72 overflow-auto">
       <Table>
         <TableHeader>
           <TableRow
-            className={`!text-white !rounded-none justify-between  w-full ${`grid-cols-${
-              data?.data?.required_columns?.length + 2
-            }`} items-center  sm:text-sm `}
+            className={`!text-white !rounded-none justify-between  w-full items-center  sm:text-sm `}
           >
             {data?.data?.required_columns?.map((v, i) => (
               <TableHead
                 key={i}
                 className={`${
                   i == 0 && "border-l"
-                } font-semibold  items-center gap-x-4 text-black border-r px-[0.75rem]"`}
+                } font-semibold  items-center gap-x-4 text-black border-r `}
               >
               <div className="flex  gap-x-4 items-center">
               <div className=" flex  items-center">
@@ -75,7 +71,7 @@ const SimilarItems = ({
                   />
                 )}
                 </div>
-                <span className="pt-1"> {keysCapitalizer(v)}</span>
+                <span className={`${v!=="category"?"-ml-3":""} pt-1 `}> {keysCapitalizer(v)}</span>
               </div>
               </TableHead>
             ))}

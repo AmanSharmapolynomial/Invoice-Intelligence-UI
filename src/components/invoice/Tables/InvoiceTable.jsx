@@ -237,20 +237,30 @@ const InvoiceTable = ({
           style={{ height: `${height}vh` }}
         >
           {isLoading ? (
-            new Array(15)?.fill(1)?.map((_, index) => {
+            new Array(16)?.fill(1)?.map((_, index) => {
               return (
                 <TableRow
-                  className="flex  items-center gap-x-0 !text-sm !border-none min-h-14 w-full"
+                  className=" w-[100%] items-center gap-x-0 !text-sm  min-h-14 "
                   key={index}
                 >
-                  {new Array(10).fill(10 * Math.random())?.map((_, i) => {
+                  {new Array(9).fill(10 * Math.random())?.map((_, i) => {
                     return (
                       <TableHead
                         key={i}
-                        className={`!text-left  pb-4 flex justify-normal !font-semibold !text-[#1C1C1E]  border-b ${i==0?"!w-[3%]":"w-[10.55%]"}   `}
+                        className={`!text-left  pb-4  justify-normal !font-semibold !text-[#1C1C1E]  border ${
+                          i !== 9 || i !== 8 ? "!w-[10%]" : "!w-[10%]"
+                        }    `}
                       >
                         {" "}
-                        <Skeleton className={`${i==0?"w-10":"w-32"} ${(i==9||i==8) && "w-36 ml-4"} h-5`} />
+                        {i==0?<div className="flex items-center gap-x-2">
+                        <div className="">
+                        <Skeleton className={` min-w-10 h-5`} />
+                        </div>
+                        <div className=" min-h-full">
+
+                          <Skeleton className={` min-w-32 h-5`} />
+                        </div>
+                        </div>:<Skeleton className={` min-w-44 h-5`} />}
                       </TableHead>
                     );
                   })}
@@ -305,7 +315,9 @@ const InvoiceTable = ({
                               ? "review_later"
                               : pathname?.includes("my-tasks")
                               ? "my-tasks"
-                              : pathname?.includes("not-supported")?"not-supported-documents":"invoice_listing"
+                              : pathname?.includes("not-supported")
+                              ? "not-supported-documents"
+                              : "invoice_listing"
                           }`
                         );
                       }}
@@ -403,17 +415,16 @@ const InvoiceTable = ({
                         } `}
                       >
                         <CustomTooltip
-                       className={"!min-w-full"}
-
+                          className={"!min-w-full"}
                           content={`Asssigned To :- ${assignment_details?.assigned_to?.username}`}
                         >
-                        <div className="w-full ">
-                        {assignment_details && (rejected || human_verified)
-                            ? "Completed"
-                            : (assignment_details &&
-                                timeRemaining?.split("-").join("")) ||
-                              "NA"}
-                        </div>
+                          <div className="w-full ">
+                            {assignment_details && (rejected || human_verified)
+                              ? "Completed"
+                              : (assignment_details &&
+                                  timeRemaining?.split("-").join("")) ||
+                                "NA"}
+                          </div>
                         </CustomTooltip>
                       </TableCell>
 

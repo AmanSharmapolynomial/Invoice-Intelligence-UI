@@ -69,7 +69,7 @@ const VendorsTable = ({ columns, data, isLoading }) => {
   return (
     <div className="w-full mt-4">
       <div className="rounded-md border overflow-x-auto">
-        <Table className="!rounded-md !relative !min-h-full box-border flex flex-col min-w-full h-[74vh] 2xl:max-h-[78vh] overflow-auto">
+        <Table className="!rounded-md !relative box-border flex flex-col min-w-full min-h-[70vh] 2xl:max-h-[78vh] overflow-auto">
           <TableHeader className="w-full sticky top-0 z-10 bg-white dark:bg-primary">
             <TableRow
               className={`!text-white !rounded-md w-full grid grid-cols-${columns?.length} md:max-h-[5.65rem] md:min-h-[2.65rem] 2xl:min-h-[4rem] self-center content-center items-center justify-center text-xs sm:text-sm`}
@@ -80,15 +80,15 @@ const VendorsTable = ({ columns, data, isLoading }) => {
                   onClick={() => handleSort(column)}
                   className="cursor-pointer font-poppins !px-[0.75rem] font-semibold text-black md:max-h-[5.65rem] md:min-h-[2.65rem] 2xl:min-h-[4rem] self-center content-center leading-5 text-sm border-r items-center flex gap-1"
                 >
-                  {column.label}
-                  {column.sorting_key && getSortingIcon(column)}
+                  {column?.label}
+                  {column?.sorting_key && getSortingIcon(column)}
                 </TableHead>
               ))}
             </TableRow>
           </TableHeader>
-          <TableBody>
+          <TableBody className="">
             {isLoading ? (
-              Array.from({ length: 10 }).map((_, i) => (
+              Array?.from({ length: 10 }).map((_, i) => (
                 <TableRow
                   key={i}
                   className={`grid grid-cols-${columns?.length} md:max-h-[2.75rem] md:min-h-[2.65rem] 2xl:min-h-[4rem] content-center self-center w-full items-center text-xs sm:text-sm`}
@@ -104,7 +104,7 @@ const VendorsTable = ({ columns, data, isLoading }) => {
                 </TableRow>
               ))
             ) : (
-              <div className="w-full">
+              <div className="w-full flex flex-col justify-between h-full">
                 {data?.length > 0 ? (
                   data?.map((row, rowIndex) => (
                     <TableRow
@@ -114,7 +114,7 @@ const VendorsTable = ({ columns, data, isLoading }) => {
                         )
                       }
                       key={rowIndex}
-                      className={`grid grid-cols-${columns?.length} w-full md:max-h-[2.75rem] md:min-h-[2.65rem] 2xl:min-h-[4rem] self-center content-center cursor-pointer text-xs sm:text-sm`}
+                      className={`grid grid-cols-${columns?.length} w-full md:max-h-[2.75rem]  md:min-h-[2.65rem] 2xl:min-h-[4rem] xl:min-h-[3.25rem] self-center content-center cursor-pointer text-xs sm:text-sm`}
                     >
                       {columns?.map((column) => (
                         <TableCell
