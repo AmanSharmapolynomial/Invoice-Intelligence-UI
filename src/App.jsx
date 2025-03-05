@@ -91,14 +91,7 @@ function App() {
             title="View User Activity"
             content="Access a comprehensive log of all user activities."
           />
-          <CustomCard
-            Icon={frame15}
-            className={"cursor-pointer"}
-            showIcon={true}
-            onClick={() => navigate(`/bulk-categorization`)}
-            title="Bulk Item Categorization"
-            content="Manage and delegate invoice tasks seamlessly."
-          />
+      
         </div>
       </Layout>
       <Modal
