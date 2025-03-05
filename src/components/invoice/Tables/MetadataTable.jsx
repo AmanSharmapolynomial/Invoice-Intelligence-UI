@@ -444,6 +444,7 @@ const MetadataTable = ({
               <div className="!w-full overflow-auto    flex gap-x-4">
                 <CustomDropDown
                   Value={vendor?.vendor_id}
+                  placeholder={loadingVendors ? "Loading..." : "Select Vendor"}
                   className={`!max-w-full !min-w-full ${
                     !vendor?.vendor_id ? "!border-[#F97074]" : ""
                   }`}
@@ -476,7 +477,7 @@ const MetadataTable = ({
                     // Configure Fuse.js
                     const fuse = new Fuse(formattedVendors, {
                       keys: ["label"], // Search based on label field
-                      threshold: 0.8// Adjust similarity sensitivity
+                      threshold: 0.8 // Adjust similarity sensitivity
                     });
 
                     // Perform the search and sort based on relevance
@@ -496,7 +497,6 @@ const MetadataTable = ({
                     + Add new Vendor
                   </p>
                 </CustomDropDown>
-                
               </div>
             )}
             <CustomTooltip
@@ -553,9 +553,13 @@ const MetadataTable = ({
               />
             ) : (
               <div className="flex items-center gap-x-4 w-full">
+                
                 <CustomDropDown
                   Value={branch}
                   vendor_id={vendor?.vendor_id}
+                  placeholder={
+                    loadingAddresses ? "Loading...." : "Select Vendor Address"
+                  }
                   className={`min-w-[30rem] ${
                     !branch?.branch_id ? "!border-[#F97074]" : ""
                   }`}
@@ -575,7 +579,27 @@ const MetadataTable = ({
                     setBranchChanged(true);
                   }}
                   showBranchAsLink={true}
-                  data={vendorAddressFormatter(vendorAddress?.branches)}
+                  data={(() => {
+                    if(loadingAddresses){
+                      return []
+                    }
+                    const formattedVendorAddresses = vendorAddressFormatter(
+                      vendorAddress?.branches
+                    );
+
+                    const referenceString = branch?.vendor_address||"";
+                    const fuse = new Fuse(formattedVendorAddresses, {
+                      keys: ["label"], // Search based on label field
+                      threshold: 0.8 // Adjust similarity sensitivity
+                    });
+                    const sortedVendorAddresses = referenceString
+                      ? fuse
+                          .search(referenceString)
+                          .map((result) => result.item) // Get only the sorted items
+                      : formattedVendorAddresses; // If no reference, return unfiltered list
+
+                    return sortedVendorAddresses;
+                  })()}
                 >
                   <p
                     onClick={() => setEditBranch(true)}

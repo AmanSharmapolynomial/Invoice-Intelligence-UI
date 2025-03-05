@@ -58,6 +58,7 @@ const CategoryWiseItems = () => {
   const { data: vendors, isLoading: loadingVendors } = useGetCategoryWiseVendor(
     { category_id }
   );
+  const [unCheckedItems, setUnCheckedItems] = useState([]);
   const [selectedVendor, setSelectedVendor] = useState(
     vendors?.data?.length > 0
       ? vendors?.data?.find((v) => v?.vendor?.vendor_id == selected_vendor_id)
@@ -175,7 +176,7 @@ const CategoryWiseItems = () => {
         saveAndNextHandler();
       }
       if (e.altKey && e.key == "r") {
-        if (selectedVendor) {
+        if (selectedVendor !== null) {
           navigate(
             `/items-categorization/${category_id}/${selectedVendor?.vendor?.vendor_id}?category_name=${category_name}&page=${page}&selected_vendor_id=${selected_vendor_id}`
           );
@@ -441,6 +442,8 @@ const CategoryWiseItems = () => {
                 ) : (
                   vendors?.data?.length > 0 &&
                   vendors?.data
+                    ?.sort((a, b) => b.items_count - a.items_count)
+
                     ?.filter((v) =>
                       v?.vendor?.vendor_name
                         ?.toLowerCase()
@@ -451,6 +454,7 @@ const CategoryWiseItems = () => {
                         ? -1
                         : 1
                     )
+
                     ?.map((vendor, index) => {
                       let isSelected =
                         selectedVendor?.vendor?.vendor_id ===
@@ -472,7 +476,9 @@ const CategoryWiseItems = () => {
                   }  ${
                             focusedVendor === index && !isSelected
                               ? "bg-gray-200 "
-                              : ""
+                              : focusedVendor == index &&
+                                isSelected &&
+                                "!text-white"
                           }`}
                         >
                           <div className="font-poppins flex items-center gap-x-4 py-2 capitalize font-normal text-sm leading-5 text-black">
@@ -482,11 +488,13 @@ const CategoryWiseItems = () => {
                               <img src={user_grey} alt="" />
                             )}
                             <span
-                              className={` ${isSelected && "text-white"} ${
+                              className={` ${isSelected && "!text-white"} ${
                                 focusedVendor === index && !isSelected
                                   ? " !text-black"
-                                  : ""
-                              } text-[#222222] font-poppins truncate break-word max-w-56 whitespace-normal font-normal text-[0.9rem] leading-5`}
+                                  : focusedVendor == index &&
+                                    isSelected &&
+                                    "!text-white"
+                              } text-[#222222]  font-poppins truncate break-word max-w-56 whitespace-normal font-normal text-[0.9rem] leading-5`}
                             >
                               {" "}
                               {vendor?.vendor?.vendor_name}
@@ -504,51 +512,53 @@ const CategoryWiseItems = () => {
                     })
                 )}
               </div>
-              <div className="border-b  border-b-[#D9D9D9] mt-3" />
+              <div className="border-b  border-b-[#D9D9D9] mt-3 w-full" />
 
-              <TooltipProvider>
-                <Tooltip open={showShortCuts}>
-                  <TooltipTrigger>
-                    <div
-                      onClick={() => {
-                        if (selectedVendor) {
-                          navigate(
-                            `/items-categorization/${category_id}/${selectedVendor?.vendor?.vendor_id}?category_name=${category_name}&page=${page}&selected_vendor_id=${selected_vendor_id}`
-                          );
-                        }
-                      }}
-                      className="  flex items-center justify-between  cursor-pointer h-[2.5rem] gap-x-4 mt-2 pl-4 xl:pr-[1.7rem] md:pr-[1.1rem] "
-                    >
-                      <div className="font-poppins flex items-center gap-x-[0.70rem] capitalize font-normal text-sm leading-5 text-black">
-                        <ListX className="text-[#F15156]" />
+              <div className="w-full">
+                <TooltipProvider>
+                  <Tooltip open={showShortCuts} className="w-full">
+                    <TooltipTrigger className="w-full">
+                      <div
+                        onClick={() => {
+                          if (selectedVendor) {
+                            navigate(
+                              `/items-categorization/${category_id}/${selectedVendor?.vendor?.vendor_id}?category_name=${category_name}&page=${page}&selected_vendor_id=${selected_vendor_id}`
+                            );
+                          }
+                        }}
+                        className="  flex items-center justify-between  cursor-pointer h-[2.5rem] gap-x-4 mt-2 pl-4 xl:pr-[1.7rem] md:pr-[1.1rem] "
+                      >
+                        <div className="font-poppins flex items-center gap-x-[0.70rem] capitalize font-normal text-sm leading-5 text-black">
+                          <ListX className="text-[#F15156]" />
+                          <span
+                            className={` ${
+                              false && "text-white"
+                            } text-[#222222] font-poppins font-normal text-[0.9rem] leading-5`}
+                          >
+                            {" "}
+                            Removed Items
+                          </span>
+                        </div>
                         <span
-                          className={` ${
-                            false && "text-white"
-                          } text-[#222222] font-poppins font-normal text-[0.9rem] leading-5`}
+                          className={`${
+                            false ? "text-white" : "text-[#AEAEAE]"
+                          }   font-poppins font-medium text-xs leading-4`}
                         >
-                          {" "}
-                          Removed Items
+                          {removedItems?.total_records || 0}
                         </span>
                       </div>
-                      <span
-                        className={`${
-                          false ? "text-white" : "text-[#AEAEAE]"
-                        }   font-poppins font-medium text-xs leading-4`}
-                      >
-                        {removedItems?.total_records || 0}
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-white border relative shadow-sm px-4 flex items-center  gap-x-1  h-10">
+                      <span className="mr-2 text-gray-800 text-sm ">
+                        Press <kbd>Alt</kbd> + <kbd>R</kbd> to navigate
                       </span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent className="bg-white border relative shadow-sm px-4 flex items-center  gap-x-1  h-10">
-                    <span className="mr-2 text-gray-800 text-sm ">
-                      Press <kbd>Alt</kbd> + <kbd>R</kbd> to navigate
-                    </span>
-                    <span onClick={() => setShowShortCuts(false)}>
-                      <X className="text-gray-800 h-[1rem] absolute w-[1rem] top-1 right-1 cursor-pointer" />
-                    </span>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+                      <span onClick={() => setShowShortCuts(false)}>
+                        <X className="text-gray-800 h-[1rem] absolute w-[1rem] top-1 right-1 cursor-pointer" />
+                      </span>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
             </div>
           </div>
 
@@ -570,9 +580,7 @@ const CategoryWiseItems = () => {
                   </Tooltip>
                 </TooltipProvider>
               )}
-              {(removingItem ||saving) && (
-                  <Loader className="absolute top-[40%]  right-[50%]" />
-                )}
+
               {loadingItems ? (
                 <div className="flex flex-col gap-y-4 h-[50vh]">
                   {new Array(10).fill(0).map((_, index) => {
@@ -602,8 +610,8 @@ const CategoryWiseItems = () => {
                       return (
                         <div
                           key={index}
-                          onClick={()=>{
-                            removeItem({item_uuid:item?.item_uuid})
+                          onClick={() => {
+                            removeItem({ item_uuid: item?.item_uuid });
                           }}
                           className={` ${
                             removedItems?.data?.length > 0 &&
@@ -612,8 +620,8 @@ const CategoryWiseItems = () => {
                             ) &&
                             "border-[#E4897B]"
                           } ${
-                            removingItem ||
-                            (saving && "opacity-50 border-opacity-50")
+                            (removingItem || saving) &&
+                            "opacity-50 border-opacity-50"
                           } border rounded-sm w-full px-4 cursor-pointer border-[#D9D9D9] min-h-[2.5rem] flex items-center justify-between`}
                         >
                           <div className="flex items-center gap-x-4">

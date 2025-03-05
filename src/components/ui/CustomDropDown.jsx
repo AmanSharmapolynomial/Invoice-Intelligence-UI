@@ -50,7 +50,7 @@ const CustomDropDown = ({
   const [item, setItem] = useState(null);
   const [itemsArray, setItemsArray] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [focusedIndex,setFocusedIndex] = useState(0);
+  const [focusedIndex, setFocusedIndex] = useState(0);
 
   useEffect(() => {
     if (Value !== undefined) {
@@ -121,7 +121,7 @@ const CustomDropDown = ({
           <Link2 className="text-[#348355] !h-4 !w-4" />
           <span className="text-[#348355] text-sm font-poppins font-normal truncate">
             {selectedItem
-              ? selectedItem?.label?.slice(0, 50) +
+              ? selectedItem?.label?.slice(0, 90) +
                 (selectedItem?.label?.length > 100 ? "....." : "")
               : placeholder}
           </span>
@@ -161,9 +161,9 @@ const CustomDropDown = ({
     );
   };
 
-  useEffect(()=>{
-setFocusedIndex(sortedData.findIndex((item)=>item.value===value))
-  },[Value])
+  useEffect(() => {
+    setFocusedIndex(sortedData.findIndex((item) => item.value === value));
+  }, [Value]);
 
   return (
     <Popover
@@ -195,7 +195,9 @@ setFocusedIndex(sortedData.findIndex((item)=>item.value===value))
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className={`${className} p-0 dark:border-[#051C14]  min-w-[25rem] ${(showBranchAsLink||showVendorAsLink) && "!min-w-[30rem]"}  mr-1 !z-50`}
+        className={`${className} p-0 dark:border-[#051C14]  min-w-[25rem] ${
+          (showBranchAsLink || showVendorAsLink) && "!min-w-[30rem]"
+        }  mr-1 !z-50`}
         contentClassName={`${contentClassName}  !max-w-[17rem] min-w-full`}
       >
         <Command className="dark:!border-[#051C14] px-1 py-2 dark:bg-[#051C14]  !min-w-full !z-50">
@@ -205,9 +207,8 @@ setFocusedIndex(sortedData.findIndex((item)=>item.value===value))
               className=" rounded-sm mb-1 focus:!ring-0 !outline-none focus:!outline-none"
               onInput={(e) => handleSearch(e.target.value)}
               onKeyDown={(e) => {
-                
-                if(e.key=="Enter"){
-                  handleSelect(sortedData[0].value,sortedData[0])
+                if (e.key == "Enter") {
+                  handleSelect(sortedData[0].value, sortedData[0]);
                 }
               }}
             />
@@ -215,7 +216,9 @@ setFocusedIndex(sortedData.findIndex((item)=>item.value===value))
           {children}
           <CommandList className=" dark:!border-[#000000] !z-50 hide-scrollbar !w-full">
             <CommandEmpty>No data found.</CommandEmpty>
-            <CommandGroup className={`${commandGroupClassName} min-h-[8rem]  max-h-[20rem] !w-full`}>
+            <CommandGroup
+              className={`${commandGroupClassName} min-h-[8rem]  max-h-[20rem] !w-full`}
+            >
               <List
                 height={200}
                 itemCount={sortedData.length}
@@ -229,7 +232,7 @@ setFocusedIndex(sortedData.findIndex((item)=>item.value===value))
                       <CommandItem
                         className={cn(
                           "text-left border mb-1.5 break-word  truncate whitespace-break-spaces !max-h-[3rem] overflow-hidden !pl-0 border-[#E0E0E0]   !bg-gray-200/70 !ml-0 ",
-                          multiSelect && "!pl-2" 
+                          multiSelect && "!pl-2"
                         )}
                         onBlur={onBlur}
                         onSelect={() => {
@@ -249,12 +252,20 @@ setFocusedIndex(sortedData.findIndex((item)=>item.value===value))
                             <span>
                               {item?.archived_status ? (
                                 <Archive className="h-4 w-4 text-yellow-500" />
-                              ):<div className="h-4 w-4"/>}
+                              ) : (
+                                <div className="h-4 w-4" />
+                              )}
                             </span>
                             <span className="capitalize text-left flex items-center gap-x-2">
-                              {item?.label?.slice(0, ((showBranchAsLink ||showVendorAsLink)?30:35)) ||
-                                item?.value?.slice(0, ((showBranchAsLink ||showVendorAsLink)?25:35))}{" "}
-                              {item?.label?.length > ((showBranchAsLink ||showVendorAsLink)?40:35) && "..."}
+                              {item?.label?.slice(
+                                0,
+                                (showBranchAsLink || showVendorAsLink) &&
+                                  item?.label?.length
+                              ) ||
+                                item?.value?.slice(
+                                  0,
+                                  showBranchAsLink || showVendorAsLink ? 25 : 35
+                                )}{" "}
                             </span>
                           </div>
                           <div className="flex items-center gap-x-1 mr-0.5">
@@ -267,7 +278,6 @@ setFocusedIndex(sortedData.findIndex((item)=>item.value===value))
                             )}
                             {multiSelect && (
                               <Checkbox
-                             
                                 checked={itemsArray.includes(item.value)}
                                 onCheckedChange={(checked) => {
                                   setItemsArray((prev) => {
