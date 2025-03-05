@@ -30,6 +30,8 @@ const BulkCategorizationTable = ({
   const [searchParams] = useSearchParams();
   const updateParams = useUpdateParams();
 
+  let page = searchParams.get("page");
+
   const [focusedRow, setFocusedRow] = useState(-1);
   const tableRef = useRef(null);
 
@@ -84,6 +86,10 @@ const BulkCategorizationTable = ({
     };
   }, [focusedRow, filteredData, navigate]);
 
+  useEffect(() => {
+    setFocusedRow(-1);
+  }, [page]);
+
   return (
     <div className="w-full mt-4">
       <div className="relative rounded-lg overflow-hidden" ref={tableRef}>
@@ -120,35 +126,35 @@ const BulkCategorizationTable = ({
                 </TableHead>
               ))}
             </TableRow>
-        <div className="absolute top-0">
-        <TooltipProvider>
-              <Tooltip open={showShortCuts}>
-                <TooltipTrigger div className=" z-50">
-                  {" "}
-                </TooltipTrigger>
-                <TooltipContent className="bg-white border  absolute -top-[3rem] -left-[15rem] shadow-sm px-4 flex items-center  gap-x-1  min-w-[18rem]    h-10 ml-[16rem]">
-                  <span className="mr-2 text-gray-800 text-sm flex min-w-fit  items-center gap-x-1 ">
-                    <span> Press </span>
-                    <kbd>
-                      <ArrowDown className="w-4 h-4" />
-                    </kbd>
-                    <kbd>
-                      <ArrowUp className="w-4 h-4" />
-                    </kbd>{" "}
-                    <span>to move up or down</span>
-                  </span>
-                  <span
-                    onClick={(e) => {
-                      setShowShortCuts(false);
-                      e.stopPropagation();
-                    }}
-                  >
-                    <X className="text-gray-800 h-[1rem] absolute w-[1rem] top-1 right-1 cursor-pointer" />
-                  </span>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-        </div>
+            <div className="absolute top-0">
+              <TooltipProvider>
+                <Tooltip open={showShortCuts}>
+                  <TooltipTrigger div className=" z-50">
+                    {" "}
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-white border  absolute -top-[3rem] -left-[15rem] shadow-sm px-4 flex items-center  gap-x-1  min-w-[18rem]    h-10 ml-[16rem]">
+                    <span className="mr-2 text-gray-800 text-sm flex min-w-fit  items-center gap-x-1 ">
+                      <span> Press </span>
+                      <kbd>
+                        <ArrowDown className="w-4 h-4" />
+                      </kbd>
+                      <kbd>
+                        <ArrowUp className="w-4 h-4" />
+                      </kbd>{" "}
+                      <span>to move up or down</span>
+                    </span>
+                    <span
+                      onClick={(e) => {
+                        setShowShortCuts(false);
+                        e.stopPropagation();
+                      }}
+                    >
+                      <X className="text-gray-800 h-[1rem] absolute w-[1rem] top-1 right-1 cursor-pointer" />
+                    </span>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
           </TableHeader>
         </Table>
 
