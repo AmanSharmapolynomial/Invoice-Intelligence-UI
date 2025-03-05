@@ -52,6 +52,7 @@ const FIVPagination = ({ data ,masterUUID,setMasterUUID,selectedItems,setSelecte
     if (fiv_item_number < total_items - 1) {
       setFIVItemNumber(Number(fiv_item_number) + 1);
       setFIVCurrentItem(fiv_items[Number(fiv_item_number)]);
+      setFIVItems(fiv_items?.filter((it)=>!it?.human_verified))
     } else {
       if (fiv_item_number >= total_items - 1) {
         if ((page<=data?.data?.total_item_count)) {
@@ -72,6 +73,7 @@ const FIVPagination = ({ data ,masterUUID,setMasterUUID,selectedItems,setSelecte
     if (fiv_item_number > 0) {
       setFIVItemNumber(fiv_item_number - 1);
       setFIVCurrentItem(fiv_items[fiv_item_number]);
+      setFIVItems(fiv_items?.filter((it)=>!it?.human_verified))
     }
     setSelectedItems([])
     setMasterUUID(null)
