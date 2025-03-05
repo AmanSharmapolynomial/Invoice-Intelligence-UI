@@ -445,7 +445,11 @@ const FastItemVerification = () => {
       setIsAccordionOpen(false);
     }
   }, [fiv_total_items_count, fiv_verified_items_count]);
-
+  useEffect(()=>{
+   if(similarItems?.data?.total_matches>0){
+    setIsAccordionOpen(true)
+   }
+  },[similarItems])
   return (
     <div className="h-screen  flex w-full " id="maindiv">
       <Sidebar />
