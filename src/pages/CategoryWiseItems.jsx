@@ -570,9 +570,7 @@ const CategoryWiseItems = () => {
                   </Tooltip>
                 </TooltipProvider>
               )}
-              {(removingItem ||saving) && (
-                  <Loader className="absolute top-[40%]  right-[50%]" />
-                )}
+           
               {loadingItems ? (
                 <div className="flex flex-col gap-y-4 h-[50vh]">
                   {new Array(10).fill(0).map((_, index) => {
@@ -612,8 +610,8 @@ const CategoryWiseItems = () => {
                             ) &&
                             "border-[#E4897B]"
                           } ${
-                            removingItem ||
-                            (saving && "opacity-50 border-opacity-50")
+                            ((removingItem ||
+                            saving )&& "opacity-50 border-opacity-50")
                           } border rounded-sm w-full px-4 cursor-pointer border-[#D9D9D9] min-h-[2.5rem] flex items-center justify-between`}
                         >
                           <div className="flex items-center gap-x-4">
