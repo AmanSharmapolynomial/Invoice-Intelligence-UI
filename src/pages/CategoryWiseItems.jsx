@@ -175,7 +175,7 @@ const CategoryWiseItems = () => {
         saveAndNextHandler();
       }
       if (e.altKey && e.key == "r") {
-        if (selectedVendor) {
+        if (selectedVendor!==null) {
           navigate(
             `/items-categorization/${category_id}/${selectedVendor?.vendor?.vendor_id}?category_name=${category_name}&page=${page}&selected_vendor_id=${selected_vendor_id}`
           );

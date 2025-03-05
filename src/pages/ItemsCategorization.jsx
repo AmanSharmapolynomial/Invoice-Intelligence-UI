@@ -120,7 +120,9 @@ const ItemsCategorization = () => {
       }
       if (e.altKey && e.key == "Enter") {
         if (!data?.data || !(Object?.keys(data?.data)?.length == 0)) {
-          updateHandler();
+          if(selectedCategory!==null && selectedItems?.length>0){
+            updateHandler();
+          }
         } else {
           navigate("/bulk-categorization");
         }
@@ -190,7 +192,7 @@ const ItemsCategorization = () => {
 
         <div className="w-full flex h-full gap-x-2 mt-8 md:px-4 2xl:px-10">
           <div className="w-[60%] px-8  ">
-            {data?.data?.length > 0&&
+            {data?.data?.length > 0 && (
               <TooltipProvider>
                 <Tooltip open={showShortCuts} className="">
                   <TooltipTrigger className=""></TooltipTrigger>
@@ -204,7 +206,7 @@ const ItemsCategorization = () => {
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-            }
+            )}
             <div className="flex flex-col  relative gap-y-3 md:max-h-[30rem] 2xl:max-h-[35rem] px-4 pb-2 overflow-auto ">
               {" "}
               {isLoading ? (
