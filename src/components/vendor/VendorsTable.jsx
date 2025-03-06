@@ -126,6 +126,8 @@ const VendorsTable = ({ columns, data, isLoading }) => {
                               ? formatDateTimeToReadable(
                                   getValue(row, column?.key)
                                 ) || "NA"
+                              : column?.key === "percentage_approved"
+                              ? `${getValue(row, column?.key)} %`
                               : getValue(row, column?.key) || 0}
                             {column?.key === "vendor[vendor_name]" &&
                               row?.vendor?.human_verified && (
