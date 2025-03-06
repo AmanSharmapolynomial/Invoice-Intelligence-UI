@@ -124,10 +124,12 @@ const CategoryWiseItems = () => {
             queryClient.invalidateQueries({
               queryKey: ["removed-items-count"]
             });
+         
             if (item_uuids?.length > 0) {
               setSaving(true);
               approveVendorItems(item_uuids, {
                 onSuccess: (data) => {
+                  setUnCheckedItems([])
                   toast.success(data?.message);
                   setSaving(false);
                   queryClient.invalidateQueries({
@@ -347,6 +349,10 @@ const CategoryWiseItems = () => {
     filteredVendors
   ]);
 
+
+  useEffect(()=>{
+setUnCheckedItems([])
+  },[page])
   // Reset focus when search changes
   useEffect(() => {
     setFocusedVendor(-1);
@@ -682,7 +688,13 @@ const CategoryWiseItems = () => {
                         <div
                           key={index}
                           onClick={() => {
-                            removeItem({ item_uuid: item?.item_uuid });
+                            // removeItem({ item_uuid: item?.item_uuid });;
+
+                            if(unCheckedItems?.includes(item?.item_uuid)){
+                              setUnCheckedItems(unCheckedItems?.filter((it)=>it!==item?.item_uuid))
+                            }else{
+                               setUnCheckedItems([...unCheckedItems,item?.item_uuid])
+                            }
                           }}
                           className={` ${
                             unCheckedItems?.includes(item?.item_uuid) &&
