@@ -176,7 +176,7 @@ const ItemsCategorization = () => {
     category_name,
     searchParams
   ]);
-  console.log(data);
+
 
   return (
     <div className="py-4 ">
