@@ -262,7 +262,7 @@ const CustomDropDown = ({
                                 (showBranchAsLink || showVendorAsLink) &&
                                   item?.label?.length
                               ) ||
-                                item?.value?.slice(
+                                item?.label?.slice(
                                   0,
                                   showBranchAsLink || showVendorAsLink ? 25 : 35
                                 )}{" "}
