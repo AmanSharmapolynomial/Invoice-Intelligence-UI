@@ -77,8 +77,15 @@ function App() {
             }}
             content="Speed up item master verification for seamless operations."
           />
-        
-      
+
+          <CustomCard
+            Icon={frame15}
+            className={"cursor-pointer"}
+            showIcon={true}
+            onClick={() => navigate(`/bulk-categorization`)}
+            title="Bulk Item Categorization"
+            content="Manage and delegate invoice tasks seamlessly."
+          />
         </div>
       </Layout>
       <Modal

@@ -733,9 +733,10 @@ const CategoryWiseItems = () => {
                     </div>
                   ) : (
                     items?.data?.items?.map((item, index) => {
-                      let isUncheckd = removedItems?.data?.removed_items?.find(
+                      let isUncheckd =  removedItems?.data?.length>0?removedItems?.data?.find(
                         (it) => it.item_uuid == item?.item_uuid
-                      );
+                      ):false;
+               
                       return (
                         <div
                           key={index}
