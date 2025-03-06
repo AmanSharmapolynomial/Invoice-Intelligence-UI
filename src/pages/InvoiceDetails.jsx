@@ -6,6 +6,7 @@ import { PdfViewer } from "@/components/common/PDFViewer";
 import {
   useFindDuplicateInvoices,
   useGetDocumentNotes,
+  useGetSimilarVendors,
   useMarkAsNotSupported,
   useMarkReviewLater,
   useUpdateDocumentMetadata,
@@ -119,7 +120,9 @@ const InvoiceDetails = () => {
     setBranchChanged,
     setVendorChanged,
     metadata,
-    setHistory
+    setHistory,
+    is_unverified_vendor,
+    current_document_uuid
   } = invoiceDetailStore();
   const [isLoading, setIsLoading] = useState(true);
   const [loadingState, setLoadingState] = useState({
@@ -129,6 +132,13 @@ const InvoiceDetails = () => {
     markingForReview: false,
     markingAsNotSupported: false
   });
+
+  const { data: similarVendors, isLoading: loadingSimilarVendors } =
+    useGetSimilarVendors({
+      toFetch: is_unverified_vendor,
+      document_uuid: current_document_uuid
+    });
+
   const { filters, setFilters } = useFilterStore();
   const { mutate: updateTable } = useUpdateDocumentMetadata();
   const { mutate: markForReview, isPending: markingForReview } =
@@ -137,6 +147,8 @@ const InvoiceDetails = () => {
   const { mutate: markAsNotSupported } = useMarkAsNotSupported();
   const { selectedInvoiceVendorName, selectedInvoiceRestaurantName } =
     globalStore();
+
+  const [showAcceptModal, setShowAcceptModal] = useState(false);
   const { data: duplicateInvoices } = useFindDuplicateInvoices(
     data?.data?.document_uuid || data?.data?.[0]?.document_uuid
   );
@@ -565,7 +577,6 @@ const InvoiceDetails = () => {
         <BreadCrumb
           showCustom={true}
           hideTitle={true}
-          
           crumbs={[
             {
               path: null,
@@ -573,72 +584,73 @@ const InvoiceDetails = () => {
             }
           ]}
         >
-          {
-            isLoading?<div className="flex items-center gap-x-2">
-            <Skeleton className={"w-44 h-10  mb-1"}/>
-            <Skeleton className={"w-44 h-10  mb-1"}/>
-          
-            </div>:<>
-            <div className="flex gap-x-4 items-end">
-            {(data?.data?.restaurant || data?.data?.[0]?.restaurant) && (
-              <>
-                <div className="flex flex-col gap-y-0">
-                  <p className="text-[#6D6D6D] font-poppins font-medium text-xs leading-4">
-                    Restaurant
-                  </p>
-                  <p className="capitalize text-[#121212] font-semibold font-poppins text-xl">
-                    {data?.data?.restaurant?.restaurant_name ||
-                      data?.data?.[0]?.restaurant?.restaurant_name ||
-                      data?.data?.restaurant?.restaurant_id ||
-                      data?.data?.[0]?.restaurant?.restaurant_id}
-                  </p>
-                </div>
-              </>
-            )}
-
-            {(data?.data?.vendor || data?.data?.[0]?.vendor) && (
-              <>
-                <p className="text-2xl">|</p>
-                <div className="flex flex-col gap-y-0">
-                  <p className="text-[#6D6D6D] font-poppins font-medium text-xs leading-4">
-                    Vendor
-                  </p>
-                  <p className="capitalize text-[#121212] font-semibold font-poppins text-xl flex gap-x-2 items-center">
-                    {data?.data?.vendor?.vendor_name ||
-                      data?.data?.[0]?.vendor?.vendor_name}
-
-                    {data?.data?.vendor?.human_verified ||
-                      (data?.data?.[0]?.vendor?.human_verified && (
-                        <img src={approved} />
-                      ))}
-                  </p>
-                </div>
-              </>
-            )}
-            <div>
-              <div className=" -mt-[1.78rem] -ml-3">
-                {myData?.human_verified === true &&
-                  myData?.rejected === false && (
-                    <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#348355] text-[#ffffff] p-1 rounded-xl px-3">
-                      Accepted{" "}
-                    </span>
-                  )}
-                {myData?.rejected === true && (
-                  <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#F15156] text-[#ffffff] p-1 rounded-xl   px-3">
-                    Rejected{" "}
-                  </span>
-                )}
-                {myData?.human_verified === false &&
-                  myData?.rejected === false && (
-                    <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#B28F10] text-[#ffffff] py-1  px-3 rounded-xl ">
-                      Pending{" "}
-                    </span>
-                  )}
-              </div>
+          {isLoading ? (
+            <div className="flex items-center gap-x-2">
+              <Skeleton className={"w-44 h-10  mb-1"} />
+              <Skeleton className={"w-44 h-10  mb-1"} />
             </div>
-          </div>
+          ) : (
+            <>
+              <div className="flex gap-x-4 items-end">
+                {(data?.data?.restaurant || data?.data?.[0]?.restaurant) && (
+                  <>
+                    <div className="flex flex-col gap-y-0">
+                      <p className="text-[#6D6D6D] font-poppins font-medium text-xs leading-4">
+                        Restaurant
+                      </p>
+                      <p className="capitalize text-[#121212] font-semibold font-poppins text-xl">
+                        {data?.data?.restaurant?.restaurant_name ||
+                          data?.data?.[0]?.restaurant?.restaurant_name ||
+                          data?.data?.restaurant?.restaurant_id ||
+                          data?.data?.[0]?.restaurant?.restaurant_id}
+                      </p>
+                    </div>
+                  </>
+                )}
+
+                {(data?.data?.vendor || data?.data?.[0]?.vendor) && (
+                  <>
+                    <p className="text-2xl">|</p>
+                    <div className="flex flex-col gap-y-0">
+                      <p className="text-[#6D6D6D] font-poppins font-medium text-xs leading-4">
+                        Vendor
+                      </p>
+                      <p className="capitalize text-[#121212] font-semibold font-poppins text-xl flex gap-x-2 items-center">
+                        {data?.data?.vendor?.vendor_name ||
+                          data?.data?.[0]?.vendor?.vendor_name}
+
+                        {data?.data?.vendor?.human_verified ||
+                          (data?.data?.[0]?.vendor?.human_verified && (
+                            <img src={approved} />
+                          ))}
+                      </p>
+                    </div>
+                  </>
+                )}
+                <div>
+                  <div className=" -mt-[1.78rem] -ml-3">
+                    {myData?.human_verified === true &&
+                      myData?.rejected === false && (
+                        <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#348355] text-[#ffffff] p-1 rounded-xl px-3">
+                          Accepted{" "}
+                        </span>
+                      )}
+                    {myData?.rejected === true && (
+                      <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#F15156] text-[#ffffff] p-1 rounded-xl   px-3">
+                        Rejected{" "}
+                      </span>
+                    )}
+                    {myData?.human_verified === false &&
+                      myData?.rejected === false && (
+                        <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#B28F10] text-[#ffffff] py-1  px-3 rounded-xl ">
+                          Pending{" "}
+                        </span>
+                      )}
+                  </div>
+                </div>
+              </div>
             </>
-          }
+          )}
         </BreadCrumb>
         {(branchChanged || vendorChanged) && showWarningForBranchAndVendor && (
           <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
@@ -905,7 +917,13 @@ const InvoiceDetails = () => {
               }
             >
               <Button
-                onClick={handleAccept}
+                onClick={() => {
+                  // if (is_unverified_vendor) {
+                  //   setShowAcceptModal(true);
+                  // } else {
+                  handleAccept();
+                  // }
+                }}
                 disabled={
                   action_controls?.accept?.disabled || loadingState?.accepting
                 }
@@ -1308,6 +1326,42 @@ const InvoiceDetails = () => {
                 );
               })}
             </div>
+          </div>
+        </ModalDescription>
+      </Modal>
+
+      <Modal
+        open={showAcceptModal}
+        setOpen={setShowAcceptModal}
+        title={"Information"}
+        className={"!rounded-2xl"}
+        titleClassName={
+          "flex justify-center  text-[#000000] font-poppins  font-medium  text-base  leading-4 pt-0.5 "
+        }
+      >
+        <ModalDescription>
+          <div className="p-2">
+            <p className="mb-1.5  font-poppins text-[0.9rem] font-normal text-[#000000] ">
+              Following are the possible duplicate vendors :
+            </p>
+          </div>
+
+          <div className="min-h-36"></div>
+          <div className="flex justify-center items-center gap-x-2">
+            <Button
+              disabled={loadingState?.accepting}
+              onClick={handleRejection}
+              className="mt-8 border bg-transparent hover:bg-transparent border-primary text-black font-poppins tracking-wide  !font-normal text-xs rounded-sm leading-4 "
+            >
+              {"Go Back"}
+            </Button>
+            <Button
+              disabled={loadingState?.accepting}
+              onClick={handleRejection}
+              className="mt-8 text-[#FFFFFF] font-poppins tracking-wide  !font-normal text-xs rounded-sm leading-4 "
+            >
+              {loadingState?.accepting ? "Accepting...." : "Accept"}
+            </Button>
           </div>
         </ModalDescription>
       </Modal>

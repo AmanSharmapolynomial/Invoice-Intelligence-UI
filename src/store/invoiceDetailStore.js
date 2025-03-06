@@ -29,6 +29,8 @@ export const invoiceDetailStore = create((set, get) => ({
   editVendor: false,
   totalPages: null,
   review_later: false,
+  is_unverified_vendor: false,
+  current_document_uuid:null,
   setReviewLater: (val) => set({ review_later: val }),
   setCombinedTableHistory: (history) => set({ combinedTableHistory: history }),
   setTotalPages: (pages) => set({ totalPages: pages }),
@@ -68,8 +70,10 @@ export const invoiceDetailStore = create((set, get) => ({
   setInvoiceType: (type) => set({ invoiceType: type }),
   setMetaData: (data) => set({ metaData: data }),
   setBoundingBox: (box) => set({ bounding_box: box }),
-  setBoundingBoxes: (boxes) => set({ bounding_boxes: boxes }),
   setHighlightAll: (highlightAll) => set({ highlightAll: highlightAll }),
+  setIsUnverifiedVendor: (v) => set({ is_unverified_vendor: v }),
+  setBoundingBoxes: (boxes) => set({ bounding_boxes: boxes }),
+  setCurrentDocumentUUID:(v)=>set({current_document_uuid:v}),
   setAdded: (flag) => set({ added: flag }),
   clearStore: () =>
     set({
@@ -89,6 +93,8 @@ export const invoiceDetailStore = create((set, get) => ({
       editBranch: false,
       editVendor: false,
       showTextExtractionModal: false,
-      metadataTableCopy: {}
+      metadataTableCopy: {},
+      is_unverified_vendor: false,
+      current_document_uuid:null
     })
 }));

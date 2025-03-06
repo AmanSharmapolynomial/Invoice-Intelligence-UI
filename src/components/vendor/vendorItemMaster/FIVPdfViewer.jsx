@@ -153,7 +153,9 @@ const FIVPdfViewer = ({}) => {
   // Reset manual zoom when document changes
   useEffect(() => {
   if(!isSelecting &&image==null){
-    zoomToBoundingBox();
+    if(!showTextExtractionModal){
+      zoomToBoundingBox();
+    }
   }
   }, [document_source, boundingBoxes]);
   const prevDocumentLink = useRef(null);
@@ -251,7 +253,8 @@ const FIVPdfViewer = ({}) => {
       formData.append("image", blob, "selected_area.png");
       mutate(formData, {
         onSuccess: (data) => {
-          setText(data?.data?.text?.split("\n")?.join(" "));
+          setText(data?.data?.text?.trimEnd()?.split("\n")?.join(" ")
+        );
           navigator.clipboard.writeText(data?.data?.text);
         }
       });

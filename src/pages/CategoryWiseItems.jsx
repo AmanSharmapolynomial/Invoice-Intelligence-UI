@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/tooltip";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { queryClient } from "@/lib/utils";
-import { filter } from "lodash";
+import { filter, remove } from "lodash";
 import {
   ArrowLeft,
   ChevronLeft,
@@ -106,14 +106,15 @@ const CategoryWiseItems = () => {
 
   const saveAndNextHandler = () => {
     const removedItemsIDs =
-      removedItems?.data?.length > 0
-        ? removedItems?.data?.map((ri) => ri?.item_uuid)
+      removedItems?.data?.removed_items?.length > 0
+        ? removedItems?.data?.removed_items?.map((ri) => ri?.item_uuid)
         : [];
 
     let item_uuids =
       items?.data?.items
         ?.filter((it) => !unCheckedItems?.includes(it?.item_uuid))
-        ?.map((it) => it.item_uuid) || [];
+        ?.map((it) => it.item_uuid)
+        ?.filter((it) => !removedItemsIDs?.includes(it)) || [];
     if (unCheckedItems?.length > 0) {
       setSaving(true);
       removeItemsInBulk(
@@ -124,12 +125,12 @@ const CategoryWiseItems = () => {
             queryClient.invalidateQueries({
               queryKey: ["removed-items-count"]
             });
-         
+
             if (item_uuids?.length > 0) {
               setSaving(true);
               approveVendorItems(item_uuids, {
                 onSuccess: (data) => {
-                  setUnCheckedItems([])
+                  setUnCheckedItems([]);
                   toast.success(data?.message);
                   setSaving(false);
                   queryClient.invalidateQueries({
@@ -137,6 +138,9 @@ const CategoryWiseItems = () => {
                   });
                   queryClient.invalidateQueries({
                     queryKey: ["removed-items-count"]
+                  });
+                  queryClient.invalidateQueries({
+                    queryKey: ["removed-vendor-items"]
                   });
                   updateParams({ search_term: "" });
                   if (item_uuids?.length == 0) {
@@ -169,6 +173,48 @@ const CategoryWiseItems = () => {
           }
         }
       );
+    } else {
+      if (item_uuids?.length > 0) {
+        setSaving(true);
+        approveVendorItems(item_uuids, {
+          onSuccess: (data) => {
+            setUnCheckedItems([]);
+            toast.success(data?.message);
+            setSaving(false);
+            queryClient.invalidateQueries({
+              queryKey: ["category-wise-items"]
+            });
+            queryClient.invalidateQueries({
+              queryKey: ["removed-items-count"]
+            });
+            queryClient.invalidateQueries({
+              queryKey: ["removed-vendor-items"]
+            });
+            updateParams({ search_term: "" });
+            if (item_uuids?.length == 0) {
+              if (page < items?.total_pages) {
+                setSaving(false);
+                updateParams({
+                  page: Number(page) + 1
+                });
+              } else {
+                setSaving(false);
+                if (mode == "vendor" && selectedVendor == null) {
+                  toast.error("Select a vendor.");
+                } else {
+                  navigate(
+                    `/items-categorization/${category_id}/${selectedVendor?.vendor?.vendor_id}?category_name=${category_name}&page=${page}&selected_vendor_id=${selected_vendor_id}&mode=${mode}`
+                  );
+                }
+              }
+            }
+          },
+          onError: (data) => {
+            toast.error(data?.message);
+            setSaving(false);
+          }
+        });
+      }
     }
   };
   let timer;
@@ -349,10 +395,9 @@ const CategoryWiseItems = () => {
     filteredVendors
   ]);
 
-
-  useEffect(()=>{
-setUnCheckedItems([])
-  },[page])
+  useEffect(() => {
+    setUnCheckedItems([]);
+  }, [page]);
   // Reset focus when search changes
   useEffect(() => {
     setFocusedVendor(-1);
@@ -416,24 +461,28 @@ setUnCheckedItems([])
               />
               <Label htmlFor="airplane-mode">All Items</Label>
             </div>
-            {!loadingItems && selectedVendor !== null > 0 && (
-              <p
-                className="rounded-3xl h-[2.3rem] px-4 flex items-center justify-center font-poppins font-medium text-sm leading-5 text-black border border-[#E0E0E0] cursor-pointer "
-                onClick={() => {
-                  window.open(
-                    `/fast-item-verification/${selectedVendor?.vendor?.vendor_id}?vendor_name=${selectedVendor?.vendor?.vendor_name}&human_verified=${selectedVendor?.vendor?.human_verified}&from_view=item-master-vendors`,
-                    "_blank"
-                  );
-                }}
-              >
-                FIV Items: {selectedVendor?.non_human_verified_items_count}
-              </p>
-            )}
-            {!loadingItems && selectedVendor !== null && (
-              <p className="rounded-3xl h-[2.3rem] px-4 flex items-center justify-center font-poppins font-medium text-sm leading-5 text-black border border-[#E0E0E0]">
-                Total Items : {items?.total_records}
-              </p>
-            )}
+            {!loadingItems &&
+              selectedVendor !== null > 0 &&
+              items?.data?.items?.length > 0 && (
+                <p
+                  className="rounded-3xl h-[2.3rem] px-4 flex items-center justify-center font-poppins font-medium text-sm leading-5 text-black border border-[#E0E0E0] cursor-pointer "
+                  onClick={() => {
+                    window.open(
+                      `/fast-item-verification/${selectedVendor?.vendor?.vendor_id}?vendor_name=${selectedVendor?.vendor?.vendor_name}&human_verified=${selectedVendor?.vendor?.human_verified}&from_view=item-master-vendors`,
+                      "_blank"
+                    );
+                  }}
+                >
+                  FIV Items: {selectedVendor?.non_human_verified_items_count}
+                </p>
+              )}
+            {!loadingItems &&
+              selectedVendor !== null &&
+              items?.data?.items?.length > 0 && (
+                <p className="rounded-3xl h-[2.3rem] px-4 flex items-center justify-center font-poppins font-medium text-sm leading-5 text-black border border-[#E0E0E0]">
+                  Total Items : {items?.total_records}
+                </p>
+              )}
 
             <TooltipProvider>
               <Tooltip open={showShortCuts}>
@@ -684,20 +733,31 @@ setUnCheckedItems([])
                     </div>
                   ) : (
                     items?.data?.items?.map((item, index) => {
+                      let isUncheckd = removedItems?.data?.removed_items?.find(
+                        (it) => it.item_uuid == item?.item_uuid
+                      );
                       return (
                         <div
                           key={index}
                           onClick={() => {
                             // removeItem({ item_uuid: item?.item_uuid });;
 
-                            if(unCheckedItems?.includes(item?.item_uuid)){
-                              setUnCheckedItems(unCheckedItems?.filter((it)=>it!==item?.item_uuid))
-                            }else{
-                               setUnCheckedItems([...unCheckedItems,item?.item_uuid])
+                            if (unCheckedItems?.includes(item?.item_uuid)) {
+                              setUnCheckedItems(
+                                unCheckedItems?.filter(
+                                  (it) => it !== item?.item_uuid
+                                )
+                              );
+                            } else {
+                              setUnCheckedItems([
+                                ...unCheckedItems,
+                                item?.item_uuid
+                              ]);
                             }
                           }}
                           className={` ${
-                            unCheckedItems?.includes(item?.item_uuid) &&
+                            (isUncheckd ||
+                              unCheckedItems?.includes(item?.item_uuid)) &&
                             "border-[#ca5644]"
                           } border rounded-sm w-full px-4 cursor-pointer border-[#D9D9D9] min-h-[2.5rem] flex items-center justify-between`}
                         >
@@ -710,13 +770,14 @@ setUnCheckedItems([])
                             </span>
                           </div>
 
-                          {!unCheckedItems?.includes(item?.item_uuid) && (
-                            <img
-                              src={check_circle}
-                              alt=""
-                              className="h-5 w-5"
-                            />
-                          )}
+                          {!isUncheckd &&
+                            !unCheckedItems?.includes(item?.item_uuid) && (
+                              <img
+                                src={check_circle}
+                                alt=""
+                                className="h-5 w-5"
+                              />
+                            )}
                         </div>
                       );
                     })

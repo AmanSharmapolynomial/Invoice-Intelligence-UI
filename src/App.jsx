@@ -66,31 +66,18 @@ function App() {
             className={"cursor-pointer"}
             content="Ensure smooth processing and verification of invoices"
           />
-          <CustomCard
-            Icon={frame15}
-            showIcon={true}
-            onClick={() => setOpen(true)}
-            className={"cursor-pointer"}
-            title="Verify Vendors/Branches"
-            content="Ensure vendor and branch information is correct and up-to-date."
-          />
+
           <CustomCard
             Icon={frame15}
             showIcon={true}
             className={"cursor-pointer"}
-            title="Check Item Master"
+            title="Fast Item Verification"
             onClick={() => {
               navigate(`/item-master-vendors`);
             }}
             content="Speed up item master verification for seamless operations."
           />
-          <CustomCard
-            Icon={frame15}
-            showIcon={true}
-            className={"cursor-pointer"}
-            title="View User Activity"
-            content="Access a comprehensive log of all user activities."
-          />
+
           <CustomCard
             Icon={frame15}
             className={"cursor-pointer"}

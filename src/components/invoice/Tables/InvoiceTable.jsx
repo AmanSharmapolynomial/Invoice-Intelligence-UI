@@ -247,7 +247,7 @@ const InvoiceTable = ({
                     return (
                       <TableHead
                         key={i}
-                        className={`!text-left  pb-4  justify-normal !font-semibold !text-[#1C1C1E]  border ${
+                        className={`!text-left  py-4  justify-normal !font-semibold !text-[#1C1C1E]  border ${
                           i !== 9 || i !== 8 ? "!w-[10%]" : "!w-[10%]"
                         }    `}
                       >

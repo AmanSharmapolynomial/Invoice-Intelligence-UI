@@ -165,7 +165,7 @@ const ItemsCategorization = () => {
         <div className="mt-8 flex items-center justify-between border-b-2  pb-2 border-b-[#E0E0E0]">
           <div>
             <p className="font-poppins font-semibold capitalize text-xl leading-8 text-black">
-              Here are all the Non {category_name} Items{" "}
+              Here are all the Non <span className="font-extrabold text-primary">{category_name}</span> Items{" "}
             </p>
             <p className="font-poppins capitalize text-primary font-medium text-[0.9rem] leading-6 ">
               You can change the category of any item by clicking on the
