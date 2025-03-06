@@ -15,7 +15,7 @@ const initialState = {
   fiv_item_array: [],
   fiv_current_pdf_index: 0,
   fiv_is_final_page: false,
- 
+  fiv_document_loaded:false
 };
 
 const fastItemVerificationStore = create(
@@ -35,7 +35,7 @@ const fastItemVerificationStore = create(
       setFIVItemArray: (arr) => set({ fiv_item_array: arr }),
       setFIVCurrentPdfIndex: (ind) => set({ fiv_current_pdf_index: ind }),
       setFIVIsFinalPage: (v) => set({ fiv_is_final_page: v }),
-   
+      setFIVDocumentLoaded:(v)=>set({fiv_document_loaded:v}),
       resetStore: () => set(initialState)
     }),
     {

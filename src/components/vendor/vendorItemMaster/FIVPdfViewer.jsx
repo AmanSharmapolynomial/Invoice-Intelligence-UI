@@ -21,7 +21,9 @@ const FIVPdfViewer = ({}) => {
     fiv_current_item: lineItem,
     setFIVBoundingBoxes,
     fiv_item_array,
-    setFIVCurrentItem
+    setFIVCurrentItem,
+    setFIVDocumentLoaded,
+    setFIVItems
   } = fastItemVerificationStore();
   const document_link = fiv_item_array?.[currentPdfIndex]?.document_link;
   const document_source = fiv_item_array?.[currentPdfIndex]?.document_source;
@@ -152,11 +154,11 @@ const FIVPdfViewer = ({}) => {
 
   // Reset manual zoom when document changes
   useEffect(() => {
-  if(!isSelecting &&image==null){
-    if(!showTextExtractionModal){
-      zoomToBoundingBox();
+    if (!isSelecting && image == null) {
+      if (!showTextExtractionModal) {
+        zoomToBoundingBox();
+      }
     }
-  }
   }, [document_source, boundingBoxes]);
   const prevDocumentLink = useRef(null);
   const [selectPdfPortion, setSelectPdfPortion] = useState(false);
@@ -253,8 +255,7 @@ const FIVPdfViewer = ({}) => {
       formData.append("image", blob, "selected_area.png");
       mutate(formData, {
         onSuccess: (data) => {
-          setText(data?.data?.text?.trimEnd()?.split("\n")?.join(" ")
-        );
+          setText(data?.data?.text?.trimEnd()?.split("\n")?.join(" "));
           navigator.clipboard.writeText(data?.data?.text);
         }
       });
@@ -337,7 +338,14 @@ const FIVPdfViewer = ({}) => {
               <Document
                 file={document_link}
                 // loading={<span className="w-[75rem] overflow-hidden h-[20vh] flex items-center justify-center"><span>Loading PDF...</span></span>}
-                onLoadSuccess={({ numPages }) => setPageNum(1)}
+                onLoadSuccess={({ numPages }) => {
+                  setPageNum(1);
+                  setFIVDocumentLoaded(true);
+                }}
+                onLoadError={() => {
+                  setFIVDocumentLoaded(false);
+                  setFIVItems([])
+                }}
               >
                 <Page
                   pageNumber={pageNum}
