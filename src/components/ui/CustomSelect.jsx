@@ -63,6 +63,7 @@ const CustomSelect = forwardRef(
       if (showSearch && isDropdownOpen && inputRef.current) {
         inputRef.current.focus();
       }
+      inputRef.current.focus();
     }, [isDropdownOpen, dropDownSearch, showSearch]);
 
     return (
@@ -114,7 +115,11 @@ const CustomSelect = forwardRef(
                 placeholder={searchPlaceHolder}
                 value={dropDownSearch}
                 className="w-full p-2 border rounded-md"
-                onChange={(e) => setDropDownSearch(e.target.value)}
+                onChange={(e) => {
+                  e.preventDefault();
+                  setDropDownSearch(e.target.value);
+                  inputRef.current.focus();
+                }}
               />
             </div>
           }
@@ -122,28 +127,36 @@ const CustomSelect = forwardRef(
           <div className="py-1 max-h-60 overflow-auto ">
             <div className="mt-">
               {filteredDropDownItems?.length > 0 ? (
-                filteredDropDownItems.map(({ label, value }) => (
-                  <SelectItem
-                    key={value}
-                    value={value}
-                    className={`${optionClassName} flex justify-between`}
-                  >
-                    <div className="flex items-center justify-between w-full">
-                      <span>{label === "None" ? placeholder : label}</span>
-                      <div>
-                        {additionalKeysAndFunctions?.map(({ key, method }) => (
-                          <Button
-                            key={key}
-                            className="font-normal h-8"
-                            onClick={() => method(label)}
-                          >
-                            {key}
-                          </Button>
-                        ))}
+                data
+                  ?.filter((it) =>
+                    it?.label
+                      ?.toLowerCase()
+                      ?.includes(dropDownSearch?.toLowerCase())
+                  )
+                  ?.map(({ label, value }) => (
+                    <SelectItem
+                      key={value}
+                      value={value}
+                      className={`${optionClassName} flex justify-between`}
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <span>{label === "None" ? placeholder : label}</span>
+                        <div>
+                          {additionalKeysAndFunctions?.map(
+                            ({ key, method }) => (
+                              <Button
+                                key={key}
+                                className="font-normal h-8"
+                                onClick={() => method(label)}
+                              >
+                                {key}
+                              </Button>
+                            )
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </SelectItem>
-                ))
+                    </SelectItem>
+                  ))
               ) : (
                 <p className="flex justify-center text-gray-500 p-2">
                   No data found.

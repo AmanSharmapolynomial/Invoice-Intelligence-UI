@@ -65,7 +65,7 @@ const ItemsCategorization = () => {
   const { fiv_removed_items_mode } = invoiceDetailStore();
   const { data, isLoading } = useGetRemovedVendorItems({
     category_id,
-    vendor_id,
+    vendor_id:selected_vendor_id,
     mode,
     page: page_number,
     page_size
