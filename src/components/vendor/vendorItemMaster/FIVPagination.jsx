@@ -17,7 +17,8 @@ const FIVPagination = ({ data ,masterUUID,setMasterUUID,selectedItems,setSelecte
     resetStore,
     setFIVItems,
     fiv_total_items_count,
-    fiv_verified_items_count
+    fiv_verified_items_count,
+    fiv_document_loaded
   } = fastItemVerificationStore();
   const { mutate: getAllItems } = useGetVendorItemMasterAllItems();
 
@@ -29,25 +30,27 @@ const FIVPagination = ({ data ,masterUUID,setMasterUUID,selectedItems,setSelecte
 
   const handleNext = () => {
     if (fiv_items?.length == 0) {
-      getAllItems(
-        {
-          vendor_id,
-          document_uuid: data?.data?.item?.[0]?.document_uuid,
-          page: page
-        },
-        {
-          onSuccess: (data) => {
-            setFIVItems(
-              data?.data?.items?.filter(
-                (it) => it.item_uuid !== fiv_current_item?.item_uuid
-              )
-            );
-            setIsGoodDocument(false);
-
-            setFIVCurrentItem(data?.data?.items[fiv_item_number + 1]);
+      if(fiv_document_loaded){
+        getAllItems(
+          {
+            vendor_id,
+            document_uuid: data?.data?.item?.[0]?.document_uuid,
+            page: page
+          },
+          {
+            onSuccess: (data) => {
+              setFIVItems(
+                data?.data?.items?.filter(
+                  (it) => it.item_uuid !== fiv_current_item?.item_uuid
+                )
+              );
+              setIsGoodDocument(false);
+  
+              setFIVCurrentItem(data?.data?.items[fiv_item_number + 1]);
+            }
           }
-        }
-      );
+        );
+      }
     }
     if (fiv_item_number < total_items - 1) {
       setFIVItemNumber(Number(fiv_item_number) + 1);

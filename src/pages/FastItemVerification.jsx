@@ -71,7 +71,8 @@ const FastItemVerification = () => {
     setFIVItemArray,
     fiv_current_pdf_index,
     setFIVIsFinalPage,
-    fiv_is_final_page
+    fiv_is_final_page,
+    fiv_document_loaded
   } = fastItemVerificationStore();
 
   const [selectedItems, setSelectedItems] = useState([]);
@@ -105,7 +106,7 @@ const FastItemVerification = () => {
 
   const total_items = fiv_items?.length || 0;
   const { data: similarItems, isLoading: loadinSimilarItems } =
-    useGetItemMastSimilarItems({ item_uuid: item_uuid, threshold: 80});
+    useGetItemMastSimilarItems({ item_uuid: item_uuid, threshold: 80 });
   const { mutate: getAllItems } = useGetVendorItemMasterAllItems();
 
   const { mutate: mergeItemMaster, isPending: mergingItemMaster } =
@@ -130,31 +131,33 @@ const FastItemVerification = () => {
         data?.data?.item?.[fiv_current_pdf_index]?.document_uuid
       );
 
-      getAllItems(
-        {
-          vendor_id,
-          document_uuid:
-            data?.data?.item?.[fiv_current_pdf_index]?.document_uuid,
-          page: page
-        },
-        {
-          onSuccess: (data) => {
-            setFIVItems(
-              data?.data?.items?.filter(
-                (it) => it.item_uuid !== fiv_current_item?.item_uuid
-              )
-            );
-            setIsGoodDocument(false);
-            setFIVTotalItemsCount(data?.data?.total_item_count);
-            setFIVVerifiedItemsCount(data?.data?.verified_item_count);
-            setFIVCurrentItem(
-              data?.data?.items?.length == 1
-                ? data?.data?.items[fiv_item_number]
-                : data?.data?.items[fiv_item_number + 1]
-            );
+      if (fiv_document_loaded) {
+        getAllItems(
+          {
+            vendor_id,
+            document_uuid:
+              data?.data?.item?.[fiv_current_pdf_index]?.document_uuid,
+            page: page
+          },
+          {
+            onSuccess: (data) => {
+              setFIVItems(
+                data?.data?.items?.filter(
+                  (it) => it.item_uuid !== fiv_current_item?.item_uuid
+                )
+              );
+              setIsGoodDocument(false);
+              setFIVTotalItemsCount(data?.data?.total_item_count);
+              setFIVVerifiedItemsCount(data?.data?.verified_item_count);
+              setFIVCurrentItem(
+                data?.data?.items?.length == 1
+                  ? data?.data?.items[fiv_item_number]
+                  : data?.data?.items[fiv_item_number + 1]
+              );
+            }
           }
-        }
-      );
+        );
+      }
     }
   }, [fiv_items, data]);
   useEffect(() => {
@@ -194,28 +197,30 @@ const FastItemVerification = () => {
 
           // Handle pagination & moving to the next item
           if (fiv_items?.length == 0) {
-            getAllItems(
-              {
-                vendor_id,
-                document_uuid:
-                  data?.data?.item?.[fiv_current_pdf_index]?.document_uuid,
-                page: page
-              },
-              {
-                onSuccess: (data) => {
-                  setFIVItems(
-                    data?.data?.items?.filter(
-                      (it) => it.item_uuid !== fiv_current_item?.item_uuid
-                    )
-                  );
-                  setIsGoodDocument(false);
+            if (fiv_document_loaded) {
+              getAllItems(
+                {
+                  vendor_id,
+                  document_uuid:
+                    data?.data?.item?.[fiv_current_pdf_index]?.document_uuid,
+                  page: page
+                },
+                {
+                  onSuccess: (data) => {
+                    setFIVItems(
+                      data?.data?.items?.filter(
+                        (it) => it.item_uuid !== fiv_current_item?.item_uuid
+                      )
+                    );
+                    setIsGoodDocument(false);
 
-                  setFIVCurrentItem(data?.data?.items[fiv_item_number + 1]);
-                  setFIVTotalItemsCount(data?.data?.total_item_count);
-                  setFIVVerifiedItemsCount(data?.data?.verified_item_count);
+                    setFIVCurrentItem(data?.data?.items[fiv_item_number + 1]);
+                    setFIVTotalItemsCount(data?.data?.total_item_count);
+                    setFIVVerifiedItemsCount(data?.data?.verified_item_count);
+                  }
                 }
-              }
-            );
+              );
+            }
           }
           if (fiv_item_number < total_items - 1) {
             setFIVItemNumber(Number(fiv_item_number) + 1);
@@ -269,26 +274,28 @@ const FastItemVerification = () => {
           setFIVItems(updatedItems);
           setIsGoodDocument(fiv_items.length === 0);
           if (fiv_items?.length == 0) {
-            getAllItems(
-              {
-                vendor_id,
-                document_uuid:
-                  data?.data?.item?.[fiv_current_pdf_index]?.document_uuid,
-                page: page
-              },
-              {
-                onSuccess: (data) => {
-                  setFIVItems(
-                    data?.data?.items?.filter(
-                      (it) => it.item_uuid !== fiv_current_item?.item_uuid
-                    )
-                  );
-                  setIsGoodDocument(false);
+            if (fiv_document_loaded) {
+              getAllItems(
+                {
+                  vendor_id,
+                  document_uuid:
+                    data?.data?.item?.[fiv_current_pdf_index]?.document_uuid,
+                  page: page
+                },
+                {
+                  onSuccess: (data) => {
+                    setFIVItems(
+                      data?.data?.items?.filter(
+                        (it) => it.item_uuid !== fiv_current_item?.item_uuid
+                      )
+                    );
+                    setIsGoodDocument(false);
 
-                  setFIVCurrentItem(data?.data?.items[fiv_item_number + 1]);
+                    setFIVCurrentItem(data?.data?.items[fiv_item_number + 1]);
+                  }
                 }
-              }
-            );
+              );
+            }
           }
           // Handle pagination & moving to the next item
 
@@ -445,11 +452,11 @@ const FastItemVerification = () => {
       setIsAccordionOpen(false);
     }
   }, [fiv_total_items_count, fiv_verified_items_count]);
-  useEffect(()=>{
-   if(similarItems?.data?.total_matches>0){
-    setIsAccordionOpen(true)
-   }
-  },[similarItems])
+  useEffect(() => {
+    if (similarItems?.data?.total_matches > 0) {
+      setIsAccordionOpen(true);
+    }
+  }, [similarItems]);
   return (
     <div className="h-screen  flex w-full " id="maindiv">
       <Sidebar />
@@ -625,7 +632,6 @@ const FastItemVerification = () => {
         setOpen={setShowDeleteModal}
         className={"!z-50"}
         title={"  Are you sure to delete this item ?"}
-       
       >
         <ModalDescription>
           <p className="font-normal font-poppins text-base  text-black"></p>

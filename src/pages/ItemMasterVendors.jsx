@@ -75,7 +75,7 @@ const ItemMasterVendors = () => {
   let total_items_count = searchParams.get("total_items_count") || "all";
   let vendor_name = searchParams.get("vendor_name") || "";
   let unverified_item_count =
-    searchParams.get("unverified_item_count") || "all";
+    searchParams.get("unverified_item_count") || "desc";
 
   const { data, isLoading } = useGetItemMasterVendors({
     page,

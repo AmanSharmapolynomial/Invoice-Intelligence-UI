@@ -65,17 +65,29 @@ export const useGetRemovedVendorItems = (payload) => {
   return useQuery({
     queryKey: ["removed-vendor-items", payload],
     queryFn: async () => {
-      if (!payload?.vendor_id || !payload?.category_id) {
-        return;
-      }
-
-      try {
-        let response = await axiosInstance.get(
-          `/api/category/${payload?.category_id}/vendor/${payload?.vendor_id}/removed-items/`
-        );
-        return response;
-      } catch (error) {
-        return error?.response?.data?.message;
+      if (payload?.mode == "all") {
+     
+        try {
+          let response = await axiosInstance.get(
+            `/api/category/${payload?.category_id}/removed-items/`
+          );
+          
+          return response;
+        } catch (error) {
+          return error?.response?.data?.message;
+        }
+      } else {
+        if (!payload?.vendor_id || !payload?.category_id) {
+          return;
+        }
+        try {
+          let response = await axiosInstance.get(
+            `/api/category/${payload?.category_id}/vendor/${payload?.vendor_id}/removed-items/`
+          );
+          return response;
+        } catch (error) {
+          return error?.response?.data?.message;
+        }
       }
     }
   });
@@ -118,3 +130,39 @@ export const useApproveCategoryVendorItems = () => {
     }
   });
 };
+
+export const useGetRemovedItemsCount = (payload) => {
+  return useQuery({
+    queryKey: ["removed-items-count", payload],
+    queryFn: async () => {
+      let { mode, category_id, vendor_id } = payload;
+      let apiUrl = ``;
+      if (mode == "vendor") {
+        if (!vendor_id) {
+          return;
+        }
+        apiUrl = `/api/category/${category_id}/removed-items-count/?vendor_id=${vendor_id}`;
+      } else {
+        apiUrl = `/api/category/${category_id}/removed-items-count/`;
+      }
+
+      try {
+        let response = await axiosInstance.get(apiUrl);
+        return response;
+      } catch (error) {
+        return error?.response?.data?.message;
+      }
+    }
+  });
+};
+
+
+export const useRemoveCategoryItemsInBulk=()=>{
+  return useMutation({
+    mutationFn:async(payload)=>{
+      let apiUrl=`/api/category/removed-items-bulk/`;
+      let response=await axiosInstance.post(apiUrl,{item_uuids:payload?.item_uuids});
+      return response
+    }
+  })
+}

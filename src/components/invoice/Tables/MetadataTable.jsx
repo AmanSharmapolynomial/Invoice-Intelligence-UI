@@ -82,7 +82,9 @@ const MetadataTable = ({
     editBranch,
     setEditBranch,
     editVendor,
-    setEditVendor
+    setEditVendor,
+    setIsUnverifiedVendor,
+    setCurrentDocumentUUID
   } = invoiceDetailStore();
   const {
     document_uuid,
@@ -103,6 +105,12 @@ const MetadataTable = ({
     invoice_type
   } = data?.data?.[0] || data?.data;
 
+  useEffect(() => {
+    if (!vendor?.human_verified) {
+      setIsUnverifiedVendor(true);
+      setCurrentDocumentUUID(document_uuid)
+    }
+  }, [vendor]);
   const [showToChangeCategoriesAndTypes, setShowToChangeCategoriesAndTypes] =
     useState(false);
   const [wantToChangeCategoriesAndTypes, setWantToChangeCategoriesAndTypes] =
@@ -553,7 +561,6 @@ const MetadataTable = ({
               />
             ) : (
               <div className="flex items-center gap-x-4 w-full">
-                
                 <CustomDropDown
                   Value={branch}
                   vendor_id={vendor?.vendor_id}
@@ -580,14 +587,14 @@ const MetadataTable = ({
                   }}
                   showBranchAsLink={true}
                   data={(() => {
-                    if(loadingAddresses){
-                      return []
+                    if (loadingAddresses) {
+                      return [];
                     }
                     const formattedVendorAddresses = vendorAddressFormatter(
                       vendorAddress?.branches
                     );
 
-                    const referenceString = branch?.vendor_address||"";
+                    const referenceString = branch?.vendor_address || "";
                     const fuse = new Fuse(formattedVendorAddresses, {
                       keys: ["label"], // Search based on label field
                       threshold: 0.8 // Adjust similarity sensitivity

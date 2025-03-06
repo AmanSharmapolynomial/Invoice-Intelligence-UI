@@ -58,20 +58,15 @@ export const useProcessInvoice = () => {
 export const useGetItemMasterPdfs = (item_uuid) => {
   return useQuery({
     queryKey: ["get-item-master-pdf", item_uuid],
-    queryFn: () => item_uuid&& getMasterItemPdfs(item_uuid)
+    queryFn: () => item_uuid && getMasterItemPdfs(item_uuid)
   });
 };
 export const useGetItemMastSimilarItems = (payload) => {
   return useQuery({
     queryKey: ["get-item-master-similar-items", payload],
-    queryFn: () => payload?.item_uuid&& getItemMasterSimilarItems(payload)
+    queryFn: () => payload?.item_uuid && getItemMasterSimilarItems(payload)
   });
 };
-
-
-
-
-
 
 export const useGetDocumentNotes = (documnent_uuid) => {
   return useQuery({
@@ -126,9 +121,10 @@ export const useGetVendorTypesAndCategories = (vendor_id) => {
   });
 };
 
-    export const useUpdateVendorTypesAndCategories = () => {
+export const useUpdateVendorTypesAndCategories = () => {
   return useMutation({
-    mutationFn: ({vendor_id, payload}) => updateVendorTypesAndCategories({vendor_id, payload} ),
+    mutationFn: ({ vendor_id, payload }) =>
+      updateVendorTypesAndCategories({ vendor_id, payload }),
     onSuccess: (data) => {
       toast.success(data?.message);
     }
@@ -142,7 +138,6 @@ export const useMarkReviewLater = () => {
       toast.success(data?.message);
     },
     onError: (err) => {
-      
       toast.error(err?.message);
     }
   });
@@ -171,8 +166,8 @@ export const useUpdateDocumentMetadata = () => {
         }
       );
     },
-    onError:(data)=>{
-      toast.error(data?.message)
+    onError: (data) => {
+      toast.error(data?.message);
     }
   });
 };
@@ -199,7 +194,7 @@ export const useGetCombinedTable = (document_uuid) => {
   return useQuery({
     queryKey: ["combined-table", document_uuid],
     queryFn: () => getCombinedTable(document_uuid),
-    gcTime:0
+    gcTime: 0
   });
 };
 
@@ -223,8 +218,8 @@ export const useMarkAsNotSupported = () => {
         }
       );
     },
-    onError:(data)=>{
-      toast.error(data?.message)
+    onError: (data) => {
+      toast.error(data?.message);
     }
   });
 };
@@ -251,12 +246,12 @@ export const useUpdateDocumentTable = () => {
           autoClose: 2000
         }
       );
-     
+
       queryClient.invalidateQueries({ queryKey: ["combined-table"] });
       queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
     },
-    onError:(data)=>{
-      toast.error(data?.message)
+    onError: (data) => {
+      toast.error(data?.message);
     }
   });
 };
@@ -307,8 +302,27 @@ export const useUpdateVendorOrBranch = () => {
       return response;
     },
     onSuccess: (data) => {
-      
       toast.success(data?.message);
+    }
+  });
+};
+
+export const useGetSimilarVendors = (payload) => {
+  return useQuery({
+    queryKey: ["get-similar-vendors", payload],
+    queryFn: async () => {
+      let { toFetch, document_uuid } = payload;
+
+      let apiUrl = `/api/document/${document_uuid}/potential-verified-vendors/`;
+      if (!toFetch) {
+        return;
+      }
+      try {
+        let response = await axiosInstance.get(apiUrl);
+        return response;
+      } catch (error) {
+        return error?.response?.data?.message;
+      }
     }
   });
 };

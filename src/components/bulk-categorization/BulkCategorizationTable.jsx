@@ -75,7 +75,7 @@ const BulkCategorizationTable = ({
       } else if (e.key === "Enter" && focusedRow !== -1) {
         const selectedItem = filteredData[focusedRow];
         navigate(
-          `/category-wise-items/${selectedItem?.category?.category_id}?category_name=${selectedItem?.category?.name}`
+          `/category-wise-items/${selectedItem?.category?.category_id}?category_name=${selectedItem?.category?.name}&mode=vendor`
         );
       }
     };
@@ -183,7 +183,7 @@ const BulkCategorizationTable = ({
                     key={index}
                     onClick={() => {
                       navigate(
-                        `/category-wise-items/${item?.category?.category_id}?category_name=${item?.category?.name}`
+                        `/category-wise-items/${item?.category?.category_id}?category_name=${item?.category?.name}&mode=vendor`
                       );
                     }}
                     className={`border-none h-[3.75rem] cursor-pointer ${
