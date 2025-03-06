@@ -6,12 +6,14 @@ import {
   useApproveCategoryVendorItems,
   useGetCategoryWiseVendor,
   useGetCategoryWiseVendorItems,
+  useGetRemovedItemsCount,
   useGetRemovedVendorItems,
+  useRemoveCategoryItemsInBulk,
   useRemoveVendorItem
 } from "@/components/bulk-categorization/api";
 import { Button } from "@/components/ui/button";
 import CustomInput from "@/components/ui/Custom/CustomInput";
-import Loader from "@/components/ui/Loader";
+import { Label } from "@/components/ui/label";
 import {
   Pagination,
   PaginationContent,
@@ -20,6 +22,7 @@ import {
   PaginationLink
 } from "@/components/ui/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import {
   Tooltip,
   TooltipContent,
@@ -28,6 +31,7 @@ import {
 } from "@/components/ui/tooltip";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { queryClient } from "@/lib/utils";
+import { filter } from "lodash";
 import {
   ArrowLeft,
   ChevronLeft,
@@ -54,6 +58,10 @@ const CategoryWiseItems = () => {
   let category_name = searchParams.get("category_name");
   let page = searchParams.get("page") || 1;
   let page_size = searchParams.get("page_size") || 10;
+  let mode = searchParams.get("mode");
+  const { mutate: removeItemsInBulk, isPending: removingItemsInBulk } =
+    useRemoveCategoryItemsInBulk();
+
   const inputRef = useRef();
   const { data: vendors, isLoading: loadingVendors } = useGetCategoryWiseVendor(
     { category_id }
@@ -64,7 +72,12 @@ const CategoryWiseItems = () => {
       ? vendors?.data?.find((v) => v?.vendor?.vendor_id == selected_vendor_id)
       : null
   );
-
+  const { data: removedItemsCount, isLoading: loadingRemovedItemsCount } =
+    useGetRemovedItemsCount({
+      mode,
+      vendor_id: selectedVendor?.vendor?.vendor_id,
+      category_id
+    });
   useEffect(() => {
     if (vendors?.data?.length > 0) {
       setSelectedVendor(
@@ -99,37 +112,61 @@ const CategoryWiseItems = () => {
 
     let item_uuids =
       items?.data?.items
-        ?.filter((it) => !removedItemsIDs?.includes(it?.item_uuid))
+        ?.filter((it) => !unCheckedItems?.includes(it?.item_uuid))
         ?.map((it) => it.item_uuid) || [];
-
-    if (item_uuids?.length > 0) {
+    if (unCheckedItems?.length > 0) {
       setSaving(true);
-      approveVendorItems(item_uuids, {
-        onSuccess: (data) => {
-          toast.success(data?.message);
-          setSaving(false);
-          queryClient.invalidateQueries({ queryKey: ["category-wise-items"] });
-          updateParams({ search_term: "" });
-        },
-        onError: (data) => {
-          toast.error(data?.message);
-          setSaving(false);
+      removeItemsInBulk(
+        { item_uuids: unCheckedItems },
+        {
+          onSuccess: () => {
+            setSaving(false);
+            queryClient.invalidateQueries({
+              queryKey: ["removed-items-count"]
+            });
+            if (item_uuids?.length > 0) {
+              setSaving(true);
+              approveVendorItems(item_uuids, {
+                onSuccess: (data) => {
+                  toast.success(data?.message);
+                  setSaving(false);
+                  queryClient.invalidateQueries({
+                    queryKey: ["category-wise-items"]
+                  });
+                  queryClient.invalidateQueries({
+                    queryKey: ["removed-items-count"]
+                  });
+                  updateParams({ search_term: "" });
+                  if (item_uuids?.length == 0) {
+                    if (page < items?.total_pages) {
+                      setSaving(false);
+                      updateParams({
+                        page: Number(page) + 1
+                      });
+                    } else {
+                      setSaving(false);
+                      if (mode == "vendor" && selectedVendor == null) {
+                        toast.error("Select a vendor.");
+                      } else {
+                        navigate(
+                          `/items-categorization/${category_id}/${selectedVendor?.vendor?.vendor_id}?category_name=${category_name}&page=${page}&selected_vendor_id=${selected_vendor_id}&mode=${mode}`
+                        );
+                      }
+                    }
+                  }
+                },
+                onError: (data) => {
+                  toast.error(data?.message);
+                  setSaving(false);
+                }
+              });
+            }
+          },
+          onError: () => {
+            setSaving(false);
+          }
         }
-      });
-    }
-
-    if (item_uuids?.length == 0) {
-      if (page < items?.total_pages) {
-        setSaving(false);
-        updateParams({
-          page: Number(page) + 1
-        });
-      } else {
-        setSaving(false);
-        navigate(
-          `/items-categorization/${category_id}/${selectedVendor?.vendor?.vendor_id}?category_name=${category_name}&page=${page}&selected_vendor_id=${selected_vendor_id}`
-        );
-      }
+      );
     }
   };
   let timer;
@@ -176,9 +213,11 @@ const CategoryWiseItems = () => {
         saveAndNextHandler();
       }
       if (e.altKey && e.key == "r") {
-        if (selectedVendor !== null) {
+        if (mode == "vendor" && selectedVendor == null) {
+          toast.error("Select a vendor.");
+        } else {
           navigate(
-            `/items-categorization/${category_id}/${selectedVendor?.vendor?.vendor_id}?category_name=${category_name}&page=${page}&selected_vendor_id=${selected_vendor_id}`
+            `/items-categorization/${category_id}/${selectedVendor?.vendor?.vendor_id}?category_name=${category_name}&page=${page}&selected_vendor_id=${selected_vendor_id}&mode=${mode}`
           );
         }
       }
@@ -188,22 +227,22 @@ const CategoryWiseItems = () => {
           (item, i) => i == Number(e.key)
         );
         if (matchedItemIndex > -1) {
-          removeItem(
-            {
-              item_uuid: items?.data?.items[matchedItemIndex]?.item_uuid
-            },
-            {
-              onSuccess: (data) => {
-                toast.success(
-                  items?.data?.items[matchedItemIndex]?.item_description +
-                    " removed successfully"
-                );
-              },
-              onError: (data) => {
-                toast.error(data?.message);
-              }
-            }
-          );
+          if (
+            unCheckedItems?.includes(
+              items?.data?.items[matchedItemIndex]?.item_uuid
+            )
+          ) {
+            setUnCheckedItems(
+              unCheckedItems?.filter(
+                (it) => it !== items?.data?.items[matchedItemIndex]?.item_uuid
+              )
+            );
+          } else {
+            setUnCheckedItems([
+              ...unCheckedItems,
+              items?.data?.items[matchedItemIndex]?.item_uuid
+            ]);
+          }
         }
       }
 
@@ -243,22 +282,24 @@ const CategoryWiseItems = () => {
               (item, i) => i == Number(e.key)
             );
             if (matchedItemIndex > -1) {
-              removeItem(
-                {
-                  item_uuid: items?.data?.items[matchedItemIndex]?.item_uuid
-                },
-                {
-                  onSuccess: (data) => {
-                    toast.success(
-                      items?.data?.items[matchedItemIndex]?.item_description +
-                        " removed successfully"
-                    );
-                  },
-                  onError: (data) => {
-                    toast.error(data?.message);
-                  }
-                }
-              );
+              // items?.data?.items[matchedItemIndex]?.item_uuid
+              if (
+                unCheckedItems?.includes(
+                  items?.data?.items[matchedItemIndex]?.item_uuid
+                )
+              ) {
+                setUnCheckedItems(
+                  unCheckedItems?.filter(
+                    (it) =>
+                      it !== items?.data?.items[matchedItemIndex]?.item_uuid
+                  )
+                );
+              } else {
+                setUnCheckedItems([
+                  ...unCheckedItems,
+                  items?.data?.items[matchedItemIndex]?.item_uuid
+                ]);
+              }
             }
           }
         }
@@ -346,7 +387,10 @@ const CategoryWiseItems = () => {
         <div className="mt-8 flex items-center justify-between border-b-2  pb-2 border-b-[#E0E0E0]">
           <div>
             <p className="font-poppins font-semibold capitalize text-xl leading-8 text-black">
-              Here are all the items under the category {category_name}{" "}
+              Here are all the items under the category{" "}
+              <span className="font-extrabold text-primary">
+                {category_name}
+              </span>{" "}
             </p>
             <p className="font-poppins capitalize text-primary font-medium text-[0.9rem] leading-6 ">
               You can change the category of any item by clicking on the
@@ -354,7 +398,32 @@ const CategoryWiseItems = () => {
             </p>
           </div>
           <div className="flex items-center gap-x-4 font-normal ">
-            {!loadingItems && items?.data?.items?.length > 0 && (
+            <div className="mx-4 flex items-center gap-x-3">
+              <Label htmlFor="airplane-mode">Vendor Items</Label>
+              <Switch
+                checked={mode == "vendor" ? false : true}
+                onCheckedChange={(v) => {
+                  updateParams({
+                    mode: v ? "all" : "vendor"
+                  });
+                }}
+              />
+              <Label htmlFor="airplane-mode">All Items</Label>
+            </div>
+            {!loadingItems && selectedVendor !== null > 0 && (
+              <p
+                className="rounded-3xl h-[2.3rem] px-4 flex items-center justify-center font-poppins font-medium text-sm leading-5 text-black border border-[#E0E0E0] cursor-pointer "
+                onClick={() => {
+                  window.open(
+                    `/fast-item-verification/${selectedVendor?.vendor?.vendor_id}?vendor_name=${selectedVendor?.vendor?.vendor_name}&human_verified=${selectedVendor?.vendor?.human_verified}&from_view=item-master-vendors`,
+                    "_blank"
+                  );
+                }}
+              >
+                FIV Items: {selectedVendor?.non_human_verified_items_count}
+              </p>
+            )}
+            {!loadingItems && selectedVendor !== null && (
               <p className="rounded-3xl h-[2.3rem] px-4 flex items-center justify-center font-poppins font-medium text-sm leading-5 text-black border border-[#E0E0E0]">
                 Total Items : {items?.total_records}
               </p>
@@ -401,8 +470,8 @@ const CategoryWiseItems = () => {
               </p>
               <TooltipProvider>
                 <Tooltip open={showShortCuts}>
-                  <TooltipTrigger>
-                    <div className="">
+                  <TooltipTrigger className="w-full">
+                    <div className=" w-full">
                       <CustomInput
                         showIcon={true}
                         variant="search"
@@ -520,9 +589,11 @@ const CategoryWiseItems = () => {
                     <TooltipTrigger className="w-full">
                       <div
                         onClick={() => {
-                          if (selectedVendor) {
+                          if (mode == "vendor" && selectedVendor == null) {
+                            toast.error("Select a vendor.");
+                          } else {
                             navigate(
-                              `/items-categorization/${category_id}/${selectedVendor?.vendor?.vendor_id}?category_name=${category_name}&page=${page}&selected_vendor_id=${selected_vendor_id}`
+                              `/items-categorization/${category_id}/${selectedVendor?.vendor?.vendor_id}?category_name=${category_name}&page=${page}&selected_vendor_id=${selected_vendor_id}&mode=${mode}`
                             );
                           }
                         }}
@@ -544,7 +615,7 @@ const CategoryWiseItems = () => {
                             false ? "text-white" : "text-[#AEAEAE]"
                           }   font-poppins font-medium text-xs leading-4`}
                         >
-                          {removedItems?.total_records || 0}
+                          {removedItemsCount?.data?.removed_items_count || 0}
                         </span>
                       </div>
                     </TooltipTrigger>
@@ -614,10 +685,7 @@ const CategoryWiseItems = () => {
                             removeItem({ item_uuid: item?.item_uuid });
                           }}
                           className={` ${
-                            removedItems?.data?.length > 0 &&
-                            removedItems?.data?.find(
-                              (it) => it?.item_uuid == item?.item_uuid
-                            ) &&
+                            unCheckedItems?.includes(item?.item_uuid) &&
                             "border-[#ca5644]"
                           } border rounded-sm w-full px-4 cursor-pointer border-[#D9D9D9] min-h-[2.5rem] flex items-center justify-between`}
                         >
@@ -629,12 +697,8 @@ const CategoryWiseItems = () => {
                               <span>{item?.item_description}</span>
                             </span>
                           </div>
-                          {!(
-                            removedItems?.data?.length > 0 &&
-                            removedItems?.data?.find(
-                              (it) => it?.item_uuid == item?.item_uuid
-                            )
-                          ) && (
+
+                          {!unCheckedItems?.includes(item?.item_uuid) && (
                             <img
                               src={check_circle}
                               alt=""

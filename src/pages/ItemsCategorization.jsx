@@ -1,34 +1,25 @@
+import no_unchecked_items from "@/assets/image/no_unchecked_items.svg";
 import {
   useGetRemovedVendorItems,
   useUpdateBulkItemsCategory
 } from "@/components/bulk-categorization/api";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import CustomDropDown from "@/components/ui/CustomDropDown";
-import no_unchecked_items from "@/assets/image/no_unchecked_items.svg";
 import CustomSelect from "@/components/ui/CustomSelect";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useGetAdditionalData } from "@/components/vendor/api";
-import { categoryNamesFormatter, headerNamesFormatter } from "@/lib/helpers";
-import { queryClient } from "@/lib/utils";
-import { ArrowLeft, X } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
 } from "@/components/ui/tooltip";
+import { useGetAdditionalData } from "@/components/vendor/api";
+import { categoryNamesFormatter } from "@/lib/helpers";
+import { queryClient } from "@/lib/utils";
+import { invoiceDetailStore } from "@/store/invoiceDetailStore";
+import { ArrowLeft, X } from "lucide-react";
 
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import {
   Link,
@@ -46,13 +37,17 @@ const ItemsCategorization = () => {
   let page = searchParams.get("page") || 1;
   const [selectedItems, setSelectedItems] = useState([]);
   const [showShortCuts, setShowShortCuts] = useState(true);
+
   const [selectedCategory, setSelectedCategory] = useState(null);
   const { mutate: updateCategoriesInBulk, isPending } =
     useUpdateBulkItemsCategory();
+    let mode=searchParams.get("mode")
   const [updating, setUpdating] = useState(false);
+  const { fiv_removed_items_mode } = invoiceDetailStore();
   const { data, isLoading } = useGetRemovedVendorItems({
     category_id,
-    vendor_id
+    vendor_id,
+    mode
   });
   const { data: additionalData, isLoading: loadingAdditionalData } =
     useGetAdditionalData();
@@ -120,7 +115,7 @@ const ItemsCategorization = () => {
       }
       if (e.altKey && e.key == "Enter") {
         if (!data?.data || !(Object?.keys(data?.data)?.length == 0)) {
-          if(selectedCategory!==null && selectedItems?.length>0){
+          if (selectedCategory !== null && selectedItems?.length > 0) {
             updateHandler();
           }
         } else {
