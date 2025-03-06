@@ -63,7 +63,7 @@ const CustomSelect = forwardRef(
       if (showSearch && isDropdownOpen && inputRef.current) {
         inputRef.current.focus();
       }
-      inputRef.current.focus();
+
     }, [isDropdownOpen, dropDownSearch, showSearch]);
 
     return (
