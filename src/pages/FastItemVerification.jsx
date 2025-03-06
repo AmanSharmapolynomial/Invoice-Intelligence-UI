@@ -171,7 +171,7 @@ const FastItemVerification = () => {
     setLoadingState((prev) => ({ ...prev, nextAndApproving: true }));
     let payload = fiv_current_item?.required_columns?.reduce((acc, key) => {
       if (key !== "category" && fiv_current_item?.line_item?.[key]) {
-        acc[key] = fiv_current_item.line_item[key].text || "";
+        acc[key] = fiv_current_item.line_item[key].text ;
       }
       return acc;
     }, {});
@@ -251,7 +251,7 @@ const FastItemVerification = () => {
     // Construct payload from required columns
     let payload = fiv_current_item?.required_columns?.reduce((acc, key) => {
       if (key !== "category" && fiv_current_item?.line_item?.[key]) {
-        acc[key] = fiv_current_item.line_item[key].text || "";
+        acc[key] = fiv_current_item.line_item[key].text ;
       }
       return acc;
     }, {});
