@@ -475,6 +475,9 @@ const MetadataTable = ({
                   }}
                   data={(() => {
                     // Format vendor names
+                    if(loadingVendors){
+                      return []
+                    }
                     const formattedVendors = vendorNamesFormatter(
                       vendorsData?.vendor_names
                     );
@@ -487,15 +490,19 @@ const MetadataTable = ({
                       keys: ["label"], // Search based on label field
                       threshold: 0.8 // Adjust similarity sensitivity
                     });
+try {
+  const sortedVendors = referenceString
+  ? fuse
+      .search(referenceString)
+      .map((result) => result.item) // Get only the sorted items
+  : formattedVendors; // If no reference, return unfiltered list
 
+return sortedVendors;
+} catch (error) {
+  return []
+}
                     // Perform the search and sort based on relevance
-                    const sortedVendors = referenceString
-                      ? fuse
-                          .search(referenceString)
-                          .map((result) => result.item) // Get only the sorted items
-                      : formattedVendors; // If no reference, return unfiltered list
-
-                    return sortedVendors;
+              
                   })()}
                 >
                   <p
@@ -599,13 +606,17 @@ const MetadataTable = ({
                       keys: ["label"], // Search based on label field
                       threshold: 0.8 // Adjust similarity sensitivity
                     });
-                    const sortedVendorAddresses = referenceString
+                    try {
+                      const sortedVendorAddresses = referenceString
                       ? fuse
-                          .search(referenceString)
-                          .map((result) => result.item) // Get only the sorted items
+                          ?.search(referenceString||"")
+                          ?.map((result) => result.item) // Get only the sorted items
                       : formattedVendorAddresses; // If no reference, return unfiltered list
 
                     return sortedVendorAddresses;
+                    } catch (error) {
+                      return []
+                    }
                   })()}
                 >
                   <p
