@@ -92,7 +92,13 @@ const FastItemVerification = () => {
     page: page,
     is_bounding_box_present: true
   });
-
+  useEffect(() => {
+    if (data?.detail?.trim() == "Invalid page.") {
+      if (page > 1) {
+        updateParams({ page: Number(page) - 1 });
+      }
+    }
+  }, [data]);
   const item_uuid = fiv_current_item?.item_uuid;
   useEffect(() => {
     setFIVDocumentLink(data?.data?.item?.[0]?.document_link);
@@ -171,7 +177,7 @@ const FastItemVerification = () => {
     setLoadingState((prev) => ({ ...prev, nextAndApproving: true }));
     let payload = fiv_current_item?.required_columns?.reduce((acc, key) => {
       if (key !== "category" && fiv_current_item?.line_item?.[key]) {
-        acc[key] = fiv_current_item.line_item[key].text ;
+        acc[key] = fiv_current_item.line_item[key].text;
       }
       return acc;
     }, {});
@@ -190,7 +196,17 @@ const FastItemVerification = () => {
               ? { ...item, human_verified: true }
               : item
           );
-
+          if (updatedItems?.length == 0) {
+            if (!fiv_is_final_page) {
+              if (page > 1) {
+                setFIVItems(updatedItems);
+                setIsGoodDocument(fiv_items.length === 0);
+                setFIVVerifiedItemsCount(Number(fiv_verified_items_count) + 1);
+                updateParams({ page: Number(page) - 1 });
+                return;
+              }
+            }
+          }
           setFIVItems(updatedItems);
           setIsGoodDocument(fiv_items.length === 0);
           setFIVVerifiedItemsCount(Number(fiv_verified_items_count) + 1);
@@ -224,17 +240,19 @@ const FastItemVerification = () => {
           }
           if (fiv_item_number < total_items - 1) {
             setFIVItemNumber(Number(fiv_item_number) + 1);
-            setFIVCurrentItem(fiv_items[Number(fiv_item_number)]);
+            if (fiv_items[Number(fiv_item_number)]) {
+              setFIVCurrentItem(fiv_items[Number(fiv_item_number)]);
+            }
           } else {
             if (fiv_item_number >= total_items - 1) {
               if (page <= data?.data?.total_item_count) {
                 if (!fiv_is_final_page) {
                   updateParams({ page: Number(page) + 1 });
+                  setFIVItemNumber(0);
+                  setFIVCurrentItem({});
+                  resetStore();
                 }
               }
-              setFIVItemNumber(0);
-              setFIVCurrentItem({});
-              resetStore();
             }
           }
         },
@@ -251,7 +269,7 @@ const FastItemVerification = () => {
     // Construct payload from required columns
     let payload = fiv_current_item?.required_columns?.reduce((acc, key) => {
       if (key !== "category" && fiv_current_item?.line_item?.[key]) {
-        acc[key] = fiv_current_item.line_item[key].text ;
+        acc[key] = fiv_current_item.line_item[key].text;
       }
       return acc;
     }, {});
@@ -484,11 +502,15 @@ const FastItemVerification = () => {
           </div>
           {isLoading ? (
             <div className="md:px-44  flex items-center justify-center">
-              <Skeleton className={" w-full h-[26vh]"} />
+              <Skeleton className={" w-full h-[30vh]"} />
             </div>
           ) : (
             <div className="md:px-44  flex items-center justify-center">
-              {!isAccordionOpen && <FIVPdfViewer />}
+              {!(data?.data?.total_item_count ==
+                data?.data?.verified_item_count ||
+                (fiv_total_items_count === fiv_verified_items_count &&
+                  fiv_total_items_count !== 0 &&
+                  fiv_verified_items_count !== 0)) && <FIVPdfViewer />}
             </div>
           )}
           <div className="flex flex-col gap-y-2 mt-4 px-16 ">

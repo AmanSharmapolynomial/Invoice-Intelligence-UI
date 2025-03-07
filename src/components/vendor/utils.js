@@ -27,11 +27,12 @@ export const createVendor = async (vendor_name) => {
   }
 };
 export const getVendorNamesList = async (non_summary) => {
-  if(non_summary){
-    const response = await axiosInstance.get("/api/vendor/names/?non_summary_vendors=true");
+  if (non_summary) {
+    const response = await axiosInstance.get(
+      "/api/vendor/names/?non_summary_vendors=true"
+    );
     return response;
-
-  }else{
+  } else {
     const response = await axiosInstance.get("/api/vendor/names/");
     return response;
   }
@@ -54,9 +55,10 @@ export const getVendorBranchDetails = async (branch_id) => {
 };
 export const getVendorNotes = async (vendor_id) => {
   const apiUrl = `/api/vendor/${vendor_id}/note/`;
-  if(vendor_id){
-  const response = await axiosInstance.get(apiUrl);
-  return response;}
+  if (vendor_id) {
+    const response = await axiosInstance.get(apiUrl);
+    return response;
+  }
 };
 export const addVendorNote = async (payload) => {
   const { vendor_id, note } = payload;
@@ -94,11 +96,17 @@ export const getVendorItemMaster = async (payload) => {
     item_description,
     page,
     document_uuid,
-    page_size,is_bounding_box_present
+    page_size,
+    is_bounding_box_present
   } = payload;
-  const apiUrl = `/api/item-master/fast-item-verification/${vendor_id}/?page=${page}&page_size=${page_size}&document_uuid=${document_uuid}`;
-  const response = await axiosInstance.get(apiUrl);
-  return response;
+  try {
+    const apiUrl = `/api/item-master/fast-item-verification/${vendor_id}/?page=${page}&page_size=${page_size}&document_uuid=${document_uuid}`;
+    const response = await axiosInstance.get(apiUrl);
+   
+    return response;
+  } catch (error) {
+   return error
+  }
 };
 export const getVendorBranchPdfs = async (branch_id) => {
   const apiUrl = `/api/vendor-branch/${branch_id}/pdf/`;
