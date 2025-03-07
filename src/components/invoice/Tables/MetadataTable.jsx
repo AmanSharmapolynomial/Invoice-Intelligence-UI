@@ -108,7 +108,7 @@ const MetadataTable = ({
   useEffect(() => {
     if (!vendor?.human_verified) {
       setIsUnverifiedVendor(true);
-      setCurrentDocumentUUID(document_uuid)
+      setCurrentDocumentUUID(document_uuid);
     }
   }, [vendor]);
   const [showToChangeCategoriesAndTypes, setShowToChangeCategoriesAndTypes] =
@@ -475,8 +475,8 @@ const MetadataTable = ({
                   }}
                   data={(() => {
                     // Format vendor names
-                    if(loadingVendors){
-                      return []
+                    if (loadingVendors) {
+                      return [];
                     }
                     const formattedVendors = vendorNamesFormatter(
                       vendorsData?.vendor_names
@@ -490,19 +490,26 @@ const MetadataTable = ({
                       keys: ["label"], // Search based on label field
                       threshold: 0.8 // Adjust similarity sensitivity
                     });
-try {
-  const sortedVendors = referenceString
-  ? fuse
-      .search(referenceString)
-      .map((result) => result.item) // Get only the sorted items
-  : formattedVendors; // If no reference, return unfiltered list
+                    try {
+                      const searchResults = referenceString
+                        ? fuse
+                            ?.search(referenceString)
+                            ?.map((result) => result.item)
+                        : formattedVendors;
 
-return sortedVendors;
-} catch (error) {
-  return []
-}
+                      // If you want all vendors returned, merge missing items:
+                      const remainingVendors = formattedVendors?.filter(
+                        (vendor) => !searchResults?.includes(vendor)
+                      );
+                      const sortedVendors = [
+                        ...searchResults,
+                        ...remainingVendors
+                      ];
+                      return sortedVendors;
+                    } catch (error) {
+                      return [];
+                    }
                     // Perform the search and sort based on relevance
-              
                   })()}
                 >
                   <p
@@ -607,15 +614,25 @@ return sortedVendors;
                       threshold: 0.8 // Adjust similarity sensitivity
                     });
                     try {
-                      const sortedVendorAddresses = referenceString
-                      ? fuse
-                          ?.search(referenceString||"")
-                          ?.map((result) => result.item) // Get only the sorted items
-                      : formattedVendorAddresses; // If no reference, return unfiltered list
+                      const searchResults = referenceString
+                        ? fuse
+                            ?.search(referenceString)
+                            ?.map((result) => result.item)
+                        : formattedVendorAddresses;
 
-                    return sortedVendorAddresses;
+                      // Merge addresses not included in the fuzzy results:
+                      const remainingAddresses =
+                        formattedVendorAddresses?.filter(
+                          (address) => !searchResults?.includes(address)
+                        );
+
+                      const sortedVendorAddresses = [
+                        ...searchResults,
+                        ...remainingAddresses
+                      ];
+                      return sortedVendorAddresses;
                     } catch (error) {
-                      return []
+                      return [];
                     }
                   })()}
                 >

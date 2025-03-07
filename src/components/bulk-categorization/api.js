@@ -18,6 +18,21 @@ export const useGetCategoriesForBulkCategorization = (payload) => {
     }
   });
 };
+export const useGetCategoriesForBulkCategorizationWithoutPagination = (payload) => {
+  return useQuery({
+    queryKey: ["categories-for-bulk-categorization", payload],
+    queryFn: async () => {
+      try {
+        const response = await axiosInstance.get(
+          `/api/category/`
+        );
+        return response;
+      } catch (error) {
+        return error?.response?.data?.message;
+      }
+    }
+  });
+};
 
 export const useGetCategoryWiseVendor = (payload) => {
   return useQuery({
