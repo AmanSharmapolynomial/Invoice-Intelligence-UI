@@ -465,7 +465,7 @@ const CategoryWiseItems = () => {
               selectedVendor !== null > 0 &&
               items?.data?.items?.length > 0 && (
                 <p
-                  className="rounded-3xl h-[2.3rem] px-4 flex items-center justify-center font-poppins font-medium text-sm leading-5 text-black border border-[#E0E0E0] cursor-pointer "
+                  className="rounded-3xl underline h-[2.3rem] px-4 flex items-center justify-center font-poppins font-medium text-sm leading-5 text-black border border-[#E0E0E0] cursor-pointer "
                   onClick={() => {
                     window.open(
                       `/fast-item-verification/${selectedVendor?.vendor?.vendor_id}?vendor_name=${selectedVendor?.vendor?.vendor_name}&human_verified=${selectedVendor?.vendor?.human_verified}&from_view=item-master-vendors`,
