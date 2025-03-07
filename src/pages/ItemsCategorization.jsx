@@ -177,7 +177,6 @@ const ItemsCategorization = () => {
     searchParams
   ]);
 
-
   return (
     <div className="py-4 ">
       <Toaster />
