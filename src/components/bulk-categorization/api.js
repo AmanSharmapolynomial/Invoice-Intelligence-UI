@@ -65,11 +65,12 @@ export const useGetRemovedVendorItems = (payload) => {
   return useQuery({
     queryKey: ["removed-vendor-items", payload],
     queryFn: async () => {
+      console.log(payload)
       if (payload?.mode == "all") {
      
         try {
           let response = await axiosInstance.get(
-            `/api/category/${payload?.category_id}/removed-items/`
+            `/api/category/${payload?.category_id}/removed-items/?page=${payload?.page}&page_size=${payload?.page_size}`
           );
           
           return response;
@@ -82,7 +83,7 @@ export const useGetRemovedVendorItems = (payload) => {
         }
         try {
           let response = await axiosInstance.get(
-            `/api/category/${payload?.category_id}/vendor/${payload?.vendor_id}/removed-items/`
+            `/api/category/${payload?.category_id}/vendor/${payload?.vendor_id}/removed-items/?page=${payload?.page}&page_size=${payload?.page_size}`
           );
           return response;
         } catch (error) {

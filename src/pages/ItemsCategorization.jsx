@@ -6,6 +6,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import CustomSelect from "@/components/ui/CustomSelect";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink
+} from "@/components/ui/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Tooltip,
@@ -15,9 +22,17 @@ import {
 } from "@/components/ui/tooltip";
 import { useGetAdditionalData } from "@/components/vendor/api";
 import { categoryNamesFormatter } from "@/lib/helpers";
+import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { queryClient } from "@/lib/utils";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
-import { ArrowLeft, X } from "lucide-react";
+import {
+  ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  X
+} from "lucide-react";
 
 import { useEffect, useRef, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
@@ -32,22 +47,28 @@ const ItemsCategorization = () => {
   const { category_id, vendor_id } = useParams();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+
+  let page_number = searchParams.get("page_number") || 1;
+  let page = searchParams.get("page");
+  let page_size = searchParams.get("page_size") || 10;
   let category_name = searchParams.get("category_name");
+  const updateParams = useUpdateParams();
   let selected_vendor_id = searchParams.get("selected_vendor_id");
-  let page = searchParams.get("page") || 1;
   const [selectedItems, setSelectedItems] = useState([]);
   const [showShortCuts, setShowShortCuts] = useState(true);
 
   const [selectedCategory, setSelectedCategory] = useState(null);
   const { mutate: updateCategoriesInBulk, isPending } =
     useUpdateBulkItemsCategory();
-    let mode=searchParams.get("mode")
+  let mode = searchParams.get("mode");
   const [updating, setUpdating] = useState(false);
   const { fiv_removed_items_mode } = invoiceDetailStore();
   const { data, isLoading } = useGetRemovedVendorItems({
     category_id,
-    vendor_id,
-    mode
+    vendor_id:selected_vendor_id,
+    mode,
+    page: page_number,
+    page_size
   });
   const { data: additionalData, isLoading: loadingAdditionalData } =
     useGetAdditionalData();
@@ -92,6 +113,12 @@ const ItemsCategorization = () => {
   };
   useEffect(() => {
     const handleKeyDown = (e) => {
+      const tagName = document.activeElement.tagName.toLowerCase();
+      const isEditable =
+        document.activeElement.isContentEditable ||
+        tagName === "input" ||
+        tagName === "textarea" ||
+        tagName === "select";
       if (/^[0-9]$/?.test(e.key)) {
         let matchedItem = data?.data?.[Number(e.key)];
 
@@ -107,11 +134,21 @@ const ItemsCategorization = () => {
             : [...prevSelectedItems, matchedItem];
         });
       }
-
-      if (e.key == "Backspace") {
-        navigate(
-          `/category-wise-items/${category_id}?category_name=${category_name}&page=${page}&selected_vendor_id=${selected_vendor_id}`
-        );
+      if (!isEditable) {
+        if (e.key === "ArrowLeft") {
+          if (page_number > 1) {
+            updateParams({
+              page_number: Number(page_number) - 1
+            });
+          }
+        }
+        if (e.key === "ArrowRight") {
+          if (page_number < data?.total_pages) {
+            updateParams({
+              page_number: Number(page_number) + 1
+            });
+          }
+        }
       }
       if (e.altKey && e.key == "Enter") {
         if (!data?.data || !(Object?.keys(data?.data)?.length == 0)) {
@@ -149,7 +186,7 @@ const ItemsCategorization = () => {
           className="cursor-pointer"
           onClick={() => {
             navigate(
-              `/category-wise-items/${category_id}?category_name=${category_name}&page=${page}&selected_vendor_id=${selected_vendor_id}`
+              `/category-wise-items/${category_id}?category_name=${category_name}&page=${page}&selected_vendor_id=${selected_vendor_id}&mode=${mode}`
             );
           }}
         />
@@ -165,7 +202,11 @@ const ItemsCategorization = () => {
         <div className="mt-8 flex items-center justify-between border-b-2  pb-2 border-b-[#E0E0E0]">
           <div>
             <p className="font-poppins font-semibold capitalize text-xl leading-8 text-black">
-              Here are all the Non <span className="font-extrabold text-primary">{category_name}</span> Items{" "}
+              Here are all the Non{" "}
+              <span className="font-extrabold text-primary">
+                {category_name}
+              </span>{" "}
+              Items{" "}
             </p>
             <p className="font-poppins capitalize text-primary font-medium text-[0.9rem] leading-6 ">
               You can change the category of any item by clicking on the
@@ -185,7 +226,7 @@ const ItemsCategorization = () => {
           </div>
         </div>
 
-        <div className="w-full flex h-full gap-x-2 mt-8 md:px-4 2xl:px-10">
+        <div className="w-full flex h-full gap-x-2 md:mt-0 2xl:mt-8  md:px-4 2xl:px-10">
           <div className="w-[60%] px-8  ">
             {data?.data?.length > 0 && (
               <TooltipProvider>
@@ -202,12 +243,12 @@ const ItemsCategorization = () => {
                 </Tooltip>
               </TooltipProvider>
             )}
-            <div className="flex flex-col  relative gap-y-3 md:max-h-[30rem] 2xl:max-h-[35rem] px-4 pb-2 overflow-auto ">
+            <div className="flex flex-col  relative gap-y-2 md:h-[30rem] 2xl:h-[35rem] px-4 pb-2 overflow-auto ">
               {" "}
               {isLoading ? (
-                <div className="flex flex-col gap-y-2 ">
-                  {new Array(10).fill(Math.random(0, 10))?.map((_, index) => (
-                    <Skeleton key={index} className={"w-full h-[2.5rem]"} />
+                <div className="flex flex-col gap-y-4  md:mt-4 ">
+                  {new Array(10).fill(Math.random(0, 11))?.map((_, index) => (
+                    <Skeleton key={index} className={"w-full h-[2.25rem]"} />
                   ))}
                 </div>
               ) : data?.data?.length > 0 ? (
@@ -250,6 +291,145 @@ const ItemsCategorization = () => {
                 </div>
               )}
             </div>
+         <div className="my-4">
+         {isLoading ? (
+              <div className="flex items-center justify-center 2xl:mt-10 md:mt-4">
+                <div className="grid grid-cols-6 gap-x-3 px-4">
+                  {new Array(6).fill(0).map((_, index) => {
+                    return (
+                      <Skeleton
+                        key={index}
+                        className={"w-[2.25rem] h-[2.25rem]"}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem className="!text-sm font-semibold cursor-pointer">
+                    <PaginationLink
+                      className={"border border-[#F1F1F1] rounded-lg"}
+                      onClick={() => {
+                        updateParams({
+                          page_number: 1
+                        });
+                      }}
+                    >
+                      <ChevronsLeft className="h-[1rem] w-[1rem]" />
+                    </PaginationLink>
+                  </PaginationItem>
+                  <PaginationItem className="!text-sm font-semibold cursor-pointer">
+                    <PaginationLink
+                      className={"border border-[#F1F1F1] rounded-lg"}
+                      onClick={() => {
+                        if (page > 1) {
+                          updateParams({
+                            page_number: page_number - 1
+                          });
+                        }
+                      }}
+                    >
+                      <ChevronLeft />
+                    </PaginationLink>
+                  </PaginationItem>
+                  {new Array(data?.total_pages)
+                    ?.fill(0)
+                    ?.slice(0, data?.total_pages > 2 ? 2 : 1)
+                    ?.map((_, index) => {
+                      return (
+                        <PaginationItem
+                          key={index}
+                          className="!text-sm font-semibold cursor-pointer"
+                        >
+                          <PaginationLink
+                            className={`${
+                              page_number == index + 1 &&
+                              "bg-primary hover:bg-primary !text-white"
+                            } text-[#000000] dark:text-[#F6F6F6] border  rounded-lg font-poppins font-semibold text-sm border-[#F1F1F1]`}
+                            active={index + 1 === page_number}
+                            onClick={() => {
+                              updateParams({
+                                page_number: Number(index) + 1
+                              });
+                            }}
+                          >
+                            {index + 1}
+                          </PaginationLink>
+                        </PaginationItem>
+                      );
+                    })}
+
+                  {data?.total_pages > 2 && (
+                    <PaginationEllipsis className="!text-sm font-semibold font-poppins " />
+                  )}
+                  {data?.total_pages > 3 &&
+                    page_number > 2 &&
+                    page_number < data?.total_pages && (
+                      <PaginationItem className="!text-sm font-semibold cursor-pointer">
+                        <PaginationLink
+                          className={`${
+                            true && "bg-primary !text-white hover:bg-primary"
+                          } text-[#000000] border border-[#F1F1F1] rounded-lg font-poppins font-semibold text-sm dark:text-[#F6F6F6]`}
+                          onClick={() => {
+                            updateParams({
+                              page_number: data?.total_pages
+                            });
+                          }}
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    )}
+                  {data?.total_pages > 1 && (
+                    <PaginationItem className="!text-sm font-semibold cursor-pointer">
+                      <PaginationLink
+                        className={`${
+                          page_number == data?.total_pages &&
+                          "bg-primary !text-white hover:bg-primary"
+                        } text-[#000000] border border-[#F1F1F1] rounded-lg font-poppins font-semibold text-sm dark:text-[#F6F6F6]`}
+                        onClick={() => {
+                          updateParams({
+                            page_number: data?.total_pages
+                          });
+                        }}
+                      >
+                        {data?.total_pages}
+                      </PaginationLink>
+                    </PaginationItem>
+                  )}
+
+                  <PaginationItem className="!text-sm font-semibold cursor-pointer">
+                    <PaginationLink
+                      className={"border border-[#F1F1F1] rounded-lg"}
+                      onClick={() => {
+                        if (page_number < data?.total_pages) {
+                          updateParams({
+                            page_number: Number(page) + 1
+                          });
+                        }
+                      }}
+                    >
+                      <ChevronRight />
+                    </PaginationLink>
+                  </PaginationItem>
+                  <PaginationItem className="!text-sm font-semibold cursor-pointer">
+                    <PaginationLink
+                      className={"border border-[#F1F1F1] rounded-lg"}
+                      onClick={() => {
+                        updateParams({
+                          page_number: data?.total_pages
+                        });
+                      }}
+                    >
+                      <ChevronsRight />
+                    </PaginationLink>
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            )}
+         </div>
           </div>
 
           <div className="w-[40%]  flex items-center justify-center 2xl:h-[42rem] md:max-h-[55rem]">
