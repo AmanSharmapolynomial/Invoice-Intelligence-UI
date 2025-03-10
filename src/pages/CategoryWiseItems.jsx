@@ -91,13 +91,14 @@ const CategoryWiseItems = () => {
     useGetCategoryWiseVendorItems({
       category_id,
       vendor_id: selectedVendor?.vendor?.vendor_id || null,
-      page,
-      page_size
+      page:page||1,
+      page_size:page_size||10
     });
   const { data: removedItems, isLoading: loadingRemovedItems } =
     useGetRemovedVendorItems({
       category_id,
-      vendor_id: selectedVendor?.vendor?.vendor_id
+      vendor_id: selectedVendor?.vendor?.vendor_id,
+      page,page_size
     });
   const { mutate: removeItem, isPending: removingItem } = useRemoveVendorItem();
   const navigate = useNavigate();
@@ -115,6 +116,10 @@ const CategoryWiseItems = () => {
         ?.filter((it) => !unCheckedItems?.includes(it?.item_uuid))
         ?.map((it) => it.item_uuid)
         ?.filter((it) => !removedItemsIDs?.includes(it)) || [];
+
+
+
+     
     if (unCheckedItems?.length > 0) {
       setSaving(true);
       removeItemsInBulk(
@@ -315,10 +320,16 @@ const CategoryWiseItems = () => {
           }
         }
         if (e.key === "ArrowRight") {
-          if (page < items?.total_pages) {
-            updateParams({
-              page: Number(page) + 1
+          if (unCheckedItems?.length > 0) {
+            toast("Please save the removed items.", {
+              icon: "⚠️"
             });
+          } else {
+            if (page < items?.total_pages) {
+              updateParams({
+                page: Number(page) + 1
+              });
+            }
           }
         }
 
@@ -587,11 +598,17 @@ const CategoryWiseItems = () => {
                         <div
                           key={index}
                           onClick={() => {
-                            setSelectedVendor(vendor);
-                            updateParams({
-                              page: 1,
-                              selected_vendor_id: vendor?.vendor?.vendor_id
-                            });
+                            if (unCheckedItems?.length > 0) {
+                              toast("Please save the removed items.", {
+                                icon: "⚠️"
+                              });
+                            } else {
+                              setSelectedVendor(vendor);
+                              updateParams({
+                                page: 1,
+                                selected_vendor_id: vendor?.vendor?.vendor_id
+                              });
+                            }
                           }}
                           ref={(el) => (vendorItemRefs.current[index] = el)}
                           className={`${isSelected && "bg-primary"}  
@@ -733,10 +750,13 @@ const CategoryWiseItems = () => {
                     </div>
                   ) : (
                     items?.data?.items?.map((item, index) => {
-                      let isUncheckd =  removedItems?.data?.length>0?removedItems?.data?.find(
-                        (it) => it.item_uuid == item?.item_uuid
-                      ):false;
-               
+                      let isUncheckd =
+                        removedItems?.data?.length > 0
+                          ? removedItems?.data?.find(
+                              (it) => it.item_uuid == item?.item_uuid
+                            )
+                          : false;
+
                       return (
                         <div
                           key={index}
@@ -810,9 +830,15 @@ const CategoryWiseItems = () => {
                         <PaginationLink
                           className={"border border-[#F1F1F1] rounded-lg"}
                           onClick={() => {
-                            updateParams({
-                              page: 1
-                            });
+                            if (unCheckedItems?.length > 0) {
+                              toast("Please save the removed items.", {
+                                icon: "⚠️"
+                              });
+                            } else {
+                              updateParams({
+                                page: 1
+                              });
+                            }
                           }}
                         >
                           <ChevronsLeft className="h-[1rem] w-[1rem]" />
@@ -822,10 +848,16 @@ const CategoryWiseItems = () => {
                         <PaginationLink
                           className={"border border-[#F1F1F1] rounded-lg"}
                           onClick={() => {
-                            if (page > 1) {
-                              updateParams({
-                                page: page - 1
+                            if (unCheckedItems?.length > 0) {
+                              toast("Please save the removed items.", {
+                                icon: "⚠️"
                               });
+                            } else {
+                              if (page > 1) {
+                                updateParams({
+                                  page: page - 1
+                                });
+                              }
                             }
                           }}
                         >
@@ -848,9 +880,15 @@ const CategoryWiseItems = () => {
                                 } text-[#000000] dark:text-[#F6F6F6] border  rounded-lg font-poppins font-semibold text-sm border-[#F1F1F1]`}
                                 active={index + 1 === page}
                                 onClick={() => {
-                                  updateParams({
-                                    page: Number(index) + 1
-                                  });
+                                  if (unCheckedItems?.length > 0) {
+                                    toast("Please save the removed items.", {
+                                      icon: "⚠️"
+                                    });
+                                  } else {
+                                    updateParams({
+                                      page: Number(index) + 1
+                                    });
+                                  }
                                 }}
                               >
                                 {index + 1}
@@ -889,9 +927,15 @@ const CategoryWiseItems = () => {
                               "bg-primary !text-white hover:bg-primary"
                             } text-[#000000] border border-[#F1F1F1] rounded-lg font-poppins font-semibold text-sm dark:text-[#F6F6F6]`}
                             onClick={() => {
-                              updateParams({
-                                page: items?.total_pages
-                              });
+                              if (unCheckedItems?.length > 0) {
+                                toast("Please save the removed items.", {
+                                  icon: "⚠️"
+                                });
+                              } else {
+                                updateParams({
+                                  page: items?.total_pages
+                                });
+                              }
                             }}
                           >
                             {items?.total_pages}
@@ -903,10 +947,16 @@ const CategoryWiseItems = () => {
                         <PaginationLink
                           className={"border border-[#F1F1F1] rounded-lg"}
                           onClick={() => {
-                            if (page < items?.total_pages) {
-                              updateParams({
-                                page: Number(page) + 1
+                            if (unCheckedItems?.length > 0) {
+                              toast("Please save the removed items.", {
+                                icon: "⚠️"
                               });
+                            } else {
+                              if (page < items?.total_pages) {
+                                updateParams({
+                                  page: Number(page) + 1
+                                });
+                              }
                             }
                           }}
                         >
@@ -917,9 +967,15 @@ const CategoryWiseItems = () => {
                         <PaginationLink
                           className={"border border-[#F1F1F1] rounded-lg"}
                           onClick={() => {
-                            updateParams({
-                              page: items?.total_pages
-                            });
+                            if (unCheckedItems?.length > 0) {
+                              toast("Please save the removed items.", {
+                                icon: "⚠️"
+                              });
+                            } else {
+                              updateParams({
+                                page: items?.total_pages
+                              });
+                            }
                           }}
                         >
                           <ChevronsRight />

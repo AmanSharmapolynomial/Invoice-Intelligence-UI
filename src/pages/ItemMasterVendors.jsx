@@ -2,31 +2,19 @@ import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import Sidebar from "@/components/common/Sidebar";
 import TablePagination from "@/components/common/TablePagination";
-import { Button } from "@/components/ui/button";
 import BreadCrumb from "@/components/ui/Custom/BreadCrumb";
 import CustomInput from "@/components/ui/Custom/CustomInput";
-import CustomDropDown from "@/components/ui/CustomDropDown";
-import CustomSelect from "@/components/ui/CustomSelect";
-import { Label } from "@/components/ui/label";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger
-} from "@/components/ui/sheet";
 import { useGetItemMasterVendors } from "@/components/vendor/api";
 import VendorsTable from "@/components/vendor/VendorsTable";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import fastItemVerificationStore from "@/store/fastItemVerificationStore";
-import { ArrowRight, Filter } from "lucide-react";
-import React, { useState, useMemo, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 const columns = [
   {
     key: `vendor[vendor_name]`,
-    label: "Vendor Name",
+    label: "Vendor",
     sorting_key: "human_verified"
   },
   {

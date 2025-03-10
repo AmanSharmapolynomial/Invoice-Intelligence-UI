@@ -620,7 +620,7 @@ const HumanVerificationTable = ({
           row_uuid:
             updatedData.data.processed_table.rows[rowIndex].transaction_uuid,
           column_uuid: targetCell.column_uuid,
-          text: value
+          text: value||null
         }
       };
       updatedData.data.processed_table.rows[rowIndex].cells.forEach((c, i) => {
@@ -669,7 +669,7 @@ const HumanVerificationTable = ({
                     updatedData.data.processed_table.rows[rowIndex]
                       .transaction_uuid,
                   column_uuid: extPriceCellColumnUUID,
-                  text: extPriceCell?.text
+                  text: extPriceCell?.text||null
                 }
               };
 
