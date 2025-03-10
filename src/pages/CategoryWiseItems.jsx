@@ -91,13 +91,14 @@ const CategoryWiseItems = () => {
     useGetCategoryWiseVendorItems({
       category_id,
       vendor_id: selectedVendor?.vendor?.vendor_id || null,
-      page,
-      page_size
+      page:page||1,
+      page_size:page_size||10
     });
   const { data: removedItems, isLoading: loadingRemovedItems } =
     useGetRemovedVendorItems({
       category_id,
-      vendor_id: selectedVendor?.vendor?.vendor_id
+      vendor_id: selectedVendor?.vendor?.vendor_id,
+      page,page_size
     });
   const { mutate: removeItem, isPending: removingItem } = useRemoveVendorItem();
   const navigate = useNavigate();
@@ -115,6 +116,10 @@ const CategoryWiseItems = () => {
         ?.filter((it) => !unCheckedItems?.includes(it?.item_uuid))
         ?.map((it) => it.item_uuid)
         ?.filter((it) => !removedItemsIDs?.includes(it)) || [];
+
+
+
+     
     if (unCheckedItems?.length > 0) {
       setSaving(true);
       removeItemsInBulk(
