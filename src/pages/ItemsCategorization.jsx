@@ -120,7 +120,10 @@ const ItemsCategorization = () => {
         tagName === "textarea" ||
         tagName === "select";
       if (/^[0-9]$/?.test(e.key)) {
-        let matchedItem =mode=="vendor"?data?.data?.removed_items[Number(e.key)]: data?.data?.[Number(e.key)];
+        let matchedItem =
+          mode == "vendor"
+            ? data?.data?.removed_items[Number(e.key)]
+            : data?.data?.[Number(e.key)];
 
         if (!matchedItem) return;
 
@@ -136,17 +139,29 @@ const ItemsCategorization = () => {
       }
       if (!isEditable) {
         if (e.key === "ArrowLeft") {
-          if (page_number > 1) {
-            updateParams({
-              page_number: Number(page_number) - 1
+          if (selectedItems?.length > 0) {
+            toast("Please update the selected items.", {
+              icon: "⚠️"
             });
+          } else {
+            if (page_number > 1) {
+              updateParams({
+                page_number: Number(page_number) - 1
+              });
+            }
           }
         }
         if (e.key === "ArrowRight") {
-          if (page_number < data?.total_pages) {
-            updateParams({
-              page_number: Number(page_number) + 1
+          if (selectedItems?.length > 0) {
+            toast("Please update the selected items.", {
+              icon: "⚠️"
             });
+          } else {
+            if (page_number < data?.total_pages) {
+              updateParams({
+                page_number: Number(page_number) + 1
+              });
+            }
           }
         }
       }
