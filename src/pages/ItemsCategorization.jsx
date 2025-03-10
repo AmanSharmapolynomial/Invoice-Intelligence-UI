@@ -206,7 +206,10 @@ const ItemsCategorization = () => {
               <span className="font-extrabold text-primary">
                 {category_name}
               </span>{" "}
-              Items{" "}
+              Items {mode == "vendor" && "under"}{" "}
+              {mode == "vendor" && (
+                <span className="font-extrabold text-primary">{`${data?.data?.vendor?.vendor_name}`}</span>
+              )}
             </p>
             <p className="font-poppins capitalize text-primary font-medium text-[0.9rem] leading-6 ">
               You can change the category of any item by clicking on the
@@ -215,7 +218,16 @@ const ItemsCategorization = () => {
           </div>
           <div className="flex items-center gap-x-4 font-normal ">
             <Button
-              disabled={!data?.data || !(Object?.keys(    (data?.data||data?.data?.removed_items))?.length == 0)}
+              disabled={
+                !data?.data ||
+                !(
+                  Object?.keys(
+                    mode == "vendor"
+                      ? data?.data?.removed_items?.length > 0
+                      : data?.data?.length > 0
+                  ) == 0
+                )
+              }
               className="rounded-sm font-normal leading-6 w-[9rem] h-[2.3rem] text-sm  text-white"
               onClick={() => {
                 navigate("/bulk-categorization");
@@ -228,7 +240,9 @@ const ItemsCategorization = () => {
 
         <div className="w-full flex h-full gap-x-2 md:mt-0 2xl:mt-8  md:px-4 2xl:px-10">
           <div className="w-[60%] px-8  ">
-            {(data?.data || data?.data?.removed_items)?.length > 0 && (
+            {(mode == "vendor"
+              ? data?.data?.removed_items?.length > 0
+              : data?.data?.length > 0) && (
               <TooltipProvider>
                 <Tooltip open={showShortCuts} className="">
                   <TooltipTrigger className=""></TooltipTrigger>
@@ -251,34 +265,39 @@ const ItemsCategorization = () => {
                     <Skeleton key={index} className={"w-full h-[2.25rem]"} />
                   ))}
                 </div>
-              ) : (data?.data || data?.data?.removed_items)?.length > 0 ? (
-                (data?.data || data?.data?.removed_items)?.map(
-                  (item, index) => {
-                    return (
-                      <div
-                        key={index}
-                        className={`${
-                          selectedItems?.includes(item) && "border-primary"
-                        } flex justify-between items-center relative  px-4 border border-[#D9D9D9] rounded-sm min-h-[2.5rem]`}
-                      >
-                        <span className="font-poppins text-xs flex items-center gap-x-3 font-normal leading-4 text-[#888888]">
-                          {" "}
-                          <span className="font-semibold text-black">
-                            {index}.
-                          </span>
-                          <span>{item?.item_description}</span>
+              ) : (
+                  mode == "vendor"
+                    ? data?.data?.removed_items?.length > 0
+                    : data?.data?.length > 0
+                ) ? (
+                (mode == "vendor"
+                  ? data?.data?.removed_items
+                  : data?.data
+                )?.map((item, index) => {
+                  return (
+                    <div
+                      key={index}
+                      className={`${
+                        selectedItems?.includes(item) && "border-primary"
+                      } flex justify-between items-center relative  px-4 border border-[#D9D9D9] rounded-sm min-h-[2.5rem]`}
+                    >
+                      <span className="font-poppins text-xs flex items-center gap-x-3 font-normal leading-4 text-[#888888]">
+                        {" "}
+                        <span className="font-semibold text-black">
+                          {index}.
                         </span>
-                        <Checkbox
-                          className="border-[#666667] border-[1.33px]"
-                          checked={selectedItems?.includes(item)}
-                          onCheckedChange={(v) => {
-                            handleCheckboxChange(v, item);
-                          }}
-                        />
-                      </div>
-                    );
-                  }
-                )
+                        <span>{item?.item_description}</span>
+                      </span>
+                      <Checkbox
+                        className="border-[#666667] border-[1.33px]"
+                        checked={selectedItems?.includes(item)}
+                        onCheckedChange={(v) => {
+                          handleCheckboxChange(v, item);
+                        }}
+                      />
+                    </div>
+                  );
+                })
               ) : (
                 <div className="w-full flex items-center justify-center flex-col h-full gap-y-8  md:max-h-[35rem] 2xl:h-[40rem] ">
                   <img
@@ -328,7 +347,7 @@ const ItemsCategorization = () => {
                         onClick={() => {
                           if (page_number > 1) {
                             updateParams({
-                              page_number: (page_number) - 1
+                              page_number: page_number - 1
                             });
                           }
                         }}

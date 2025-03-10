@@ -315,10 +315,17 @@ const CategoryWiseItems = () => {
           }
         }
         if (e.key === "ArrowRight") {
-          if (page < items?.total_pages) {
-            updateParams({
-              page: Number(page) + 1
+          if (unCheckedItems?.length > 0) {
+            toast("Please save the removed items.", {
+              icon: "⚠️"
             });
+          }else{
+
+            if (page < items?.total_pages) {
+              updateParams({
+                page: Number(page) + 1
+              });
+            }
           }
         }
 
@@ -733,10 +740,13 @@ const CategoryWiseItems = () => {
                     </div>
                   ) : (
                     items?.data?.items?.map((item, index) => {
-                      let isUncheckd =  removedItems?.data?.length>0?removedItems?.data?.find(
-                        (it) => it.item_uuid == item?.item_uuid
-                      ):false;
-               
+                      let isUncheckd =
+                        removedItems?.data?.length > 0
+                          ? removedItems?.data?.find(
+                              (it) => it.item_uuid == item?.item_uuid
+                            )
+                          : false;
+
                       return (
                         <div
                           key={index}
@@ -889,9 +899,15 @@ const CategoryWiseItems = () => {
                               "bg-primary !text-white hover:bg-primary"
                             } text-[#000000] border border-[#F1F1F1] rounded-lg font-poppins font-semibold text-sm dark:text-[#F6F6F6]`}
                             onClick={() => {
-                              updateParams({
-                                page: items?.total_pages
-                              });
+                              if (unCheckedItems?.length > 0) {
+                                toast("Please save the removed items.", {
+                                  icon: "⚠️"
+                                });
+                              } else {
+                                updateParams({
+                                  page: items?.total_pages
+                                });
+                              }
                             }}
                           >
                             {items?.total_pages}
@@ -903,10 +919,16 @@ const CategoryWiseItems = () => {
                         <PaginationLink
                           className={"border border-[#F1F1F1] rounded-lg"}
                           onClick={() => {
-                            if (page < items?.total_pages) {
-                              updateParams({
-                                page: Number(page) + 1
+                            if (unCheckedItems?.length > 0) {
+                              toast("Please save the removed items.", {
+                                icon: "⚠️"
                               });
+                            } else {
+                              if (page < items?.total_pages) {
+                                updateParams({
+                                  page: Number(page) + 1
+                                });
+                              }
                             }
                           }}
                         >
@@ -917,9 +939,15 @@ const CategoryWiseItems = () => {
                         <PaginationLink
                           className={"border border-[#F1F1F1] rounded-lg"}
                           onClick={() => {
-                            updateParams({
-                              page: items?.total_pages
-                            });
+                            if (unCheckedItems?.length > 0) {
+                              toast("Please save the removed items.", {
+                                icon: "⚠️"
+                              });
+                            } else {
+                              updateParams({
+                                page: items?.total_pages
+                              });
+                            }
                           }}
                         >
                           <ChevronsRight />
