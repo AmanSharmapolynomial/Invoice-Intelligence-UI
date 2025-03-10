@@ -120,7 +120,7 @@ const ItemsCategorization = () => {
         tagName === "textarea" ||
         tagName === "select";
       if (/^[0-9]$/?.test(e.key)) {
-        let matchedItem = data?.data?.[Number(e.key)];
+        let matchedItem =mode=="vendor"?data?.data?.removed_items[Number(e.key)]: data?.data?.[Number(e.key)];
 
         if (!matchedItem) return;
 
@@ -333,9 +333,15 @@ const ItemsCategorization = () => {
                       <PaginationLink
                         className={"border border-[#F1F1F1] rounded-lg"}
                         onClick={() => {
-                          updateParams({
-                            page_number: 1
-                          });
+                          if (selectedItems?.length > 0) {
+                            toast("Please update the selected items.", {
+                              icon: "⚠️"
+                            });
+                          } else {
+                            updateParams({
+                              page_number: 1
+                            });
+                          }
                         }}
                       >
                         <ChevronsLeft className="h-[1rem] w-[1rem]" />
@@ -345,10 +351,16 @@ const ItemsCategorization = () => {
                       <PaginationLink
                         className={"border border-[#F1F1F1] rounded-lg"}
                         onClick={() => {
-                          if (page_number > 1) {
-                            updateParams({
-                              page_number: page_number - 1
+                          if (selectedItems?.length > 0) {
+                            toast("Please update the selected items.", {
+                              icon: "⚠️"
                             });
+                          } else {
+                            if (page_number > 1) {
+                              updateParams({
+                                page_number: page_number - 1
+                              });
+                            }
                           }
                         }}
                       >
@@ -371,9 +383,15 @@ const ItemsCategorization = () => {
                               } text-[#000000] dark:text-[#F6F6F6] border  rounded-lg font-poppins font-semibold text-sm border-[#F1F1F1]`}
                               active={index + 1 === page_number}
                               onClick={() => {
-                                updateParams({
-                                  page_number: Number(index) + 1
-                                });
+                                if (selectedItems?.length > 0) {
+                                  toast("Please update the selected items.", {
+                                    icon: "⚠️"
+                                  });
+                                } else {
+                                  updateParams({
+                                    page_number: Number(index) + 1
+                                  });
+                                }
                               }}
                             >
                               {index + 1}
@@ -394,9 +412,15 @@ const ItemsCategorization = () => {
                               true && "bg-primary !text-white hover:bg-primary"
                             } text-[#000000] border border-[#F1F1F1] rounded-lg font-poppins font-semibold text-sm dark:text-[#F6F6F6]`}
                             onClick={() => {
-                              updateParams({
-                                page_number: data?.total_pages
-                              });
+                              if (selectedItems?.length > 0) {
+                                toast("Please update the selected items.", {
+                                  icon: "⚠️"
+                                });
+                              } else {
+                                updateParams({
+                                  page_number: data?.total_pages
+                                });
+                              }
                             }}
                           >
                             {page_number}
@@ -411,9 +435,15 @@ const ItemsCategorization = () => {
                             "bg-primary !text-white hover:bg-primary"
                           } text-[#000000] border border-[#F1F1F1] rounded-lg font-poppins font-semibold text-sm dark:text-[#F6F6F6]`}
                           onClick={() => {
-                            updateParams({
-                              page_number: data?.total_pages
-                            });
+                            if (selectedItems?.length > 0) {
+                              toast("Please update the selected items.", {
+                                icon: "⚠️"
+                              });
+                            } else {
+                              updateParams({
+                                page_number: data?.total_pages
+                              });
+                            }
                           }}
                         >
                           {data?.total_pages}
@@ -425,10 +455,16 @@ const ItemsCategorization = () => {
                       <PaginationLink
                         className={"border border-[#F1F1F1] rounded-lg"}
                         onClick={() => {
-                          if (page_number < data?.total_pages) {
-                            updateParams({
-                              page_number: Number(page_number) + 1
+                          if (selectedItems?.length > 0) {
+                            toast("Please update the selected items.", {
+                              icon: "⚠️"
                             });
+                          } else {
+                            if (page_number < data?.total_pages) {
+                              updateParams({
+                                page_number: Number(page_number) + 1
+                              });
+                            }
                           }
                         }}
                       >
@@ -439,9 +475,15 @@ const ItemsCategorization = () => {
                       <PaginationLink
                         className={"border border-[#F1F1F1] rounded-lg"}
                         onClick={() => {
-                          updateParams({
-                            page_number: data?.total_pages
-                          });
+                          if (selectedItems?.length > 0) {
+                            toast("Please update the selected items.", {
+                              icon: "⚠️"
+                            });
+                          } else {
+                            updateParams({
+                              page_number: data?.total_pages
+                            });
+                          }
                         }}
                       >
                         <ChevronsRight />

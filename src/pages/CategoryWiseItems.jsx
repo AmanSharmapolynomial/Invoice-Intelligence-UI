@@ -319,8 +319,7 @@ const CategoryWiseItems = () => {
             toast("Please save the removed items.", {
               icon: "⚠️"
             });
-          }else{
-
+          } else {
             if (page < items?.total_pages) {
               updateParams({
                 page: Number(page) + 1
@@ -594,11 +593,17 @@ const CategoryWiseItems = () => {
                         <div
                           key={index}
                           onClick={() => {
-                            setSelectedVendor(vendor);
-                            updateParams({
-                              page: 1,
-                              selected_vendor_id: vendor?.vendor?.vendor_id
-                            });
+                            if (unCheckedItems?.length > 0) {
+                              toast("Please save the removed items.", {
+                                icon: "⚠️"
+                              });
+                            } else {
+                              setSelectedVendor(vendor);
+                              updateParams({
+                                page: 1,
+                                selected_vendor_id: vendor?.vendor?.vendor_id
+                              });
+                            }
                           }}
                           ref={(el) => (vendorItemRefs.current[index] = el)}
                           className={`${isSelected && "bg-primary"}  
@@ -820,9 +825,15 @@ const CategoryWiseItems = () => {
                         <PaginationLink
                           className={"border border-[#F1F1F1] rounded-lg"}
                           onClick={() => {
-                            updateParams({
-                              page: 1
-                            });
+                            if (unCheckedItems?.length > 0) {
+                              toast("Please save the removed items.", {
+                                icon: "⚠️"
+                              });
+                            } else {
+                              updateParams({
+                                page: 1
+                              });
+                            }
                           }}
                         >
                           <ChevronsLeft className="h-[1rem] w-[1rem]" />
@@ -832,10 +843,16 @@ const CategoryWiseItems = () => {
                         <PaginationLink
                           className={"border border-[#F1F1F1] rounded-lg"}
                           onClick={() => {
-                            if (page > 1) {
-                              updateParams({
-                                page: page - 1
+                            if (unCheckedItems?.length > 0) {
+                              toast("Please save the removed items.", {
+                                icon: "⚠️"
                               });
+                            } else {
+                              if (page > 1) {
+                                updateParams({
+                                  page: page - 1
+                                });
+                              }
                             }
                           }}
                         >
@@ -858,9 +875,15 @@ const CategoryWiseItems = () => {
                                 } text-[#000000] dark:text-[#F6F6F6] border  rounded-lg font-poppins font-semibold text-sm border-[#F1F1F1]`}
                                 active={index + 1 === page}
                                 onClick={() => {
-                                  updateParams({
-                                    page: Number(index) + 1
-                                  });
+                                  if (unCheckedItems?.length > 0) {
+                                    toast("Please save the removed items.", {
+                                      icon: "⚠️"
+                                    });
+                                  } else {
+                                    updateParams({
+                                      page: Number(index) + 1
+                                    });
+                                  }
                                 }}
                               >
                                 {index + 1}
