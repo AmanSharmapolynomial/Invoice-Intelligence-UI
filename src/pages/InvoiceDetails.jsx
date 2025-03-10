@@ -991,11 +991,11 @@ const InvoiceDetails = () => {
             >
               <Button
                 onClick={() => {
-                  if (is_unverified_vendor) {
-                    setShowAcceptModal(true);
-                  } else {
+                  // if (is_unverified_vendor) {
+                  //   setShowAcceptModal(true);
+                  // } else {
                     handleAccept();
-                  }
+                  // }
                 }}
                 disabled={
                   action_controls?.accept?.disabled || loadingState?.accepting
