@@ -378,7 +378,9 @@ const FastItemVerification = () => {
                     )
                   );
                   setIsGoodDocument(false);
-
+                  if (data?.data?.items?.length == 0 && page > 1) {
+                    updateParams({ page: page - 1 });
+                  }
                   setFIVCurrentItem(data?.data?.items[fiv_item_number + 2]);
                 }
               }
@@ -506,11 +508,13 @@ const FastItemVerification = () => {
             </div>
           ) : (
             <div className="md:px-44  flex items-center justify-center">
-              {!(data?.data?.total_item_count ==
-                data?.data?.verified_item_count ||
+              {!(
+                data?.data?.total_item_count ==
+                  data?.data?.verified_item_count ||
                 (fiv_total_items_count === fiv_verified_items_count &&
                   fiv_total_items_count !== 0 &&
-                  fiv_verified_items_count !== 0)) && <FIVPdfViewer />}
+                  fiv_verified_items_count !== 0)
+              ) && <FIVPdfViewer />}
             </div>
           )}
           <div className="flex flex-col gap-y-2 mt-4 px-16 ">
