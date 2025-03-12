@@ -620,7 +620,7 @@ const HumanVerificationTable = ({
           row_uuid:
             updatedData.data.processed_table.rows[rowIndex].transaction_uuid,
           column_uuid: targetCell.column_uuid,
-          text: value
+          text: value||null
         }
       };
       updatedData.data.processed_table.rows[rowIndex].cells.forEach((c, i) => {
@@ -638,10 +638,21 @@ const HumanVerificationTable = ({
       // Add the operation to the state
       setOperations([...operations, operation]);
       if (autoCalculate) {
+        let rowCopy = JSON.parse(
+          JSON.stringify(updatedData.data.processed_table.rows[rowIndex])
+        );
+        let cells = rowCopy?.cells?.filter((c) =>
+          selectedColumnIds?.includes(c?.column_uuid)
+        );
+        let row = {
+          ...updatedData.data.processed_table.rows[rowIndex],
+          cells: cells
+        };
+
         mutate(
           {
             document_uuid,
-            row: { ...updatedData.data.processed_table.rows[rowIndex] }
+            row: { ...row }
           },
           {
             onSuccess: (data) => {
@@ -658,7 +669,7 @@ const HumanVerificationTable = ({
                     updatedData.data.processed_table.rows[rowIndex]
                       .transaction_uuid,
                   column_uuid: extPriceCellColumnUUID,
-                  text: extPriceCell?.text
+                  text: extPriceCell?.text||null
                 }
               };
 

@@ -65,7 +65,7 @@ const ItemsCategorization = () => {
   const { fiv_removed_items_mode } = invoiceDetailStore();
   const { data, isLoading } = useGetRemovedVendorItems({
     category_id,
-    vendor_id:selected_vendor_id,
+    vendor_id: selected_vendor_id,
     mode,
     page: page_number,
     page_size
@@ -120,7 +120,10 @@ const ItemsCategorization = () => {
         tagName === "textarea" ||
         tagName === "select";
       if (/^[0-9]$/?.test(e.key)) {
-        let matchedItem = data?.data?.[Number(e.key)];
+        let matchedItem =
+          mode == "vendor"
+            ? data?.data?.removed_items[Number(e.key)]
+            : data?.data?.[Number(e.key)];
 
         if (!matchedItem) return;
 
@@ -136,17 +139,29 @@ const ItemsCategorization = () => {
       }
       if (!isEditable) {
         if (e.key === "ArrowLeft") {
-          if (page_number > 1) {
-            updateParams({
-              page_number: Number(page_number) - 1
+          if (selectedItems?.length > 0) {
+            toast("Please update the selected items.", {
+              icon: "⚠️"
             });
+          } else {
+            if (page_number > 1) {
+              updateParams({
+                page_number: Number(page_number) - 1
+              });
+            }
           }
         }
         if (e.key === "ArrowRight") {
-          if (page_number < data?.total_pages) {
-            updateParams({
-              page_number: Number(page_number) + 1
+          if (selectedItems?.length > 0) {
+            toast("Please update the selected items.", {
+              icon: "⚠️"
             });
+          } else {
+            if (page_number < data?.total_pages) {
+              updateParams({
+                page_number: Number(page_number) + 1
+              });
+            }
           }
         }
       }
@@ -206,7 +221,10 @@ const ItemsCategorization = () => {
               <span className="font-extrabold text-primary">
                 {category_name}
               </span>{" "}
-              Items{" "}
+              Items {mode == "vendor" && "under"}{" "}
+              {mode == "vendor" && (
+                <span className="font-extrabold text-primary">{`${data?.data?.vendor?.vendor_name}`}</span>
+              )}
             </p>
             <p className="font-poppins capitalize text-primary font-medium text-[0.9rem] leading-6 ">
               You can change the category of any item by clicking on the
@@ -215,7 +233,16 @@ const ItemsCategorization = () => {
           </div>
           <div className="flex items-center gap-x-4 font-normal ">
             <Button
-              disabled={!data?.data || !(Object?.keys(data?.data)?.length == 0)}
+              disabled={
+                !data?.data ||
+                !(
+                  Object?.keys(
+                    mode == "vendor"
+                      ? data?.data?.removed_items?.length > 0
+                      : data?.data?.length > 0
+                  ) == 0
+                )
+              }
               className="rounded-sm font-normal leading-6 w-[9rem] h-[2.3rem] text-sm  text-white"
               onClick={() => {
                 navigate("/bulk-categorization");
@@ -228,7 +255,9 @@ const ItemsCategorization = () => {
 
         <div className="w-full flex h-full gap-x-2 md:mt-0 2xl:mt-8  md:px-4 2xl:px-10">
           <div className="w-[60%] px-8  ">
-            {data?.data?.length > 0 && (
+            {(mode == "vendor"
+              ? data?.data?.removed_items?.length > 0
+              : data?.data?.length > 0) && (
               <TooltipProvider>
                 <Tooltip open={showShortCuts} className="">
                   <TooltipTrigger className=""></TooltipTrigger>
@@ -251,8 +280,15 @@ const ItemsCategorization = () => {
                     <Skeleton key={index} className={"w-full h-[2.25rem]"} />
                   ))}
                 </div>
-              ) : data?.data?.length > 0 ? (
-                data?.data?.map((item, index) => {
+              ) : (
+                  mode == "vendor"
+                    ? data?.data?.removed_items?.length > 0
+                    : data?.data?.length > 0
+                ) ? (
+                (mode == "vendor"
+                  ? data?.data?.removed_items
+                  : data?.data
+                )?.map((item, index) => {
                   return (
                     <div
                       key={index}
@@ -291,145 +327,187 @@ const ItemsCategorization = () => {
                 </div>
               )}
             </div>
-         <div className="my-4">
-         {isLoading ? (
-              <div className="flex items-center justify-center 2xl:mt-10 md:mt-4">
-                <div className="grid grid-cols-6 gap-x-3 px-4">
-                  {new Array(6).fill(0).map((_, index) => {
-                    return (
-                      <Skeleton
-                        key={index}
-                        className={"w-[2.25rem] h-[2.25rem]"}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            ) : (
-              <Pagination>
-                <PaginationContent>
-                  <PaginationItem className="!text-sm font-semibold cursor-pointer">
-                    <PaginationLink
-                      className={"border border-[#F1F1F1] rounded-lg"}
-                      onClick={() => {
-                        updateParams({
-                          page_number: 1
-                        });
-                      }}
-                    >
-                      <ChevronsLeft className="h-[1rem] w-[1rem]" />
-                    </PaginationLink>
-                  </PaginationItem>
-                  <PaginationItem className="!text-sm font-semibold cursor-pointer">
-                    <PaginationLink
-                      className={"border border-[#F1F1F1] rounded-lg"}
-                      onClick={() => {
-                        if (page > 1) {
-                          updateParams({
-                            page_number: page_number - 1
-                          });
-                        }
-                      }}
-                    >
-                      <ChevronLeft />
-                    </PaginationLink>
-                  </PaginationItem>
-                  {new Array(data?.total_pages)
-                    ?.fill(0)
-                    ?.slice(0, data?.total_pages > 2 ? 2 : 1)
-                    ?.map((_, index) => {
+            <div className="my-4">
+              {isLoading ? (
+                <div className="flex items-center justify-center 2xl:mt-10 md:mt-4">
+                  <div className="grid grid-cols-6 gap-x-3 px-4">
+                    {new Array(6).fill(0).map((_, index) => {
                       return (
-                        <PaginationItem
+                        <Skeleton
                           key={index}
-                          className="!text-sm font-semibold cursor-pointer"
-                        >
-                          <PaginationLink
-                            className={`${
-                              page_number == index + 1 &&
-                              "bg-primary hover:bg-primary !text-white"
-                            } text-[#000000] dark:text-[#F6F6F6] border  rounded-lg font-poppins font-semibold text-sm border-[#F1F1F1]`}
-                            active={index + 1 === page_number}
-                            onClick={() => {
-                              updateParams({
-                                page_number: Number(index) + 1
-                              });
-                            }}
-                          >
-                            {index + 1}
-                          </PaginationLink>
-                        </PaginationItem>
+                          className={"w-[2.25rem] h-[2.25rem]"}
+                        />
                       );
                     })}
+                  </div>
+                </div>
+              ) : (
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem className="!text-sm font-semibold cursor-pointer">
+                      <PaginationLink
+                        className={"border border-[#F1F1F1] rounded-lg"}
+                        onClick={() => {
+                          if (selectedItems?.length > 0) {
+                            toast("Please update the selected items.", {
+                              icon: "⚠️"
+                            });
+                          } else {
+                            updateParams({
+                              page_number: 1
+                            });
+                          }
+                        }}
+                      >
+                        <ChevronsLeft className="h-[1rem] w-[1rem]" />
+                      </PaginationLink>
+                    </PaginationItem>
+                    <PaginationItem className="!text-sm font-semibold cursor-pointer">
+                      <PaginationLink
+                        className={"border border-[#F1F1F1] rounded-lg"}
+                        onClick={() => {
+                          if (selectedItems?.length > 0) {
+                            toast("Please update the selected items.", {
+                              icon: "⚠️"
+                            });
+                          } else {
+                            if (page_number > 1) {
+                              updateParams({
+                                page_number: page_number - 1
+                              });
+                            }
+                          }
+                        }}
+                      >
+                        <ChevronLeft />
+                      </PaginationLink>
+                    </PaginationItem>
+                    {new Array(data?.total_pages)
+                      ?.fill(0)
+                      ?.slice(0, data?.total_pages > 2 ? 2 : 1)
+                      ?.map((_, index) => {
+                        return (
+                          <PaginationItem
+                            key={index}
+                            className="!text-sm font-semibold cursor-pointer"
+                          >
+                            <PaginationLink
+                              className={`${
+                                page_number == index + 1 &&
+                                "bg-primary hover:bg-primary !text-white"
+                              } text-[#000000] dark:text-[#F6F6F6] border  rounded-lg font-poppins font-semibold text-sm border-[#F1F1F1]`}
+                              active={index + 1 === page_number}
+                              onClick={() => {
+                                if (selectedItems?.length > 0) {
+                                  toast("Please update the selected items.", {
+                                    icon: "⚠️"
+                                  });
+                                } else {
+                                  updateParams({
+                                    page_number: Number(index) + 1
+                                  });
+                                }
+                              }}
+                            >
+                              {index + 1}
+                            </PaginationLink>
+                          </PaginationItem>
+                        );
+                      })}
 
-                  {data?.total_pages > 2 && (
-                    <PaginationEllipsis className="!text-sm font-semibold font-poppins " />
-                  )}
-                  {data?.total_pages > 3 &&
-                    page_number > 2 &&
-                    page_number < data?.total_pages && (
+                    {data?.total_pages > 2 && (
+                      <PaginationEllipsis className="!text-sm font-semibold font-poppins " />
+                    )}
+                    {data?.total_pages > 3 &&
+                      page_number > 2 &&
+                      page_number < data?.total_pages && (
+                        <PaginationItem className="!text-sm font-semibold cursor-pointer">
+                          <PaginationLink
+                            className={`${
+                              true && "bg-primary !text-white hover:bg-primary"
+                            } text-[#000000] border border-[#F1F1F1] rounded-lg font-poppins font-semibold text-sm dark:text-[#F6F6F6]`}
+                            onClick={() => {
+                              if (selectedItems?.length > 0) {
+                                toast("Please update the selected items.", {
+                                  icon: "⚠️"
+                                });
+                              } else {
+                                updateParams({
+                                  page_number: data?.total_pages
+                                });
+                              }
+                            }}
+                          >
+                            {page_number}
+                          </PaginationLink>
+                        </PaginationItem>
+                      )}
+                    {data?.total_pages > 1 && (
                       <PaginationItem className="!text-sm font-semibold cursor-pointer">
                         <PaginationLink
                           className={`${
-                            true && "bg-primary !text-white hover:bg-primary"
+                            page_number == data?.total_pages &&
+                            "bg-primary !text-white hover:bg-primary"
                           } text-[#000000] border border-[#F1F1F1] rounded-lg font-poppins font-semibold text-sm dark:text-[#F6F6F6]`}
                           onClick={() => {
-                            updateParams({
-                              page_number: data?.total_pages
-                            });
+                            if (selectedItems?.length > 0) {
+                              toast("Please update the selected items.", {
+                                icon: "⚠️"
+                              });
+                            } else {
+                              updateParams({
+                                page_number: data?.total_pages
+                              });
+                            }
                           }}
                         >
-                          {page}
+                          {data?.total_pages}
                         </PaginationLink>
                       </PaginationItem>
                     )}
-                  {data?.total_pages > 1 && (
+
                     <PaginationItem className="!text-sm font-semibold cursor-pointer">
                       <PaginationLink
-                        className={`${
-                          page_number == data?.total_pages &&
-                          "bg-primary !text-white hover:bg-primary"
-                        } text-[#000000] border border-[#F1F1F1] rounded-lg font-poppins font-semibold text-sm dark:text-[#F6F6F6]`}
+                        className={"border border-[#F1F1F1] rounded-lg"}
                         onClick={() => {
-                          updateParams({
-                            page_number: data?.total_pages
-                          });
+                          if (selectedItems?.length > 0) {
+                            toast("Please update the selected items.", {
+                              icon: "⚠️"
+                            });
+                          } else {
+                            if (page_number < data?.total_pages) {
+                              updateParams({
+                                page_number: Number(page_number) + 1
+                              });
+                            }
+                          }
                         }}
                       >
-                        {data?.total_pages}
+                        <ChevronRight />
                       </PaginationLink>
                     </PaginationItem>
-                  )}
-
-                  <PaginationItem className="!text-sm font-semibold cursor-pointer">
-                    <PaginationLink
-                      className={"border border-[#F1F1F1] rounded-lg"}
-                      onClick={() => {
-                        if (page_number < data?.total_pages) {
-                          updateParams({
-                            page_number: Number(page) + 1
-                          });
-                        }
-                      }}
-                    >
-                      <ChevronRight />
-                    </PaginationLink>
-                  </PaginationItem>
-                  <PaginationItem className="!text-sm font-semibold cursor-pointer">
-                    <PaginationLink
-                      className={"border border-[#F1F1F1] rounded-lg"}
-                      onClick={() => {
-                        updateParams({
-                          page_number: data?.total_pages
-                        });
-                      }}
-                    >
-                      <ChevronsRight />
-                    </PaginationLink>
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            )}
-         </div>
+                    <PaginationItem className="!text-sm font-semibold cursor-pointer">
+                      <PaginationLink
+                        className={"border border-[#F1F1F1] rounded-lg"}
+                        onClick={() => {
+                          if (selectedItems?.length > 0) {
+                            toast("Please update the selected items.", {
+                              icon: "⚠️"
+                            });
+                          } else {
+                            updateParams({
+                              page_number: data?.total_pages
+                            });
+                          }
+                        }}
+                      >
+                        <ChevronsRight />
+                      </PaginationLink>
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              )}
+            </div>
           </div>
 
           <div className="w-[40%]  flex items-center justify-center 2xl:h-[42rem] md:max-h-[55rem]">
