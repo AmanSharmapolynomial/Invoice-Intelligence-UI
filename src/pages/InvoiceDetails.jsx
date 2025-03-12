@@ -80,6 +80,14 @@ import {
   useSearchParams
 } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow
+} from "@/components/ui/table";
+import CustomToolTip from "@/components/ui/Custom/CustomToolTip";
 
 const rejectionReasons = [
   "Duplicate invoice",
@@ -90,79 +98,7 @@ const rejectionReasons = [
   "Vendor not identifiable",
   "Missing invoice page"
 ];
-const duplicateVendors = [
-  {
-    vendor_id: "110d8487-ddb1-44d0-ab26-53cf44d0f7ff",
-    vendor_name: "china garden",
-    human_verified: true,
-    match_reason: "test",
-    similarity_score: 95.5
-  },
-  {
-    vendor_id: "f33cf85b-7dbd-49e7-906f-266d6d571741",
-    vendor_name: "money mailer",
-    human_verified: true,
-    match_reason: "test",
-    similarity_score: 95.5
-  },
-  {
-    vendor_id: "7c1b2c8b-cffa-421b-ab47-ad76ccb21010",
-    vendor_name: "ruler foods",
-    human_verified: true,
-    match_reason: "test",
-    similarity_score: 95.5
-  },
-  {
-    vendor_id: "b94f4aba-1966-45e5-991a-fbbd016225ca",
-    vendor_name: "opc pest services- bowling green",
-    human_verified: true,
-    match_reason: "test",
-    similarity_score: 95.5
-  },
-  {
-    vendor_id: "346c6212-8dde-471c-b344-6cba157d56da",
-    vendor_name: "mcafee",
-    human_verified: true,
-    match_reason: "test",
-    similarity_score: 95.5
-  },
 
-  {
-    vendor_id: "110d8487-ddb1-44d0-ab26-53cf44d0f7ff",
-    vendor_name: "china garden",
-    human_verified: true,
-    match_reason: "test",
-    similarity_score: 95.5
-  },
-  {
-    vendor_id: "f33cf85b-7dbd-49e7-906f-266d6d571741",
-    vendor_name: "money mailer",
-    human_verified: true,
-    match_reason: "test",
-    similarity_score: 95.5
-  },
-  {
-    vendor_id: "7c1b2c8b-cffa-421b-ab47-ad76ccb21010",
-    vendor_name: "ruler foods",
-    human_verified: true,
-    match_reason: "test",
-    similarity_score: 95.5
-  },
-  {
-    vendor_id: "b94f4aba-1966-45e5-991a-fbbd016225ca",
-    vendor_name: "opc pest services- bowling green",
-    human_verified: true,
-    match_reason: "test",
-    similarity_score: 95.5
-  },
-  {
-    vendor_id: "346c6212-8dde-471c-b344-6cba157d56da",
-    vendor_name: "mcafee",
-    human_verified: true,
-    match_reason: "test",
-    similarity_score: 95.5
-  }
-];
 const InvoiceDetails = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -210,6 +146,7 @@ const InvoiceDetails = () => {
       toFetch: is_unverified_vendor,
       document_uuid: current_document_uuid
     });
+  console.log(similarVendors);
 
   const { filters, setFilters } = useFilterStore();
   const { mutate: updateTable } = useUpdateDocumentMetadata();
@@ -386,7 +323,7 @@ const InvoiceDetails = () => {
 
           queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
           clearUpdatedFields();
-          setShowAcceptModal(false)
+          setShowAcceptModal(false);
         },
         onError: () => {
           setLoadingState({ ...loadingState, saving: false });
@@ -991,11 +928,11 @@ const InvoiceDetails = () => {
             >
               <Button
                 onClick={() => {
-                  // if (is_unverified_vendor) {
-                  //   setShowAcceptModal(true);
-                  // } else {
+                  if (is_unverified_vendor) {
+                    setShowAcceptModal(true);
+                  } else {
                     handleAccept();
-                  // }
+                  }
                 }}
                 disabled={
                   action_controls?.accept?.disabled || loadingState?.accepting
@@ -1407,53 +1344,58 @@ const InvoiceDetails = () => {
         open={showAcceptModal}
         setOpen={setShowAcceptModal}
         title={"Information"}
-        className={"!rounded-2xl"}
+        className={"!rounded-2xl  max-w-[50rem] min-h-[10rem] max-h-[40rem]"}
         titleClassName={
-          "flex justify-center  text-[#000000] font-poppins  font-medium  text-base  leading-4 pt-0.5 "
+          "flex justify-center   text-[#000000] font-poppins  font-medium  text-base  leading-4 pt-0.5 "
         }
       >
         <ModalDescription>
-          <div className="p-2">
-            <p className="mb-1.5  font-poppins text-[0.9rem] font-normal text-[#000000] ">
+          <div className="my-2">
+            <p className="mb-3 pl-0.5  font-poppins text-[0.9rem] font-normal text-[#000000] ">
               Following are the possible duplicate vendors :
             </p>
           </div>
-          <div className="!capitalize mb-3 pl-4  flex justify-between  gap-y-2 gap-x-2 !font-poppins  !font-normal !text-sm text-black">
-            <p className="font-poppins font-semibold w-1/3 text-sm text-black capitalize flex items-center justify-start">
-              {"Vendor Name"}
-            </p>
-            <p className="font-poppins font-semibold w-1/3 text-sm text-black capitalize flex items-center justify-start">
-              {"Match Reason"}
-            </p>
-            <p className="font-poppins font-semibold w-1/3 text-sm text-black capitalize flex items-center justify-start">
-              {"Similarity"}
-            </p>
+          <div className="min-h-56 overflow-auto">
+            <Table>
+              <TableRow className="border">
+                <TableHead className="border font-poppins text-sm font-semibold text-black leading-5">
+                  Vendor Name
+                </TableHead>
+                <TableHead className="border font-poppins text-sm font-semibold text-black leading-5">
+                  Similarity{" "}
+                </TableHead>
+                <TableHead className="border font-poppins text-sm font-semibold text-black leading-5">
+                  Finding Method
+                </TableHead>
+              </TableRow>
+
+              <TableBody>
+                {similarVendors?.data?.length > 0 &&
+                  similarVendors?.data?.map((row, index) => (
+                    <TableRow className="border" key={index}>
+                      <TableCell className="border font-poppins font-normal text-black text-sm">
+                        <div className="flex items-center gap-x-2">
+                          <span> {row?.vendor?.vendor_name}</span>
+                          <img src={approved} alt="" />
+                        </div>
+                      </TableCell>
+                      <TableCell className="border font-poppins font-normal text-black text-sm">
+                        <CustomToolTip content={row?.match_reason}>
+                          <span> {row?.similarity_score}%</span>
+                        </CustomToolTip>
+                      </TableCell>
+                      <TableCell className="border font-poppins font-normal text-black text-sm">
+                        {row?.finding_method}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
           </div>
-          <div className="h-36 overflow-auto  pl-4 flex flex-col gap-y-2 ">
-            {duplicateVendors?.map((v, i) => {
-              return (
-                <div
-                  key={i}
-                  className="!capitalize  flex justify-between  gap-y-2 gap-x-2 !font-poppins  !font-normal !text-sm text-black"
-                >
-                  <p className="font-poppins font-normal w-1/3 text-sm text-black capitalize flex items-center justify-start">
-                    {v?.vendor_name}
-                  </p>
-                  <p className="font-poppins flex items-center w-1/3 pl-8 justify-start font-normal text-sm text-black capitalize">
-                    {v?.match_reason}
-                  </p>
-                  <p className="font-poppins flex items-center w-1/3 pl-4 justify-start font-normal text-sm text-black capitalize">
-                    {v?.similarity_score}%
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-          <div className="flex justify-center items-center gap-x-2">
+          <div className="flex justify-center  absolute bottom-4 left-[50%] right-[50%] items-center gap-x-2">
             <Button
-           
-              onClick={()=>{
-                setShowAcceptModal(false)
+              onClick={() => {
+                setShowAcceptModal(false);
               }}
               className="mt-8 border bg-transparent hover:bg-transparent border-primary text-black font-poppins tracking-wide  !font-normal text-xs rounded-sm leading-4 "
             >
