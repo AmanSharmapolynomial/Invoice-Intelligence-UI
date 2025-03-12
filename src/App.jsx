@@ -21,16 +21,12 @@ import useThemeStore from "./store/themeStore";
 import { invoiceDetailStore } from "./store/invoiceDetailStore";
 
 function App() {
-  const { data: vendorNamesList, isLoading: vendorNamesLoading } =
-    useGetVendorNames(true);
+
   const { setActualVendorName } = usePersistStore();
   const [open, setOpen] = useState(false);
   const [vendorName, setVendorName] = useState("");
   const [isItemMaster, setIsItemMaster] = useState(false);
-  const [filteredVendors, setFilteredVendors] = useState([]);
-  useEffect(() => {
-    setFilteredVendors(vendorNamesList?.data?.vendor_names);
-  }, [vendorNamesList]);
+  
   const { theme } = useThemeStore();
   const { clearStore } = invoiceDetailStore();
 
@@ -88,96 +84,7 @@ function App() {
           />
         </div>
       </Layout>
-      <Modal
-        open={open}
-        setOpen={setOpen}
-        className="bg-white dark:bg-[#051C14] dark:border-[#051C14]"
-        title={"Available Vendors"}
-        titleClassName={
-          "font-semibold text-base font-poppins dark:text-[#F6F6F6]"
-        }
-      >
-        <ModalDescription>
-          <div className="flex flex-col gap-y-4 overflow-scroll !h-[35.875rem]  ">
-            <CustomInput
-              showIcon
-              variant="search"
-              placeholder="Search Vendor Name"
-              className="border border-gray-200  focus:!ring-0 focus:!outline-none remove-number-spinner"
-              Value={vendorName}
-              onChange={(val) => {
-                if (val == "") {
-                  setFilteredVendors(vendorNamesList?.data?.vendor_names);
-                  setVendorName("");
-                } else {
-                  setVendorName(val);
-                  let filtered = vendorNamesList?.data?.vendor_names?.filter(
-                    ({ vendor_name }) =>
-                      vendor_name
-                        ?.toLowerCase()
-                        ?.trim()
-                        ?.includes(vendorName?.toLowerCase()?.trim())
-                  );
-                  setFilteredVendors(filtered);
-                }
-              }}
-            />
-            <Table className="overflow-auto">
-              <TableHeader className="!bg-[#FFFFFF] dark:!bg-[#051C14] sticky top-0">
-                <TableRow className="border-none hover:bg-transparent ">
-                  <TableHead className="!font-poppins !text-[#000000] dark:!text-[#F6F6F6] !text-sm font-semibold">
-                    Vendor Name
-                  </TableHead>
-                  <TableHead className="!font-poppins !text-[#000000]  dark:!text-[#F6F6F6] !text-sm font-semibold flex justify-center">
-                    Verified
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-
-              {filteredVendors?.length > 0 &&
-                filteredVendors?.map(
-                  ({ vendor_id, vendor_name, human_verified }) => (
-                    <TableRow
-                      key={vendor_id}
-                      // onClick={() => {
-                      //   isItemMaster
-                      //     ? navigate(`/fast-item-verification/${vendor_id}`)
-                      //     : navigate(`/vendor-details/${vendor_id}`);
-                      // }}
-                      className="hover:bg-textColor/50 dark:hover:bg-transparent w-full  justify-between border-none cursor-pointer"
-                    >
-                      <TableCell className="">
-                        <p className="capitalize dark:text-[#F6F6F6] font-poppins font-normal text-primaryText text-xs">
-                          {vendor_name}
-                        </p>
-                      </TableCell>
-                      <TableCell className="flex justify-center">
-                        <p>
-                          {human_verified ? (
-                            <img
-                              src={approved}
-                              className="h-[1rem] w-[1rem] dark:text-[#F6F6F6] text-primary"
-                            />
-                          ) : (
-                            <span className="font-poppins dark:text-[#F6F6F6] font-normal text-grey">
-                              -
-                            </span>
-                          )}
-                        </p>
-                      </TableCell>
-                    </TableRow>
-                  )
-                )}
-
-              {filteredVendors?.length == 0 && (
-                <p className="flex justify-end w-full py-4  font-poppins">
-                  No match found
-                </p>
-              )}
-            </Table>
-          </div>
-        </ModalDescription>
-      </Modal>
+  
     </div>
   );
 }
