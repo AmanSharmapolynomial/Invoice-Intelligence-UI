@@ -61,7 +61,7 @@ const MetadataTable = ({
 
   const [updatingCategoriesAndTypes, setUpdatingCategoriesAndTypes] =
     useState(false);
-  const { data: vendorsData, isLoading: loadingVendors } = useGetVendorsNames();
+  const { data: vendorsData, isLoading: loadingVendors } = useGetVendorsNames(false);
   const { mutate: updateVendorTypesAndCategories } =
     useUpdateVendorTypesAndCategories();
   const navigate = useNavigate();
@@ -283,7 +283,7 @@ const MetadataTable = ({
   let action_controls =
     data?.data?.[0]?.action_controls || data?.data?.action_controls;
 
-    
+
   const handleHighlighting = (field_name) => {
     let boundng_boxes = metadataBoundingBoxes?.data?.[`${field_name}`];
     if (boundng_boxes) {
