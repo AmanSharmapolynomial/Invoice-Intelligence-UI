@@ -7,7 +7,7 @@ import { invoiceDetailsTabs } from "@/constants";
 import useFilterStore from "@/store/filtersStore";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
 import { useLocation, useSearchParams } from "react-router-dom";
-import { useGetCombinedTable, useGetDocumentMetadata } from "../api";
+import { useGetCombinedTable, useGetDocumentMetadata, useGetDocumentMetadataBoundingBoxes } from "../api";
 import CombinedTable from "./CombinedTable";
 import MetadataTable from "./MetadataTable";
 import HumanVerificationTable from "./HumanVerificationTable";
@@ -65,6 +65,7 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
 
   const { data, isLoading, isPending, isFetched } =
     useGetDocumentMetadata(payload);
+
   const { data: combinedTableData, isLoading: loadingCombinedTable } =
     useGetCombinedTable(
       data?.data?.[0]?.document_uuid || data?.data?.document_uuid

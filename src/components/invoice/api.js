@@ -12,7 +12,8 @@ import {
   getDocumentTimeline,
   getVendorTypesAndCategories,
   updateVendorTypesAndCategories,
-  getItemMasterSimilarItems
+  getItemMasterSimilarItems,
+  getInvoiceMetaDataBoundingboxes
 } from "./utils";
 import { axiosInstance } from "@/axios/instance";
 import toast from "react-hot-toast";
@@ -22,6 +23,13 @@ export const useGetDocumentMetadata = (payload) => {
   return useQuery({
     queryKey: ["document-metadata", payload],
     queryFn: () => getInvoiceMetaData(payload),
+    gcTime: 0
+  });
+};
+export const useGetDocumentMetadataBoundingBoxes = (payload) => {
+  return useQuery({
+    queryKey: ["document-metadata-bounding-boxes", payload],
+    queryFn: () => getInvoiceMetaDataBoundingboxes(payload),
     gcTime: 0
   });
 };

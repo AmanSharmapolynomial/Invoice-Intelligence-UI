@@ -33,6 +33,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import {
+  useGetDocumentMetadataBoundingBoxes,
   useGetVendorTypesAndCategories,
   useUpdateVendorOrBranch,
   useUpdateVendorTypesAndCategories
@@ -57,6 +58,7 @@ const MetadataTable = ({
     from: null,
     to: null
   });
+
   const [updatingCategoriesAndTypes, setUpdatingCategoriesAndTypes] =
     useState(false);
   const { data: vendorsData, isLoading: loadingVendors } = useGetVendorsNames();
@@ -84,7 +86,9 @@ const MetadataTable = ({
     editVendor,
     setEditVendor,
     setIsUnverifiedVendor,
-    setCurrentDocumentUUID
+    setCurrentDocumentUUID,
+    setBoundingBoxes,
+    setBoundingBox
   } = invoiceDetailStore();
   const {
     document_uuid,
@@ -104,7 +108,13 @@ const MetadataTable = ({
     human_verification_required,
     invoice_type
   } = data?.data?.[0] || data?.data;
-
+  const {
+    data: metadataBoundingBoxes,
+    isLoading: loadingMetadataBoundingBoxes
+  } = useGetDocumentMetadataBoundingBoxes({
+    ...payload,
+    document_uuid: document_uuid
+  });
   useEffect(() => {
     if (!vendor?.human_verified) {
       setIsUnverifiedVendor(true);
@@ -273,39 +283,68 @@ const MetadataTable = ({
   let action_controls =
     data?.data?.[0]?.action_controls || data?.data?.action_controls;
 
+    
+  const handleHighlighting = (field_name) => {
+    let boundng_boxes = metadataBoundingBoxes?.data?.[`${field_name}`];
+    if (boundng_boxes) {
+      setBoundingBox({
+        box: boundng_boxes,
+        page_index: boundng_boxes["page_index"]
+      });
+      setBoundingBoxes([
+        { box: boundng_boxes, page_index: boundng_boxes["page_index"] }
+      ]);
+    }
+  };
+
+  const handleRestBoundingBoxes = (field_name) => {
+    if ( metadataBoundingBoxes?.data?.[`${field_name}`]!==null) {
+      setBoundingBox({});
+      setBoundingBoxes([]);
+    }
+  };
   return (
     <div className="w-full -mt-3 border border-[#F0F0F0] shadow-sm p-2 rounded-md">
       <div className="grid grid-cols-3 gap-x-4">
         <Template title="Invoice Number">
-          <CustomInput
-            className={`${
-              !document_metadata?.invoice_number ? "!border-[#F97074]" : ""
-            }`}
-            value={document_metadata?.invoice_number}
-            onChange={(v) => {
-              if (branchChanged || vendorChanged) {
-                if (branchChanged) {
-                  toast.error(
-                    "Please Update the Vendor Address before proceeding for other changes.",
-                    {
-                      icon: "⚠️"
-                    }
-                  );
-                  return;
-                } else {
-                  toast.error(
-                    "Please Update the Vendor Name before proceeding for other changes.",
-                    {
-                      icon: "⚠️"
-                    }
-                  );
-                  return;
-                }
-              } else {
-                setCachedData("invoice_number", v);
-              }
+          <div
+            onMouseEnter={() => {
+              handleHighlighting("invoice_number");
             }}
-          />
+            onMouseLeave={() => {
+              handleRestBoundingBoxes("invoice_number");
+            }}
+          >
+            <CustomInput
+              className={`${
+                !document_metadata?.invoice_number ? "!border-[#F97074]" : ""
+              }`}
+              value={document_metadata?.invoice_number}
+              onChange={(v) => {
+                if (branchChanged || vendorChanged) {
+                  if (branchChanged) {
+                    toast.error(
+                      "Please Update the Vendor Address before proceeding for other changes.",
+                      {
+                        icon: "⚠️"
+                      }
+                    );
+                    return;
+                  } else {
+                    toast.error(
+                      "Please Update the Vendor Name before proceeding for other changes.",
+                      {
+                        icon: "⚠️"
+                      }
+                    );
+                    return;
+                  }
+                } else {
+                  setCachedData("invoice_number", v);
+                }
+              }}
+            />
+          </div>
         </Template>
         <Template title="Invoice Type">
           <CustomDropDown
@@ -343,15 +382,78 @@ const MetadataTable = ({
         </Template>
 
         <Template title="Invoice Date">
-          <div className="flex !w-full">
+          <div
+            onMouseEnter={() => {
+              handleHighlighting("invoice_date");
+            }}
+            onMouseLeave={() => {
+              handleRestBoundingBoxes("invoice_date");
+            }}
+          >
+            <div className="flex !w-full">
+              <DatePicker
+                className={`${
+                  !document_metadata?.invoice_date ? "!border-[#F97074]" : ""
+                }`}
+                date={
+                  document_metadata?.invoice_date &&
+                  isValid(parseISO(document_metadata.invoice_date))
+                    ? parseISO(document_metadata.invoice_date) // Parse ISO string
+                    : null
+                }
+                onChange={(date) => {
+                  if (branchChanged || vendorChanged) {
+                    if (branchChanged) {
+                      toast.error(
+                        "Please Update the Vendor Address before proceeding for other changes.",
+                        {
+                          icon: "⚠️"
+                        }
+                      );
+                      return;
+                    } else {
+                      toast.error(
+                        "Please Update the Vendor Name before proceeding for other changes.",
+                        {
+                          icon: "⚠️"
+                        }
+                      );
+                      return;
+                    }
+                  }
+                  if (date && isValid(date)) {
+                    // Store date as ISO string in UTC format
+                    setCachedData(
+                      "invoice_date",
+                      formatISO(date, { representation: "date" })
+                    );
+                  } else {
+                    setCachedData("invoice_date", null);
+                  }
+                }}
+              />
+            </div>
+          </div>
+        </Template>
+      </div>
+      <div className="grid grid-cols-3 gap-x-4 mt-4">
+        <Template title="Due Date">
+          <div
+            onMouseEnter={() => {
+              handleHighlighting("invoice_due_date");
+            }}
+            onMouseLeave={() => {
+              handleRestBoundingBoxes("invoice_due_date");
+            }}
+          >
             <DatePicker
               className={`${
-                !document_metadata?.invoice_date ? "!border-[#F97074]" : ""
+                !document_metadata?.invoice_due_date ? "!border-[#F97074]" : ""
               }`}
               date={
-                document_metadata?.invoice_date &&
-                isValid(parseISO(document_metadata.invoice_date))
-                  ? parseISO(document_metadata.invoice_date) // Parse ISO string
+                document_metadata?.invoice_due_date &&
+                isValid(parseISO(document_metadata?.invoice_due_date))
+                  ? parseISO(document_metadata?.invoice_due_date) // Parse ISO string
                   : null
               }
               onChange={(date) => {
@@ -373,313 +475,288 @@ const MetadataTable = ({
                     );
                     return;
                   }
-                }
-                if (date && isValid(date)) {
-                  // Store date as ISO string in UTC format
-                  setCachedData(
-                    "invoice_date",
-                    formatISO(date, { representation: "date" })
-                  );
                 } else {
-                  setCachedData("invoice_date", null);
+                  if (date && isValid(date)) {
+                    // Store date as ISO string in UTC format
+                    setCachedData(
+                      "invoice_due_date",
+                      formatISO(date, { representation: "date" })
+                    );
+                  } else {
+                    setCachedData("invoice_due_date", null);
+                  }
                 }
               }}
             />
           </div>
         </Template>
-      </div>
-      <div className="grid grid-cols-3 gap-x-4 mt-4">
-        <Template title="Due Date">
-          <DatePicker
-            className={`${
-              !document_metadata?.invoice_due_date ? "!border-[#F97074]" : ""
-            }`}
-            date={
-              document_metadata?.invoice_due_date &&
-              isValid(parseISO(document_metadata?.invoice_due_date))
-                ? parseISO(document_metadata?.invoice_due_date) // Parse ISO string
-                : null
-            }
-            onChange={(date) => {
-              if (branchChanged || vendorChanged) {
-                if (branchChanged) {
-                  toast.error(
-                    "Please Update the Vendor Address before proceeding for other changes.",
-                    {
-                      icon: "⚠️"
-                    }
-                  );
-                  return;
-                } else {
-                  toast.error(
-                    "Please Update the Vendor Name before proceeding for other changes.",
-                    {
-                      icon: "⚠️"
-                    }
-                  );
-                  return;
-                }
-              } else {
-                if (date && isValid(date)) {
-                  // Store date as ISO string in UTC format
-                  setCachedData(
-                    "invoice_due_date",
-                    formatISO(date, { representation: "date" })
-                  );
-                } else {
-                  setCachedData("invoice_due_date", null);
-                }
-              }
-            }}
-          />
-        </Template>
         <Template title="Vendor Name" className="col-span-2 w-full">
-          <div className="flex items-center gap-x-4 pr-2  !min-w-full">
-            {editVendor ? (
-              <CustomInput
-                className={`${
-                  !newVendor ? "!border-[#F97074]" : ""
-                } !text-xs text-[#666666] hover:text-[#666666]`}
-                value={newVendor}
-                vendor_id={vendor?.vendor_id}
-                placeholder="Vendor Name"
-                onChange={(v) => {
-                  setNewVendor(v);
-                  setVendorChanged(true);
-                }}
-              />
-            ) : (
-              <div className="!w-full overflow-auto    flex gap-x-4">
-                <CustomDropDown
-                  Value={vendor?.vendor_id}
-                  placeholder={loadingVendors ? "Loading..." : "Select Vendor"}
-                  className={`!max-w-full !min-w-full ${
-                    !vendor?.vendor_id ? "!border-[#F97074]" : ""
-                  }`}
-                  triggerClassName={`${
-                    editVendor ? " !min-w-[80%]" : "!min-w-fit"
-                  }  md:max-w-[15rem] xl:!min-w-full`}
-                  showVendorAsLink={true}
-                  onChange={(v, vendor) => {
+          <div
+            onMouseEnter={() => {
+              handleHighlighting("vendor");
+            }}
+            onMouseLeave={() => {
+              handleRestBoundingBoxes("vendor");
+            }}
+          >
+            <div className="flex items-center gap-x-4 pr-2  !min-w-full">
+              {editVendor ? (
+                <CustomInput
+                  className={`${
+                    !newVendor ? "!border-[#F97074]" : ""
+                  } !text-xs text-[#666666] hover:text-[#666666]`}
+                  value={newVendor}
+                  vendor_id={vendor?.vendor_id}
+                  placeholder="Vendor Name"
+                  onChange={(v) => {
+                    setNewVendor(v);
                     setVendorChanged(true);
-
-                    setCachedData(
-                      "vendor",
-                      {
-                        vendor_name: vendor?.label,
-                        vendor_id: vendor?.value,
-                        human_verified: vendor?.human_verified
-                      },
-                      false
-                    );
                   }}
-                  data={(() => {
-                    // Format vendor names
-                    if (loadingVendors) {
-                      return [];
+                />
+              ) : (
+                <div className="!w-full overflow-auto    flex gap-x-4">
+                  <CustomDropDown
+                    Value={vendor?.vendor_id}
+                    placeholder={
+                      loadingVendors ? "Loading..." : "Select Vendor"
                     }
-                    const formattedVendors = vendorNamesFormatter(
-                      vendorsData?.vendor_names
-                    );
+                    className={`!max-w-full !min-w-full ${
+                      !vendor?.vendor_id ? "!border-[#F97074]" : ""
+                    }`}
+                    triggerClassName={`${
+                      editVendor ? " !min-w-[80%]" : "!min-w-fit"
+                    }  md:max-w-[15rem] xl:!min-w-full`}
+                    showVendorAsLink={true}
+                    onChange={(v, vendor) => {
+                      setVendorChanged(true);
 
-                    // Get the vendor name to compare
-                    const referenceString = vendor?.vendor_name || "";
-
-                    // Configure Fuse.js
-                    const fuse = new Fuse(formattedVendors, {
-                      keys: ["label"], // Search based on label field
-                      threshold: 0.8 // Adjust similarity sensitivity
-                    });
-                    try {
-                      const searchResults = referenceString
-                        ? fuse
-                            ?.search(referenceString)
-                            ?.map((result) => result.item)
-                        : formattedVendors;
-
-                      // If you want all vendors returned, merge missing items:
-                      const remainingVendors = formattedVendors?.filter(
-                        (vendor) => !searchResults?.includes(vendor)
+                      setCachedData(
+                        "vendor",
+                        {
+                          vendor_name: vendor?.label,
+                          vendor_id: vendor?.value,
+                          human_verified: vendor?.human_verified
+                        },
+                        false
                       );
-                      const sortedVendors = [
-                        ...searchResults,
-                        ...remainingVendors
-                      ];
-                      return sortedVendors;
-                    } catch (error) {
-                      return [];
-                    }
-                    // Perform the search and sort based on relevance
-                  })()}
-                >
-                  <p
-                    onClick={() => setEditVendor(true)}
-                    className=" cursor-pointer text-[#348355] font-poppins font-bold text-xs leading-4 px-5 py-2"
+                    }}
+                    data={(() => {
+                      // Format vendor names
+                      if (loadingVendors) {
+                        return [];
+                      }
+                      const formattedVendors = vendorNamesFormatter(
+                        vendorsData?.vendor_names
+                      );
+
+                      // Get the vendor name to compare
+                      const referenceString = vendor?.vendor_name || "";
+
+                      // Configure Fuse.js
+                      const fuse = new Fuse(formattedVendors, {
+                        keys: ["label"], // Search based on label field
+                        threshold: 0.8 // Adjust similarity sensitivity
+                      });
+                      try {
+                        const searchResults = referenceString
+                          ? fuse
+                              ?.search(referenceString)
+                              ?.map((result) => result.item)
+                          : formattedVendors;
+
+                        // If you want all vendors returned, merge missing items:
+                        const remainingVendors = formattedVendors?.filter(
+                          (vendor) => !searchResults?.includes(vendor)
+                        );
+                        const sortedVendors = [
+                          ...searchResults,
+                          ...remainingVendors
+                        ];
+                        return sortedVendors;
+                      } catch (error) {
+                        return [];
+                      }
+                      // Perform the search and sort based on relevance
+                    })()}
                   >
-                    + Add new Vendor
-                  </p>
-                </CustomDropDown>
-              </div>
-            )}
-            <CustomTooltip
-              content={
-                action_controls?.update_vendor?.disabled &&
-                action_controls?.update_vendor?.reason
-              }
-            >
-              <Button
-                className={`${
-                  !vendorChanged && "!border-[#CBCBCB] "
-                } bg-transparent h-[2.4rem] border-primary w-[4.85rem] !rounded-md hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm`}
-                disabled={
-                  action_controls?.update_vendor?.disabled || !vendorChanged
+                    <p
+                      onClick={() => setEditVendor(true)}
+                      className=" cursor-pointer text-[#348355] font-poppins font-bold text-xs leading-4 px-5 py-2"
+                    >
+                      + Add new Vendor
+                    </p>
+                  </CustomDropDown>
+                </div>
+              )}
+              <CustomTooltip
+                content={
+                  action_controls?.update_vendor?.disabled &&
+                  action_controls?.update_vendor?.reason
                 }
-                onClick={() => {
-                  if (newVendor?.length > 0) {
-                    updateVendor({ vendor_name: newVendor });
-                  } else {
-                    updateVendor(vendor);
+              >
+                <Button
+                  className={`${
+                    !vendorChanged && "!border-[#CBCBCB] "
+                  } bg-transparent h-[2.4rem] border-primary w-[4.85rem] !rounded-md hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm`}
+                  disabled={
+                    action_controls?.update_vendor?.disabled || !vendorChanged
                   }
-                }}
-              >
-                {loadingState?.savingVendor ? "Updating.." : "Update"}
-              </Button>
-            </CustomTooltip>
-            {editVendor && (
-              <Button
-                className="bg-transparent h-[2.4rem] border-primary w-[4.85rem] !rounded-md hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
-                onClick={() => {
-                  setEditVendor(false);
-                  setEditBranch("");
-                }}
-              >
-                Close
-              </Button>
-            )}
+                  onClick={() => {
+                    if (newVendor?.length > 0) {
+                      updateVendor({ vendor_name: newVendor });
+                    } else {
+                      updateVendor(vendor);
+                    }
+                  }}
+                >
+                  {loadingState?.savingVendor ? "Updating.." : "Update"}
+                </Button>
+              </CustomTooltip>
+              {editVendor && (
+                <Button
+                  className="bg-transparent h-[2.4rem] border-primary w-[4.85rem] !rounded-md hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                  onClick={() => {
+                    setEditVendor(false);
+                    setEditBranch("");
+                  }}
+                >
+                  Close
+                </Button>
+              )}
+            </div>
           </div>
         </Template>
       </div>
       <div className="grid grid-cols-1 gap-x-4 mt-4">
         <Template title="Vendor Address" className={"col-span-2 "}>
-          <div className="flex items-center gap-x-4 pr-2 !min-w-full">
-            {editBranch ? (
-              <CustomInput
-                value={branch?.vendor_address}
-                className={`${
-                  !newBranch ? "!border-[#F97074]" : ""
-                } !max-w-full`}
-                onChange={(v) => {
-                  setNewBranch(v);
-                  setBranchChanged(true);
-                }}
-              />
-            ) : (
-              <div className="flex items-center gap-x-4 w-full">
-                <CustomDropDown
-                  Value={branch}
-                  vendor_id={vendor?.vendor_id}
-                  placeholder={
-                    loadingAddresses ? "Loading...." : "Select Vendor Address"
-                  }
-                  className={`min-w-[30rem] ${
-                    !branch?.branch_id ? "!border-[#F97074]" : ""
-                  }`}
-                  triggerClassName={`${
-                    editBranch ? "!min-w-[80%]" : "!min-w-full"
-                  } !max-w-[10rem] `}
-                  onChange={(v, branch) => {
-                    setCachedData(
-                      "branch",
-                      {
-                        vendor_address: branch?.label,
-                        branch_id: branch?.value,
-                        human_verified: branch?.human_verified
-                      },
-                      false
-                    );
+          <div
+            onMouseEnter={() => {
+              handleHighlighting("branch");
+            }}
+            onMouseLeave={() => {
+              handleRestBoundingBoxes("branch");
+            }}
+          >
+            <div className="flex items-center gap-x-4 pr-2 !min-w-full">
+              {editBranch ? (
+                <CustomInput
+                  value={branch?.vendor_address}
+                  className={`${
+                    !newBranch ? "!border-[#F97074]" : ""
+                  } !max-w-full`}
+                  onChange={(v) => {
+                    setNewBranch(v);
                     setBranchChanged(true);
                   }}
-                  showBranchAsLink={true}
-                  data={(() => {
-                    if (loadingAddresses) {
-                      return [];
+                />
+              ) : (
+                <div className="flex items-center gap-x-4 w-full">
+                  <CustomDropDown
+                    Value={branch}
+                    vendor_id={vendor?.vendor_id}
+                    placeholder={
+                      loadingAddresses ? "Loading...." : "Select Vendor Address"
                     }
-                    const formattedVendorAddresses = vendorAddressFormatter(
-                      vendorAddress?.branches
-                    );
+                    className={`min-w-[30rem] ${
+                      !branch?.branch_id ? "!border-[#F97074]" : ""
+                    }`}
+                    triggerClassName={`${
+                      editBranch ? "!min-w-[80%]" : "!min-w-full"
+                    } !max-w-[10rem] `}
+                    onChange={(v, branch) => {
+                      setCachedData(
+                        "branch",
+                        {
+                          vendor_address: branch?.label,
+                          branch_id: branch?.value,
+                          human_verified: branch?.human_verified
+                        },
+                        false
+                      );
+                      setBranchChanged(true);
+                    }}
+                    showBranchAsLink={true}
+                    data={(() => {
+                      if (loadingAddresses) {
+                        return [];
+                      }
+                      const formattedVendorAddresses = vendorAddressFormatter(
+                        vendorAddress?.branches
+                      );
 
-                    const referenceString = branch?.vendor_address || "";
-                    const fuse = new Fuse(formattedVendorAddresses, {
-                      keys: ["label"], // Search based on label field
-                      threshold: 0.8 // Adjust similarity sensitivity
-                    });
-                    try {
-                      const searchResults = referenceString
-                        ? fuse
-                            ?.search(referenceString)
-                            ?.map((result) => result.item)
-                        : formattedVendorAddresses;
+                      const referenceString = branch?.vendor_address || "";
+                      const fuse = new Fuse(formattedVendorAddresses, {
+                        keys: ["label"], // Search based on label field
+                        threshold: 0.8 // Adjust similarity sensitivity
+                      });
+                      try {
+                        const searchResults = referenceString
+                          ? fuse
+                              ?.search(referenceString)
+                              ?.map((result) => result.item)
+                          : formattedVendorAddresses;
 
-                      // Merge addresses not included in the fuzzy results:
-                      const remainingAddresses =
-                        formattedVendorAddresses?.filter(
-                          (address) => !searchResults?.includes(address)
-                        );
+                        // Merge addresses not included in the fuzzy results:
+                        const remainingAddresses =
+                          formattedVendorAddresses?.filter(
+                            (address) => !searchResults?.includes(address)
+                          );
 
-                      const sortedVendorAddresses = [
-                        ...searchResults,
-                        ...remainingAddresses
-                      ];
-                      return sortedVendorAddresses;
-                    } catch (error) {
-                      return [];
-                    }
-                  })()}
-                >
-                  <p
-                    onClick={() => setEditBranch(true)}
-                    className=" cursor-pointer text-[#348355] font-poppins font-bold text-xs leading-4 px-5 py-2"
+                        const sortedVendorAddresses = [
+                          ...searchResults,
+                          ...remainingAddresses
+                        ];
+                        return sortedVendorAddresses;
+                      } catch (error) {
+                        return [];
+                      }
+                    })()}
                   >
-                    + Add New Branch
-                  </p>
-                </CustomDropDown>
-              </div>
-            )}
-            <CustomTooltip
-              content={
-                action_controls?.update_branch?.disabled &&
-                action_controls?.update_branch?.reason
-              }
-            >
-              <Button
-                className={`${
-                  !branchChanged && "!border-[#CBCBCB]"
-                } bg-transparent h-[2.4rem] border-primary w-[4.85rem] !rounded-md hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm`}
-                disabled={
-                  action_controls?.update_branch?.disabled || !branchChanged
+                    <p
+                      onClick={() => setEditBranch(true)}
+                      className=" cursor-pointer text-[#348355] font-poppins font-bold text-xs leading-4 px-5 py-2"
+                    >
+                      + Add New Branch
+                    </p>
+                  </CustomDropDown>
+                </div>
+              )}
+              <CustomTooltip
+                content={
+                  action_controls?.update_branch?.disabled &&
+                  action_controls?.update_branch?.reason
                 }
-                onClick={() => {
-                  if (newBranch?.length > 0) {
-                    updateBranch({ vendor_address: newBranch });
-                  } else {
-                    updateBranch(branch);
+              >
+                <Button
+                  className={`${
+                    !branchChanged && "!border-[#CBCBCB]"
+                  } bg-transparent h-[2.4rem] border-primary w-[4.85rem] !rounded-md hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm`}
+                  disabled={
+                    action_controls?.update_branch?.disabled || !branchChanged
                   }
-                }}
-              >
-                {loadingState?.savingBranch ? "Updating.." : "Update"}
-              </Button>
-            </CustomTooltip>
-            {editBranch && (
-              <Button
-                className="bg-transparent h-[2.4rem] border-primary w-[4.85rem] !rounded-md hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
-                onClick={() => {
-                  setEditBranch(false);
-                  setNewBranch("");
-                }}
-              >
-                Close
-              </Button>
-            )}
+                  onClick={() => {
+                    if (newBranch?.length > 0) {
+                      updateBranch({ vendor_address: newBranch });
+                    } else {
+                      updateBranch(branch);
+                    }
+                  }}
+                >
+                  {loadingState?.savingBranch ? "Updating.." : "Update"}
+                </Button>
+              </CustomTooltip>
+              {editBranch && (
+                <Button
+                  className="bg-transparent h-[2.4rem] border-primary w-[4.85rem] !rounded-md hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                  onClick={() => {
+                    setEditBranch(false);
+                    setNewBranch("");
+                  }}
+                >
+                  Close
+                </Button>
+              )}
+            </div>
           </div>
         </Template>
       </div>
@@ -766,97 +843,124 @@ const MetadataTable = ({
 
       <div className="flex flex-col gap-y-4 mt-4">
         <Template title="Invoice Shipped To">
-          <CustomInput
-            value={document_metadata?.invoice_ship_to}
-            className={`${
-              !document_metadata?.invoice_ship_to ? "!border-[#F97074]" : ""
-            }`}
-            onChange={(v) => {
-              if (branchChanged || vendorChanged) {
-                if (branchChanged) {
-                  toast.error(
-                    "Please Update the Vendor Address before proceeding for other changes.",
-                    {
-                      icon: "⚠️"
-                    }
-                  );
-                  return;
-                } else {
-                  toast.error(
-                    "Please Update the Vendor Name before proceeding for other changes.",
-                    {
-                      icon: "⚠️"
-                    }
-                  );
-                  return;
-                }
-              } else {
-                setCachedData("invoice_ship_to", v);
-              }
+          <div
+            onMouseEnter={() => {
+              handleHighlighting("invoice_ship_to");
             }}
-          />
+            onMouseLeave={() => {
+              handleRestBoundingBoxes("invoice_ship_to");
+            }}
+          >
+            <CustomInput
+              value={document_metadata?.invoice_ship_to}
+              className={`${
+                !document_metadata?.invoice_ship_to ? "!border-[#F97074]" : ""
+              }`}
+              onChange={(v) => {
+                if (branchChanged || vendorChanged) {
+                  if (branchChanged) {
+                    toast.error(
+                      "Please Update the Vendor Address before proceeding for other changes.",
+                      {
+                        icon: "⚠️"
+                      }
+                    );
+                    return;
+                  } else {
+                    toast.error(
+                      "Please Update the Vendor Name before proceeding for other changes.",
+                      {
+                        icon: "⚠️"
+                      }
+                    );
+                    return;
+                  }
+                } else {
+                  setCachedData("invoice_ship_to", v);
+                }
+              }}
+            />
+          </div>
         </Template>
         <Template title="Invoice Billed To">
-          <CustomInput
-            value={document_metadata?.invoice_bill_to}
-            className={`${
-              !document_metadata?.invoice_bill_to ? "!border-[#F97074]" : ""
-            }`}
-            onChange={(v) => {
-              if (branchChanged || vendorChanged) {
-                if (branchChanged) {
-                  toast.error(
-                    "Please Update the Vendor Address before proceeding for other changes.",
-                    {
-                      icon: "⚠️"
-                    }
-                  );
-                  return;
-                } else {
-                  toast.error(
-                    "Please Update the Vendor Name before proceeding for other changes.",
-                    {
-                      icon: "⚠️"
-                    }
-                  );
-                  return;
-                }
-              } else {
-                setCachedData("invoice_bill_to", v);
-              }
+          <div
+            onMouseEnter={() => {
+              handleHighlighting("invoice_bill_to");
             }}
-          />
+            onMouseLeave={() => {
+              handleRestBoundingBoxes("invoice_bill_to");
+            }}
+          >
+            <CustomInput
+              value={document_metadata?.invoice_bill_to}
+              className={`${
+                !document_metadata?.invoice_bill_to ? "!border-[#F97074]" : ""
+              }`}
+              onChange={(v) => {
+                if (branchChanged || vendorChanged) {
+                  if (branchChanged) {
+                    toast.error(
+                      "Please Update the Vendor Address before proceeding for other changes.",
+                      {
+                        icon: "⚠️"
+                      }
+                    );
+                    return;
+                  } else {
+                    toast.error(
+                      "Please Update the Vendor Name before proceeding for other changes.",
+                      {
+                        icon: "⚠️"
+                      }
+                    );
+                    return;
+                  }
+                } else {
+                  setCachedData("invoice_bill_to", v);
+                }
+              }}
+            />
+          </div>
         </Template>
         <Template title="Invoice Sold To">
-          <CustomInput
-            value={document_metadata?.invoice_sold_to}
-            className={`${
-              !document_metadata?.invoice_sold_to ? "!border-[#F97074]" : ""
-            }`}
-            onChange={(v) => {
-              if (branchChanged || vendorChanged) {
-                if (branchChanged) {
-                  toast.error(
-                    "Please Update the Vendor Address before proceeding for other changes.",
-                    {
-                      icon: "⚠️"
-                    }
-                  );
-                  return;
-                } else {
-                  toast.error(
-                    "Please Update the Vendor Name before proceeding for other changes.",
-                    {
-                      icon: "⚠️"
-                    }
-                  );
-                  return;
-                }
-              } else {
-                setCachedData("invoice_sold_to", v);
-              }
+          <div
+            onMouseEnter={() => {
+              handleHighlighting("invoice_sold_to");
             }}
-          />
+            onMouseLeave={() => {
+              handleRestBoundingBoxes("invoice_sold_to");
+            }}
+          >
+            <CustomInput
+              value={document_metadata?.invoice_sold_to}
+              className={`${
+                !document_metadata?.invoice_sold_to ? "!border-[#F97074]" : ""
+              }`}
+              onChange={(v) => {
+                if (branchChanged || vendorChanged) {
+                  if (branchChanged) {
+                    toast.error(
+                      "Please Update the Vendor Address before proceeding for other changes.",
+                      {
+                        icon: "⚠️"
+                      }
+                    );
+                    return;
+                  } else {
+                    toast.error(
+                      "Please Update the Vendor Name before proceeding for other changes.",
+                      {
+                        icon: "⚠️"
+                      }
+                    );
+                    return;
+                  }
+                } else {
+                  setCachedData("invoice_sold_to", v);
+                }
+              }}
+            />
+          </div>
         </Template>
       </div>
       <AlertDialog
