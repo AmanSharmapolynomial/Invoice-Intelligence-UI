@@ -25,6 +25,7 @@ import ItemMasterDetails from "@/pages/ItemMasterDetails";
 import BulkCategoriesListing from "@/pages/BulkCategoriesListing";
 import CategoryWiseItems from "@/pages/CategoryWiseItems";
 import ItemsCategorization from "@/pages/ItemsCategorization";
+import VendorsWithPotentialDuplicates from "@/pages/VendorsWithPotentialDuplicates";
 
 const publicRoutes = [
   {
@@ -226,6 +227,14 @@ const protectedRoutes = [
     element: (
       <Protected>
         <ItemsCategorization/>
+      </Protected>
+    )
+  },
+  {
+    path: "/vendors-potential-duplicates",
+    element: (
+      <Protected>
+        <VendorsWithPotentialDuplicates/>
       </Protected>
     )
   }
