@@ -88,6 +88,12 @@ import {
   TableRow
 } from "@/components/ui/table";
 import CustomToolTip from "@/components/ui/CustomToolTip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from "@/components/ui/tooltip";
 
 const rejectionReasons = [
   "Duplicate invoice",
@@ -1350,54 +1356,65 @@ const InvoiceDetails = () => {
         }
       >
         <ModalDescription>
-          {similarVendors?.data?.length>0&&<div className="my-2">
-            <p className="mb-3 pl-0.5  font-poppins text-[0.9rem] font-normal text-[#000000] ">
-              Following are the possible duplicate vendors :
-            </p>
-          </div>}
+          {similarVendors?.data?.length > 0 && (
+            <div className="my-2">
+              <p className="mb-3 pl-0.5  font-poppins text-[0.9rem] font-normal text-[#000000] ">
+                Following are the possible duplicate vendors :
+              </p>
+            </div>
+          )}
           <div className="min-h-56 overflow-auto">
             {similarVendors?.data?.length > 0 ? (
-             <Table>
-             <TableRow className="border">
-               <TableHead className="border font-poppins text-sm font-semibold text-black leading-5">
-                 Vendor Name
-               </TableHead>
-               <TableHead className="border font-poppins text-sm font-semibold text-black leading-5">
-                 Similarity{" "}
-               </TableHead>
-               <TableHead className="border font-poppins text-sm font-semibold text-black leading-5">
-                 Finding Method
-               </TableHead>
-             </TableRow>
+              <Table>
+                <TableRow className="border">
+                  <TableHead className="border font-poppins text-sm font-semibold text-black leading-5">
+                    Vendor Name
+                  </TableHead>
+                  <TableHead className="border font-poppins text-sm font-semibold text-black leading-5">
+                    Similarity{" "}
+                  </TableHead>
+                  <TableHead className="border font-poppins text-sm font-semibold text-black leading-5">
+                    Finding Method
+                  </TableHead>
+                </TableRow>
 
-             <TableBody>
-               {similarVendors?.data?.length > 0 &&
-                 similarVendors?.data?.map((row, index) => (
-                   <TableRow className="border" key={index}>
-                     <TableCell className="border font-poppins font-normal text-black text-sm">
-                       <div className="flex items-center gap-x-2">
-                         <span> {row?.vendor?.vendor_name}</span>
-                         <img src={approved} alt="" />
-                       </div>
-                     </TableCell>
-                     <TableCell className="border font-poppins font-normal text-black text-sm">
-                       <CustomToolTip content={row?.match_reason}>
-                         <span> {row?.similarity_score}%</span>
-                       </CustomToolTip>
-                     </TableCell>
-                     <TableCell className="border font-poppins font-normal text-black text-sm">
-                       {row?.finding_method}
-                     </TableCell>
-                   </TableRow>
-                 ))}
-             </TableBody>
-           </Table>
+                <TableBody>
+                  {similarVendors?.data?.length > 0 &&
+                    similarVendors?.data?.map((row, index) => (
+                      <TableRow className="border" key={index}>
+                        <TableCell className="border font-poppins font-normal text-black text-sm">
+                          <div className="flex items-center gap-x-2">
+                            <span> {row?.vendor?.vendor_name}</span>
+                            <img src={approved} alt="" />
+                          </div>
+                        </TableCell>
+                        <TableCell className="border font-poppins font-normal text-black text-sm">
+                          <TooltipProvider>
+                            <Tooltip >
+                              <TooltipTrigger div className=" z-50">
+                                <span> {row?.similarity_score}%</span>
+                              </TooltipTrigger>
+                              <TooltipContent className="bg-white text-black border  absolute -top-[3rem] -left-[15rem] shadow-sm px-4 flex items-center  gap-x-1  min-w-[18rem]    min-h-10 ml-[16rem]">
+
+                                {row?.match_reason}
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </TableCell>
+                        <TableCell className="border font-poppins font-normal text-black text-sm">
+                          {row?.finding_method}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
             ) : (
               <div className="w-full h-[10rem] flex items-center justify-center">
-                <p className="font-medium text-sm font-poppins text-black">No Potential Duplicates found for this vendor.</p>
+                <p className="font-medium text-sm font-poppins text-black">
+                  No Potential Duplicates found for this vendor.
+                </p>
               </div>
             )}
-            
           </div>
           <div className="flex justify-center  absolute bottom-4 left-[50%] right-[50%] items-center gap-x-2">
             <Button
