@@ -1359,7 +1359,7 @@ const InvoiceDetails = () => {
           {similarVendors?.data?.length > 0 && (
             <div className="my-2">
               <p className="mb-3 pl-0.5  font-poppins text-[0.9rem] font-normal text-[#000000] ">
-                Following are the possible duplicate vendors :
+                Matching Verified Vendors
               </p>
             </div>
           )}
@@ -1411,7 +1411,7 @@ const InvoiceDetails = () => {
             ) : (
               <div className="w-full h-[10rem] flex items-center justify-center">
                 <p className="font-medium text-sm font-poppins text-black">
-                  No Potential Duplicates found for this vendor.
+                  No Matching Verified  Vendors Found.
                 </p>
               </div>
             )}
