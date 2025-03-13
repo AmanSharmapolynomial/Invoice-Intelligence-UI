@@ -87,6 +87,7 @@ import {
   TableHead,
   TableRow
 } from "@/components/ui/table";
+import CustomToolTip from "@/components/ui/CustomToolTip";
 
 const rejectionReasons = [
   "Duplicate invoice",
