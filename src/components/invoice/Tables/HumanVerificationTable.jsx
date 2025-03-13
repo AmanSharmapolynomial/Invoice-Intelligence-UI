@@ -30,7 +30,7 @@ import ContextMenu from "../ContextMenu";
 import toast from "react-hot-toast";
 import { Textarea } from "@/components/ui/textarea";
 import CustomInput from "@/components/ui/Custom/CustomInput";
-import { useAutoCalculate } from "../api";
+import { useAutoCalculate, useGetDocumentMetadataBoundingBoxes } from "../api";
 import { Label } from "@/components/ui/label";
 import CustomToolTip from "@/components/ui/CustomToolTip";
 import { Link, useNavigate } from "react-router-dom";
@@ -62,7 +62,13 @@ const HumanVerificationTable = ({
       </div>
     );
   }
-
+  const {
+    data: metadataBoundingBoxes,
+    isLoading: loadingMetadataBoundingBoxes
+  } = useGetDocumentMetadataBoundingBoxes({
+    ...payload,
+    document_uuid: document_uuid
+  });
   const [autoCalculate, setAutoCalculate] = useState(false);
   const [stopHovering, setStopHovering] = useState(true);
   const [hoveredRow, setHoveredRow] = useState(false);
@@ -620,7 +626,7 @@ const HumanVerificationTable = ({
           row_uuid:
             updatedData.data.processed_table.rows[rowIndex].transaction_uuid,
           column_uuid: targetCell.column_uuid,
-          text: value||null
+          text: value || null
         }
       };
       updatedData.data.processed_table.rows[rowIndex].cells.forEach((c, i) => {
@@ -669,7 +675,7 @@ const HumanVerificationTable = ({
                     updatedData.data.processed_table.rows[rowIndex]
                       .transaction_uuid,
                   column_uuid: extPriceCellColumnUUID,
-                  text: extPriceCell?.text||null
+                  text: extPriceCell?.text || null
                 }
               };
 
@@ -1834,6 +1840,26 @@ const HumanVerificationTable = ({
             </p>
           </div>
           <div
+            onMouseEnter={() => {
+              let boundng_boxes =
+                metadataBoundingBoxes?.data?.[`invoice_extracted_total`];
+              if (boundng_boxes) {
+                setBoundingBox({
+                  box: boundng_boxes,
+                  page_index: boundng_boxes["page_index"]
+                });
+                setBoundingBoxes([
+                  {
+                    box: boundng_boxes,
+                    page_index: boundng_boxes["page_index"]
+                  }
+                ]);
+              }
+            }}
+            onMouseLeave={()=>{
+              setBoundingBox({});
+              setBoundingBoxes([])
+            }}
             className={`flex items-center justify-between pl-4 my-4 font-poppins font-normal text-sm text-[#121212] pr-2 `}
           >
             <p>Extracted Total</p>
@@ -1895,6 +1921,26 @@ const HumanVerificationTable = ({
       ) : (
         <>
           <div
+              onMouseEnter={() => {
+                let boundng_boxes =
+                  metadataBoundingBoxes?.data?.[`invoice_extracted_total`];
+                if (boundng_boxes) {
+                  setBoundingBox({
+                    box: boundng_boxes,
+                    page_index: boundng_boxes["page_index"]
+                  });
+                  setBoundingBoxes([
+                    {
+                      box: boundng_boxes,
+                      page_index: boundng_boxes["page_index"]
+                    }
+                  ]);
+                }
+              }}
+              onMouseLeave={()=>{
+                setBoundingBox({});
+                setBoundingBoxes([])
+              }}
             className={`${
               metadata?.invoice_type == "Summary Invoice"
                 ? "py-4 mx-2 my-4 rounded-xl border-[#D9D9D9]"

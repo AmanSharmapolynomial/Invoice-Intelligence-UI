@@ -13,12 +13,14 @@ export const useExtractOcrText = () => {
   });
 };
 
-export const useGetVendorsNames = () => {
+export const useGetVendorsNames = (archived_status = true) => {
   return useQuery({
     queryKey: ["vendors-names"],
     queryFn: async () => {
       try {
-        const response = await axiosInstance.get(`/api/vendor/names/`);
+        const response = await axiosInstance.get(
+          `/api/vendor/names/?archived_status=${archived_status}`
+        );
 
         return response?.data;
       } catch (error) {
@@ -53,7 +55,6 @@ export const useGetFormatteddateFromAnyFormat = () => {
         `/api/utils/get-standardize-date/?date=${date}`
       );
       return response;
-    },
-
+    }
   });
 };
