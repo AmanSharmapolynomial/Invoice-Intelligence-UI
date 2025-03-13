@@ -9,10 +9,12 @@ import {
   useGetVendorsWithPotentialDuplicates
 } from "@/components/vendor/potentialDuplicates/api";
 import PotentialDuplicatesTable from "@/components/vendor/potentialDuplicates/PotentialDuplicatesTable";
+import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { useSearchParams } from "react-router-dom";
 
 const VendorsWithPotentialDuplicates = () => {
   const [searchParams] = useSearchParams();
+  const updateParams = useUpdateParams();
   let page = searchParams.get("page") || 1;
   let page_size = searchParams.get("page_size") || 10;
   let vendor_id = searchParams.get("vendor_id");
@@ -23,18 +25,18 @@ const VendorsWithPotentialDuplicates = () => {
   });
   const { data: vendorsList, isLoading: loadinVendorsList } =
     useGetVendorsHavingDuplicatesList();
-    const vendorsWithDuplicatesFormatter = (vendors) => {
-      return vendors?.map((v) => {
-        let obj = {
+  const vendorsWithDuplicatesFormatter = (vendors) => {
+    return vendors?.map((v) => {
+      let obj = {
         label: v?.vendor?.vendor_name,
         value: v?.vendor?.vendor_id,
         human_verified: v?.vendor?.human_verified,
-        count:v?.duplicate_findings_count
+        count: v?.duplicate_findings_count
       };
       return obj;
     });
   };
-  
+
   const columns = [
     {
       label: "Vendor Name",
@@ -60,7 +62,7 @@ const VendorsWithPotentialDuplicates = () => {
       key: ""
     }
   ];
-  console.log(data)
+
   return (
     <div className="overflow-hidden flex w-full">
       <Sidebar />
@@ -76,7 +78,16 @@ const VendorsWithPotentialDuplicates = () => {
           />
           <div className="flex items-center gap-x-2 justify-end">
             <div className="flex items-center gap-x-3">
-              <CustomDropDown data={vendorsWithDuplicatesFormatter(vendorsList?.data)} />
+              <CustomDropDown
+                Value={vendor_id}
+                placeholder="Select vendor"
+                onChange={(v) => {
+                  updateParams({
+                    vendor_id: v
+                  });
+                }}
+                data={vendorsWithDuplicatesFormatter(vendorsList?.data)}
+              />
             </div>
           </div>
           <PotentialDuplicatesTable
@@ -85,11 +96,9 @@ const VendorsWithPotentialDuplicates = () => {
             columns={columns}
           />
           <TablePagination
-          
-          page={page}
-          isFinalPage={data?.is_final_page}
-          totalPages={data?.total_pages}
-          
+            page={page}
+            isFinalPage={data?.is_final_page}
+            totalPages={data?.total_pages}
           />
         </Layout>
       </div>

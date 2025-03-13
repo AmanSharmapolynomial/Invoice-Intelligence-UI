@@ -23,6 +23,7 @@ import { OLD_UI } from "@/config";
 import { FixedSizeList as List } from "react-window";
 import debounce from "lodash.debounce";
 import { Input } from "./input";
+import CustomTooltip from "./Custom/CustomTooltip";
 
 const CustomDropDown = ({
   data = [],
@@ -291,7 +292,9 @@ const CustomDropDown = ({
                               />
                             )}
                             {
-                              item?.count!==undefined && <span className="font-poppins mr-2">{item?.count}</span>
+                              item?.count!==undefined && <CustomTooltip content={"Duplicate Findings Count"} right={16}>
+                                <span className="font-poppins mr-2">{item?.count}</span>
+                              </CustomTooltip>
                             }
                           </div>
                         </div>
