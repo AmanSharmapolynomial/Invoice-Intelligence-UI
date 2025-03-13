@@ -1350,47 +1350,54 @@ const InvoiceDetails = () => {
         }
       >
         <ModalDescription>
-          <div className="my-2">
+          {similarVendors?.data?.length>0&&<div className="my-2">
             <p className="mb-3 pl-0.5  font-poppins text-[0.9rem] font-normal text-[#000000] ">
               Following are the possible duplicate vendors :
             </p>
-          </div>
+          </div>}
           <div className="min-h-56 overflow-auto">
-            <Table>
-              <TableRow className="border">
-                <TableHead className="border font-poppins text-sm font-semibold text-black leading-5">
-                  Vendor Name
-                </TableHead>
-                <TableHead className="border font-poppins text-sm font-semibold text-black leading-5">
-                  Similarity{" "}
-                </TableHead>
-                <TableHead className="border font-poppins text-sm font-semibold text-black leading-5">
-                  Finding Method
-                </TableHead>
-              </TableRow>
+            {similarVendors?.data?.length > 0 ? (
+             <Table>
+             <TableRow className="border">
+               <TableHead className="border font-poppins text-sm font-semibold text-black leading-5">
+                 Vendor Name
+               </TableHead>
+               <TableHead className="border font-poppins text-sm font-semibold text-black leading-5">
+                 Similarity{" "}
+               </TableHead>
+               <TableHead className="border font-poppins text-sm font-semibold text-black leading-5">
+                 Finding Method
+               </TableHead>
+             </TableRow>
 
-              <TableBody>
-                {similarVendors?.data?.length > 0 &&
-                  similarVendors?.data?.map((row, index) => (
-                    <TableRow className="border" key={index}>
-                      <TableCell className="border font-poppins font-normal text-black text-sm">
-                        <div className="flex items-center gap-x-2">
-                          <span> {row?.vendor?.vendor_name}</span>
-                          <img src={approved} alt="" />
-                        </div>
-                      </TableCell>
-                      <TableCell className="border font-poppins font-normal text-black text-sm">
-                        <CustomToolTip content={row?.match_reason}>
-                          <span> {row?.similarity_score}%</span>
-                        </CustomToolTip>
-                      </TableCell>
-                      <TableCell className="border font-poppins font-normal text-black text-sm">
-                        {row?.finding_method}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-              </TableBody>
-            </Table>
+             <TableBody>
+               {similarVendors?.data?.length > 0 &&
+                 similarVendors?.data?.map((row, index) => (
+                   <TableRow className="border" key={index}>
+                     <TableCell className="border font-poppins font-normal text-black text-sm">
+                       <div className="flex items-center gap-x-2">
+                         <span> {row?.vendor?.vendor_name}</span>
+                         <img src={approved} alt="" />
+                       </div>
+                     </TableCell>
+                     <TableCell className="border font-poppins font-normal text-black text-sm">
+                       <CustomToolTip content={row?.match_reason}>
+                         <span> {row?.similarity_score}%</span>
+                       </CustomToolTip>
+                     </TableCell>
+                     <TableCell className="border font-poppins font-normal text-black text-sm">
+                       {row?.finding_method}
+                     </TableCell>
+                   </TableRow>
+                 ))}
+             </TableBody>
+           </Table>
+            ) : (
+              <div className="w-full h-[10rem] flex items-center justify-center">
+                <p className="font-medium text-sm font-poppins text-black">No Potential Duplicates found for this vendor.</p>
+              </div>
+            )}
+            
           </div>
           <div className="flex justify-center  absolute bottom-4 left-[50%] right-[50%] items-center gap-x-2">
             <Button
