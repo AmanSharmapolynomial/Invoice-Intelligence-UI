@@ -1383,7 +1383,7 @@ const InvoiceDetails = () => {
                     similarVendors?.data?.map((row, index) => (
                       <TableRow className="border" key={index}>
                         <TableCell className="border font-poppins font-normal text-black text-sm">
-                          <div className="flex items-center gap-x-2">
+                          <div className="flex items-center gap-x-2 capitalize">
                             <span> {row?.vendor?.vendor_name}</span>
                             <img src={approved} alt="" />
                           </div>
