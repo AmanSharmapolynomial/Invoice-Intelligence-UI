@@ -82,14 +82,14 @@ function App() {
             title="Bulk Item Categorization"
             content="Manage and delegate invoice tasks seamlessly."
           />
-          <CustomCard
+          {/* <CustomCard
             Icon={frame15}
             className={"cursor-pointer"}
             showIcon={true}
             onClick={() => navigate(`/vendors-potential-duplicates`)}
-            title="Potential Duplicates Findings"
+            title="Duplicate Vendor Findings"
           
-          />
+          /> */}
         </div>
       </Layout>
   
@@ -98,36 +98,3 @@ function App() {
 }
 
 export default App;
-{
-  /* <Link to={"/home"} className="!w-full ">
-<Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary/90 hover:!text-[#FFFFFF]">
-  Invoice Balancing
-</Button>
-</Link>{" "}
-<Button
-className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary/90 hover:text-[#FFFFFF]"
-onClick={() => setOpen(!open)}
->
-Vendor & Branch Verification
-</Button>
-<Link to={""} className="!w-full ">
-<Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary/90 hover:text-[#FFFFFF]">
-  Fast Item Master Verification
-</Button>
-</Link>
-<Link to={"/user-activity"} className="!w-full ">
-<Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary/90 hover:text-[#FFFFFF]">
-  User Activity
-</Button>
-</Link>
-<Link to={""} className="!w-full ">
-<Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary/90 hover:text-[#FFFFFF]">
-  Invoice Assignment
-</Button>
-</Link>
-<Link to={"/invoice-processor"} className="!w-full ">
-<Button className="w-full  text-gray-800 bg-transparent border-primary border-2 hover:bg-primary/90 hover:text-[#FFFFFF]">
-  Invoice Processor
-</Button>
-</Link> */
-}
