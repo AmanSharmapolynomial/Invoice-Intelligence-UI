@@ -42,10 +42,12 @@ export const invoiceDetailStore = create((set, get) => ({
   setEditVendor: (value) => set({ editVendor: value }),
   isModalOpen: false,
   metadataTableCopy: {},
+  warning_checkbox_checked:false,
   setMetadataTableCopy: (cpy) => set({ metadataTableCopy: cpy }),
 
   showTextExtractionModal: false,
   setShowTextExtractionModal: (val) => set({ showTextExtractionModal: val }),
+  setWarningCheckboxChecked:(v)=>set({warning_checkbox_checked:v}),
   setIsModalOpen: (val) => set({ isModalOpen: val }),
   setUpdatedFields: (update) =>
     set((state) => ({
@@ -95,6 +97,7 @@ export const invoiceDetailStore = create((set, get) => ({
       showTextExtractionModal: false,
       metadataTableCopy: {},
       is_unverified_vendor: false,
-      current_document_uuid:null
+      current_document_uuid:null,
+      warning_checkbox_checked:false
     })
 }));

@@ -38,6 +38,7 @@ import {
   useUpdateVendorOrBranch,
   useUpdateVendorTypesAndCategories
 } from "../api";
+import { Checkbox } from "@/components/ui/checkbox";
 const Template = ({ title, children, className, titleContent }) => {
   return (
     <div className={`${className} flex flex-col gap-y-2 !z-12`}>
@@ -61,7 +62,8 @@ const MetadataTable = ({
 
   const [updatingCategoriesAndTypes, setUpdatingCategoriesAndTypes] =
     useState(false);
-  const { data: vendorsData, isLoading: loadingVendors } = useGetVendorsNames(false);
+  const { data: vendorsData, isLoading: loadingVendors } =
+    useGetVendorsNames(false);
   const { mutate: updateVendorTypesAndCategories } =
     useUpdateVendorTypesAndCategories();
   const navigate = useNavigate();
@@ -88,7 +90,9 @@ const MetadataTable = ({
     setIsUnverifiedVendor,
     setCurrentDocumentUUID,
     setBoundingBoxes,
-    setBoundingBox
+    setBoundingBox,
+    warning_checkbox_checked,
+    setWarningCheckboxChecked
   } = invoiceDetailStore();
   const {
     document_uuid,
@@ -283,7 +287,6 @@ const MetadataTable = ({
   let action_controls =
     data?.data?.[0]?.action_controls || data?.data?.action_controls;
 
-
   const handleHighlighting = (field_name) => {
     let boundng_boxes = metadataBoundingBoxes?.data?.[`${field_name}`];
     if (boundng_boxes) {
@@ -298,11 +301,12 @@ const MetadataTable = ({
   };
 
   const handleRestBoundingBoxes = (field_name) => {
-    if ( metadataBoundingBoxes?.data?.[`${field_name}`]!==null) {
+    if (metadataBoundingBoxes?.data?.[`${field_name}`] !== null) {
       setBoundingBox({});
       setBoundingBoxes([]);
     }
   };
+
   return (
     <div className="w-full -mt-3 border border-[#F0F0F0] shadow-sm p-2 rounded-md">
       <div className="grid grid-cols-3 gap-x-4">
@@ -588,6 +592,10 @@ const MetadataTable = ({
                   </CustomDropDown>
                 </div>
               )}
+              <Checkbox
+                checked={warning_checkbox_checked}
+                onCheckedChange={(v) => setWarningCheckboxChecked(v)}
+              />
               <CustomTooltip
                 content={
                   action_controls?.update_vendor?.disabled &&

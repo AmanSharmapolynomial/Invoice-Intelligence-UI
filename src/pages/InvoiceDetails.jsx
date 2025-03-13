@@ -136,7 +136,8 @@ const InvoiceDetails = () => {
     metadata,
     setHistory,
     is_unverified_vendor,
-    current_document_uuid
+    current_document_uuid,
+    warning_checkbox_checked
   } = invoiceDetailStore();
   const [isLoading, setIsLoading] = useState(true);
   const [loadingState, setLoadingState] = useState({
@@ -927,7 +928,9 @@ const InvoiceDetails = () => {
             </CustomTooltip>
             <CustomTooltip
               content={
-                action_controls?.accept?.disabled
+                !warning_checkbox_checked
+                  ? "Please check vendor name checkbox."
+                  : action_controls?.accept?.disabled
                   ? action_controls?.accept?.reason
                   : "Click To Accept This Document."
               }
@@ -941,7 +944,9 @@ const InvoiceDetails = () => {
                   }
                 }}
                 disabled={
-                  action_controls?.accept?.disabled || loadingState?.accepting
+                  !warning_checkbox_checked ||
+                  action_controls?.accept?.disabled ||
+                  loadingState?.accepting
                 }
                 className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
               >
@@ -1390,12 +1395,11 @@ const InvoiceDetails = () => {
                         </TableCell>
                         <TableCell className="border font-poppins font-normal text-black text-sm">
                           <TooltipProvider>
-                            <Tooltip >
+                            <Tooltip>
                               <TooltipTrigger div className=" z-50">
                                 <span> {row?.similarity_score}%</span>
                               </TooltipTrigger>
                               <TooltipContent className="bg-white text-black border  absolute -top-[3rem] -left-[15rem] shadow-sm px-4 flex items-center  gap-x-1  min-w-[18rem]    min-h-10 ml-[16rem]">
-
                                 {row?.match_reason}
                               </TooltipContent>
                             </Tooltip>
@@ -1411,7 +1415,7 @@ const InvoiceDetails = () => {
             ) : (
               <div className="w-full h-[10rem] flex items-center justify-center">
                 <p className="font-medium text-sm font-poppins text-black">
-                  No Matching Verified  Vendors Found.
+                  No Matching Verified Vendors Found.
                 </p>
               </div>
             )}
