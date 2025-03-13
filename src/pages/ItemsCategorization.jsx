@@ -528,7 +528,7 @@ const ItemsCategorization = () => {
                     Items Selected
                   </p>
 
-                  <div className="mt-4 border w-full p-2 border-[#D9D9D9] min-h-[10rem] max-h-[20rem]  py-2 rounded-sm   flex-wrap items-start justify-start    gap-2">
+                  <div className="mt-4 border w-full p-2 border-[#D9D9D9] min-h-[10rem] max-h-[20rem] overflow-auto  py-2 rounded-sm   flex-wrap items-start justify-start    gap-2">
                     {selectedItems?.map((it) => {
                       return (
                         <p className="w-fit px-2 rounded-md bg-primary h-fit  border border-primary py-1  mb-2 mr-2 inline-flex items-center gap-x-2 ">

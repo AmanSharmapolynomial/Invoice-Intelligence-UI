@@ -91,14 +91,15 @@ const CategoryWiseItems = () => {
     useGetCategoryWiseVendorItems({
       category_id,
       vendor_id: selectedVendor?.vendor?.vendor_id || null,
-      page:page||1,
-      page_size:page_size||10
+      page: page || 1,
+      page_size: page_size || 10
     });
   const { data: removedItems, isLoading: loadingRemovedItems } =
     useGetRemovedVendorItems({
       category_id,
       vendor_id: selectedVendor?.vendor?.vendor_id,
-      page,page_size
+      page,
+      page_size
     });
   const { mutate: removeItem, isPending: removingItem } = useRemoveVendorItem();
   const navigate = useNavigate();
@@ -107,9 +108,14 @@ const CategoryWiseItems = () => {
 
   const saveAndNextHandler = () => {
     const removedItemsIDs =
-      removedItems?.data?.removed_items?.length > 0
-        ? removedItems?.data?.removed_items?.map((ri) => ri?.item_uuid)
+      mode == "vendor"
+        ? removedItems?.data?.removed_items?.length > 0
+          ? removedItems?.data?.removed_items?.map((ri) => ri?.item_uuid)
+          : []
+        : removedItems?.data?.length > 0
+        ? removedItems?.data?.map((ri) => ri?.item_uuid)
         : [];
+        console.log(removedItemsIDs)
 
     let item_uuids =
       items?.data?.items
@@ -117,9 +123,6 @@ const CategoryWiseItems = () => {
         ?.map((it) => it.item_uuid)
         ?.filter((it) => !removedItemsIDs?.includes(it)) || [];
 
-
-
-     
     if (unCheckedItems?.length > 0) {
       setSaving(true);
       removeItemsInBulk(
@@ -219,6 +222,12 @@ const CategoryWiseItems = () => {
             setSaving(false);
           }
         });
+      }else{
+        if (page < items?.total_pages) {
+          updateParams({
+            page: Number(page) + 1
+          });
+        }
       }
     }
   };
@@ -750,12 +759,19 @@ const CategoryWiseItems = () => {
                     </div>
                   ) : (
                     items?.data?.items?.map((item, index) => {
-                      let isUncheckd =
-                        removedItems?.data?.length > 0
-                          ? removedItems?.data?.find(
+                      let isUncheckd = (
+                        mode == "vendor"
+                          ? removedItems?.data?.removed_items?.length > 0
+                          : removedItems?.data?.length > 0
+                      )
+                        ? mode == "vendor"
+                          ? removedItems?.data?.removed_items?.find(
                               (it) => it.item_uuid == item?.item_uuid
                             )
-                          : false;
+                          : removedItems?.data?.find(
+                              (it) => it.item_uuid == item?.item_uuid
+                            )
+                        : false;
 
                       return (
                         <div
