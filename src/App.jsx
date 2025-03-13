@@ -82,6 +82,14 @@ function App() {
             title="Bulk Item Categorization"
             content="Manage and delegate invoice tasks seamlessly."
           />
+          <CustomCard
+            Icon={frame15}
+            className={"cursor-pointer"}
+            showIcon={true}
+            onClick={() => navigate(`/vendors-potential-duplicates`)}
+            title="Potential Duplicates Findings"
+          
+          />
         </div>
       </Layout>
   

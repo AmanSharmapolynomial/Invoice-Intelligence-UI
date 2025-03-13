@@ -290,6 +290,9 @@ const CustomDropDown = ({
                                 }}
                               />
                             )}
+                            {
+                              item?.count!==undefined && <span className="font-poppins mr-2">{item?.count}</span>
+                            }
                           </div>
                         </div>
                       </CommandItem>
