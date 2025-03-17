@@ -63,6 +63,11 @@ const PotentialDuplicatesTable = ({ data, isLoading, columns }) => {
                 {data?.findings?.map((row, index) => {
                   return (
                     <TableRow
+                    onClick={() => {
+                      navigate(
+                        `/combine-duplicate-vendors/${row?.verified_vendor?.vendor_id}/${row?.potential_duplicate_vendor?.vendor_id}?vendor_1_name=${row?.verified_vendor?.vendor_name}&vendor_2_name=${row?.potential_duplicate_vendor?.vendor_name}&finding_id=${row?.finding_id}`
+                      );
+                    }}
                       key={index}
                       className={`grid grid-cols-${columns?.length} w-full md:max-h-[2.75rem]  md:min-h-[2.65rem] 2xl:min-h-[4rem] xl:min-h-[3.25rem] self-center content-center cursor-pointer text-xs sm:text-sm`}
                     >
@@ -86,18 +91,7 @@ const PotentialDuplicatesTable = ({ data, isLoading, columns }) => {
                                 </div>
                               ) : (
                                 <>
-                                  {col?.key == "" && (
-                                    <Button
-                                      onClick={() => {
-                                        navigate(
-                                          `/combine-duplicate-vendors/${row?.verified_vendor?.vendor_id}/${row?.potential_duplicate_vendor?.vendor_id}?vendor_1_name=${row?.verified_vendor?.vendor_name}&vendor_2_name=${row?.potential_duplicate_vendor?.vendor_name}`
-                                        );
-                                      }}
-                                      className="bg-transparent hover:bg-transparent border border-primary "
-                                    >
-                                      <ArrowRight className="h-4 w-4 text-primary" />
-                                    </Button>
-                                  )}
+                               
                                 </>
                               )}
                             </div>
