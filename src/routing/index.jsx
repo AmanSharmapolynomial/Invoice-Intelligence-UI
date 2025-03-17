@@ -26,6 +26,7 @@ import BulkCategoriesListing from "@/pages/BulkCategoriesListing";
 import CategoryWiseItems from "@/pages/CategoryWiseItems";
 import ItemsCategorization from "@/pages/ItemsCategorization";
 import VendorsWithPotentialDuplicates from "@/pages/VendorsWithPotentialDuplicates";
+import CombineDuplicateVendors from "@/pages/CombineDuplicateVendors";
 
 const publicRoutes = [
   {
@@ -237,7 +238,15 @@ const protectedRoutes = [
         <VendorsWithPotentialDuplicates/>
       </Protected>
     )
-  }
+  },
+  {
+    path: "/combine-duplicate-vendors/:vendor1/:vendor2",
+    element: (
+      <Protected>
+        <CombineDuplicateVendors/>
+      </Protected>
+    )
+  },
 ];
 export const router = createBrowserRouter([
   ...protectedRoutes,
