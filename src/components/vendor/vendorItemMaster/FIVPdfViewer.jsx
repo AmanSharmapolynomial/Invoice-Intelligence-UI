@@ -2,6 +2,8 @@ import zoom_in from "@/assets/image/zoom_in.svg";
 import zoom_out from "@/assets/image/zoom_out.svg";
 import { useExtractOcrText } from "@/components/common/api";
 import copy from "@/assets/image/copy.svg";
+import rotate_left from "@/assets/image/rotate_left.svg";
+import rotate_right from "@/assets/image/rotate_right.svg";
 import ResizableModal from "@/components/ui/Custom/ResizeableModal";
 import { Textarea } from "@/components/ui/textarea";
 import fastItemVerificationStore from "@/store/fastItemVerificationStore";
@@ -41,7 +43,7 @@ const FIVPdfViewer = ({}) => {
   const [pageNum, setPageNum] = useState(1);
   const [pdfScale, setPdfScale] = useState(1.0);
   const [pageDimensions, setPageDimensions] = useState({ width: 0, height: 0 });
-
+  const [rotation, setRotation] = useState(0);
   useEffect(() => {
     if (boundingBoxes.length > 0) {
       const firstBox = boundingBoxes[0];
@@ -286,6 +288,18 @@ const FIVPdfViewer = ({}) => {
                 className="cursor-pointer h-5 w-5"
                 onClick={() => handleZoomOut()}
               />
+                <img
+                            src={rotate_left}
+                            alt=""
+                            className="cursor-pointer h-5 w-5"
+                            onClick={() => setRotation(rotation === 0 ? 270 : rotation - 90)}
+                          />
+                          <img
+                            src={rotate_right}
+                            alt=""
+                            className="cursor-pointer h-5 w-5"
+                            onClick={() => setRotation(rotation === 0 ? 270 : rotation + 90)}
+                          />
               <ScanSearch
                 className={`cursor-pointer h-6 w-6 ${
                   showTextExtractionModal ? "text-primary" : "text-[#000000]"
@@ -352,6 +366,7 @@ const FIVPdfViewer = ({}) => {
                   onMouseDown={handleMouseDown}
                   onMouseMove={handleMouseMove}
                   onMouseUp={handleMouseUp}
+                  rotate={rotation}
                   scale={pdfScale}
                   onRenderSuccess={({ originalWidth, originalHeight }) => {
                     setPageDimensions({
