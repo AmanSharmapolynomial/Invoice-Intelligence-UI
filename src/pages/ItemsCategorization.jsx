@@ -347,8 +347,8 @@ const ItemsCategorization = () => {
                     })}
                   </div>
                 </div>
-              ) : (
-                <Pagination>
+              ) : 
+                selectedItems?.length>0&&<Pagination>
                   <PaginationContent>
                     <PaginationItem className="!text-sm font-semibold cursor-pointer">
                       <PaginationLink
@@ -511,8 +511,8 @@ const ItemsCategorization = () => {
                       </PaginationLink>
                     </PaginationItem>
                   </PaginationContent>
-                </Pagination>
-              )}
+                </Pagination>}
+              
             </div>
           </div>
 
@@ -625,7 +625,7 @@ const ItemsCategorization = () => {
                       <TooltipTrigger>
                         {" "}
                         <Button
-                          disabled={updating}
+                          disabled={updating||selectedItems?.length==0}
                           onClick={() => updateHandler()}
                           className="w-[8.8rem] rounded-sm font-poppins text-[0.7rem] font-normal leading-4 text-white"
                         >
