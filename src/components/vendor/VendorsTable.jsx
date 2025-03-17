@@ -123,7 +123,7 @@ const VendorsTable = ({ columns, data, isLoading, vendorName }) => {
                       <TableRow
                         onClick={() =>
                           navigate(
-                            `/fast-item-verification/${row?.vendor?.vendor_id}?vendor_name=${row?.vendor?.vendor_name}&human_verified=${row?.vendor?.human_verified}&from_view=item-master-vendors`
+                            `/fast-item-verification/${row?.vendor?.vendor_id}?vendor_name=${encodeURIComponent(row?.vendor?.vendor_name)}&human_verified=${row?.vendor?.human_verified}&from_view=item-master-vendors`
                           )
                         }
                         key={rowIndex}
