@@ -18,7 +18,8 @@ const FIVPagination = ({ data ,masterUUID,setMasterUUID,selectedItems,setSelecte
     setFIVItems,
     fiv_total_items_count,
     fiv_verified_items_count,
-    fiv_document_loaded
+    fiv_document_loaded,
+    fiv_is_final_page
   } = fastItemVerificationStore();
   const { mutate: getAllItems } = useGetVendorItemMasterAllItems();
 
@@ -57,12 +58,13 @@ const FIVPagination = ({ data ,masterUUID,setMasterUUID,selectedItems,setSelecte
       setFIVCurrentItem(fiv_items[Number(fiv_item_number)]);
       setFIVItems(fiv_items?.filter((it)=>!it?.human_verified))
     } else {
-      if (fiv_item_number >= total_items - 1) {
-        if ((page<=data?.data?.total_item_count)) {
+      if (fiv_item_number < total_items - 1) {
+        setFIVItemNumber(fiv_item_number + 1);
+        setFIVCurrentItem(fiv_items[fiv_item_number]);
+      } else if (!data?.is_final_page) {
+        if (!fiv_is_final_page) {
           updateParams({ page: Number(page) + 1 });
         }
-        setFIVItemNumber(0);
-        setFIVCurrentItem({});
         resetStore();
       }
     }
@@ -116,7 +118,7 @@ const FIVPagination = ({ data ,masterUUID,setMasterUUID,selectedItems,setSelecte
         <img src={navigate_back} alt="Previous" className="h-8 w-8" />
       </Button>
       <Button
-        disabled={page==data?.is_final_page || !(data?.data?.item?.[0]?.document_uuid) || fiv_total_items_count===fiv_verified_items_count}
+        disabled={fiv_is_final_page||(fiv_item_number == total_items - 1)||page==data?.is_final_page || !(data?.data?.item?.[0]?.document_uuid) || fiv_total_items_count===fiv_verified_items_count}
         className="rounded-sm px-1 flex items-center disabled:bg-gray-500"
         onClick={handleNext}
       >

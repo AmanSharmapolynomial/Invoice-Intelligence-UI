@@ -112,7 +112,7 @@ const FastItemVerification = () => {
 
   const total_items = fiv_items?.length || 0;
   const { data: similarItems, isLoading: loadinSimilarItems } =
-    useGetItemMastSimilarItems({ item_uuid: item_uuid, threshold: 80 });
+    useGetItemMastSimilarItems({ item_uuid: item_uuid, threshold: 40 });
   const { mutate: getAllItems } = useGetVendorItemMasterAllItems();
 
   const { mutate: mergeItemMaster, isPending: mergingItemMaster } =
@@ -475,6 +475,8 @@ const FastItemVerification = () => {
   useEffect(() => {
     if (similarItems?.data?.total_matches > 0) {
       setIsAccordionOpen(true);
+    }else{
+      setIsAccordionOpen(false)
     }
   }, [similarItems]);
   return (
