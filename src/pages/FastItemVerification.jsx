@@ -475,6 +475,8 @@ const FastItemVerification = () => {
   useEffect(() => {
     if (similarItems?.data?.total_matches > 0) {
       setIsAccordionOpen(true);
+    }else{
+      setIsAccordionOpen(false)
     }
   }, [similarItems]);
   return (
