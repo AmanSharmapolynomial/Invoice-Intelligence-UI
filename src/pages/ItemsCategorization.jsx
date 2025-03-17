@@ -92,6 +92,12 @@ const ItemsCategorization = () => {
       };
       return obj;
     });
+    if(!selectedCategory){
+      toast("Select a category",{
+        icon:"⚠️"
+      })
+      return
+    }
 
     if (payload?.length > 0) {
       setUpdating(true);
