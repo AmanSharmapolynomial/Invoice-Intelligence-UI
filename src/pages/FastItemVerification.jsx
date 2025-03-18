@@ -26,12 +26,10 @@ import FIVPagination from "@/components/vendor/vendorItemMaster/FIVPagination";
 import FIVPdfViewer from "@/components/vendor/vendorItemMaster/FIVPdfViewer";
 import SimilarItems from "@/components/vendor/vendorItemMaster/SImilarItems";
 import VendorItemMasterTable from "@/components/vendor/vendorItemMaster/VendorItemMasterTable";
-import { OLD_UI } from "@/config";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import fastItemVerificationStore from "@/store/fastItemVerificationStore";
-import { truncate } from "lodash";
 import { useEffect, useState } from "react";
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 const FastItemVerification = () => {
   const { vendor_id } = useParams();
@@ -137,7 +135,10 @@ const FastItemVerification = () => {
         data?.data?.item?.[fiv_current_pdf_index]?.document_uuid
       );
 
-      if (fiv_document_loaded) {
+      if (
+        fiv_document_loaded &&
+        fiv_total_items_count !== fiv_verified_items_count
+      ) {
         getAllItems(
           {
             vendor_id,
@@ -225,12 +226,18 @@ const FastItemVerification = () => {
                   onSuccess: (data) => {
                     setFIVItems(
                       data?.data?.items?.filter(
-                        (it) => it.item_uuid !== fiv_current_item?.item_uuid
+                        (it) =>
+                          it.item_uuid !== fiv_current_item?.item_uuid &&
+                          it?.human_verified == false
                       )
                     );
                     setIsGoodDocument(false);
 
-                    setFIVCurrentItem(data?.data?.items[fiv_item_number + 1]);
+                    setFIVCurrentItem( data?.data?.items?.filter(
+                      (it) =>
+                        it.item_uuid !== fiv_current_item?.item_uuid &&
+                        it?.human_verified == false
+                    )[fiv_item_number]);
                     setFIVTotalItemsCount(data?.data?.total_item_count);
                     setFIVVerifiedItemsCount(data?.data?.verified_item_count);
                   }
@@ -333,24 +340,26 @@ const FastItemVerification = () => {
       }
     );
   };
-
   const groupAndApproveAndNextHandler = () => {
     setLoadingState((prev) => ({ ...prev, groupingAndApproving: true }));
 
-    updateVendorItemMaster(
-      {
-        item_uuid: fiv_current_item?.item_uuid,
-        data: { human_verified: true }
-      },
-      {
-        onSuccess: () => {
-          setFIVVerifiedItemsCount(Number(fiv_verified_items_count) + 1);
-        },
-        onError: () => {
-          setFIVCurrentItem({ ...fiv_current_item, human_verified: false });
-        }
-      }
-    );
+    {
+      !masterUUID &&
+        updateVendorItemMaster(
+          {
+            item_uuid: fiv_current_item?.item_uuid,
+            data: { human_verified: true }
+          },
+          {
+            onSuccess: () => {
+              setFIVVerifiedItemsCount(Number(fiv_verified_items_count) + 1);
+            },
+            onError: () => {
+              setFIVCurrentItem({ ...fiv_current_item, human_verified: false });
+            }
+          }
+        );
+    }
 
     mergeItemMaster(
       {
@@ -374,41 +383,40 @@ const FastItemVerification = () => {
                 onSuccess: (data) => {
                   setFIVItems(
                     data?.data?.items?.filter(
-                      (it) => it.item_uuid !== fiv_current_item?.item_uuid
+                      (it) =>
+                        it.item_uuid !== fiv_current_item?.item_uuid &&
+                        it?.human_verified == false
                     )
                   );
                   setIsGoodDocument(false);
                   if (data?.data?.items?.length == 0 && page > 1) {
                     updateParams({ page: page - 1 });
                   }
-                  setFIVCurrentItem(data?.data?.items[fiv_item_number + 2]);
+                  setFIVCurrentItem(data?.data?.items[fiv_item_number + 1]);
                 }
               }
             );
           }
-          setFIVCurrentItem({
-            ...fiv_current_item,
-            human_verified: true
-          });
-          if (fiv_item_number < total_items - 1) {
-            setFIVCurrentItem(
-              fiv_items?.filter(
-                (it) => it.item_uuid !== fiv_current_item?.item_uuid
-              )[fiv_item_number]
-            );
-            setFIVItemNumber(Number(fiv_item_number) + 1);
-          } else if (!data?.is_final_page) {
-            if (!fiv_is_final_page) {
-              updateParams({ page: Number(page) + 1 });
-            }
-            resetStore();
+          {
+            masterUUID &&
+              setFIVCurrentItem({
+                ...fiv_current_item,
+                human_verified: true
+              });
           }
-
           setSelectedItems([]);
           setMasterUUID(null);
           setIsAccordionOpen(false);
           setLoadingState((prev) => ({ ...prev, groupingAndApproving: false }));
+
+          if (fiv_item_number < total_items - 1) {
+            setFIVItemNumber(Number(fiv_item_number) + 1);
+          } else if (!fiv_is_final_page) {
+            updateParams({ page: Number(page) + 1 });
+          }
+          resetStore();
         },
+
         onError: () => {
           setFIVCurrentItem({ ...fiv_current_item, human_verified: false });
           setLoadingState((prev) => ({ ...prev, groupingAndApproving: false }));
@@ -475,10 +483,18 @@ const FastItemVerification = () => {
   useEffect(() => {
     if (similarItems?.data?.total_matches > 0) {
       setIsAccordionOpen(true);
-    }else{
-      setIsAccordionOpen(false)
+    } else {
+      setIsAccordionOpen(false);
     }
   }, [similarItems]);
+
+  useEffect(()=>{
+ if(fiv_current_item?.human_verified){
+  if(fiv_items?.length>0){
+    setFIVCurrentItem(fiv_items[fiv_current_item])
+  }
+ }
+  },[fiv_current_item])
   return (
     <div className="h-screen  flex w-full " id="maindiv">
       <Sidebar />
