@@ -14,6 +14,7 @@ import {
   SheetClose,
   SheetContent,
   SheetDescription,
+  SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger
@@ -50,7 +51,7 @@ const DocumentNotes = ({ data = [], document_uuid, isLoading }) => {
       </SheetTrigger>
       <SheetContent
         style={{ boxShadow: "-4px 4px 8px 0px rgba(0, 0, 0, 0.12)" }}
-        className="h-full  max-h-[60rem]"
+        className="h-full "
       >
         <SheetHeader>
           <SheetTitle className="!text-[#222222] font-semibold font-poppins text-base leading-6 flex justify-between">
@@ -90,7 +91,7 @@ const DocumentNotes = ({ data = [], document_uuid, isLoading }) => {
                       </div>
                     ))
                   ) : (
-                    <div className="flex flex-col gap-y-4">
+                    <div className="flex flex-col gap-y-4 md:max-h-[70vh] lg:max-h-[75vh] xl:max-h-[75vh] overflow-auto">
                       {data?.map(
                         ({ createdAt, fromEmail, fromName, id, notes }) => (
                           <div
@@ -136,7 +137,10 @@ const DocumentNotes = ({ data = [], document_uuid, isLoading }) => {
                 </div>
               </div>
             )}
-            <div className="flex w-full max-w-sm items-center space-x-2 py-1   absolute bottom-[4rem] border-t border-t-[#E5E5EA] ">
+            <SheetFooter>
+              
+            </SheetFooter>
+            <div className="flex w-full max-w-sm items-center space-x-2 py-1   absolute bottom-[4rem] border-t border-t-[#E5E5EA] bg-white ">
               <Input
                 type="text"
                 value={note}
