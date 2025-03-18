@@ -48,7 +48,7 @@ const VendorNotes = ({ data = [], vendor_id, isLoading }) => {
 
       <SheetContent
         style={{ boxShadow: "-4px 4px 8px 0px rgba(0, 0, 0, 0.12)" }}
-        className="h-full  max-h-[60rem]"
+        className="h-full"
       >
         <SheetHeader>
           <SheetTitle className="!text-[#222222] font-semibold font-poppins text-base leading-6 flex justify-between">
@@ -68,7 +68,7 @@ const VendorNotes = ({ data = [], vendor_id, isLoading }) => {
               </div>
             ) : (
               <div className="flex-1 flex-col gap-y-4  flex items-center justify-between">
-                <div className="flex overflow-auto flex-col gap-y-4 w-full mt-2">
+                <div className="flex overflow-auto flex-col gap-y-4 w-full md:max-h-[70vh] lg:max-h-[75vh] xl:max-h-[75vh] mt-2">
                   {isLoading
                     ? [1, 2, 3, 4, 5, 6, 7, 8, 9].map((_, ind) => (
                         <div
@@ -122,7 +122,7 @@ const VendorNotes = ({ data = [], vendor_id, isLoading }) => {
                 </div>
               </div>
             )}
-            <div className="flex w-full max-w-sm items-center space-x-2 py-1  absolute bottom-[4rem] border-t border-t-[#E5E5EA] ">
+            <div className="flex w-full max-w-sm items-center space-x-2 py-1 bg-white  absolute bottom-[4rem] border-t border-t-[#E5E5EA] ">
               <Input
                 type="text"
                 value={note}
