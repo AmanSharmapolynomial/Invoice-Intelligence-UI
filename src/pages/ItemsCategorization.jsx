@@ -92,11 +92,11 @@ const ItemsCategorization = () => {
       };
       return obj;
     });
-    if(!selectedCategory){
-      toast("Select a category",{
-        icon:"⚠️"
-      })
-      return
+    if (!selectedCategory) {
+      toast("Select a category", {
+        icon: "⚠️"
+      });
+      return;
     }
 
     if (payload?.length > 0) {
@@ -307,7 +307,11 @@ const ItemsCategorization = () => {
                         <span className="font-semibold text-black">
                           {index}.
                         </span>
-                        <span>{item?.item_description}</span>
+                        <span>
+                          {item?.item_description?.length > 90
+                            ? item?.item_description?.slice(0, 90) + "..."
+                            : item?.item_description}
+                        </span>
                       </span>
                       <Checkbox
                         className="border-[#666667] border-[1.33px]"
@@ -347,62 +351,93 @@ const ItemsCategorization = () => {
                     })}
                   </div>
                 </div>
-              ) : 
-                selectedItems?.length>0&&<Pagination>
-                  <PaginationContent>
-                    <PaginationItem className="!text-sm font-semibold cursor-pointer">
-                      <PaginationLink
-                        className={"border border-[#F1F1F1] rounded-lg"}
-                        onClick={() => {
-                          if (selectedItems?.length > 0) {
-                            toast("Please update the selected items.", {
-                              icon: "⚠️"
-                            });
-                          } else {
-                            updateParams({
-                              page_number: 1
-                            });
-                          }
-                        }}
-                      >
-                        <ChevronsLeft className="h-[1rem] w-[1rem]" />
-                      </PaginationLink>
-                    </PaginationItem>
-                    <PaginationItem className="!text-sm font-semibold cursor-pointer">
-                      <PaginationLink
-                        className={"border border-[#F1F1F1] rounded-lg"}
-                        onClick={() => {
-                          if (selectedItems?.length > 0) {
-                            toast("Please update the selected items.", {
-                              icon: "⚠️"
-                            });
-                          } else {
-                            if (page_number > 1) {
+              ) : (
+                selectedItems?.length > 0 && (
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem className="!text-sm font-semibold cursor-pointer">
+                        <PaginationLink
+                          className={"border border-[#F1F1F1] rounded-lg"}
+                          onClick={() => {
+                            if (selectedItems?.length > 0) {
+                              toast("Please update the selected items.", {
+                                icon: "⚠️"
+                              });
+                            } else {
                               updateParams({
-                                page_number: page_number - 1
+                                page_number: 1
                               });
                             }
-                          }
-                        }}
-                      >
-                        <ChevronLeft />
-                      </PaginationLink>
-                    </PaginationItem>
-                    {new Array(data?.total_pages)
-                      ?.fill(0)
-                      ?.slice(0, data?.total_pages > 2 ? 2 : 1)
-                      ?.map((_, index) => {
-                        return (
-                          <PaginationItem
-                            key={index}
-                            className="!text-sm font-semibold cursor-pointer"
-                          >
+                          }}
+                        >
+                          <ChevronsLeft className="h-[1rem] w-[1rem]" />
+                        </PaginationLink>
+                      </PaginationItem>
+                      <PaginationItem className="!text-sm font-semibold cursor-pointer">
+                        <PaginationLink
+                          className={"border border-[#F1F1F1] rounded-lg"}
+                          onClick={() => {
+                            if (selectedItems?.length > 0) {
+                              toast("Please update the selected items.", {
+                                icon: "⚠️"
+                              });
+                            } else {
+                              if (page_number > 1) {
+                                updateParams({
+                                  page_number: page_number - 1
+                                });
+                              }
+                            }
+                          }}
+                        >
+                          <ChevronLeft />
+                        </PaginationLink>
+                      </PaginationItem>
+                      {new Array(data?.total_pages)
+                        ?.fill(0)
+                        ?.slice(0, data?.total_pages > 2 ? 2 : 1)
+                        ?.map((_, index) => {
+                          return (
+                            <PaginationItem
+                              key={index}
+                              className="!text-sm font-semibold cursor-pointer"
+                            >
+                              <PaginationLink
+                                className={`${
+                                  page_number == index + 1 &&
+                                  "bg-primary hover:bg-primary !text-white"
+                                } text-[#000000] dark:text-[#F6F6F6] border  rounded-lg font-poppins font-semibold text-sm border-[#F1F1F1]`}
+                                active={index + 1 === page_number}
+                                onClick={() => {
+                                  if (selectedItems?.length > 0) {
+                                    toast("Please update the selected items.", {
+                                      icon: "⚠️"
+                                    });
+                                  } else {
+                                    updateParams({
+                                      page_number: Number(index) + 1
+                                    });
+                                  }
+                                }}
+                              >
+                                {index + 1}
+                              </PaginationLink>
+                            </PaginationItem>
+                          );
+                        })}
+
+                      {data?.total_pages > 2 && (
+                        <PaginationEllipsis className="!text-sm font-semibold font-poppins " />
+                      )}
+                      {data?.total_pages > 3 &&
+                        page_number > 2 &&
+                        page_number < data?.total_pages && (
+                          <PaginationItem className="!text-sm font-semibold cursor-pointer">
                             <PaginationLink
                               className={`${
-                                page_number == index + 1 &&
-                                "bg-primary hover:bg-primary !text-white"
-                              } text-[#000000] dark:text-[#F6F6F6] border  rounded-lg font-poppins font-semibold text-sm border-[#F1F1F1]`}
-                              active={index + 1 === page_number}
+                                true &&
+                                "bg-primary !text-white hover:bg-primary"
+                              } text-[#000000] border border-[#F1F1F1] rounded-lg font-poppins font-semibold text-sm dark:text-[#F6F6F6]`}
                               onClick={() => {
                                 if (selectedItems?.length > 0) {
                                   toast("Please update the selected items.", {
@@ -410,27 +445,21 @@ const ItemsCategorization = () => {
                                   });
                                 } else {
                                   updateParams({
-                                    page_number: Number(index) + 1
+                                    page_number: data?.total_pages
                                   });
                                 }
                               }}
                             >
-                              {index + 1}
+                              {page_number}
                             </PaginationLink>
                           </PaginationItem>
-                        );
-                      })}
-
-                    {data?.total_pages > 2 && (
-                      <PaginationEllipsis className="!text-sm font-semibold font-poppins " />
-                    )}
-                    {data?.total_pages > 3 &&
-                      page_number > 2 &&
-                      page_number < data?.total_pages && (
+                        )}
+                      {data?.total_pages > 1 && (
                         <PaginationItem className="!text-sm font-semibold cursor-pointer">
                           <PaginationLink
                             className={`${
-                              true && "bg-primary !text-white hover:bg-primary"
+                              page_number == data?.total_pages &&
+                              "bg-primary !text-white hover:bg-primary"
                             } text-[#000000] border border-[#F1F1F1] rounded-lg font-poppins font-semibold text-sm dark:text-[#F6F6F6]`}
                             onClick={() => {
                               if (selectedItems?.length > 0) {
@@ -444,17 +473,34 @@ const ItemsCategorization = () => {
                               }
                             }}
                           >
-                            {page_number}
+                            {data?.total_pages}
                           </PaginationLink>
                         </PaginationItem>
                       )}
-                    {data?.total_pages > 1 && (
+
                       <PaginationItem className="!text-sm font-semibold cursor-pointer">
                         <PaginationLink
-                          className={`${
-                            page_number == data?.total_pages &&
-                            "bg-primary !text-white hover:bg-primary"
-                          } text-[#000000] border border-[#F1F1F1] rounded-lg font-poppins font-semibold text-sm dark:text-[#F6F6F6]`}
+                          className={"border border-[#F1F1F1] rounded-lg"}
+                          onClick={() => {
+                            if (selectedItems?.length > 0) {
+                              toast("Please update the selected items.", {
+                                icon: "⚠️"
+                              });
+                            } else {
+                              if (page_number < data?.total_pages) {
+                                updateParams({
+                                  page_number: Number(page_number) + 1
+                                });
+                              }
+                            }
+                          }}
+                        >
+                          <ChevronRight />
+                        </PaginationLink>
+                      </PaginationItem>
+                      <PaginationItem className="!text-sm font-semibold cursor-pointer">
+                        <PaginationLink
+                          className={"border border-[#F1F1F1] rounded-lg"}
                           onClick={() => {
                             if (selectedItems?.length > 0) {
                               toast("Please update the selected items.", {
@@ -467,52 +513,13 @@ const ItemsCategorization = () => {
                             }
                           }}
                         >
-                          {data?.total_pages}
+                          <ChevronsRight />
                         </PaginationLink>
                       </PaginationItem>
-                    )}
-
-                    <PaginationItem className="!text-sm font-semibold cursor-pointer">
-                      <PaginationLink
-                        className={"border border-[#F1F1F1] rounded-lg"}
-                        onClick={() => {
-                          if (selectedItems?.length > 0) {
-                            toast("Please update the selected items.", {
-                              icon: "⚠️"
-                            });
-                          } else {
-                            if (page_number < data?.total_pages) {
-                              updateParams({
-                                page_number: Number(page_number) + 1
-                              });
-                            }
-                          }
-                        }}
-                      >
-                        <ChevronRight />
-                      </PaginationLink>
-                    </PaginationItem>
-                    <PaginationItem className="!text-sm font-semibold cursor-pointer">
-                      <PaginationLink
-                        className={"border border-[#F1F1F1] rounded-lg"}
-                        onClick={() => {
-                          if (selectedItems?.length > 0) {
-                            toast("Please update the selected items.", {
-                              icon: "⚠️"
-                            });
-                          } else {
-                            updateParams({
-                              page_number: data?.total_pages
-                            });
-                          }
-                        }}
-                      >
-                        <ChevronsRight />
-                      </PaginationLink>
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>}
-              
+                    </PaginationContent>
+                  </Pagination>
+                )
+              )}
             </div>
           </div>
 
@@ -539,7 +546,9 @@ const ItemsCategorization = () => {
                       return (
                         <p className="w-fit px-2 rounded-md bg-primary h-fit  border border-primary py-1  mb-2 mr-2 inline-flex items-center gap-x-2 ">
                           <span className="text-[#F5F5F5] text-xs">
-                            {it?.item_description}
+                            {it?.item_description?.length > 50
+                              ? it?.item_description?.slice(0, 50) + "..."
+                              : it?.item_description}
                           </span>
                           <X
                             className="text-white h-4 w-4 cursor-pointer"
@@ -625,7 +634,7 @@ const ItemsCategorization = () => {
                       <TooltipTrigger>
                         {" "}
                         <Button
-                          disabled={updating||selectedItems?.length==0}
+                          disabled={updating || selectedItems?.length == 0}
                           onClick={() => updateHandler()}
                           className="w-[8.8rem] rounded-sm font-poppins text-[0.7rem] font-normal leading-4 text-white"
                         >

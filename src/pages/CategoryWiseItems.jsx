@@ -803,7 +803,9 @@ const CategoryWiseItems = () => {
                               <span className="font-poppins font-semibold">
                                 {index}.
                               </span>{" "}
-                              <span>{item?.item_description}</span>
+                              <span>{item?.item_description?.length > 90
+                            ? item?.item_description?.slice(0, 90) + "..."
+                            : item?.item_description}</span>
                             </span>
                           </div>
 
