@@ -894,7 +894,7 @@ const InvoiceDetails = () => {
             />
             {(role?.toLowerCase() == "admin" ||
               role?.toLowerCase() == "manager") && (
-              <CustomTooltip content={"Click To Revert the changes."}>
+              <CustomTooltip content={"Click To reset the invoice status ."}>
                 <Button
                   onClick={() => {
                     setLoadingState((prev) => ({ ...prev, reverting: true }));
@@ -920,7 +920,7 @@ const InvoiceDetails = () => {
                   disabled={loadingState?.reverting}
                   className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                 >
-                  {loadingState?.reverting ? "Reverting.." : "Revert"}
+                  {loadingState?.reverting ? "Resetting.." : "Reset Status"}
                 </Button>
               </CustomTooltip>
             )}
