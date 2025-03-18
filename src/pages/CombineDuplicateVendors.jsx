@@ -60,7 +60,7 @@ const CombineDuplicateVendors = () => {
             ) : (
               <div className="flex items-center gap-x-8  justify-between min-w-full overflow-auto mb-2">
                 <div className="w-1/2">
-                  <p className="font-poppins font-bold capitalize text-base mt-2 mb-2">
+                  <p className="font-poppins font-bold capitalize text-lg mt-2 mb-2">
                     {vendor_1_name}
                   </p>
                   <PdfViewer
@@ -71,7 +71,7 @@ const CombineDuplicateVendors = () => {
                 </div>
                 <div className="w-1/2">
                   <div className="flex items-center justify-between">
-                    <p className="font-poppins capitalize font-bold text-base mt-2 mb-2">
+                    <p className="font-poppins capitalize font-bold text-lg mt-2 mb-2">
                       {vendor_2_name}
                     </p>
                     <div className="flex items-center gap-x-2 justify-end">

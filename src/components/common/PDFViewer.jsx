@@ -644,7 +644,6 @@ export const PdfViewer = ({
     setShowTextExtractionModal(false);
   }, [page]);
 
-  
   return (
     <>
       {loadinMetadata ? (
@@ -931,7 +930,7 @@ export const PdfViewer = ({
             </>
           )}
           {multiple && (
-            <div className="min-w-full  justify-center mt-4  flex items-center  gap-x-2">
+            <div className="min-w-full  justify-center mt-4  flex items-center  gap-x-4">
               {pdfUrls?.length > 0 && (
                 <>
                   <Button
@@ -943,7 +942,9 @@ export const PdfViewer = ({
                   >
                     Previous
                   </Button>
-
+                  <p className="font-poppins font-semibold text-base">
+                    {Number(currentPdfIndex) + 1}{" "}/{" "}{pdfUrls?.length}
+                  </p>
                   <Button
                     size="sm"
                     disabled={currentPdfIndex >= pdfUrls.length - 1}
