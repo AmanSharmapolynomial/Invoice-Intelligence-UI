@@ -14,7 +14,13 @@ import { Button } from "@/components/ui/button";
 import BreadCrumb from "@/components/ui/Custom/BreadCrumb";
 import CustomInput from "@/components/ui/Custom/CustomInput";
 import CustomDropDown from "@/components/ui/CustomDropDown";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger
+} from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { useGetVendorNames } from "@/components/vendor/api";
@@ -61,6 +67,8 @@ const NotSupportedDocuments = () => {
   let invoice_number = searchParams.get("invoice_number") || "";
   let assigned_to = searchParams.get("assigned_to");
   let document_priority = searchParams.get("document_priority") || "all";
+  let restaurant_tier = searchParams.get("restaurant_tier") || "all";
+
   const updateParams = useUpdateParams();
   const { data: restaurantsList, isLoading: restaurantsListLoading } =
     useListRestaurants();
@@ -157,13 +165,37 @@ const NotSupportedDocuments = () => {
               }
             ]}
           />
-          
+
           <div
             className="w-full flex items-center relative justify-end dark:bg-[#051C14] py-3 rounded-t-xl dark:border-primary dark:border px-4 "
             id="vendor-consolidation"
           >
             <div className="flex  items-center space-x-2 ">
               <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
+                <CustomDropDown
+                  triggerClassName={"bg-gray-100"}
+                  contentClassName={"bg-gray-100 !max-w-[7rem] "}
+                  Value={searchParams.get("restaurant_tier")}
+                  placeholder="All Tiers Restaurants"
+                  commandGroupClassName="!min-h-[5rem] !max-h-[10rem]"
+                  className={"!min-w-[10rem]  w-full"}
+                  data={[
+                    { label: "Tier 1", value: 1 },
+                    { label: "Tier 2", value: 2 },
+                    { label: "Tier 3", value: 3 },
+                    { label: "All", value: "all" },
+                  ]}
+                  searchPlaceholder="Search Tier"
+                  onChange={(val) => {
+                    if (val == "none") {
+                      updateParams({ restaurant_tier: undefined });
+                      setFilters({ ...filters, restaurant_tier: undefined });
+                    } else {
+                      updateParams({ restaurant_tier: val });
+                      setFilters({ ...filters, restaurant_tier: val });
+                    }
+                  }}
+                />
                 <CustomDropDown
                   triggerClassName={"bg-gray-100"}
                   contentClassName={"bg-gray-100"}
