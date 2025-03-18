@@ -107,9 +107,9 @@ const CustomSelect = forwardRef(
         </SelectTrigger>
 
         <SelectContent
-          className={`${contentClassName}`}
+          className={`${contentClassName} overflow-auto`}
           search={
-            <div className="p-2 sticky top-0 bg-white z-40">
+            <div className="p-2 mr-2 sticky top-0  ">
               <Input
                 ref={inputRef}
                 placeholder={searchPlaceHolder}
@@ -124,8 +124,8 @@ const CustomSelect = forwardRef(
             </div>
           }
         >
-          <div className="py-1 max-h-60 overflow-auto ">
-            <div className="mt-">
+          {/* <div className="py-1 max-h-60  overflow-auto "> */}
+     
               {filteredDropDownItems?.length > 0 ? (
                 data
                   ?.filter((it) =>
@@ -162,8 +162,8 @@ const CustomSelect = forwardRef(
                   No data found.
                 </p>
               )}
-            </div>
-          </div>
+            
+          {/* </div> */}
         </SelectContent>
       </Select>
     );
