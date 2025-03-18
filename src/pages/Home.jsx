@@ -26,7 +26,11 @@ import CustomDropDown from "@/components/ui/CustomDropDown";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { useGetVendorNames } from "@/components/vendor/api";
-import { formatRestaurantsList, vendorNamesFormatter } from "@/lib/helpers";
+import {
+  formatData,
+  formatRestaurantsList,
+  vendorNamesFormatter
+} from "@/lib/helpers";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import useFilterStore from "@/store/filtersStore";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
@@ -34,6 +38,8 @@ import persistStore from "@/store/persistStore";
 import { ArrowRight, Filter, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import userStore from "@/components/auth/store/userStore";
+import { useGetUsersList } from "@/components/user/api";
 
 const Home = () => {
   const [searchParams] = useSearchParams();
@@ -52,8 +58,8 @@ const Home = () => {
   let human_verified = searchParams.get("human_verified") || "";
   let detected = searchParams.get("invoice_detection_status") || "";
   let rerun_status = searchParams.get("rerun_status") || "";
-  let auto_accepted = searchParams.get("auto_accepted") || "";      
-  let auto_accepted_by_vda = searchParams.get("auto_accepted_by_vda") || "all";      
+  let auto_accepted = searchParams.get("auto_accepted") || "";
+  let auto_accepted_by_vda = searchParams.get("auto_accepted_by_vda") || "all";
   let start_date = searchParams.get("start_date") || "";
   let end_date = searchParams.get("end_date") || "";
   let clickbacon_status = searchParams.get("clickbacon_status") || "";
@@ -150,14 +156,16 @@ const Home = () => {
   useEffect(() => {
     clearStore();
   }, []);
+  const { role } = userStore();
+  const { data: users, isLoading: loadingUsers } = useGetUsersList();
+  console.log(formatData(users?.data));
   return (
     <div className="h-screen  flex w-full " id="maindiv">
       <Sidebar />
       <div className="w-full pl-12">
         {" "}
         <Navbar />
-        
-          <Layout>
+        <Layout>
           <BreadCrumb
             title={"Invoice Balancing"}
             crumbs={[
@@ -174,6 +182,29 @@ const Home = () => {
           >
             <div className="flex  items-center space-x-2 ">
               <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
+                {(role?.toLowerCase() == "admin" ||
+                  role?.toLowerCase() == "manager") && (
+                  <CustomDropDown
+                    triggerClassName={"bg-gray-100"}
+                    contentClassName={"bg-gray-100 !max-w-[7rem] "}
+                    Value={
+                      searchParams.get("assigned_to") 
+                    }
+                    placeholder="All Users"
+                    className={"!min-w-[15rem] w-full"}
+                    data={formatData(users?.data)}
+                    searchPlaceholder="Search User"
+                    onChange={(val) => {
+                      if (val == "none") {
+                        updateParams({ assigned_to: undefined });
+                        setFilters({ ...filters, assigned_to: undefined });
+                      } else {
+                        updateParams({ assigned_to: val });
+                        setFilters({ ...filters, assigned_to: val });
+                      }
+                    }}
+                  />
+                )}
                 <CustomDropDown
                   triggerClassName={"bg-gray-100"}
                   contentClassName={"bg-gray-100"}
@@ -241,17 +272,27 @@ const Home = () => {
                         open ||
                         filters?.human_verified !== "all" ||
                         filters?.human_verification !== "all" ||
-                        filters?.invoice_type !== ""||filters?.start_date!==""||filters?.end_date!==""||filters?.clickbacon_status!==""||filters?.auto_accepted!==""
+                        filters?.invoice_type !== "" ||
+                        filters?.start_date !== "" ||
+                        filters?.end_date !== "" ||
+                        filters?.clickbacon_status !== "" ||
+                        filters?.auto_accepted !== ""
                           ? "!bg-primary !text-white"
                           : "!bg-white"
                       }   `}
                     >
                       <Filter
                         className={`${
-                          (  open ||
-                            filters?.human_verified !== "all" ||
-                            filters?.human_verification !== "all" ||
-                            filters?.invoice_type !== ""||filters?.start_date!==""||filters?.end_date!==""||filters?.clickbacon_status!==""||filters?.auto_accepted!=="") ? "!text-white" : ""
+                          open ||
+                          filters?.human_verified !== "all" ||
+                          filters?.human_verification !== "all" ||
+                          filters?.invoice_type !== "" ||
+                          filters?.start_date !== "" ||
+                          filters?.end_date !== "" ||
+                          filters?.clickbacon_status !== "" ||
+                          filters?.auto_accepted !== ""
+                            ? "!text-white"
+                            : ""
                         } h-5  text-black/40 dark:text-white/50`}
                       />
                     </Button>
@@ -391,7 +432,6 @@ const Home = () => {
             />
           </div>
         </Layout>
-        
       </div>
     </div>
   );
