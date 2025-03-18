@@ -334,3 +334,21 @@ export const useGetSimilarVendors = (payload) => {
     }
   });
 };
+
+export const useRevertChanges = () => {
+  return useMutation({
+    mutationFn: async (document_uuid) => {
+      let response = await axiosInstance.post(
+        `/api/document/${document_uuid}/reset-document-status/`
+      );
+      return response;
+    },
+    onError: (data) => {
+      toast.error(data?.message);
+    },
+    onSuccess: (data) => {
+      toast.success(data?.message);
+      queryClient.invalidateQueries(['document-metadata'])
+    }
+  });
+};

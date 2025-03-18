@@ -9,6 +9,7 @@ import {
   useGetSimilarVendors,
   useMarkAsNotSupported,
   useMarkReviewLater,
+  useRevertChanges,
   useUpdateDocumentMetadata,
   useUpdateDocumentTable
 } from "@/components/invoice/api";
@@ -94,6 +95,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from "@/components/ui/tooltip";
+import userStore from "@/components/auth/store/userStore";
 
 const rejectionReasons = [
   "Duplicate invoice",
@@ -109,6 +111,7 @@ const InvoiceDetails = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [data, setData] = useState({});
+  const { role } = userStore();
   const updateParams = useUpdateParams();
   const [currentTab, setCurrentTab] = useState("metadata");
   const [markForReviewModal, setMarkForReviewModal] = useState(false);
@@ -145,7 +148,8 @@ const InvoiceDetails = () => {
     rejecting: false,
     accepting: false,
     markingForReview: false,
-    markingAsNotSupported: false
+    markingAsNotSupported: false,
+    reverting: false
   });
 
   const { data: similarVendors, isLoading: loadingSimilarVendors } =
@@ -153,7 +157,6 @@ const InvoiceDetails = () => {
       toFetch: is_unverified_vendor,
       document_uuid: current_document_uuid
     });
-  console.log(similarVendors);
 
   const { filters, setFilters } = useFilterStore();
   const { mutate: updateTable } = useUpdateDocumentMetadata();
@@ -516,6 +519,8 @@ const InvoiceDetails = () => {
   useEffect(() => {
     setShowAlreadySyncedModal(false);
   }, [page]);
+
+  const { mutate: revertChanges } = useRevertChanges();
   return (
     <div className="hide-scrollbar relative">
       <Navbar />
@@ -888,7 +893,38 @@ const InvoiceDetails = () => {
                 data?.data?.[0]?.vendor?.vendor_id
               }
             />
-
+            {(role?.toLowerCase() == "admin" ||
+              role?.toLowerCase() == "manager") && (
+              <CustomTooltip content={"Click To reset the invoice status ."}>
+                <Button
+                  onClick={() => {
+                    setLoadingState((prev) => ({ ...prev, reverting: true }));
+                    revertChanges(
+                      data?.data?.document_uuid ||
+                        data?.data?.[0]?.document_uuid,
+                      {
+                        onSuccess: () => {
+                          setLoadingState((prev) => ({
+                            ...prev,
+                            reverting: false
+                          }));
+                        },
+                        onError: () => {
+                          setLoadingState((prev) => ({
+                            ...prev,
+                            reverting: false
+                          }));
+                        }
+                      }
+                    );
+                  }}
+                  disabled={loadingState?.reverting}
+                  className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                >
+                  {loadingState?.reverting ? "Resetting.." : "Reset Status"}
+                </Button>
+              </CustomTooltip>
+            )}
             <CustomTooltip
               content={
                 action_controls?.review_later?.disabled
