@@ -9,6 +9,7 @@ import {
   useGetSimilarVendors,
   useMarkAsNotSupported,
   useMarkReviewLater,
+  useRevertChanges,
   useUpdateDocumentMetadata,
   useUpdateDocumentTable
 } from "@/components/invoice/api";
@@ -94,6 +95,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from "@/components/ui/tooltip";
+import userStore from "@/components/auth/store/userStore";
 
 const rejectionReasons = [
   "Duplicate invoice",
@@ -109,6 +111,7 @@ const InvoiceDetails = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [data, setData] = useState({});
+  const { role } = userStore();
   const updateParams = useUpdateParams();
   const [currentTab, setCurrentTab] = useState("metadata");
   const [markForReviewModal, setMarkForReviewModal] = useState(false);
@@ -144,7 +147,8 @@ const InvoiceDetails = () => {
     rejecting: false,
     accepting: false,
     markingForReview: false,
-    markingAsNotSupported: false
+    markingAsNotSupported: false,
+    reverting: false
   });
 
   const { data: similarVendors, isLoading: loadingSimilarVendors } =
@@ -152,7 +156,6 @@ const InvoiceDetails = () => {
       toFetch: is_unverified_vendor,
       document_uuid: current_document_uuid
     });
-  console.log(similarVendors);
 
   const { filters, setFilters } = useFilterStore();
   const { mutate: updateTable } = useUpdateDocumentMetadata();
@@ -515,6 +518,8 @@ const InvoiceDetails = () => {
   useEffect(() => {
     setShowAlreadySyncedModal(false);
   }, [page]);
+
+  const { mutate: revertChanges } = useRevertChanges();
   return (
     <div className="hide-scrollbar relative">
       <Navbar />
@@ -887,7 +892,38 @@ const InvoiceDetails = () => {
                 data?.data?.[0]?.vendor?.vendor_id
               }
             />
-
+            {(role?.toLowerCase() == "admin" ||
+              role?.toLowerCase() == "manager") && (
+              <CustomTooltip content={"Click To Revert the changes."}>
+                <Button
+                  onClick={() => {
+                    setLoadingState((prev) => ({ ...prev, reverting: true }));
+                    revertChanges(
+                      data?.data?.document_uuid ||
+                        data?.data?.[0]?.document_uuid,
+                      {
+                        onSuccess: () => {
+                          setLoadingState((prev) => ({
+                            ...prev,
+                            reverting: false
+                          }));
+                        },
+                        onError: () => {
+                          setLoadingState((prev) => ({
+                            ...prev,
+                            reverting: false
+                          }));
+                        }
+                      }
+                    );
+                  }}
+                  disabled={loadingState?.reverting}
+                  className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                >
+                  {loadingState?.reverting ? "Reverting.." : "Revert"}
+                </Button>
+              </CustomTooltip>
+            )}
             <CustomTooltip
               content={
                 action_controls?.review_later?.disabled
@@ -1390,12 +1426,11 @@ const InvoiceDetails = () => {
                         </TableCell>
                         <TableCell className="border font-poppins font-normal text-black text-sm">
                           <TooltipProvider>
-                            <Tooltip >
+                            <Tooltip>
                               <TooltipTrigger div className=" z-50">
                                 <span> {row?.similarity_score}%</span>
                               </TooltipTrigger>
                               <TooltipContent className="bg-white text-black border  absolute -top-[3rem] -left-[15rem] shadow-sm px-4 flex items-center  gap-x-1  min-w-[18rem]    min-h-10 ml-[16rem]">
-
                                 {row?.match_reason}
                               </TooltipContent>
                             </Tooltip>
@@ -1411,7 +1446,7 @@ const InvoiceDetails = () => {
             ) : (
               <div className="w-full h-[10rem] flex items-center justify-center">
                 <p className="font-medium text-sm font-poppins text-black">
-                  No Matching Verified  Vendors Found.
+                  No Matching Verified Vendors Found.
                 </p>
               </div>
             )}
