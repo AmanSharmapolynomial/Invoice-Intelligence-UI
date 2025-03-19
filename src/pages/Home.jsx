@@ -193,14 +193,22 @@ const Home = () => {
                     placeholder="All Users"
                     className={"!min-w-[15rem] w-full"}
                     data={formatData(users?.data)}
+                    multiSelect={true}
                     searchPlaceholder="Search User"
                     onChange={(val) => {
-                      if (val == "none") {
-                        updateParams({ assigned_to: undefined });
-                        setFilters({ ...filters, assigned_to: undefined });
-                      } else {
-                        updateParams({ assigned_to: val });
-                        setFilters({ ...filters, assigned_to: val });
+                      if (typeof val == "object") {
+                        let assigned_to = val.map((item) => item).join(",");
+                        setFilters({ ...filters, assigned_to: assigned_to });
+                        updateParams({ assigned_to: assigned_to });
+                      } else{
+
+                        if (val == "none") {
+                          updateParams({ assigned_to: undefined });
+                          setFilters({ ...filters, assigned_to: undefined });
+                        } else {
+                          updateParams({ assigned_to: val });
+                          setFilters({ ...filters, assigned_to: val });
+                        }
                       }
                     }}
                   />
@@ -224,6 +232,7 @@ const Home = () => {
                   ]}
                   searchPlaceholder="Search Tier"
                   onChange={(val) => {
+                    
                     if (val == null) {
                       updateParams({ restaurant_tier: undefined });
                       setFilters({ ...filters, restaurant_tier: undefined });
