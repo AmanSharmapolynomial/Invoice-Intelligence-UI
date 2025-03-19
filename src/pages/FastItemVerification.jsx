@@ -27,6 +27,7 @@ import FIVPdfViewer from "@/components/vendor/vendorItemMaster/FIVPdfViewer";
 import SimilarItems from "@/components/vendor/vendorItemMaster/SImilarItems";
 import VendorItemMasterTable from "@/components/vendor/vendorItemMaster/VendorItemMasterTable";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
+import { queryClient } from "@/lib/utils";
 import fastItemVerificationStore from "@/store/fastItemVerificationStore";
 import { useEffect, useState } from "react";
 import { Toaster } from "react-hot-toast";
@@ -233,11 +234,13 @@ const FastItemVerification = () => {
                     );
                     setIsGoodDocument(false);
 
-                    setFIVCurrentItem( data?.data?.items?.filter(
-                      (it) =>
-                        it.item_uuid !== fiv_current_item?.item_uuid &&
-                        it?.human_verified == false
-                    )[fiv_item_number]);
+                    setFIVCurrentItem(
+                      data?.data?.items?.filter(
+                        (it) =>
+                          it.item_uuid !== fiv_current_item?.item_uuid &&
+                          it?.human_verified == false
+                      )[fiv_item_number]
+                    );
                     setFIVTotalItemsCount(data?.data?.total_item_count);
                     setFIVVerifiedItemsCount(data?.data?.verified_item_count);
                   }
@@ -343,11 +346,15 @@ const FastItemVerification = () => {
   const groupAndApproveAndNextHandler = () => {
     setLoadingState((prev) => ({ ...prev, groupingAndApproving: true }));
 
-    {
-      !masterUUID &&
+    if (masterUUID) {
+      if (
+        similarItems?.data?.matching_items?.find(
+          (it) => it?.item_uuid == masterUUID
+        )?.human_verified == false
+      ) {
         updateVendorItemMaster(
           {
-            item_uuid: fiv_current_item?.item_uuid,
+            item_uuid: masterUUID,
             data: { human_verified: true }
           },
           {
@@ -359,6 +366,22 @@ const FastItemVerification = () => {
             }
           }
         );
+      }
+    } else {
+      updateVendorItemMaster(
+        {
+          item_uuid: fiv_current_item?.item_uuid,
+          data: { human_verified: true }
+        },
+        {
+          onSuccess: () => {
+            setFIVVerifiedItemsCount(Number(fiv_verified_items_count) + 1);
+          },
+          onError: () => {
+            setFIVCurrentItem({ ...fiv_current_item, human_verified: false });
+          }
+        }
+      );
     }
 
     mergeItemMaster(
@@ -372,49 +395,61 @@ const FastItemVerification = () => {
       {
         onSuccess: () => {
           if (fiv_items?.length == 0) {
-            getAllItems(
-              {
-                vendor_id,
-                document_uuid:
-                  data?.data?.item?.[fiv_current_pdf_index]?.document_uuid,
-                page: page
-              },
-              {
-                onSuccess: (data) => {
-                  setFIVItems(
-                    data?.data?.items?.filter(
-                      (it) =>
-                        it.item_uuid !== fiv_current_item?.item_uuid &&
-                        it?.human_verified == false
-                    )
-                  );
-                  setIsGoodDocument(false);
-                  if (data?.data?.items?.length == 0 && page > 1) {
-                    updateParams({ page: page - 1 });
+            if (fiv_document_loaded) {
+              getAllItems(
+                {
+                  vendor_id,
+                  document_uuid:
+                    data?.data?.item?.[fiv_current_pdf_index]?.document_uuid,
+                  page: page
+                },
+                {
+                  onSuccess: (data) => {
+                    setFIVItems(
+                      data?.data?.items?.filter(
+                        (it) =>
+                          it.item_uuid !== fiv_current_item?.item_uuid &&
+                          it?.human_verified == false
+                      )
+                    );
+                    setIsGoodDocument(false);
+
+                    setFIVCurrentItem(
+                      data?.data?.items?.filter(
+                        (it) =>
+                          it.item_uuid !== fiv_current_item?.item_uuid &&
+                          it?.human_verified == false
+                      )[fiv_item_number]
+                    );
+                    setFIVTotalItemsCount(data?.data?.total_item_count);
+                    setFIVVerifiedItemsCount(data?.data?.verified_item_count);
                   }
-                  setFIVCurrentItem(data?.data?.items[fiv_item_number + 1]);
+                }
+              );
+            }
+          }
+          if (fiv_item_number < total_items - 1) {
+            setFIVItemNumber(Number(fiv_item_number) + 1);
+            if (fiv_items[Number(fiv_item_number)]) {
+              setFIVCurrentItem(fiv_items[Number(fiv_item_number)]);
+            }
+          } else {
+            if (fiv_item_number >= total_items - 1) {
+              if (page <= data?.data?.total_item_count) {
+                if (!fiv_is_final_page) {
+                  updateParams({ page: Number(page) + 1 });
+                  setFIVItemNumber(0);
+                  setFIVCurrentItem({});
+                  resetStore();
                 }
               }
-            );
-          }
-          {
-            masterUUID &&
-              setFIVCurrentItem({
-                ...fiv_current_item,
-                human_verified: true
-              });
+            }
           }
           setSelectedItems([]);
           setMasterUUID(null);
           setIsAccordionOpen(false);
           setLoadingState((prev) => ({ ...prev, groupingAndApproving: false }));
-
-          if (fiv_item_number < total_items - 1) {
-            setFIVItemNumber(Number(fiv_item_number) + 1);
-          } else if (!fiv_is_final_page) {
-            updateParams({ page: Number(page) + 1 });
-          }
-          resetStore();
+          queryClient.invalidateQueries({ queryKey: ["item-master-vendors"] });
         },
 
         onError: () => {
@@ -488,13 +523,13 @@ const FastItemVerification = () => {
     }
   }, [similarItems]);
 
-  useEffect(()=>{
- if(fiv_current_item?.human_verified){
-  if(fiv_items?.length>0){
-    setFIVCurrentItem(fiv_items[fiv_current_item])
-  }
- }
-  },[fiv_current_item])
+  useEffect(() => {
+    if (fiv_current_item?.human_verified) {
+      if (fiv_items?.length > 0) {
+        setFIVCurrentItem(fiv_items[fiv_current_item]);
+      }
+    }
+  }, [fiv_current_item]);
   return (
     <div className="h-screen  flex w-full " id="maindiv">
       <Sidebar />
