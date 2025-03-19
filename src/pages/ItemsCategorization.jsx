@@ -278,8 +278,32 @@ const ItemsCategorization = () => {
                 </Tooltip>
               </TooltipProvider>
             )}
-            <div className="flex flex-col  relative gap-y-2 md:h-[30rem] 2xl:h-[35rem] px-4 pb-2 overflow-auto ">
-              {" "}
+            <div className="flex flex-col  relative gap-y-2 md:h-[30rem] 2xl:h-[35rem]  pb-2 overflow-auto ">
+              {(mode == "vendor"
+                ? data?.data?.removed_items?.length > 0
+                : data?.data?.length > 0) && (
+                <div className="flex justify-end w-full items-center gap-x-4 px-[1.05rem] font-poppins font-normal text-sm">
+                  <p>Select All</p>
+                  <Checkbox
+                    checked={
+                      (selectedItems?.length )== (mode == "vendor"
+                        ? data?.data?.removed_items?.length 
+                        : data?.data?.length )
+                    }
+                    onCheckedChange={(isChecked) => {
+                      if (isChecked) {
+                        setSelectedItems(
+                          mode == "vendor"
+                            ? data?.data?.removed_items
+                            : data?.data
+                        );
+                      } else {
+                        setSelectedItems([]);
+                      }
+                    }}
+                  />
+                </div>
+              )}
               {isLoading ? (
                 <div className="flex flex-col gap-y-4  md:mt-4 ">
                   {new Array(10).fill(Math.random(0, 11))?.map((_, index) => (
@@ -352,7 +376,9 @@ const ItemsCategorization = () => {
                   </div>
                 </div>
               ) : (
-                selectedItems?.length > 0 && (
+                (mode == "vendor"
+                  ? data?.data?.removed_items?.length > 0
+                  : data?.data?.length > 0) && (
                   <Pagination>
                     <PaginationContent>
                       <PaginationItem className="!text-sm font-semibold cursor-pointer">
