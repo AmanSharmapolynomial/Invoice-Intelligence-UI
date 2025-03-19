@@ -1,5 +1,5 @@
 import { axiosInstance } from "@/axios/instance";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 export const useGetVendorsWithPotentialDuplicates = (payload) => {
   return useQuery({
@@ -22,13 +22,24 @@ export const useGetVendorsWithPotentialDuplicates = (payload) => {
   });
 };
 
+export const useGetVendorsHavingDuplicatesList = () => {
+  return useQuery({
+    queryKey: ["vendors-list-with-duplicates"],
+    queryFn: async () => {
+      return await axiosInstance.get(
+        "/api/vendor/duplicate-finder/vendors-with-duplicates/"
+      );
+    }
+  });
+};
 
-export const useGetVendorsHavingDuplicatesList=()=>{
-    return useQuery({
-        queryKey:['vendors-list-with-duplicates'],
-        queryFn:async()=>{
-            return await axiosInstance.get("/api/vendor/duplicate-finder/vendors-with-duplicates/");
-
-        }
-    })
-}
+export const useMarkAsNotDuplicate = () => {
+  return useMutation({
+    mutationFn: async (finding_id) => {
+      const response = await axiosInstance.post(
+        `/api/vendor/duplicate-finder/findings/${finding_id}/mark-as-not-duplicate/`
+      );
+      return response?.data;
+    }
+  });
+};

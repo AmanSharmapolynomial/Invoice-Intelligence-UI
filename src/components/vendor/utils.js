@@ -122,7 +122,7 @@ export const getVendorsPdfs = async (payload) => {
   const { vendor_one, vendor_two } = payload;
   const apiUrl = `/api/vendor/pdf/`;
   const response = await axiosInstance.post(apiUrl, {
-    fetch_mode: "vendor_name",
+    fetch_mode: "vendor_id",
     vendors: [vendor_one, vendor_two]
   });
   return response;

@@ -11,7 +11,9 @@ import React from "react";
 import approved from "@/assets/image/approved.svg";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 const PotentialDuplicatesTable = ({ data, isLoading, columns }) => {
+  const navigate = useNavigate();
   const getValue = (obj, key) => {
     return key.includes("[")
       ? key
@@ -61,6 +63,11 @@ const PotentialDuplicatesTable = ({ data, isLoading, columns }) => {
                 {data?.findings?.map((row, index) => {
                   return (
                     <TableRow
+                    onClick={() => {
+                      navigate(
+                        `/combine-duplicate-vendors/${row?.verified_vendor?.vendor_id}/${row?.potential_duplicate_vendor?.vendor_id}?vendor_1_name=${row?.verified_vendor?.vendor_name}&vendor_2_name=${row?.potential_duplicate_vendor?.vendor_name}&finding_id=${row?.finding_id}`
+                      );
+                    }}
                       key={index}
                       className={`grid grid-cols-${columns?.length} w-full md:max-h-[2.75rem]  md:min-h-[2.65rem] 2xl:min-h-[4rem] xl:min-h-[3.25rem] self-center content-center cursor-pointer text-xs sm:text-sm`}
                     >
@@ -71,7 +78,11 @@ const PotentialDuplicatesTable = ({ data, isLoading, columns }) => {
                             className="border-r h-full font-poppins !break-word dark:text-white md:max-h-[2.75rem] md:min-h-[2.65rem] 2xl:min-h-[4rem] self-center content-center !truncate whitespace-normal px-[0.8rem] capitalize text-sm font-normal"
                           >
                             <div className="flex items-center gap-x-2 break-words truncate whitespace-normal">
-                              <span> {getValue(row, col?.key)}</span>
+                              <span>
+                                {" "}
+                                {getValue(row, col?.key)}
+                                {col?.key == "similarity_score" && "%"}
+                              </span>
                               {col?.key == "verified_vendor[vendor_name]" ? (
                                 <div>
                                   {row?.verified_vendor?.human_verified && (
@@ -79,9 +90,9 @@ const PotentialDuplicatesTable = ({ data, isLoading, columns }) => {
                                   )}
                                 </div>
                               ) : (
-                                <>{col?.key == "" && <Button className="bg-transparent hover:bg-transparent border border-primary ">
-                                    <ArrowRight className="h-4 w-4 text-primary"/>
-                                    </Button>}</>
+                                <>
+                               
+                                </>
                               )}
                             </div>
                           </TableCell>

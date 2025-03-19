@@ -56,11 +56,6 @@ const VendorsWithPotentialDuplicates = () => {
       label: "Match Reason",
       key: "match_reason"
     },
-
-    {
-      label: "Compare",
-      key: ""
-    }
   ];
 
   return (
