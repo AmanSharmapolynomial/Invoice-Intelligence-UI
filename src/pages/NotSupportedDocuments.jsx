@@ -100,7 +100,8 @@ const NotSupportedDocuments = () => {
     assigned_to,
     document_priority,
     review_later: false,
-    supported_documents: false
+    supported_documents: false,
+    restaurant_tier
   };
   const { data, isLoading } = useListInvoices(payload);
   useEffect(() => {
@@ -175,19 +176,23 @@ const NotSupportedDocuments = () => {
                 <CustomDropDown
                   triggerClassName={"bg-gray-100"}
                   contentClassName={"bg-gray-100 !max-w-[7rem] "}
-                  Value={searchParams.get("restaurant_tier")}
+                  Value={
+                    searchParams.get("restaurant_tier") == "null"
+                      ? null
+                      : searchParams.get("restaurant_tier")
+                  }
                   placeholder="All Tiers Restaurants"
                   commandGroupClassName="!min-h-[5rem] !max-h-[10rem]"
                   className={"!min-w-[10rem]  w-full"}
                   data={[
-                    { label: "Tier 1", value: 1 },
-                    { label: "Tier 2", value: 2 },
-                    { label: "Tier 3", value: 3 },
-                    { label: "All", value: "all" },
+                    { label: "Tier 1", value: "1" },
+                    { label: "Tier 2", value: "2" },
+                    { label: "Tier 3", value: "3" },
+                    { label: "All", value: null }
                   ]}
                   searchPlaceholder="Search Tier"
                   onChange={(val) => {
-                    if (val == "none") {
+                    if (val == null) {
                       updateParams({ restaurant_tier: undefined });
                       setFilters({ ...filters, restaurant_tier: undefined });
                     } else {
