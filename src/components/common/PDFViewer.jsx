@@ -105,7 +105,7 @@ export const PdfViewer = ({
   const [rotation, setRotation] = useState(0);
   const [text, setText] = useState("");
 
-  const [lockZoomAndScroll, setLockZoomAndScroll] = useState(false);
+  const [lockZoomAndScroll, setLockZoomAndScroll] = useState(true);
   const [pageDimensions, setPageDimensions] = useState({ width: 0, height: 0 });
   const [isSelecting, setIsSelecting] = useState(false);
   const [viewImageModal, setViewImageModal] = useState(false);
@@ -309,7 +309,7 @@ export const PdfViewer = ({
   }, [bounding_box, bounding_boxes, page]);
 
   useEffect(() => {
-    setLockZoomAndScroll(false);
+    setLockZoomAndScroll(true);
     setPdfScale(1.0);
   }, [page]);
 
@@ -943,7 +943,7 @@ export const PdfViewer = ({
                     Previous
                   </Button>
                   <p className="font-poppins font-semibold text-base">
-                    {Number(currentPdfIndex) + 1}{" "}/{" "}{pdfUrls?.length}
+                    {Number(currentPdfIndex) + 1} / {pdfUrls?.length}
                   </p>
                   <Button
                     size="sm"
