@@ -109,6 +109,12 @@ export const keysCapitalizer = (str) => {
     ?.map((word) => word[0]?.toUpperCase() + word?.slice(1, word.length))
     .join(" ");
 };
+export const keysDecapitalizer = (str) => {
+  return str
+    .split(" ")
+    .map((word) => word[0]?.toLowerCase() + word?.slice(1))
+    .join("_");
+};
 
 export function formatRawDataTable(rawTable) {
   const columns = [];
