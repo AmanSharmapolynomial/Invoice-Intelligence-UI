@@ -1,4 +1,7 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
+import tier_1 from "@/assets/image/tier_1.svg";
+import tier_2 from "@/assets/image/tier_2.svg";
+import tier_3 from "@/assets/image/tier_3.svg";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -238,7 +241,7 @@ const CustomDropDown = ({
                         onBlur={onBlur}
                         onSelect={() => {
                           !multiSelect && handleSelect(item.value, item);
-                          setSearchTerm("")
+                          setSearchTerm("");
                         }}
                       >
                         {!multiSelect && (
@@ -270,7 +273,7 @@ const CustomDropDown = ({
                                 )}{" "}
                             </span>
                           </div>
-                          <div className="flex items-center gap-x-1 mr-0.5">
+                          <div className="flex items-center gap-x-2 mr-0.5">
                             {item?.human_verified && (
                               <img
                                 src={approved}
@@ -278,6 +281,17 @@ const CustomDropDown = ({
                                 alt="Approved"
                               />
                             )}
+                            <img
+                            className="h-4 w-4"
+                              src={
+                                item?.tier == 1
+                                  ? tier_1
+                                  : item?.tier == 2
+                                  ? tier_2
+                                  : tier_3
+                              }
+                              alt=""
+                            />
                             {multiSelect && (
                               <Checkbox
                                 checked={itemsArray.includes(item.value)}
@@ -292,11 +306,16 @@ const CustomDropDown = ({
                                 }}
                               />
                             )}
-                            {
-                              item?.count!==undefined && <CustomTooltip content={"Duplicate Findings Count"} right={16}>
-                                <span className="font-poppins mr-2">{item?.count}</span>
+                            {item?.count !== undefined && (
+                              <CustomTooltip
+                                content={"Duplicate Findings Count"}
+                                right={16}
+                              >
+                                <span className="font-poppins mr-2">
+                                  {item?.count}
+                                </span>
                               </CustomTooltip>
-                            }
+                            )}
                           </div>
                         </div>
                       </CommandItem>

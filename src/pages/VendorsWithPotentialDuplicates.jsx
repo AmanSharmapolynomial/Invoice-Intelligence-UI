@@ -26,15 +26,19 @@ const VendorsWithPotentialDuplicates = () => {
   const { data: vendorsList, isLoading: loadinVendorsList } =
     useGetVendorsHavingDuplicatesList();
   const vendorsWithDuplicatesFormatter = (vendors) => {
-    return vendors?.map((v) => {
-      let obj = {
-        label: v?.vendor?.vendor_name,
-        value: v?.vendor?.vendor_id,
-        human_verified: v?.vendor?.human_verified,
-        count: v?.duplicate_findings_count
-      };
-      return obj;
-    });
+    if (vendors?.length > 0) {
+      return vendors?.map((v) => {
+        let obj = {
+          label: v?.vendor?.vendor_name,
+          value: v?.vendor?.vendor_id,
+          human_verified: v?.vendor?.human_verified,
+          count: v?.duplicate_findings_count
+        };
+        return obj;
+      });
+    } else {
+      return [];
+    }
   };
 
   const columns = [
@@ -55,7 +59,7 @@ const VendorsWithPotentialDuplicates = () => {
     {
       label: "Match Reason",
       key: "match_reason"
-    },
+    }
   ];
 
   return (
@@ -86,7 +90,7 @@ const VendorsWithPotentialDuplicates = () => {
             </div>
           </div>
           <PotentialDuplicatesTable
-            data={data?.data}
+            data={data?.data || []}
             isLoading={isLoading}
             columns={columns}
           />

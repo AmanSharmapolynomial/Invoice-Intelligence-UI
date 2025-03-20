@@ -71,7 +71,7 @@ const Home = () => {
   let invoice_number = searchParams.get("invoice_number") || "";
   let assigned_to = searchParams.get("assigned_to");
   let document_priority = searchParams.get("document_priority") || "all";
-  let restaurant_tier = searchParams.get("restaurant_tier") || 'all';
+  let restaurant_tier = searchParams.get("restaurant_tier") || "all";
   const updateParams = useUpdateParams();
   const { data: restaurantsList, isLoading: restaurantsListLoading } =
     useListRestaurants();
@@ -159,7 +159,14 @@ const Home = () => {
     clearStore();
   }, []);
   const { role } = userStore();
-  const { data: users, isLoading: loadingUsers } = useGetUsersList();
+  
+  useEffect(() => {
+    const element = document.getElementById("invoice-filters");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+      setOpen(open)
+    }
+  }, [open,setOpen,data]);
 
   return (
     <div className="h-screen  flex w-full " id="maindiv">
@@ -184,64 +191,6 @@ const Home = () => {
           >
             <div className="flex  items-center space-x-2 ">
               <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
-                {(role?.toLowerCase() == "admin" ||
-                  role?.toLowerCase() == "manager") && (
-                  <CustomDropDown
-                    triggerClassName={"bg-gray-100"}
-                    contentClassName={"bg-gray-100 !max-w-[7rem] "}
-                    Value={searchParams.get("assigned_to")}
-                    placeholder="All Users"
-                    className={"!min-w-[15rem] w-full"}
-                    data={formatData(users?.data)}
-                    multiSelect={true}
-                    searchPlaceholder="Search User"
-                    onChange={(val) => {
-                      if (typeof val == "object") {
-                        let assigned_to = val.map((item) => item).join(",");
-                        setFilters({ ...filters, assigned_to: assigned_to });
-                        updateParams({ assigned_to: assigned_to });
-                      } else{
-
-                        if (val == "none") {
-                          updateParams({ assigned_to: undefined });
-                          setFilters({ ...filters, assigned_to: undefined });
-                        } else {
-                          updateParams({ assigned_to: val });
-                          setFilters({ ...filters, assigned_to: val });
-                        }
-                      }
-                    }}
-                  />
-                )}
-                <CustomDropDown
-                  triggerClassName={"bg-gray-100"}
-                  contentClassName={"bg-gray-100 !max-w-[7rem] "}
-                  Value={
-                    searchParams.get("restaurant_tier") == "null"||searchParams.get("restaurant_tier") == "all"
-                      ? null
-                      : searchParams.get("restaurant_tier")
-                  }
-                  placeholder="All Tiers Restaurants"
-                  commandGroupClassName="!min-h-[5rem] !max-h-[10rem]"
-                  className={"!min-w-[10rem]  w-full"}
-                  data={[
-                    { label: "Tier 1", value: "1" },
-                    { label: "Tier 2", value: "2" },
-                    { label: "Tier 3", value: "3" },
-                    { label: "All", value: null }
-                  ]}
-                  searchPlaceholder="Search Tier"
-                  onChange={(val) => {
-                    
-                    if (val == null) {
-                      updateParams({ restaurant_tier: undefined });
-                      setFilters({ ...filters, restaurant_tier: undefined });
-                    } else {
-                      updateParams({ restaurant_tier: val });
-                      setFilters({ ...filters, restaurant_tier: val });
-                    }
-                  }}
-                />
                 <CustomDropDown
                   triggerClassName={"bg-gray-100"}
                   contentClassName={"bg-gray-100"}
@@ -313,7 +262,9 @@ const Home = () => {
                         filters?.start_date !== "" ||
                         filters?.end_date !== "" ||
                         filters?.clickbacon_status !== "" ||
-                        filters?.auto_accepted !== ""
+                        filters?.auto_accepted !== "" ||
+                        filters?.assigned_to !== "" ||
+                        filters?.restaurant_tier !== "all"
                           ? "!bg-primary !text-white"
                           : "!bg-white"
                       }   `}
@@ -327,32 +278,39 @@ const Home = () => {
                           filters?.start_date !== "" ||
                           filters?.end_date !== "" ||
                           filters?.clickbacon_status !== "" ||
-                          filters?.auto_accepted !== ""
+                          filters?.auto_accepted !== "" ||
+                          filters?.assigned_to !== "" ||
+                          filters?.restaurant_tier !== "all"
                             ? "!text-white"
                             : ""
                         } h-5  text-black/40 dark:text-white/50`}
                       />
                     </Button>
                   </SheetTrigger>
-                  <SheetContent className="min-w-fit !max-w-[20rem] !overflow-auto">
-                    <SheetHeader>
-                      <SheetTitle>
-                        <div className="flex justify-between items-center">
-                          <p>Filters</p>
+                  <div>
+                    <SheetContent className="min-w-fit !max-w-[20rem] !overflow-auto">
+                      <SheetHeader>
+                        <SheetTitle>
                           <div
-                            className="flex items-center gap-x-2 cursor-pointer"
-                            onClick={() => setOpen(!open)}
+                         
+                            className="flex justify-between items-center"
                           >
-                            <p className="text-sm font-poppins font-normal text-[#000000]">
-                              Collapse
-                            </p>
-                            <ArrowRight className="h-4 w-4 text-[#000000]" />
+                            <p    id="invoice-filters">Filters</p>
+                            <div
+                              className="flex items-center gap-x-2 cursor-pointer"
+                              onClick={() => setOpen(!open)}
+                            >
+                              <p className="text-sm font-poppins font-normal text-[#000000]">
+                                Collapse
+                              </p>
+                              <ArrowRight className="h-4 w-4 text-[#000000]" />
+                            </div>
                           </div>
-                        </div>
-                      </SheetTitle>
-                    </SheetHeader>
-                    <InvoiceFilters />
-                  </SheetContent>
+                        </SheetTitle>
+                      </SheetHeader>
+                      <InvoiceFilters />
+                    </SheetContent>
+                  </div>
                 </Sheet>
               </div>
 
