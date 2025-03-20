@@ -549,9 +549,27 @@ const MetadataTable = ({
                       if (loadingVendors) {
                         return [];
                       }
-                      const formattedVendors = vendorNamesFormatter(
+                      let formattedVendors = vendorNamesFormatter(
                         vendorsData?.vendor_names
                       );
+                      console.log(
+                        formattedVendors?.findIndex(
+                          (v) => v.value !== vendor?.vendor_id
+                        )
+                      );
+                      if (
+                        !formattedVendors?.find(
+                          (v) => v.value == vendor?.vendor_id
+                        )
+                      ) {
+                        formattedVendors = [
+                          ...formattedVendors,
+                          {
+                            label: vendor?.vendor_name,
+                            value: vendor?.vendor_id
+                          }
+                        ];
+                      }
 
                       // Get the vendor name to compare
                       const referenceString = vendor?.vendor_name || "";
@@ -688,10 +706,25 @@ const MetadataTable = ({
                       if (loadingAddresses) {
                         return [];
                       }
-                      const formattedVendorAddresses = vendorAddressFormatter(
+                      let formattedVendorAddresses = vendorAddressFormatter(
                         vendorAddress?.branches
                       );
 
+                      if (
+                        !formattedVendorAddresses?.find(
+                          (v) => v.value == branch?.branch_id
+                        )
+                      ) {
+                        if (branch) {
+                          formattedVendorAddresses = [
+                            ...formattedVendorAddresses,
+                            {
+                              label: branch?.vendor_address,
+                              value: branch?.branch_id
+                            }
+                          ];
+                        }
+                      }
                       const referenceString = branch?.vendor_address || "";
                       const fuse = new Fuse(formattedVendorAddresses, {
                         keys: ["label"], // Search based on label field

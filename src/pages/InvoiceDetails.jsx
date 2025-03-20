@@ -1,5 +1,8 @@
 import approved from "@/assets/image/approved.svg";
 import warning from "@/assets/image/warning.svg";
+import tier_1 from "@/assets/image/tier_1.svg";
+import tier_2 from "@/assets/image/tier_2.svg";
+import tier_3 from "@/assets/image/tier_3.svg";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import { PdfViewer } from "@/components/common/PDFViewer";
@@ -521,6 +524,11 @@ const InvoiceDetails = () => {
   }, [page]);
 
   const { mutate: revertChanges } = useRevertChanges();
+  let rest_tier =
+    data?.data?.restaurant?.tier ||
+    data?.data?.[0]?.restaurant?.tier ||
+    data?.data?.restaurant?.tier ||
+    data?.data?.[0]?.restaurant?.tier;
   return (
     <div className="hide-scrollbar relative">
       <Navbar />
@@ -620,11 +628,24 @@ const InvoiceDetails = () => {
                       <p className="text-[#6D6D6D] font-poppins font-medium text-xs leading-4">
                         Restaurant
                       </p>
-                      <p className="capitalize text-[#121212] font-semibold font-poppins text-xl">
-                        {data?.data?.restaurant?.restaurant_name ||
-                          data?.data?.[0]?.restaurant?.restaurant_name ||
-                          data?.data?.restaurant?.restaurant_id ||
-                          data?.data?.[0]?.restaurant?.restaurant_id}
+                      <p className="capitalize text-[#121212] flex items-center gap-x-2 font-semibold font-poppins text-xl">
+                        <span>
+                          {data?.data?.restaurant?.restaurant_name ||
+                            data?.data?.[0]?.restaurant?.restaurant_name ||
+                            data?.data?.restaurant?.restaurant_id ||
+                            data?.data?.[0]?.restaurant?.restaurant_id}
+                        </span>
+                        <img
+                          className="h-4 w-4"
+                          src={
+                            rest_tier == 1
+                              ? tier_1
+                              : rest_tier == 2
+                              ? tier_2
+                              : tier_3
+                          }
+                          alt=""
+                        />
                       </p>
                     </div>
                   </>
@@ -839,7 +860,7 @@ const InvoiceDetails = () => {
               <SheetContent className="min-w-fit !max-w-[20rem] !overflow-auto">
                 <SheetHeader>
                   <SheetTitle>
-                    <div className="flex justify-between items-center">
+                    <div id="invoice-filters" className="flex justify-between items-center">
                       <p>Filters</p>
                       <div
                         className="flex items-center gap-x-2 cursor-pointer"
