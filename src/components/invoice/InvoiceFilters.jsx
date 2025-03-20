@@ -8,15 +8,17 @@ import {
   AutoAcceptedFilterFilterOptions,
   clickBACONStatusFilterOptions,
   HumanVerificationFilterOptions,
-  InvoiceDetectionStatusFilterOptions,
-  InvoiceReRunStatusFilterOptions,
   InvoiceTypeFilterOptions
 } from "@/constants";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
+import useFilterStore from "@/store/filtersStore";
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { DateRangePicker } from "../ui/Custom/DateRangePicker";
-import useFilterStore from "@/store/filtersStore";
+import CustomDropDown from "../ui/CustomDropDown";
+import userStore from "../auth/store/userStore";
+import { formatData } from "@/lib/helpers";
+import { useGetUsersList } from "../user/api";
 
 const InvoiceFilters = () => {
   const [searchParams] = useSearchParams();
@@ -27,16 +29,23 @@ const InvoiceFilters = () => {
   let human_verified = searchParams.get("human_verified") || "all";
   let invoice_type = searchParams.get("invoice_type") || "all";
   let clickbacon_status = searchParams.get("clickbacon_status") || "all";
+  let restaurant_tier =
+    searchParams.get("restaurant_tier") == "null" ||
+    searchParams.get("restaurant_tier") == "all"
+      ? null
+      : searchParams.get("restaurant_tier");
   let auto_accepted = searchParams.get("auto_accepted") || "all";
   let auto_accepted_by_vda = searchParams.get("auto_accepted_by_vda") || "all";
+  let assigned_to = searchParams.get("assigned_to") || "none";
   let start_date = searchParams.get("start_date") || "";
   let end_date = searchParams.get("end_date") || "";
-  
+  const { data: users, isLoading: loadingUsers } = useGetUsersList();
+
   const [selectionRange, setSelectionRange] = useState({
     from: filters?.start_date ? new Date(filters?.start_date) : null,
     to: filters?.end_date ? new Date(filters?.end_date) : null
   });
-
+  const { role } = userStore();
   const updateParams = useUpdateParams();
   const { setRestaurantFilter, setVendorFilter } = useInvoiceStore();
 
@@ -59,7 +68,7 @@ const InvoiceFilters = () => {
       from: startDate,
       to: endDate
     });
-    setFilters({...filters,start_date:startDate,end_date:endDate})
+    setFilters({ ...filters, start_date: startDate, end_date: endDate });
 
     updateParams({ start_date: startDate, end_date: endDate });
   };
@@ -74,7 +83,7 @@ const InvoiceFilters = () => {
       // rerun_status: "all",
       detected: "all",
       auto_accepted: "all",
-      auto_accepted_by_vda:""
+      auto_accepted_by_vda: ""
     };
 
     setFilters(defaultFilters);
@@ -161,6 +170,57 @@ const InvoiceFilters = () => {
             onSelect={(val) => updateFilter("clickbacon_status", val)}
             data={clickBACONStatusFilterOptions}
           />
+        </div>
+        <div>
+          <CustomSelect
+            value={restaurant_tier}
+            label="Restaurant Tier"
+            placeholder="All Tiers Restaurants"
+            commandGroupClassName="!min-h-[5rem] !max-h-[10rem]"
+            className={"!min-w-[10rem]  w-full"}
+            data={[
+              { label: "Tier 1", value: "1" },
+              { label: "Tier 2", value: "2" },
+              { label: "Tier 3", value: "3" },
+              { label: "All", value: null }
+            ]}
+            onSelect={(val) => {
+              if (val == null) {
+                updateParams({ restaurant_tier: undefined });
+                setFilters({ ...filters, restaurant_tier: undefined });
+              } else {
+                updateParams({ restaurant_tier: val });
+                setFilters({ ...filters, restaurant_tier: val });
+              }
+            }}
+          />
+        </div>
+        <div>
+          {(role?.toLowerCase() == "admin" ||
+            role?.toLowerCase() == "manager") && (
+            <CustomSelect
+              value={assigned_to}
+              label="Users"
+              placeholder="All Users"
+              data={formatData(users?.data)}
+              searchPlaceholder="Search User"
+              onSelect={(val) => {
+                if (typeof val == "object") {
+                  let assigned_to = val.map((item) => item).join(",");
+                  setFilters({ ...filters, assigned_to: assigned_to });
+                  updateParams({ assigned_to: assigned_to });
+                } else {
+                  if (val == "none") {
+                    updateParams({ assigned_to: undefined });
+                    setFilters({ ...filters, assigned_to: undefined });
+                  } else {
+                    updateParams({ assigned_to: val });
+                    setFilters({ ...filters, assigned_to: val });
+                  }
+                }
+              }}
+            />
+          )}
         </div>
       </div>
       <Label>Date Range</Label>

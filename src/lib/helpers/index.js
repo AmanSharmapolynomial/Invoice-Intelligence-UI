@@ -19,16 +19,18 @@ export const getUserNameFromId = (users, ID) => {
 export const formatRestaurantsList = (data = []) => {
   let formatted = [];
   data &&
-    data?.forEach(({ restaurant_id, restaurant_name }) => {
+    data?.forEach(({ restaurant_id, restaurant_name,tier }) => {
       if (restaurant_name === "") {
         formatted.push({
           label: restaurant_id,
-          value: restaurant_id
+          value: restaurant_id,
+          tier:tier
         });
       } else {
         formatted.push({
           label: restaurant_name,
-          value: restaurant_id
+          value: restaurant_id,
+          tier:tier
         });
       }
     });
