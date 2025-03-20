@@ -143,7 +143,8 @@ const InvoiceDetails = () => {
     setHistory,
     is_unverified_vendor,
     current_document_uuid,
-    warning_checkbox_checked
+    warning_checkbox_checked,
+    setWarningCheckboxChecked
   } = invoiceDetailStore();
   const [isLoading, setIsLoading] = useState(true);
   const [loadingState, setLoadingState] = useState({
@@ -333,7 +334,7 @@ const InvoiceDetails = () => {
         onSuccess: () => {
           setLoadingState({ ...loadingState, saving: false });
           queryClient.invalidateQueries({ queryKey: ["combined-table"] });
-
+          setWarningCheckboxChecked(false);
           queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
           clearUpdatedFields();
           setShowAcceptModal(false);
@@ -984,6 +985,7 @@ const InvoiceDetails = () => {
               </Button>
             </CustomTooltip>
             <CustomTooltip
+              className={"!max-w-72"}
               content={
                 !warning_checkbox_checked
                   ? "Please check vendor name checkbox."
@@ -1487,11 +1489,11 @@ const InvoiceDetails = () => {
               {"Go Back"}
             </Button>
             <Button
-              disabled={loadingState?.accepting}
+              disabled={loadingState?.saving}
               onClick={handleAccept}
               className="mt-8 text-[#FFFFFF] font-poppins tracking-wide  !font-normal text-xs rounded-sm leading-4 "
             >
-              {loadingState?.accepting ? "Accepting...." : "Accept"}
+              {loadingState?.saving ? "Accepting...." : "Accept"}
             </Button>
           </div>
         </ModalDescription>
