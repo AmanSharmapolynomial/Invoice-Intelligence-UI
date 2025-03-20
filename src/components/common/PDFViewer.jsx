@@ -70,7 +70,7 @@ export const PdfViewer = ({
   multiple = false,
   setLoaded = () => {},
   loadinMetadata,
-  className,
+
   payload
 }) => {
   const {
@@ -105,7 +105,7 @@ export const PdfViewer = ({
   const [rotation, setRotation] = useState(0);
   const [text, setText] = useState("");
 
-  const [lockZoomAndScroll, setLockZoomAndScroll] = useState(true);
+  const [lockZoomAndScroll, setLockZoomAndScroll] = useState(false);
   const [pageDimensions, setPageDimensions] = useState({ width: 0, height: 0 });
   const [isSelecting, setIsSelecting] = useState(false);
   const [viewImageModal, setViewImageModal] = useState(false);
@@ -147,7 +147,7 @@ export const PdfViewer = ({
 
   const onRenderSuccess = (page) => {
     const { originalWidth, originalHeight } = page;
-
+    
     setPageDimensions({
       width: originalWidth,
       height: originalHeight
@@ -240,11 +240,12 @@ export const PdfViewer = ({
     const viewerElement = document.getElementById("react-pdf__Wrapper");
     if (!bb?.box?.polygon || bb?.box?.polygon?.length !== 4) {
       if (!lockZoomAndScroll && pdfScale === 1.0) {
-        if (pageDimensions?.width > 1000) {
-          setPdfScale(0.2);
-        } else {
-          setPdfScale(1.0);
-        }
+       if(pageDimensions?.width>1000){
+        setPdfScale(0.2);
+       }else{
+        setPdfScale(1.0);
+        
+       }
         viewerElement?.scrollTo({ top: 0, left: 0, behavior: "smooth" });
       }
       return;
@@ -292,7 +293,7 @@ export const PdfViewer = ({
 
     // Scroll to the calculated position with smooth behavior
     lockZoomAndScroll && setPdfScale(pdfScale);
-
+   
     viewerElement.scrollTo({
       left: scrollLeft,
       top: scrollTop,
@@ -309,9 +310,10 @@ export const PdfViewer = ({
   }, [bounding_box, bounding_boxes, page]);
 
   useEffect(() => {
-    setLockZoomAndScroll(true);
+    setLockZoomAndScroll(false);
     setPdfScale(1.0);
   }, [page]);
+
 
   useEffect(() => {
     if (pageDimensions.width && pageDimensions.height) {
@@ -643,313 +645,34 @@ export const PdfViewer = ({
   useEffect(() => {
     setShowTextExtractionModal(false);
   }, [page]);
-
   return (
     <>
-      {loadinMetadata ? (
-        <Skeleton className={"w-[50rem]  h-[38.25rem] mt-8"} />
-      ) : (
-        <div
-          className={`${className} w-full  max-h-[42rem] overflow-hidden relative  hide-scrollbar`}
-        >
-          {(pdfUrls[currentPdfIndex]?.document_source == "azure_blob" ||
-            pdfUrls[currentPdfIndex]?.document_source == "clickbacon") && (
-            <div className="flex justify-center my-2 border-t border-t-[#E7E7E7] border-r-[#E7E7E7] border-b h-10 items-center ">
-              {showViewInvoiceItems && (
-                <>
-                  <Button
-                    variant="success"
-                    size="sm"
-                    className="px-5"
-                    onClick={() => {
-                      if (searchParams.get("document_uuid")) {
-                        updateParams({
-                          document_uuid: undefined
-                        });
-                      } else {
-                        updateParams({
-                          document_uuid: pdfUrls[currentPdfIndex]?.document_uuid
-                        });
-                      }
-                      setToggle(!toggle);
-                    }}
-                  >
-                    {searchParams.get("document_uuid")
-                      ? "Item"
-                      : "View Invoice Items"}
-                  </Button>
-                  <Link
-                    target="_blank"
-                    to={`/invoice-details?document_uuid=${pdfUrls[currentPdfIndex]?.document_uuid}`}
-                  >
-                    <Button size="sm" className="px-5" variant="info">
-                      {" "}
-                      Invoice
-                    </Button>
-                  </Link>
-                </>
-              )}
-
-              <div className="flex items-center gap-x-8 ">
-                <img
-                  src={rotate_left}
-                  alt=""
-                  className="cursor-pointer h-5 w-5"
-                  onClick={() =>
-                    setRotation(rotation === 0 ? 270 : rotation - 90)
-                  }
-                />
-                <img
-                  src={rotate_right}
-                  alt=""
-                  className="cursor-pointer h-5 w-5"
-                  onClick={() =>
-                    setRotation(rotation === 0 ? 270 : rotation + 90)
-                  }
-                />
-                <ScanSearch
-                  className={`cursor-pointer h-6 w-6 ${
-                    showTextExtractionModal ? "text-primary" : "text-[#000000]"
-                  }`}
-                  onClick={() => {
-                    setSelectPdfPortion(!selectPdfPortion);
-                    setShowTextExtractionModal(!showTextExtractionModal);
-                  }}
-                />
-                <img
-                  src={zoom_in}
-                  alt=""
-                  className="cursor-pointer h-5 w-5"
-                  onClick={() => {
-                    if (pdfScale <= 8) {
-                      setPdfScale(pdfScale * 2);
-                    }
-                  }}
-                />
-                <img
-                  src={zoom_out}
-                  alt=""
-                  className="cursor-pointer h-5 w-5"
-                  onClick={() => {
-                    if (!pdfScale <= 0.1) {
-                      setPdfScale(pdfScale / 2);
-                    }
-                  }}
-                />
-                <img
-                  src={download}
-                  alt=""
-                  className="cursor-pointer h-5 w-5"
-                  onClick={() => window.open(pdfUrl?.document_link, "_blank")}
-                />
-                <ChevronLeft
-                  className="cursor-pointer h-6 w-6"
-                  onClick={previousPage}
-                />
-                <ChevronRight
-                  className="cursor-pointer h-6 w-6"
-                  onClick={nextPage}
-                />
-
-                <div>
-                  <span className="text-center font-poppins font-medium text-[0.9rem]">
-                    Page {pageNum} / {numPages || pageNum}
-                  </span>
-                </div>
-
-                <Lock
-                  height={20}
-                  width={20}
-                  className="cursor-pointer"
-                  onClick={() => setLockZoomAndScroll(!lockZoomAndScroll)}
-                  style={{
-                    color: lockZoomAndScroll ? "green" : "black"
-                  }}
-                />
-                <>
-                  {showIsBounding && (
-                    <>
-                      {pdfUrl?.is_bounding_box_exist ? (
-                        <div className="d-flex justify-content-center align-items-center gap-2">
-                          <span>Bounding Box:</span>
-                          <span
-                            style={{
-                              height: 15,
-                              width: 15,
-                              borderRadius: 50,
-                              background: "green"
-                            }}
-                          />
-                        </div>
-                      ) : (
-                        <div className="d-flex justify-content-center align-items-center gap-2">
-                          <span>Bounding Box:</span>
-                          <span
-                            style={{
-                              height: 15,
-                              width: 15,
-                              borderRadius: 50,
-                              background: "green"
-                            }}
-                          />
-                        </div>
-                      )}
-                    </>
-                  )}
-                </>
-
-                {children}
-              </div>
-            </div>
-          )}
-          {/* PDF Viewer Wrapper */}
-          {pdfUrls[currentPdfIndex]?.document_source !== undefined &&
-          (pdfUrls[currentPdfIndex]?.document_source == "azure_blob" ||
-            pdfUrls[currentPdfIndex]?.document_source == "clickbacon") ? (
-            <div
-              id="react-pdf__Wrapper"
-              ref={pdfWrapperRef}
-              style={{
-                height: "62vh",
-                overflow: "auto",
-                maxWidth: "100%",
-                position: "relative"
-              }}
-              className="flex show-scrollbar  custom-scrollbar "
-            >
-              {pdfUrl ? (
-                <Document
-                  onWheel={handleWheel}
-                  file={pdfUrls[currentPdfIndex]?.document_link}
-                  onLoadSuccess={onDocumentLoadSuccess}
-                  className={""}
-                >
-                  <Page
-                    pageNumber={pageNum}
-                    onRenderSuccess={onRenderSuccess}
-                    scale={pdfScale}
-                    rotate={rotation}
-                    onMouseDown={handleMouseDown}
-                    onMouseMove={handleMouseMove}
-                    onMouseUp={handleMouseUp}
-                    renderTextLayer={false}
-                  >
-                    {isSelecting && (
-                      <div
-                        style={{
-                          position: "absolute",
-                          left: Math.min(startX, endX),
-                          top: Math.min(startY, endY),
-                          width: Math.abs(endX - startX),
-                          height: Math.abs(endY - startY),
-                          border: "2px dashed #000000",
-                          backgroundColor: "rgba(99, 189, 255, 0.2)"
-                        }}
-                      />
-                    )}
-                    {highlightAll ? (
-                      bounding_boxes
-                        ?.filter((bb) => bb.page_index + 1 == pageNum)
-                        .map((bb, idx) => (
-                          <div
-                            key={idx}
-                            style={getBoundingBoxStyle(
-                              pageDimensions.width,
-                              pageDimensions.height,
-                              bb,
-                              false
-                            )}
-                          ></div>
-                        ))
-                    ) : (
-                      <>
-                        {bounding_boxes
-                          ?.filter((bb) => bb.page_index + 1 == pageNum)
-                          .map((bb, idx) => (
-                            <div
-                              key={idx}
-                              style={getBoundingBoxStyle(
-                                pageDimensions.width,
-                                pageDimensions.height,
-                                bb,
-                                false
-                              )}
-                            ></div>
-                          ))}
-                        <div
-                          style={getBoundingBoxStyle(
-                            pageDimensions.width,
-                            pageDimensions.height,
-                            bounding_box,
-                            true
-                          )}
-                        ></div>
-                      </>
-                    )}
-                  </Page>
-                  {/* <img src={image} alt="" /> */}
-                </Document>
-              ) : (
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "100%"
-                  }}
-                >
-                  <></>
-                </div>
-              )}
-            </div>
-          ) : (
-            <>
-              <iframe
-                title="pdf"
-                src={iframeUrl}
-                onLoad={handleLoad}
-                onError={handleError}
-                width="100%"
-                height="570"
-                allow="autoplay"
-                style={{ display: isLoading ? "none" : "block" }} // Hide iframe while loading
-              />
-              {isLoading || !loaded ? (
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    flexDirection: "row",
-                    height: "580px"
-                  }}
-                ></div>
-              ) : (
-                <></>
-              )}{" "}
-            </>
-          )}
+     {loadinMetadata ? <Skeleton className={"w-[50rem]  h-[38.25rem] mt-8"} />:
+  
+    <div className="w-full  max-h-[42rem] overflow-auto  hide-scrollbar">
+     
+      {(pdfUrls[currentPdfIndex]?.document_source == "azure_blob" ||
+        pdfUrls[currentPdfIndex]?.document_source == "clickbacon") && (
+        <div className="flex justify-center my-2 border-t border-t-[#E7E7E7] border-r-[#E7E7E7] border-b h-10 items-center ">
           {multiple && (
-            <div className="min-w-full  justify-center mt-4  flex items-center  gap-x-4">
-              {pdfUrls?.length > 0 && (
+            <div className="border-2">
+              {pdfUrls?.length > 1 && (
                 <>
                   <Button
                     type="button"
                     size="sm"
                     disabled={currentPdfIndex <= 0}
                     onClick={previousPdf}
-                    className="w-[5rem] rounded-sm border border-primary bg-transparent text-primary font-poppins font-normal hover:bg-transparent"
+                    className="px-5"
                   >
                     Previous
                   </Button>
-                  <p className="font-poppins font-semibold text-base">
-                    {Number(currentPdfIndex) + 1}{" "}/{" "}{pdfUrls?.length}
-                  </p>
+
                   <Button
                     size="sm"
                     disabled={currentPdfIndex >= pdfUrls.length - 1}
                     onClick={nextPdf}
-                    className="w-[5rem] rounded-sm border border-primary bg-transparent text-primary font-poppins font-normal hover:bg-transparent"
+                    className="px-5"
                   >
                     Next
                   </Button>
@@ -957,93 +680,362 @@ export const PdfViewer = ({
               )}
             </div>
           )}
-          {/* Modal for future use */}
 
-          <ResizableModal
-            isOpen={showTextExtractionModal}
-            onClose={() => {
-              setShowTextExtractionModal(!showTextExtractionModal);
-              setText("");
-              setSelectPdfPortion(false);
-              setSelectedField(null);
-              setBorderColor(null);
-            }}
-          >
-            <div className="flex items-start gap-x-2 h-full flex-col">
-              <div className="mt-2 m-0 flex flex-col gap-y-2 relative">
-                <div className="flex justify-between items-center">
-                  <p className="font-poppins !text-[#000000] font-medium text-sm px-1">
-                    Select Field To Insert The Extracted Text
-                  </p>
-                </div>
+          {showViewInvoiceItems && (
+            <>
+              <Button
+                variant="success"
+                size="sm"
+                className="px-5"
+                onClick={() => {
+                  if (searchParams.get("document_uuid")) {
+                    updateParams({
+                      document_uuid: undefined
+                    });
+                  } else {
+                    updateParams({
+                      document_uuid: pdfUrls[currentPdfIndex]?.document_uuid
+                    });
+                  }
+                  setToggle(!toggle);
+                }}
+              >
+                {searchParams.get("document_uuid")
+                  ? "Item"
+                  : "View Invoice Items"}
+              </Button>
+              <Link
+                target="_blank"
+                to={`/invoice-details?document_uuid=${pdfUrls[currentPdfIndex]?.document_uuid}`}
+              >
+                <Button size="sm" className="px-5" variant="info">
+                  {" "}
+                  Invoice
+                </Button>
+              </Link>
+            </>
+          )}
 
-                <div className="flex items-center gap-x-2">
-                  <CustomDropDown
-                    data={fieldOptions}
-                    Value={selectedField}
-                    triggerClassName={"!min-w-72"}
-                    contentClassName={""}
-                    onChange={(v) => setSelectedField(v)}
-                  />
-                  <Button
-                    onClick={handleInsertExtractedText}
-                    className="rounded-sm !h-[2.5rem] font-normal font-poppins text-white text-sm w-[5rem]"
-                  >
-                    {gettingDate ? "Inserting.." : "Insert"}
-                  </Button>
-                </div>
-              </div>
-              <div className="mt-2 m-0 w-full flex flex-col gap-y-2 relative">
-                <div className="flex justify-between items-center">
-                  <p className="font-poppins !text-[#000000] font-medium text-sm px-1">
-                    Extracted Text
-                  </p>
-                  <p
-                    onClick={() => {
-                      setText("");
-                      setSelectedField(null);
-                    }}
-                    className="font-poppins !text-[#000000] font-normal cursor-pointer  text-xs px-1"
-                  >
-                    Clear
-                  </p>
-                </div>
-                {isPending ? (
-                  <>
-                    <Skeleton
-                      className={"min-w-full bg-primary/30 h-[10rem]"}
-                    />
-                  </>
-                ) : (
-                  <Textarea
-                    value={text}
-                    onChange={(e) => {
-                      e.stopPropagation();
-                      setText(e.target.value);
-                    }}
-                    className={`${
-                      borderColor == "red" && "border-red-500"
-                    } bg-[#F6F6F6] !z-50 !max-w-full !min-h-full font-poppins  font-normal text-xs !text-[#000000] focus:!outline-none focus:!ring-0 !relative`}
-                    rows={10}
-                  ></Textarea>
-                )}
+          <div className="flex items-center gap-x-8 ">
+            <img
+              src={rotate_left}
+              alt=""
+              className="cursor-pointer h-5 w-5"
+              onClick={() => setRotation(rotation === 0 ? 270 : rotation - 90)}
+            />
+            <img
+              src={rotate_right}
+              alt=""
+              className="cursor-pointer h-5 w-5"
+              onClick={() => setRotation(rotation === 0 ? 270 : rotation + 90)}
+            />
+            <ScanSearch
+              className={`cursor-pointer h-6 w-6 ${
+                showTextExtractionModal ? "text-primary" : "text-[#000000]"
+              }`}
+              onClick={() => {
+                setSelectPdfPortion(!selectPdfPortion);
+                setShowTextExtractionModal(!showTextExtractionModal);
+              }}
+            />
+            <img
+              src={zoom_in}
+              alt=""
+              className="cursor-pointer h-5 w-5"
+              onClick={() => {
+                if (pdfScale <= 8) {
+                  setPdfScale(pdfScale * 2);
+                }
+              }}
+            />
+            <img
+              src={zoom_out}
+              alt=""
+              className="cursor-pointer h-5 w-5"
+              onClick={() => {
+                if (!pdfScale <= 0.1) {
+                  setPdfScale(pdfScale / 2);
+                }
+              }}
+            />
+            <img
+              src={download}
+              alt=""
+              className="cursor-pointer h-5 w-5"
+              onClick={() => window.open(pdfUrl?.document_link, "_blank")}
+            />
+            <ChevronLeft
+              className="cursor-pointer h-6 w-6"
+              onClick={previousPage}
+            />
+            <ChevronRight
+              className="cursor-pointer h-6 w-6"
+              onClick={nextPage}
+            />
 
-                {!isPending && (
-                  <img
-                    src={copy}
-                    alt="copy icon"
-                    onClick={() => {
-                      navigator.clipboard.writeText(text);
-                      toast.success("Text copied to clipboard");
-                    }}
-                    className="absolute right-3  top-10 cursor-pointer h-4  z-50"
-                  />
-                )}
-              </div>
+            <div>
+              <span className="text-center font-poppins font-medium text-[0.9rem]">
+                Page {pageNum} / {numPages || pageNum}
+              </span>
             </div>
-          </ResizableModal>
+
+            <Lock
+              height={20}
+              width={20}
+              className="cursor-pointer"
+              onClick={() => setLockZoomAndScroll(!lockZoomAndScroll)}
+              style={{
+                color: lockZoomAndScroll ? "green" : "black"
+              }}
+            />
+            <>
+              {showIsBounding && (
+                <>
+                  {pdfUrl?.is_bounding_box_exist ? (
+                    <div className="d-flex justify-content-center align-items-center gap-2">
+                      <span>Bounding Box:</span>
+                      <span
+                        style={{
+                          height: 15,
+                          width: 15,
+                          borderRadius: 50,
+                          background: "green"
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div className="d-flex justify-content-center align-items-center gap-2">
+                      <span>Bounding Box:</span>
+                      <span
+                        style={{
+                          height: 15,
+                          width: 15,
+                          borderRadius: 50,
+                          background: "green"
+                        }}
+                      />
+                    </div>
+                  )}
+                </>
+              )}
+            </>
+
+            {children}
+          </div>
         </div>
       )}
+      {/* PDF Viewer Wrapper */}
+      {pdfUrls[currentPdfIndex]?.document_source !== undefined &&
+      (pdfUrls[currentPdfIndex]?.document_source == "azure_blob" ||
+        pdfUrls[currentPdfIndex]?.document_source == "clickbacon") ? (
+        <div
+          id="react-pdf__Wrapper"
+          ref={pdfWrapperRef}
+          style={{
+            height: "62vh",
+            overflow: "auto",
+            maxWidth: "100%",
+            position: "relative"
+          }}
+          className="flex show-scrollbar custom-scrollbar "
+        >
+          {pdfUrl ? (
+            <Document
+              onWheel={handleWheel}
+              file={pdfUrls[currentPdfIndex]?.document_link}
+              onLoadSuccess={onDocumentLoadSuccess}
+              className={""}
+            >
+              <Page
+                pageNumber={pageNum}
+                onRenderSuccess={onRenderSuccess}
+                scale={pdfScale}
+                rotate={rotation}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                renderTextLayer={false}
+              >
+                {isSelecting && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      left: Math.min(startX, endX),
+                      top: Math.min(startY, endY),
+                      width: Math.abs(endX - startX),
+                      height: Math.abs(endY - startY),
+                      border: "2px dashed #000000",
+                      backgroundColor: "rgba(99, 189, 255, 0.2)"
+                    }}
+                  />
+                )}
+                {highlightAll ? (
+                  bounding_boxes
+                    ?.filter((bb) => bb.page_index + 1 == pageNum)
+                    .map((bb, idx) => (
+                      <div
+                        key={idx}
+                        style={getBoundingBoxStyle(
+                          pageDimensions.width,
+                          pageDimensions.height,
+                          bb,
+                          false
+                        )}
+                      ></div>
+                    ))
+                ) : (
+                  <>
+                    {bounding_boxes
+                      ?.filter((bb) => bb.page_index + 1 == pageNum)
+                      .map((bb, idx) => (
+                        <div
+                          key={idx}
+                          style={getBoundingBoxStyle(
+                            pageDimensions.width,
+                            pageDimensions.height,
+                            bb,
+                            false
+                          )}
+                        ></div>
+                      ))}
+                    <div
+                      style={getBoundingBoxStyle(
+                        pageDimensions.width,
+                        pageDimensions.height,
+                        bounding_box,
+                        true
+                      )}
+                    ></div>
+                  </>
+                )}
+              </Page>
+              {/* <img src={image} alt="" /> */}
+            </Document>
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "100%"
+              }}
+            >
+              <></>
+            </div>
+          )}
+        </div>
+      ) : (
+        <>
+          <iframe
+            title="pdf"
+            src={iframeUrl}
+            onLoad={handleLoad}
+            onError={handleError}
+            width="100%"
+            height="570"
+            allow="autoplay"
+            style={{ display: isLoading ? "none" : "block" }} // Hide iframe while loading
+          />
+          {isLoading || !loaded ? (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                flexDirection: "row",
+                height: "580px"
+              }}
+            ></div>
+          ) : (
+            <></>
+          )}{" "}
+        </>
+      )}
+      {/* Modal for future use */}
+
+      <ResizableModal
+        isOpen={showTextExtractionModal}
+        onClose={() => {
+          setShowTextExtractionModal(!showTextExtractionModal);
+          setText("");
+          setSelectPdfPortion(false);
+          setSelectedField(null);
+          setBorderColor(null);
+        }}
+      >
+        <div className="flex items-start gap-x-2 h-full flex-col">
+          <div className="mt-2 m-0 flex flex-col gap-y-2 relative">
+            <div className="flex justify-between items-center">
+              <p className="font-poppins !text-[#000000] font-medium text-sm px-1">
+                Select Field To Insert The Extracted Text
+              </p>
+            </div>
+
+            <div className="flex items-center gap-x-2">
+              <CustomDropDown
+                data={fieldOptions}
+                Value={selectedField}
+                triggerClassName={"!min-w-72"}
+                contentClassName={""}
+                onChange={(v) => setSelectedField(v)}
+              />
+              <Button
+                onClick={handleInsertExtractedText}
+                className="rounded-sm !h-[2.5rem] font-normal font-poppins text-white text-sm w-[5rem]"
+              >
+                {gettingDate ? "Inserting.." : "Insert"}
+              </Button>
+            </div>
+          </div>
+          <div className="mt-2 m-0 w-full flex flex-col gap-y-2 relative">
+            <div className="flex justify-between items-center">
+              <p className="font-poppins !text-[#000000] font-medium text-sm px-1">
+                Extracted Text
+              </p>
+              <p
+                onClick={() => {
+                  setText("");
+                  setSelectedField(null);
+                }}
+                className="font-poppins !text-[#000000] font-normal cursor-pointer  text-xs px-1"
+              >
+                Clear
+              </p>
+            </div>
+            {isPending ? (
+              <>
+                <Skeleton className={"min-w-full bg-primary/30 h-[10rem]"} />
+              </>
+            ) : (
+              <Textarea
+                value={text}
+                onChange={(e) => {
+                  e.stopPropagation();
+                  setText(e.target.value);
+                }}
+                className={`${
+                  borderColor == "red" && "border-red-500"
+                } bg-[#F6F6F6] !z-50 !max-w-full !min-h-full font-poppins  font-normal text-xs !text-[#000000] focus:!outline-none focus:!ring-0 !relative`}
+                rows={10}
+              ></Textarea>
+            )}
+
+            {!isPending && (
+              <img
+                src={copy}
+                alt="copy icon"
+                onClick={() => {
+                  navigator.clipboard.writeText(text);
+                  toast.success("Text copied to clipboard");
+                }}
+                className="absolute right-3  top-10 cursor-pointer h-4  z-50"
+              />
+            )}
+          </div>
+        </div>
+      </ResizableModal>
+    </div>
+}
     </>
   );
 };
