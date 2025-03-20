@@ -31,7 +31,7 @@ import { formatISO, isValid, parseISO } from "date-fns";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   useGetDocumentMetadataBoundingBoxes,
   useGetVendorTypesAndCategories,
@@ -55,6 +55,7 @@ const MetadataTable = ({
   additionalData,
   loadingAdditionalData
 }) => {
+  const [searchParams]=useSearchParams();
   const [dateRange, setDateRange] = useState({
     from: null,
     to: null
@@ -185,7 +186,7 @@ const MetadataTable = ({
   }, []);
   const { data: vendorAddress, isLoading: loadingAddresses } =
     useGetVendorAddresses(vendor?.vendor_id);
-
+let page=searchParams.get("page");
   const { mutate: updateVendorOrBranch, isPending } = useUpdateVendorOrBranch();
   const updateVendor = (vendor) => {
     setLoadingState({ ...loadingState, savingVendor: true });
@@ -306,6 +307,10 @@ const MetadataTable = ({
       setBoundingBoxes([]);
     }
   };
+
+  useEffect(()=>{
+setWarningCheckboxChecked(false)
+  },[page])
 
   return (
     <div className="w-full -mt-3 border border-[#F0F0F0] shadow-sm p-2 rounded-md">

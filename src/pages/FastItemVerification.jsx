@@ -209,7 +209,7 @@ const FastItemVerification = () => {
               }
             }
           }
-          setFIVItems(updatedItems);
+          setFIVItems(updatedItems?.filter((it)=>it?.item_uuid!==fiv_current_item?.item_uuid));
           setIsGoodDocument(fiv_items.length === 0);
           setFIVVerifiedItemsCount(Number(fiv_verified_items_count) + 1);
 
@@ -233,7 +233,7 @@ const FastItemVerification = () => {
                     setIsGoodDocument(false);
 
                     setFIVCurrentItem(
-                    fiv_items?.filter(
+                      fiv_items?.filter(
                         (it) =>
                           it.item_uuid !== fiv_current_item?.item_uuid &&
                           it?.human_verified == false
@@ -248,15 +248,15 @@ const FastItemVerification = () => {
           }
           if (fiv_item_number < total_items - 1) {
             setFIVItemNumber(Number(fiv_item_number) + 1);
-            if (fiv_items[Number(fiv_item_number)+1]) {
-              setFIVCurrentItem(fiv_items[Number(fiv_item_number)+1]);
+            if (fiv_items[Number(fiv_item_number) + 1]) {
+              setFIVCurrentItem(fiv_items[Number(fiv_item_number) + 1]);
             }
           } else {
             if (fiv_item_number >= total_items - 1) {
               if (page <= data?.data?.total_item_count) {
                 if (!fiv_is_final_page) {
                   updateParams({ page: Number(page) + 1 });
-                
+
                   resetStore();
                 }
               }
@@ -270,10 +270,10 @@ const FastItemVerification = () => {
     );
   };
 
-useEffect(()=>{
-setSelectedItems([]);
-setMasterUUID(null)
-},[fiv_current_item])
+  useEffect(() => {
+    setSelectedItems([]);
+    setMasterUUID(null);
+  }, [fiv_current_item]);
   const saveAndNextHandler = () => {
     setLoadingState((prev) => ({ ...prev, nextAndSaving: true }));
 
