@@ -1215,6 +1215,19 @@ const HumanVerificationTable = ({
           });
           cell.text = row[keysDecapitalizer(cell?.column_name)];
           lng += 1;
+        } else {
+          ops.push({
+            type: "update_cell",
+            operation_order: lng + 1,
+            data: {
+              cell_uuid: cell.cell_uuid,
+              row_uuid: transaction_uuid,
+              column_uuid: cell.column_uuid,
+              text: row[keysDecapitalizer(cell?.column_name)]?.name || null
+            }
+          });
+          cell.text = row[keysDecapitalizer(cell?.column_name)]?.name;
+          lng += 1;
         }
       }
     });
