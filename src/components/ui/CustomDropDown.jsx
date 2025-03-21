@@ -281,17 +281,19 @@ const CustomDropDown = ({
                                 alt="Approved"
                               />
                             )}
-                            {item?.tier&&<img
-                            className="h-4 w-4"
-                              src={
-                                item?.tier == 1
-                                  ? tier_1
-                                  : item?.tier == 2
-                                  ? tier_2
-                                  : tier_3
-                              }
-                              alt=""
-                            />}
+                            {item?.tier && (
+                              <img
+                                className="h-4 w-4"
+                                src={
+                                  item?.tier == 1
+                                    ? tier_1
+                                    : item?.tier == 2
+                                    ? tier_2
+                                    : tier_3
+                                }
+                                alt=""
+                              />
+                            )}
                             {multiSelect && (
                               <Checkbox
                                 checked={itemsArray.includes(item.value)}

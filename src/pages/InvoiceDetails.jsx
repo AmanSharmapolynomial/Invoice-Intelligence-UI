@@ -861,7 +861,10 @@ const InvoiceDetails = () => {
               <SheetContent className="min-w-fit !max-w-[20rem] !overflow-auto">
                 <SheetHeader>
                   <SheetTitle>
-                    <div id="invoice-filters" className="flex justify-between items-center">
+                    <div
+                      id="invoice-filters"
+                      className="flex justify-between items-center"
+                    >
                       <p>Filters</p>
                       <div
                         className="flex items-center gap-x-2 cursor-pointer"
@@ -1427,50 +1430,56 @@ const InvoiceDetails = () => {
               </p>
             </div>
           )}
-          <div className="min-h-56 overflow-auto">
+          <div className="max-h-52  overflow-auto">
             {similarVendors?.data?.length > 0 ? (
-              <Table>
-                <TableRow className="border">
-                  <TableHead className="border font-poppins text-sm font-semibold text-black leading-5">
-                    Vendor Name
-                  </TableHead>
-                  <TableHead className="border font-poppins text-sm font-semibold text-black leading-5">
-                    Similarity{" "}
-                  </TableHead>
-                  <TableHead className="border font-poppins text-sm font-semibold text-black leading-5">
-                    Finding Method
-                  </TableHead>
-                </TableRow>
-
-                <TableBody>
-                  {similarVendors?.data?.length > 0 &&
-                    similarVendors?.data?.map((row, index) => (
-                      <TableRow className="border" key={index}>
-                        <TableCell className="border font-poppins font-normal text-black text-sm">
-                          <div className="flex items-center gap-x-2 capitalize">
-                            <span> {row?.vendor?.vendor_name}</span>
-                            <img src={approved} alt="" />
-                          </div>
-                        </TableCell>
-                        <TableCell className="border font-poppins font-normal text-black text-sm">
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger div className=" z-50">
-                                <span> {row?.similarity_score}%</span>
-                              </TooltipTrigger>
-                              <TooltipContent className="bg-white text-black border  absolute -top-[3rem] -left-[15rem] shadow-sm px-4 flex items-center  gap-x-1  min-w-[18rem]    min-h-10 ml-[16rem]">
-                                {row?.match_reason}
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </TableCell>
-                        <TableCell className="border font-poppins font-normal text-black text-sm">
-                          {row?.finding_method}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                </TableBody>
-              </Table>
+              <>
+                <Table>
+                  <TableRow className="border grid grid-cols-3 items-center content-center">
+                    <TableHead className="border font-poppins text-sm font-semibold content-center text-black leading-5">
+                      Vendor Name
+                    </TableHead>
+                    <TableHead className="border font-poppins text-sm font-semibold text-black leading-5 content-center">
+                      Similarity{" "}
+                    </TableHead>
+                    <TableHead className="border font-poppins text-sm font-semibold text-black leading-5 content-center">
+                      Finding Method
+                    </TableHead>
+                  </TableRow>
+                </Table>
+                <Table className="mb-4">
+                  <TableBody>
+                    {similarVendors?.data?.length > 0 &&
+                      similarVendors?.data?.map((row, index) => (
+                        <TableRow
+                          className="border grid grid-cols-3 "
+                          key={index}
+                        >
+                          <TableCell className="border font-poppins font-normal content-center text-black text-sm">
+                            <div className="flex items-center gap-x-2 capitalize">
+                              <span> {row?.vendor?.vendor_name}</span>
+                              <img src={approved} alt="" />
+                            </div>
+                          </TableCell>
+                          <TableCell className="border content-center font-poppins font-normal text-black text-sm">
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger div className=" z-50">
+                                  <span> {row?.similarity_score}%</span>
+                                </TooltipTrigger>
+                                <TooltipContent className="bg-white text-black border  absolute -top-[3rem] -left-[15rem] shadow-sm px-4 flex items-center  gap-x-1  min-w-[18rem]    min-h-10 ml-[16rem]">
+                                  {row?.match_reason}
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </TableCell>
+                          <TableCell className="border content-center font-poppins font-normal text-black text-sm">
+                            {row?.finding_method}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                  </TableBody>
+                </Table>
+              </>
             ) : (
               <div className="w-full h-[10rem] flex items-center justify-center">
                 <p className="font-medium text-sm font-poppins text-black">
