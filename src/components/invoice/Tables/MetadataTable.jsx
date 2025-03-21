@@ -720,7 +720,7 @@ const MetadataTable = ({
                       }
                       let formattedVendorAddresses = vendorAddressFormatter(
                         vendorAddress?.branches
-                      );
+                      )||[];
 
                       if (
                         !formattedVendorAddresses?.find(
