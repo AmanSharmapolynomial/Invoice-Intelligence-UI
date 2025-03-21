@@ -17,7 +17,8 @@ export const invoiceDetailStore = create((set, get) => ({
   combinedTableHistory: [],
   allowModalDragging: true,
   setAllowModalDragging: (val) => set({ allowModalDragging: val }),
-
+  stopHovering: true,
+  setStopHovering: (v) => set({ stopHovering: v }),
   highlightRow: false,
   prefetchedLinks: {},
   updatedFields: {},
@@ -30,7 +31,7 @@ export const invoiceDetailStore = create((set, get) => ({
   totalPages: null,
   review_later: false,
   is_unverified_vendor: false,
-  current_document_uuid:null,
+  current_document_uuid: null,
   setReviewLater: (val) => set({ review_later: val }),
   setCombinedTableHistory: (history) => set({ combinedTableHistory: history }),
   setTotalPages: (pages) => set({ totalPages: pages }),
@@ -42,12 +43,12 @@ export const invoiceDetailStore = create((set, get) => ({
   setEditVendor: (value) => set({ editVendor: value }),
   isModalOpen: false,
   metadataTableCopy: {},
-  warning_checkbox_checked:false,
+  warning_checkbox_checked: false,
   setMetadataTableCopy: (cpy) => set({ metadataTableCopy: cpy }),
 
   showTextExtractionModal: false,
   setShowTextExtractionModal: (val) => set({ showTextExtractionModal: val }),
-  setWarningCheckboxChecked:(v)=>set({warning_checkbox_checked:v}),
+  setWarningCheckboxChecked: (v) => set({ warning_checkbox_checked: v }),
   setIsModalOpen: (val) => set({ isModalOpen: val }),
   setUpdatedFields: (update) =>
     set((state) => ({
@@ -75,7 +76,7 @@ export const invoiceDetailStore = create((set, get) => ({
   setHighlightAll: (highlightAll) => set({ highlightAll: highlightAll }),
   setIsUnverifiedVendor: (v) => set({ is_unverified_vendor: v }),
   setBoundingBoxes: (boxes) => set({ bounding_boxes: boxes }),
-  setCurrentDocumentUUID:(v)=>set({current_document_uuid:v}),
+  setCurrentDocumentUUID: (v) => set({ current_document_uuid: v }),
   setAdded: (flag) => set({ added: flag }),
   clearStore: () =>
     set({
@@ -97,7 +98,8 @@ export const invoiceDetailStore = create((set, get) => ({
       showTextExtractionModal: false,
       metadataTableCopy: {},
       is_unverified_vendor: false,
-      current_document_uuid:null,
-      warning_checkbox_checked:false
+      current_document_uuid: null,
+      warning_checkbox_checked: false,
+      stopHovering: true
     })
 }));

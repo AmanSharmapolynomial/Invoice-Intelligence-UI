@@ -14,13 +14,14 @@ import { invoiceDetailStore } from "@/store/invoiceDetailStore";
 import { useExtractOcrText, useGetFormatteddateFromAnyFormat } from "./api";
 
 import { queryClient } from "@/lib/utils";
-import { ChevronLeft, ChevronRight, Lock, ScanSearch } from "lucide-react";
+import { Ban, ChevronLeft, ChevronRight, Lock, MonitorStop, ScanSearch } from "lucide-react";
 import toast from "react-hot-toast";
 import ResizableModal from "../ui/Custom/ResizeableModal";
 import CustomDropDown from "../ui/CustomDropDown";
 import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
 import { Textarea } from "../ui/textarea";
+import CustomTooltip from "../ui/Custom/CustomTooltip";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 const fieldOptions = [
@@ -84,7 +85,9 @@ export const PdfViewer = ({
     showTextExtractionModal,
     setShowTextExtractionModal,
     setUpdatedFields,
-    metadataTableCopy: data
+    metadataTableCopy: data,
+    stopHovering,
+    setStopHovering
   } = invoiceDetailStore();
   const [currentPdfIndex, setCurrentPdfIndex] = useState(0);
   const { mutate: getFormattedDate, isPending: gettingDate } =
@@ -647,7 +650,7 @@ export const PdfViewer = ({
   return (
     <>
       {loadinMetadata ? (
-        <Skeleton className={"w-[50rem]  h-[38.25rem] mt-8"} />
+        <Skeleton className={"max-w-[50rem]  h-[38.25rem] mt-8"} />
       ) : (
         <div
           className={`${className} w-full  max-h-[42rem] overflow-hidden relative  hide-scrollbar`}
@@ -742,21 +745,29 @@ export const PdfViewer = ({
                   className="cursor-pointer h-5 w-5"
                   onClick={() => window.open(pdfUrl?.document_link, "_blank")}
                 />
-                <ChevronLeft
-                  className="cursor-pointer h-6 w-6"
-                  onClick={previousPage}
-                />
-                <ChevronRight
-                  className="cursor-pointer h-6 w-6"
-                  onClick={nextPage}
-                />
-
-                <div>
-                  <span className="text-center font-poppins font-medium text-[0.9rem]">
-                    Page {pageNum} / {numPages || pageNum}
-                  </span>
+                <div className="flex items-center gap-x-2">
+                  <ChevronLeft
+                    className="cursor-pointer h-6 w-6"
+                    onClick={previousPage}
+                  />
+                  <p>
+                    {pageNum} / {numPages || pageNum}
+                  </p>
+                  <ChevronRight
+                    className="cursor-pointer h-6 w-6"
+                    onClick={nextPage}
+                  />
                 </div>
+                <CustomTooltip
+                content={'Stop Highlighting'}
+                >
 
+                <MonitorStop
+                onClick={()=>{
+                  setStopHovering(!stopHovering)
+                }}
+                className={`${!stopHovering&&"!text-primary"} cursor-pointer h-5 w-fit`}/>
+                </CustomTooltip>
                 <Lock
                   height={20}
                   width={20}
@@ -797,7 +808,6 @@ export const PdfViewer = ({
                     </>
                   )}
                 </>
-
                 {children}
               </div>
             </div>
