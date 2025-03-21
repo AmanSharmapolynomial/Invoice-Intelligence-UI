@@ -8,7 +8,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useCombineVendors, useGetVendorsPdfs } from "@/components/vendor/api";
 import { useMarkAsNotDuplicate } from "@/components/vendor/potentialDuplicates/api";
 import React, { useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams
+} from "react-router-dom";
 
 const CombineDuplicateVendors = () => {
   const { vendor1, vendor2 } = useParams();
@@ -44,15 +49,27 @@ const CombineDuplicateVendors = () => {
             {isLoading ? (
               <div className="flex items-center gap-x-16  justify-between max-w-full overflow-auto mb-2">
                 <div className="w-full">
-                  <p className="font-poppins font-semibold capitalize text-sm mt-2 mb-2">
+                  <Link
+                    target="_blank"
+                    to={`${
+                      import.meta.env.VITE_APP_OLD_UI_STAGING_UI
+                    }/vendor-consolidation-v2/${vendor1}`}
+                    className="font-poppins font-semibold cursor-pointer capitalize text-sm mt-2 mb-2"
+                  >
                     {vendor_1_name}
-                  </p>
+                  </Link>
                   <Skeleton className={"!min-h-[45rem] !w-full"} />
                 </div>
                 <div className="w-full">
-                  <p className="font-poppins capitalize font-semibold text-sm mt-2 mb-2">
+                  <Link
+                    target="_blank"
+                    to={`${
+                      import.meta.env.VITE_APP_OLD_UI_STAGING_UI
+                    }/vendor-consolidation-v2/${vendor2}`}
+                    className="font-poppins capitalize font-bold text-lg mt-2 mb-2"
+                  >
                     {vendor_2_name}
-                  </p>
+                  </Link>
 
                   <Skeleton className={"!min-h-[45rem] !w-full"} />
                 </div>
@@ -60,9 +77,15 @@ const CombineDuplicateVendors = () => {
             ) : (
               <div className="flex items-center gap-x-8  justify-between min-w-full overflow-auto mb-2">
                 <div className="w-1/2">
-                  <p className="font-poppins font-bold capitalize text-lg mt-2 mb-2">
+                  <Link
+                    target="_blank"
+                    to={`${
+                      import.meta.env.VITE_APP_OLD_UI_STAGING_UI
+                    }/vendor-consolidation-v2/${vendor1}`}
+                    className="font-poppins capitalize font-bold text-lg mt-2 mb-2"
+                  >
                     {vendor_1_name}
-                  </p>
+                  </Link>
                   <PdfViewer
                     pdfUrls={[...data?.data?.[vendor1]]}
                     multiple={true}
@@ -71,9 +94,15 @@ const CombineDuplicateVendors = () => {
                 </div>
                 <div className="w-1/2">
                   <div className="flex items-center justify-between">
-                    <p className="font-poppins capitalize font-bold text-lg mt-2 mb-2">
+                    <Link
+                      target="_blank"
+                      to={`${
+                        import.meta.env.VITE_APP_OLD_UI_STAGING_UI
+                      }/vendor-consolidation-v2/${vendor2}`}
+                      className="font-poppins capitalize font-bold text-lg mt-2 mb-2"
+                    >
                       {vendor_2_name}
-                    </p>
+                    </Link>
                     <div className="flex items-center gap-x-2 justify-end">
                       <div className="flex items-center gap-x-2">
                         <Button
@@ -109,12 +138,22 @@ const CombineDuplicateVendors = () => {
                   </div>
                   {isLoading ? (
                     <Skeleton className={"!h-[45rem] !w-[45rem]"} />
-                  ) : (
+                  ) : data?.data?.[vendor2] ? (
                     <PdfViewer
                       pdfUrls={[...data?.data?.[vendor2]]}
                       multiple={true}
                       className={"!min-h-[45rem] w-[40vw]"}
                     />
+                  ) : (
+                    <div
+                      className={
+                        "!min-h-[45rem] w-[40vw] flex items-center justify-center"
+                      }
+                    >
+                      <p className="font-poppins  font-semibold text-base">
+                        No PDF Found
+                      </p>
+                    </div>
                   )}
                 </div>
               </div>
