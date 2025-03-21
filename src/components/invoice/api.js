@@ -166,6 +166,9 @@ export const useGetItemMasterLookUp = () => {
         }
       }
       return axiosInstance.get(apiUrl);
+    },
+    onError:(data)=>{
+      toast.error(data?.message)
     }
   });
 };
