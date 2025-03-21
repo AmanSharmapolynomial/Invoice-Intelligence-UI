@@ -150,7 +150,28 @@ export const useMarkReviewLater = () => {
     }
   });
 };
+export const useGetItemMasterLookUp = () => {
+  return useMutation({
+    mutationFn: async ({ document_uuid, item_code, item_description }) => {
+      let apiUrl = `/api/document/${document_uuid}/similar-items/`;
 
+      if (item_code) {
+        apiUrl += `?item_code=${item_code}`;
+      }
+      if (item_description) {
+        if (item_code) {
+          apiUrl += `&item_description=${item_description}`;
+        } else {
+          apiUrl += `?item_description=${item_description}`;
+        }
+      }
+      return axiosInstance.get(apiUrl);
+    },
+    onError:(data)=>{
+      toast.error(data?.message)
+    }
+  });
+};
 // Copied code from legacy
 
 export const useUpdateDocumentMetadata = () => {
@@ -348,7 +369,7 @@ export const useRevertChanges = () => {
     },
     onSuccess: (data) => {
       toast.success(data?.message);
-      queryClient.invalidateQueries(['document-metadata'])
+      queryClient.invalidateQueries(["document-metadata"]);
     }
   });
 };
