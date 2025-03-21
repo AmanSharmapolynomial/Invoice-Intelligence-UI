@@ -557,11 +557,7 @@ setWarningCheckboxChecked(false)
                       let formattedVendors = vendorNamesFormatter(
                         vendorsData?.vendor_names
                       );
-                      console.log(
-                        formattedVendors?.findIndex(
-                          (v) => v.value !== vendor?.vendor_id
-                        )
-                      );
+                     
                       if (
                         !formattedVendors?.find(
                           (v) => v.value == vendor?.vendor_id
