@@ -76,7 +76,7 @@ const HumanVerificationTable = ({
     document_uuid: document_uuid
   });
   const [autoCalculate, setAutoCalculate] = useState(false);
-  const [stopHovering, setStopHovering] = useState(true);
+  
   const [hoveredRow, setHoveredRow] = useState(false);
   const [showActionsPopup, setShowActionsPopup] = useState(false);
   const [viewVerificationColumn, setViewVerificationColumn] = useState(true);
@@ -177,6 +177,8 @@ const HumanVerificationTable = ({
     setLastEditedLineItem,
     setSimilarLineItems,
     similarLineItems,
+    stopHovering,
+    setStopHovering,
     highlightAll,
     setHighlightAll,
     setBoundingBox,
@@ -1257,20 +1259,7 @@ const HumanVerificationTable = ({
             </p>
             <div className="flex items-center gap-x-4">
               <CustomTooltip content={"Highlighting"}>
-                <div className="flex items-center gap-x-2">
-                  <Label
-                    htmlFor="highlight"
-                    className=" cursor-pointer font-poppins font-normal text-xs leading-4 text-[#000000]"
-                  >
-                    H
-                  </Label>
-                  <Switch
-                    id="highlight"
-                    className="!bg-[#888888] data-[state=checked]:!bg-primary "
-                    checked={stopHovering}
-                    onCheckedChange={(v) => setStopHovering(v)}
-                  />
-                </div>
+               
               </CustomTooltip>
               <CustomTooltip content={"Highlight All Items"}>
                 <div className="flex items-center gap-x-2">
@@ -1518,6 +1507,7 @@ const HumanVerificationTable = ({
                                   onMouseEnter={(e) => {
                                     e.stopPropagation();
                                     if (stopHovering) {
+                              
                                       if (cell.bounding_box == null) {
                                         setHoveredRow(true);
                                       } else {
@@ -1974,6 +1964,9 @@ const HumanVerificationTable = ({
           </div>
           <div
             onMouseEnter={() => {
+              if(!stopHovering){
+                return
+              }
               let boundng_boxes =
                 metadataBoundingBoxes?.data?.[`invoice_extracted_total`];
               if (boundng_boxes) {
@@ -2055,6 +2048,9 @@ const HumanVerificationTable = ({
         <>
           <div
             onMouseEnter={() => {
+                if(!stopHovering){
+                  return
+                }
               let boundng_boxes =
                 metadataBoundingBoxes?.data?.[`invoice_extracted_total`];
               if (boundng_boxes) {

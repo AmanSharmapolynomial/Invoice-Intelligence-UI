@@ -39,6 +39,7 @@ import {
   useUpdateVendorTypesAndCategories
 } from "../api";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 const Template = ({ title, children, className, titleContent }) => {
   return (
     <div className={`${className} flex flex-col gap-y-2 !z-12`}>
@@ -55,7 +56,7 @@ const MetadataTable = ({
   additionalData,
   loadingAdditionalData
 }) => {
-  const [searchParams]=useSearchParams();
+  const [searchParams] = useSearchParams();
   const [dateRange, setDateRange] = useState({
     from: null,
     to: null
@@ -73,7 +74,9 @@ const MetadataTable = ({
     savingBranch: false
   });
   const {
+    stopHovering,
     updatedFields,
+    setStopHovering,
     setUpdatedFields,
     vendorChanged,
     setVendorChanged,
@@ -128,6 +131,7 @@ const MetadataTable = ({
   }, [vendor]);
   const [showToChangeCategoriesAndTypes, setShowToChangeCategoriesAndTypes] =
     useState(false);
+  const [highlight, setHighlight] = useState(false);
   const [wantToChangeCategoriesAndTypes, setWantToChangeCategoriesAndTypes] =
     useState(null);
   const setCachedData = (key, value, setFields = true) => {
@@ -186,7 +190,7 @@ const MetadataTable = ({
   }, []);
   const { data: vendorAddress, isLoading: loadingAddresses } =
     useGetVendorAddresses(vendor?.vendor_id);
-let page=searchParams.get("page");
+  let page = searchParams.get("page");
   const { mutate: updateVendorOrBranch, isPending } = useUpdateVendorOrBranch();
   const updateVendor = (vendor) => {
     setLoadingState({ ...loadingState, savingVendor: true });
@@ -289,6 +293,9 @@ let page=searchParams.get("page");
     data?.data?.[0]?.action_controls || data?.data?.action_controls;
 
   const handleHighlighting = (field_name) => {
+    if (!stopHovering) {
+      return;
+    }
     let boundng_boxes = metadataBoundingBoxes?.data?.[`${field_name}`];
     if (boundng_boxes) {
       setBoundingBox({
@@ -308,9 +315,9 @@ let page=searchParams.get("page");
     }
   };
 
-  useEffect(()=>{
-setWarningCheckboxChecked(false)
-  },[page])
+  useEffect(() => {
+    setWarningCheckboxChecked(false);
+  }, [page]);
 
   return (
     <div className="w-full -mt-3 border border-[#F0F0F0] shadow-sm p-2 rounded-md">
