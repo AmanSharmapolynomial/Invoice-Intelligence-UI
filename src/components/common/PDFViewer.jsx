@@ -765,13 +765,13 @@ export const PdfViewer = ({
                     onClick={nextPage}
                   />
                 </div>
-                <CustomTooltip content={"Stop Highlighting"}>
+                <CustomTooltip content={"Highlighting"}>
                   <MonitorStop
                     onClick={() => {
                       setStopHovering(!stopHovering);
                     }}
                     className={`${
-                      !stopHovering && "!text-primary"
+                      stopHovering && "!text-primary"
                     } cursor-pointer h-5 w-fit`}
                   />
                 </CustomTooltip>
