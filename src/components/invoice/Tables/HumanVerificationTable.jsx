@@ -1188,46 +1188,45 @@ const HumanVerificationTable = ({
         rest?.column_name?.toLowerCase()
     );
 
-    const handleInsertRow = (row) => {
-      console.log(row);
-      let transaction_uuid = last_edited_line_item?.transaction_uuid;
-    
-      let copyObj = { ...data };
-      let lastEditedRow = copyObj.data.processed_table.rows?.find(
-        (r) => r.transaction_uuid == transaction_uuid
-      );
-    
-      let ops = [...operations]; // Start with the existing operations
-      let lng = operations?.length || 0;
-    
-      lastEditedRow.cells.forEach((cell) => {
-        if (selectedColumnIds.includes(cell?.column_uuid)) {
-          if (cell.column_name !== "Category") {
-            ops.push({
-              type: "update_cell",
-              operation_order: lng + 1,
-              data: {
-                cell_uuid: cell.cell_uuid,
-                row_uuid: transaction_uuid,
-                column_uuid: cell.column_uuid,
-                text: row[keysDecapitalizer(cell?.column_name)] || null
-              }
-            });
-            cell.text = row[keysDecapitalizer(cell?.column_name)];
-            lng += 1;
-          }
+  const handleInsertRow = (row) => {
+    console.log(row);
+    let transaction_uuid = last_edited_line_item?.transaction_uuid;
+
+    let copyObj = { ...data };
+    let lastEditedRow = copyObj.data.processed_table.rows?.find(
+      (r) => r.transaction_uuid == transaction_uuid
+    );
+
+    let ops = [...operations]; // Start with the existing operations
+    let lng = operations?.length || 0;
+
+    lastEditedRow.cells.forEach((cell) => {
+      if (selectedColumnIds.includes(cell?.column_uuid)) {
+        if (cell.column_name !== "Category") {
+          ops.push({
+            type: "update_cell",
+            operation_order: lng + 1,
+            data: {
+              cell_uuid: cell.cell_uuid,
+              row_uuid: transaction_uuid,
+              column_uuid: cell.column_uuid,
+              text: row[keysDecapitalizer(cell?.column_name)] || null
+            }
+          });
+          cell.text = row[keysDecapitalizer(cell?.column_name)];
+          lng += 1;
         }
-      });
-    
-      setOperations(ops); // Correctly appends new operations
-    
-      queryClient.setQueryData(["combined-table", document_uuid], copyObj);
-      setLastEditedLineItem(null);
-      setSimilarLineItems([]);
-      setLastEditedLineItemColumns([]);
-      setShowSimilarLineItemsModal(false);
-    };
-    
+      }
+    });
+
+    setOperations(ops); // Correctly appends new operations
+
+    queryClient.setQueryData(["combined-table", document_uuid], copyObj);
+    setLastEditedLineItem(null);
+    setSimilarLineItems([]);
+    setLastEditedLineItemColumns([]);
+    setShowSimilarLineItemsModal(false);
+  };
 
   return (
     <>
@@ -2110,44 +2109,52 @@ const HumanVerificationTable = ({
         titleClassName={"font-poppins font-medium text-sm"}
       >
         <ModalDescription className="w-full">
-          <table className="  w-full ">
-            <div className=" h-60 !w-full overflow-auto relative">
-              {/* <TableHeader className=" top-0 z-10 bg-white "> */}
-              <tr
-                className=" 
-               !w-full border "
-              >
-                {last_edited_line_item_columns?.map((col, index) => (
-                  <td
-                    key={index}
-                    className={` border sticky top-0    bg-white font-poppins h-12  content-center px-4 items-center   font-semibold text-sm text-black leading-5`}
-                  >
-                    {keysCapitalizer(col)}
-                  </td>
-                ))}
-              </tr>
-
-              <tbody className="w-full">
-                {similarLineItems?.map((row, index) => (
-                  <TableRow
-                    key={index}
-                    onClick={() => {
-                      handleInsertRow(row);
-                    }}
-                  >
-                    {last_edited_line_item_columns?.map((col, i) => (
-                      <TableCell
-                        key={i}
-                        className="border font-poppins text-black !font-normal !text-xs"
-                      >
-                        {col == "category" ? row["category"]?.name : row[col]}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-              </tbody>
+          {similarLineItems?.length == 0 ? (
+            <div className="w-full flex items-center justify-center h-40">
+              <p className="font-poppins font-semibold text-sm text-black ">
+                No Similar Line Items Found.
+              </p>
             </div>
-          </table>
+          ) : (
+            <table className="  w-full ">
+              <div className=" h-60 !w-full overflow-auto relative">
+                {/* <TableHeader className=" top-0 z-10 bg-white "> */}
+                <tr
+                  className=" 
+               !w-full border "
+                >
+                  {last_edited_line_item_columns?.map((col, index) => (
+                    <td
+                      key={index}
+                      className={` border sticky top-0    bg-white font-poppins h-12  content-center px-4 items-center   font-semibold text-sm text-black leading-5`}
+                    >
+                      {keysCapitalizer(col)}
+                    </td>
+                  ))}
+                </tr>
+
+                <tbody className="w-full">
+                  {similarLineItems?.map((row, index) => (
+                    <TableRow
+                      key={index}
+                      onClick={() => {
+                        handleInsertRow(row);
+                      }}
+                    >
+                      {last_edited_line_item_columns?.map((col, i) => (
+                        <TableCell
+                          key={i}
+                          className="border font-poppins text-black !font-normal !text-xs"
+                        >
+                          {col == "category" ? row["category"]?.name : row[col]}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </tbody>
+              </div>
+            </table>
+          )}
         </ModalDescription>
       </Modal>
     </>
