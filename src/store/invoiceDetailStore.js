@@ -112,6 +112,12 @@ export const invoiceDetailStore = create((set, get) => ({
       is_unverified_vendor: false,
       current_document_uuid:  null,
       warning_checkbox_checked:  false,
-      stopHovering: true
+      stopHovering: true,
+      last_edited_line_item:null,
+      last_edited_line_item_columns:[],
+      similarLineItems:[],
+      showSimilarLineItemsModal:false,
+      
+
     })
 }));

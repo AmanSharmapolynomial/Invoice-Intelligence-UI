@@ -115,8 +115,7 @@ const CategoryWiseItems = () => {
         : removedItems?.data?.length > 0
         ? removedItems?.data?.map((ri) => ri?.item_uuid)
         : [];
-        console.log(removedItemsIDs)
-
+        
     let item_uuids =
       items?.data?.items
         ?.filter((it) => !unCheckedItems?.includes(it?.item_uuid))
