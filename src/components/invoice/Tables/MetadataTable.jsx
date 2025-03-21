@@ -293,7 +293,7 @@ const MetadataTable = ({
     data?.data?.[0]?.action_controls || data?.data?.action_controls;
 
   const handleHighlighting = (field_name) => {
-    if(!stopHovering){
+    if (!stopHovering) {
       return;
     }
     let boundng_boxes = metadataBoundingBoxes?.data?.[`${field_name}`];
@@ -321,7 +321,6 @@ const MetadataTable = ({
 
   return (
     <div className="w-full -mt-3 border border-[#F0F0F0] shadow-sm p-2 rounded-md">
-    
       <div className="grid grid-cols-3 gap-x-4">
         <Template title="Invoice Number">
           <div

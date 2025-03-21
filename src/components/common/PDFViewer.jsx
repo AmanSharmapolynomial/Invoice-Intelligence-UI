@@ -14,7 +14,14 @@ import { invoiceDetailStore } from "@/store/invoiceDetailStore";
 import { useExtractOcrText, useGetFormatteddateFromAnyFormat } from "./api";
 
 import { queryClient } from "@/lib/utils";
-import { Ban, ChevronLeft, ChevronRight, Lock, MonitorStop, ScanSearch } from "lucide-react";
+import {
+  Ban,
+  ChevronLeft,
+  ChevronRight,
+  Lock,
+  MonitorStop,
+  ScanSearch
+} from "lucide-react";
 import toast from "react-hot-toast";
 import ResizableModal from "../ui/Custom/ResizeableModal";
 import CustomDropDown from "../ui/CustomDropDown";
@@ -758,15 +765,15 @@ export const PdfViewer = ({
                     onClick={nextPage}
                   />
                 </div>
-                <CustomTooltip
-                content={'Stop Highlighting'}
-                >
-
-                <MonitorStop
-                onClick={()=>{
-                  setStopHovering(!stopHovering)
-                }}
-                className={`${!stopHovering&&"!text-primary"} cursor-pointer h-5 w-fit`}/>
+                <CustomTooltip content={"Stop Highlighting"}>
+                  <MonitorStop
+                    onClick={() => {
+                      setStopHovering(!stopHovering);
+                    }}
+                    className={`${
+                      !stopHovering && "!text-primary"
+                    } cursor-pointer h-5 w-fit`}
+                  />
                 </CustomTooltip>
                 <Lock
                   height={20}

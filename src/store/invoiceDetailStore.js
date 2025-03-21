@@ -16,6 +16,16 @@ export const invoiceDetailStore = create((set, get) => ({
   history: [],
   combinedTableHistory: [],
   allowModalDragging: true,
+  similarLineItems: [],
+  showSimilarLineItemsModal: false,
+  similarLineItemsRequiredColumns: [],
+  setSimilarLineItemsRequiredColumns: (v) =>
+    set({ similarLineItemsRequiredColumns: v }),
+  last_edited_line_item_columns: [],
+  setLastEditedLineItemColumns: (v) =>
+    set({ last_edited_line_item_columns: v }),
+  setShowSimilarLineItemsModal: (v) => set({ showSimilarLineItemsModal: v }),
+  setSimilarLineItems: (v) => set({ similarLineItems: v }),
   setAllowModalDragging: (val) => set({ allowModalDragging: val }),
   stopHovering: true,
   setStopHovering: (v) => set({ stopHovering: v }),
@@ -32,6 +42,8 @@ export const invoiceDetailStore = create((set, get) => ({
   review_later: false,
   is_unverified_vendor: false,
   current_document_uuid: null,
+  last_edited_line_item:  null,
+  setLastEditedLineItem: (v) => set({ last_edited_line_item: v }),
   setReviewLater: (val) => set({ review_later: val }),
   setCombinedTableHistory: (history) => set({ combinedTableHistory: history }),
   setTotalPages: (pages) => set({ totalPages: pages }),
@@ -98,8 +110,8 @@ export const invoiceDetailStore = create((set, get) => ({
       showTextExtractionModal: false,
       metadataTableCopy: {},
       is_unverified_vendor: false,
-      current_document_uuid: null,
-      warning_checkbox_checked: false,
+      current_document_uuid:  null,
+      warning_checkbox_checked:  false,
       stopHovering: true
     })
 }));

@@ -1,39 +1,45 @@
 import approved from "@/assets/image/approved.svg";
-import warning_mark from "@/assets/image/warning_mark.svg";
 import sort from "@/assets/image/sort.svg";
 import unapproved from "@/assets/image/unapproved.svg";
 import undo from "@/assets/image/undo.svg";
+import warning_mark from "@/assets/image/warning_mark.svg";
 import { Button } from "@/components/ui/button";
 import CustomDropDown from "@/components/ui/CustomDropDown";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
-import { v4 as uuidv4 } from "uuid";
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
-import { categoryNamesFormatter, headerNamesFormatter } from "@/lib/helpers";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "@/components/ui/table";
+import {
+  categoryNamesFormatter,
+  headerNamesFormatter,
+  keysCapitalizer,
+  keysDecapitalizer
+} from "@/lib/helpers";
 import { queryClient } from "@/lib/utils";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
-import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import { v4 as uuidv4 } from "uuid";
 
-import { useEffect, useState } from "react";
-import {
-  ArrowDownFromLine,
-  ArrowDownToLine,
-  ArrowUpFromLine,
-  ArrowUpToLine,
-  CircleAlert,
-  Globe,
-  Network,
-  Trash2
-} from "lucide-react";
-import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
-import ContextMenu from "../ContextMenu";
-import toast from "react-hot-toast";
-import { Textarea } from "@/components/ui/textarea";
 import CustomInput from "@/components/ui/Custom/CustomInput";
-import { useAutoCalculate, useGetDocumentMetadataBoundingBoxes } from "../api";
+import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
 import { Label } from "@/components/ui/label";
-import CustomToolTip from "@/components/ui/CustomToolTip";
-import { Link, useNavigate } from "react-router-dom";
+import { Textarea } from "@/components/ui/textarea";
+import { ArrowDownFromLine, ArrowUpFromLine, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+import {
+  useAutoCalculate,
+  useGetDocumentMetadataBoundingBoxes,
+  useGetItemMasterLookUp
+} from "../api";
+import ContextMenu from "../ContextMenu";
+import { Modal, ModalDescription } from "@/components/ui/Modal";
 
 const HumanVerificationTable = ({
   data,
@@ -79,6 +85,8 @@ const HumanVerificationTable = ({
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [editMode, setEditMode] = useState({ rowIndex: null, cellIndex: null });
   const [cellValue, setCellValue] = useState("");
+
+  const { mutate: lookUpItemMaster } = useGetItemMasterLookUp();
   const navigate = useNavigate();
   const [contextMenu, setContextMenu] = useState({
     visible: false,
@@ -162,7 +170,13 @@ const HumanVerificationTable = ({
       }
     }
   ];
+
   const {
+    showSimilarLineItemsModal,
+    last_edited_line_item,
+    setLastEditedLineItem,
+    setSimilarLineItems,
+    similarLineItems,
     stopHovering,
     setStopHovering,
     highlightAll,
@@ -190,7 +204,12 @@ const HumanVerificationTable = ({
     operations,
     branchChanged,
     vendorChanged,
-    metaData
+    metaData,
+    setLastEditedLineItemColumns,
+    last_edited_line_item_columns,
+    setSimilarLineItemsRequiredColumns,
+    similarLineItemsRequiredColumns,
+    setShowSimilarLineItemsModal
   } = invoiceDetailStore();
 
   const { columns = [], rows = [] } = data?.data?.processed_table;
@@ -241,7 +260,16 @@ const HumanVerificationTable = ({
       setOperations(updatedOperations);
     }
   };
-
+  let item_code_column_uuid = data?.data?.processed_table?.columns
+    ?.filter((c) => c?.selected_column)
+    ?.filter(
+      (it) => it?.column_name?.toLowerCase() == "item code"
+    )?.[0]?.column_uuid;
+  let item_description_column_uuid = data?.data?.processed_table?.columns
+    ?.filter((c) => c?.selected_column)
+    ?.filter(
+      (it) => it?.column_name?.toLowerCase() == "item description"
+    )?.[0]?.column_uuid;
   // useEffects
 
   useEffect(() => {
@@ -326,6 +354,43 @@ const HumanVerificationTable = ({
       });
     }
   }, [metaData]);
+  const handleItemMasterLookup = () => {
+    let { cells } = last_edited_line_item;
+    let item_code_text = cells?.find(
+      (c) => c?.column_uuid == item_code_column_uuid
+    )?.text;
+    let item_description_text = cells?.find(
+      (c) => c?.column_uuid == item_description_column_uuid
+    )?.text;
+    console.log(last_edited_line_item_columns);
+    lookUpItemMaster(
+      {
+        document_uuid,
+        item_code: item_code_text,
+        item_description: item_description_text
+      },
+      {
+        onSuccess: (data) => {
+          setSimilarLineItems(data?.data?.similar_items);
+          setSimilarLineItemsRequiredColumns(data?.data?.required_columns);
+          setShowSimilarLineItemsModal(true);
+        }
+      }
+    );
+  };
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.shiftKey && e.key == "Enter") {
+        e.preventDefault();
+        handleItemMasterLookup();
+      }
+    };
+
+    window.addEventListener("keypress", handleKeyDown);
+    return () => {
+      window.removeEventListener("keypress", handleKeyDown);
+    };
+  }, [last_edited_line_item, data]);
 
   // Sums and Other Calculated Values
 
@@ -367,7 +432,7 @@ const HumanVerificationTable = ({
     setCellValue(initialValue);
     // setStopHovering(false);
   };
-  const handleKeyPress = (event, rowIndex, cellIndex, value) => {
+  const handleKeyPress = (event, rowIndex, cellIndex, value, row) => {
     if (
       event.key === "Enter" &&
       !event.ctrlKey &&
@@ -375,7 +440,7 @@ const HumanVerificationTable = ({
       !event.altKey &&
       !event.metaKey
     ) {
-      handleSaveCell(rowIndex, cellIndex, value);
+      handleSaveCell(rowIndex, cellIndex, value, row);
     }
   };
 
@@ -590,7 +655,7 @@ const HumanVerificationTable = ({
     rows.push(newRow);
     queryClient.setQueryData(["combined-table", document_uuid], copyData);
   };
-  const handleSaveCell = async (rowIndex, cellIndex, value) => {
+  const handleSaveCell = async (rowIndex, cellIndex, value, row) => {
     const originalValue =
       data?.data?.processed_table?.rows?.[rowIndex]?.cells?.[cellIndex]?.text ||
       "";
@@ -699,6 +764,14 @@ const HumanVerificationTable = ({
 
       // Update query data for the combined table
       queryClient.setQueryData(["combined-table", document_uuid], updatedData);
+      setLastEditedLineItemColumns(
+        updatedData?.data?.processed_table?.columns
+          ?.filter((c) => c?.selected_column)
+          ?.map((c) => keysDecapitalizer(c?.column_name))
+      );
+      setLastEditedLineItem(
+        updatedData?.data?.processed_table?.rows?.[rowIndex]
+      );
     }
 
     // Exit edit mode after saving
@@ -1117,6 +1190,59 @@ const HumanVerificationTable = ({
         rest?.column_name?.toLowerCase()
     );
 
+  const handleInsertRow = (row) => {
+    console.log(row);
+    let transaction_uuid = last_edited_line_item?.transaction_uuid;
+
+    let copyObj = { ...data };
+    let lastEditedRow = copyObj.data.processed_table.rows?.find(
+      (r) => r.transaction_uuid == transaction_uuid
+    );
+
+    let ops = [...operations]; // Start with the existing operations
+    let lng = operations?.length || 0;
+
+    lastEditedRow.cells.forEach((cell) => {
+      if (selectedColumnIds.includes(cell?.column_uuid)) {
+        if (cell.column_name !== "Category") {
+          ops.push({
+            type: "update_cell",
+            operation_order: lng + 1,
+            data: {
+              cell_uuid: cell.cell_uuid,
+              row_uuid: transaction_uuid,
+              column_uuid: cell.column_uuid,
+              text: row[keysDecapitalizer(cell?.column_name)] || null
+            }
+          });
+          cell.text = row[keysDecapitalizer(cell?.column_name)];
+          lng += 1;
+        } else {
+          ops.push({
+            type: "update_cell",
+            operation_order: lng + 1,
+            data: {
+              cell_uuid: cell.cell_uuid,
+              row_uuid: transaction_uuid,
+              column_uuid: cell.column_uuid,
+              text: row[keysDecapitalizer(cell?.column_name)]?.name || null
+            }
+          });
+          cell.text = row[keysDecapitalizer(cell?.column_name)]?.name;
+          lng += 1;
+        }
+      }
+    });
+
+    setOperations(ops); // Correctly appends new operations
+
+    queryClient.setQueryData(["combined-table", document_uuid], copyObj);
+    setLastEditedLineItem(null);
+    setSimilarLineItems([]);
+    setLastEditedLineItemColumns([]);
+    setShowSimilarLineItemsModal(false);
+  };
+
   return (
     <>
       {" "}
@@ -1381,6 +1507,7 @@ const HumanVerificationTable = ({
                                   onMouseEnter={(e) => {
                                     e.stopPropagation();
                                     if (stopHovering) {
+                              
                                       if (cell.bounding_box == null) {
                                         setHoveredRow(true);
                                       } else {
@@ -1445,7 +1572,8 @@ const HumanVerificationTable = ({
                                                 i,
                                                 additionalData?.data?.category_choices?.find(
                                                   (c) => c.category_id == v
-                                                )?.name
+                                                )?.name,
+                                                row
                                               );
                                             }}
                                           />
@@ -1454,7 +1582,12 @@ const HumanVerificationTable = ({
                                         <Textarea
                                           value={cellValue}
                                           onBlur={() =>
-                                            handleSaveCell(index, i, cellValue)
+                                            handleSaveCell(
+                                              index,
+                                              i,
+                                              cellValue,
+                                              row
+                                            )
                                           }
                                           onClick={(e) => {
                                             e.preventDefault();
@@ -1468,7 +1601,8 @@ const HumanVerificationTable = ({
                                               e,
                                               index,
                                               i,
-                                              cellValue
+                                              cellValue,
+                                              row
                                             );
                                           }}
                                           onChange={(e) => {
@@ -1848,9 +1982,9 @@ const HumanVerificationTable = ({
                 ]);
               }
             }}
-            onMouseLeave={()=>{
+            onMouseLeave={() => {
               setBoundingBox({});
-              setBoundingBoxes([])
+              setBoundingBoxes([]);
             }}
             className={`flex items-center justify-between pl-4 my-4 font-poppins font-normal text-sm text-[#121212] pr-2 `}
           >
@@ -1913,29 +2047,29 @@ const HumanVerificationTable = ({
       ) : (
         <>
           <div
-              onMouseEnter={() => {
+            onMouseEnter={() => {
                 if(!stopHovering){
                   return
                 }
-                let boundng_boxes =
-                  metadataBoundingBoxes?.data?.[`invoice_extracted_total`];
-                if (boundng_boxes) {
-                  setBoundingBox({
+              let boundng_boxes =
+                metadataBoundingBoxes?.data?.[`invoice_extracted_total`];
+              if (boundng_boxes) {
+                setBoundingBox({
+                  box: boundng_boxes,
+                  page_index: boundng_boxes["page_index"]
+                });
+                setBoundingBoxes([
+                  {
                     box: boundng_boxes,
                     page_index: boundng_boxes["page_index"]
-                  });
-                  setBoundingBoxes([
-                    {
-                      box: boundng_boxes,
-                      page_index: boundng_boxes["page_index"]
-                    }
-                  ]);
-                }
-              }}
-              onMouseLeave={()=>{
-                setBoundingBox({});
-                setBoundingBoxes([])
-              }}
+                  }
+                ]);
+              }
+            }}
+            onMouseLeave={() => {
+              setBoundingBox({});
+              setBoundingBoxes([]);
+            }}
             className={`${
               metadata?.invoice_type == "Summary Invoice"
                 ? "py-4 mx-2 my-4 rounded-xl border-[#D9D9D9]"
@@ -1976,6 +2110,62 @@ const HumanVerificationTable = ({
           </div>
         </>
       )}
+      <Modal
+        open={showSimilarLineItemsModal}
+        setOpen={setShowSimilarLineItemsModal}
+        title={"Similar Line Items"}
+        className={"!overflow-auto !min-w-fit "}
+        titleClassName={"font-poppins font-medium text-sm"}
+      >
+        <ModalDescription className="w-full">
+          {similarLineItems?.length == 0 ? (
+            <div className="w-full flex items-center justify-center h-40">
+              <p className="font-poppins font-semibold text-sm text-black ">
+                No Similar Line Items Found.
+              </p>
+            </div>
+          ) : (
+            <table className="  w-full ">
+              <div className=" h-60 !w-full overflow-auto relative">
+                {/* <TableHeader className=" top-0 z-10 bg-white "> */}
+                <tr
+                  className=" 
+               !w-full border "
+                >
+                  {last_edited_line_item_columns?.map((col, index) => (
+                    <td
+                      key={index}
+                      className={` border sticky top-0    bg-white font-poppins h-12  content-center px-4 items-center   font-semibold text-sm text-black leading-5`}
+                    >
+                      {keysCapitalizer(col)}
+                    </td>
+                  ))}
+                </tr>
+
+                <tbody className="w-full">
+                  {similarLineItems?.map((row, index) => (
+                    <TableRow
+                      key={index}
+                      onClick={() => {
+                        handleInsertRow(row);
+                      }}
+                    >
+                      {last_edited_line_item_columns?.map((col, i) => (
+                        <TableCell
+                          key={i}
+                          className="border font-poppins text-black !font-normal !text-xs"
+                        >
+                          {col == "category" ? row["category"]?.name : row[col]}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </tbody>
+              </div>
+            </table>
+          )}
+        </ModalDescription>
+      </Modal>
     </>
   );
 };
