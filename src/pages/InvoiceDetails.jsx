@@ -1430,7 +1430,7 @@ const InvoiceDetails = () => {
               </p>
             </div>
           )}
-          <div className="min-h-56 overflow-auto">
+          <div className="max-h-52  overflow-auto">
             {similarVendors?.data?.length > 0 ? (
               <>
                 <Table>
@@ -1446,11 +1446,14 @@ const InvoiceDetails = () => {
                     </TableHead>
                   </TableRow>
                 </Table>
-                <Table>
+                <Table className="mb-4">
                   <TableBody>
                     {similarVendors?.data?.length > 0 &&
                       similarVendors?.data?.map((row, index) => (
-                        <TableRow className="border grid grid-cols-3 " key={index}>
+                        <TableRow
+                          className="border grid grid-cols-3 "
+                          key={index}
+                        >
                           <TableCell className="border font-poppins font-normal content-center text-black text-sm">
                             <div className="flex items-center gap-x-2 capitalize">
                               <span> {row?.vendor?.vendor_name}</span>
