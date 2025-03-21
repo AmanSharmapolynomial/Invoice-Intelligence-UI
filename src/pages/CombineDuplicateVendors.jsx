@@ -45,7 +45,7 @@ const CombineDuplicateVendors = () => {
             title="Combine Vendors"
             crumbs={[{ path: null, label: "Combine Vendors" }]}
           />
-          <div className="px-8">
+          {data?.data ?<div className="px-8">
             {isLoading ? (
               <div className="flex items-center gap-x-16  justify-between max-w-full overflow-auto mb-2">
                 <div className="w-full">
@@ -86,11 +86,23 @@ const CombineDuplicateVendors = () => {
                   >
                     {vendor_1_name}
                   </Link>
-                  <PdfViewer
-                    pdfUrls={[...data?.data?.[vendor1]]}
-                    multiple={true}
-                    className={"!min-h-[45rem] w-[40vw]"}
-                  />
+                  {data?.data?.[vendor1] ? (
+                    <PdfViewer
+                      pdfUrls={[...data?.data?.[vendor1]]}
+                      multiple={true}
+                      className={"!min-h-[45rem] w-[40vw]"}
+                    />
+                  ) : (
+                    <div
+                      className={
+                        "!min-h-[45rem] w-[40vw] flex items-center justify-center"
+                      }
+                    >
+                      <p className="font-poppins  font-semibold text-base">
+                        No PDF Found
+                      </p>
+                    </div>
+                  )}
                 </div>
                 <div className="w-1/2">
                   <div className="flex items-center justify-between">
@@ -158,7 +170,9 @@ const CombineDuplicateVendors = () => {
                 </div>
               </div>
             )}
-          </div>
+          </div>:<div className="w-full flex items-center justify-center">
+            
+            </div>}
         </Layout>
       </div>
     </div>
