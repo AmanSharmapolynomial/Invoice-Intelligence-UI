@@ -80,7 +80,7 @@ export const useGetRemovedVendorItems = (payload) => {
   return useQuery({
     queryKey: ["removed-vendor-items", payload],
     queryFn: async () => {
-      console.log(payload)
+
       if (payload?.mode == "all") {
      
         try {

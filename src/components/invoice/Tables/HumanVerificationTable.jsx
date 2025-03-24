@@ -355,6 +355,10 @@ const HumanVerificationTable = ({
     }
   }, [metaData]);
   const handleItemMasterLookup = () => {
+    
+    if(!last_edited_line_item){
+      return;
+    }
     let { cells } = last_edited_line_item;
     let item_code_text = cells?.find(
       (c) => c?.column_uuid == item_code_column_uuid
@@ -362,7 +366,7 @@ const HumanVerificationTable = ({
     let item_description_text = cells?.find(
       (c) => c?.column_uuid == item_description_column_uuid
     )?.text;
-    console.log(last_edited_line_item_columns);
+  
     lookUpItemMaster(
       {
         document_uuid,
@@ -371,6 +375,10 @@ const HumanVerificationTable = ({
       },
       {
         onSuccess: (data) => {
+          if(data?.data?.similar_items?.length==0){
+            toast.success("No Similar Items Found");
+            return
+          }
           setSimilarLineItems(data?.data?.similar_items);
           setSimilarLineItemsRequiredColumns(data?.data?.required_columns);
           setShowSimilarLineItemsModal(true);
@@ -441,6 +449,7 @@ const HumanVerificationTable = ({
       !event.metaKey
     ) {
       handleSaveCell(rowIndex, cellIndex, value, row);
+      // setEditMode({ rowIndex: null, cellIndex: null });
     }
   };
 
@@ -773,9 +782,8 @@ const HumanVerificationTable = ({
         updatedData?.data?.processed_table?.rows?.[rowIndex]
       );
     }
-
+    !last_edited_line_item && setEditMode({ rowIndex: null, cellIndex: null });
     // Exit edit mode after saving
-    setEditMode({ rowIndex: null, cellIndex: null });
   };
 
   const copyRow = (rowIndex, copyType) => {
@@ -1191,7 +1199,7 @@ const HumanVerificationTable = ({
     );
 
   const handleInsertRow = (row) => {
-    console.log(row);
+   
     let transaction_uuid = last_edited_line_item?.transaction_uuid;
 
     let copyObj = { ...data };
@@ -1581,14 +1589,18 @@ const HumanVerificationTable = ({
                                       ) : (
                                         <Textarea
                                           value={cellValue}
-                                          onBlur={() =>
+                                          onBlur={() => {
                                             handleSaveCell(
                                               index,
                                               i,
                                               cellValue,
                                               row
-                                            )
-                                          }
+                                            );
+                                            setEditMode({
+                                              rowIndex: null,
+                                              cellIndex: null
+                                            });
+                                          }}
                                           onClick={(e) => {
                                             e.preventDefault();
                                             e.stopPropagation();
@@ -1606,6 +1618,12 @@ const HumanVerificationTable = ({
                                             );
                                           }}
                                           onChange={(e) => {
+                                            handleSaveCell(
+                                              index,
+                                              i,
+                                              e.target.value,
+                                              row
+                                            );
                                             setCellValue(e.target.value);
                                           }}
                                         />

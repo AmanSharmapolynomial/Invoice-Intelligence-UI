@@ -84,7 +84,7 @@ const CategoryWiseItems = () => {
         vendors?.data?.find((v) => v?.vendor?.vendor_id == selected_vendor_id)
       );
     }
-  }, [vendors]);
+  }, [selected_vendor_id]);
 
   const [saving, setSaving] = useState();
   const { data: items, isLoading: loadingItems } =
@@ -131,7 +131,13 @@ const CategoryWiseItems = () => {
           onSuccess: () => {
             setSaving(false);
             queryClient.invalidateQueries({
+              queryKey: ["category-wise-items"]
+            });
+            queryClient.invalidateQueries({
               queryKey: ["removed-items-count"]
+            });
+            queryClient.invalidateQueries({
+              queryKey: ["removed-vendor-items"]
             });
 
             if (item_uuids?.length > 0) {
@@ -150,6 +156,9 @@ const CategoryWiseItems = () => {
                   queryClient.invalidateQueries({
                     queryKey: ["removed-vendor-items"]
                   });
+              
+            setSelectedVendor(vendors?.data[0]);
+            updateParams({selected_vendor_id: vendors?.data[0]?.vendor?.vendor_id});
                   updateParams({ search_term: "" });
                   if (item_uuids?.length == 0) {
                     if (page < items?.total_pages) {
@@ -175,6 +184,7 @@ const CategoryWiseItems = () => {
                 }
               });
             }
+            setUnCheckedItems([]);
           },
           onError: () => {
             setSaving(false);
@@ -198,6 +208,10 @@ const CategoryWiseItems = () => {
             queryClient.invalidateQueries({
               queryKey: ["removed-vendor-items"]
             });
+            
+           
+            setSelectedVendor(vendors?.data[0]);
+            updateParams({selected_vendor_id: vendors?.data[0]?.vendor?.vendor_id});
             updateParams({ search_term: "" });
             if (item_uuids?.length == 0) {
               if (page < items?.total_pages) {
@@ -222,15 +236,22 @@ const CategoryWiseItems = () => {
             setSaving(false);
           }
         });
-      }else{
+      } else {
         if (page < items?.total_pages) {
           updateParams({
             page: Number(page) + 1
           });
+          setUnCheckedItems([]);
         }
       }
     }
+
+
+
+
+
   };
+ 
   let timer;
   const vendorListRef = useRef(null); // Ref for the scrollable container
   const vendorItemRefs = useRef([]); // Refs for each vendor item
@@ -803,9 +824,11 @@ const CategoryWiseItems = () => {
                               <span className="font-poppins font-semibold">
                                 {index}.
                               </span>{" "}
-                              <span>{item?.item_description?.length > 90
-                            ? item?.item_description?.slice(0, 90) + "..."
-                            : item?.item_description}</span>
+                              <span>
+                                {item?.item_description?.length > 90
+                                  ? item?.item_description?.slice(0, 90) + "..."
+                                  : item?.item_description}
+                              </span>
                             </span>
                           </div>
 
