@@ -53,7 +53,7 @@ const BulkCategoriesListing = () => {
   let approved_items_count_order =
     searchParams.get("approved_items_count_order") || "all";
   let not_approved_items_count_order =
-    searchParams.get("not_approved_items_count_order") || "all";
+    searchParams.get("not_approved_items_count_order") || "desc";
   let name = searchParams.get("name") || "";
   const { data, isLoading } = useGetCategoriesForBulkCategorization({
     page,
