@@ -1,5 +1,6 @@
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
+import approved from "@/assets/image/approved.svg";
 import { PdfViewer } from "@/components/common/PDFViewer";
 import Sidebar from "@/components/common/Sidebar";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,8 @@ const CombineDuplicateVendors = () => {
   const [searchParams] = useSearchParams();
   let vendor_1_name = searchParams.get("vendor_1_name");
   let vendor_2_name = searchParams.get("vendor_2_name");
+  let vendor_1_human_verified = searchParams.get("vendor_1_human_verified");
+  let vendor_2_human_verified = searchParams.get("vendor_2_human_verified");
   let finding_id = searchParams.get("finding_id");
   const navigate = useNavigate();
   const { data, isLoading } = useGetVendorsPdfs({
@@ -45,67 +48,23 @@ const CombineDuplicateVendors = () => {
             title="Combine Vendors"
             crumbs={[{ path: null, label: "Combine Vendors" }]}
           />
-          {data?.data ?<div className="px-8">
-            {isLoading ? (
-              <div className="flex items-center gap-x-16  justify-between max-w-full overflow-auto mb-2">
-                <div className="w-full">
-                  <Link
-                    target="_blank"
-                    to={`${
-                      import.meta.env.VITE_APP_OLD_UI_STAGING_UI
-                    }/vendor-consolidation-v2/${vendor1}`}
-                    className="font-poppins font-semibold cursor-pointer capitalize text-sm mt-2 mb-2"
-                  >
-                    {vendor_1_name}
-                  </Link>
-                  <Skeleton className={"!min-h-[45rem] !w-full"} />
-                </div>
-                <div className="w-full">
-                  <Link
-                    target="_blank"
-                    to={`${
-                      import.meta.env.VITE_APP_OLD_UI_STAGING_UI
-                    }/vendor-consolidation-v2/${vendor2}`}
-                    className="font-poppins capitalize font-bold text-lg mt-2 mb-2"
-                  >
-                    {vendor_2_name}
-                  </Link>
-
-                  <Skeleton className={"!min-h-[45rem] !w-full"} />
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center gap-x-8  justify-between min-w-full overflow-auto mb-2">
-                <div className="w-1/2">
-                  <Link
-                    target="_blank"
-                    to={`${
-                      import.meta.env.VITE_APP_OLD_UI_STAGING_UI
-                    }/vendor-consolidation-v2/${vendor1}`}
-                    className="font-poppins capitalize font-bold text-lg mt-2 mb-2"
-                  >
-                    {vendor_1_name}
-                  </Link>
-                  {data?.data?.[vendor1] ? (
-                    <PdfViewer
-                      pdfUrls={[...data?.data?.[vendor1]]}
-                      multiple={true}
-                      className={"!min-h-[45rem] w-[40vw]"}
-                    />
-                  ) : (
-                    <div
-                      className={
-                        "!min-h-[45rem] w-[40vw] flex items-center justify-center"
-                      }
+          {data?.data ? (
+            <div className="px-8">
+              {isLoading ? (
+                <div className="flex items-center gap-x-16  justify-between max-w-full overflow-auto mb-2">
+                  <div className="w-full">
+                    <Link
+                      target="_blank"
+                      to={`${
+                        import.meta.env.VITE_APP_OLD_UI_STAGING_UI
+                      }/vendor-consolidation-v2/${vendor1}`}
+                      className="font-poppins font-semibold cursor-pointer capitalize text-sm mt-2 mb-2"
                     >
-                      <p className="font-poppins  font-semibold text-base">
-                        No PDF Found
-                      </p>
-                    </div>
-                  )}
-                </div>
-                <div className="w-1/2">
-                  <div className="flex items-center justify-between">
+                      {vendor_1_name}
+                    </Link>
+                    <Skeleton className={"!min-h-[45rem] !w-full"} />
+                  </div>
+                  <div className="w-full">
                     <Link
                       target="_blank"
                       to={`${
@@ -115,64 +74,114 @@ const CombineDuplicateVendors = () => {
                     >
                       {vendor_2_name}
                     </Link>
-                    <div className="flex items-center gap-x-2 justify-end">
-                      <div className="flex items-center gap-x-2">
-                        <Button
-                          onClick={() => {
-                            combineVendors(
-                              { vendor_id: vendor1, data: [vendor2] },
-                              {
-                                onSuccess: () => {}
-                              }
-                            );
-                          }}
-                          className="rounded-sm font-poppins font-normal text-sm h-8"
-                        >
-                          {combiningVendors ? "Combining..." : "Combine"}
-                        </Button>
-                        <Button
-                          disabled={markingAsNotDuplicate}
-                          onClick={() => {
-                            markAsNotDuplicate(finding_id, {
-                              onSuccess: () => {
-                                navigate("/vendors-potential-duplicates");
-                              }
-                            });
-                          }}
-                          className="rounded-sm font-poppins font-normal text-sm h-8"
-                        >
-                          {markingAsNotDuplicate
-                            ? "Marking..."
-                            : "Not Duplicate"}
-                        </Button>
+
+                    <Skeleton className={"!min-h-[45rem] !w-full"} />
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-x-8  justify-between min-w-full overflow-auto mb-2">
+                  <div className="w-1/2">
+                    <Link
+                      target="_blank"
+                      to={`${
+                        import.meta.env.VITE_APP_OLD_UI_STAGING_UI
+                      }/vendor-consolidation-v2/${vendor1}`}
+                      className="font-poppins capitalize flex items-center gap-x-2 font-bold text-lg mt-2 mb-2"
+                    >
+                      <span> {vendor_1_name}</span>{" "}
+                      {vendor_1_human_verified && <img src={approved} alt="" className="h-4 w-4" />}
+                    </Link>
+                    {data?.data?.[vendor1] ? (
+                      <PdfViewer
+                        pdfUrls={[...data?.data?.[vendor1]]}
+                        multiple={true}
+                        className={"!min-h-[45rem] w-[40vw]"}
+                      />
+                    ) : (
+                      <div
+                        className={
+                          "!min-h-[45rem] w-[40vw] flex items-center justify-center"
+                        }
+                      >
+                        <p className="font-poppins  font-semibold text-base">
+                          No PDF Found
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  <div className="w-1/2">
+                    <div className="flex items-center justify-between">
+                      <Link
+                        target="_blank"
+                        to={`${
+                          import.meta.env.VITE_APP_OLD_UI_STAGING_UI
+                        }/vendor-consolidation-v2/${vendor2}`}
+                        className="font-poppins capitalize flex items-center gap-x-2 font-bold text-lg mt-2 mb-2"
+                      >
+                        <span> {vendor_2_name} </span>{" "}
+                        {vendor_2_human_verified && (
+                          <img src={approved} alt="" />
+                        )}
+                      </Link>
+                      <div className="flex items-center gap-x-2 justify-end">
+                        <div className="flex items-center gap-x-2">
+                          <Button
+                            onClick={() => {
+                              combineVendors(
+                                { vendor_id: vendor1, data: [vendor2] },
+                                {
+                                  onSuccess: () => {}
+                                }
+                              );
+                            }}
+                            className="rounded-sm font-poppins font-normal text-sm h-8"
+                          >
+                            {combiningVendors ? "Combining..." : "Combine"}
+                          </Button>
+                          <Button
+                            disabled={markingAsNotDuplicate}
+                            onClick={() => {
+                              markAsNotDuplicate(finding_id, {
+                                onSuccess: () => {
+                                  navigate("/vendors-potential-duplicates");
+                                }
+                              });
+                            }}
+                            className="rounded-sm font-poppins font-normal text-sm h-8"
+                          >
+                            {markingAsNotDuplicate
+                              ? "Marking..."
+                              : "Not Duplicate"}
+                          </Button>
+                        </div>
                       </div>
                     </div>
+                    {isLoading ? (
+                      <Skeleton className={"!h-[45rem] !w-[45rem]"} />
+                    ) : data?.data?.[vendor2] ? (
+                      <PdfViewer
+                        pdfUrls={[...data?.data?.[vendor2]]}
+                        multiple={true}
+                        className={"!min-h-[45rem] w-[40vw]"}
+                      />
+                    ) : (
+                      <div
+                        className={
+                          "!min-h-[45rem] w-[40vw] flex items-center justify-center"
+                        }
+                      >
+                        <p className="font-poppins  font-semibold text-base">
+                          No PDF Found
+                        </p>
+                      </div>
+                    )}
                   </div>
-                  {isLoading ? (
-                    <Skeleton className={"!h-[45rem] !w-[45rem]"} />
-                  ) : data?.data?.[vendor2] ? (
-                    <PdfViewer
-                      pdfUrls={[...data?.data?.[vendor2]]}
-                      multiple={true}
-                      className={"!min-h-[45rem] w-[40vw]"}
-                    />
-                  ) : (
-                    <div
-                      className={
-                        "!min-h-[45rem] w-[40vw] flex items-center justify-center"
-                      }
-                    >
-                      <p className="font-poppins  font-semibold text-base">
-                        No PDF Found
-                      </p>
-                    </div>
-                  )}
                 </div>
-              </div>
-            )}
-          </div>:<div className="w-full flex items-center justify-center">
-            
-            </div>}
+              )}
+            </div>
+          ) : (
+            <div className="w-full flex items-center justify-center"></div>
+          )}
         </Layout>
       </div>
     </div>
