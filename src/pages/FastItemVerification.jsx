@@ -209,7 +209,7 @@ const FastItemVerification = () => {
               }
             }
           }
-          setFIVItems(updatedItems?.filter((it)=>it?.item_uuid!==fiv_current_item?.item_uuid));
+          setFIVItems(updatedItems);
           setIsGoodDocument(fiv_items.length === 0);
           setFIVVerifiedItemsCount(Number(fiv_verified_items_count) + 1);
 
@@ -227,18 +227,12 @@ const FastItemVerification = () => {
                   onSuccess: (data) => {
                     setFIVItems(
                       data?.data?.items?.filter(
-                        (it) => it?.human_verified == false
+                        (it) => it.item_uuid !== fiv_current_item?.item_uuid
                       )
                     );
                     setIsGoodDocument(false);
 
-                    setFIVCurrentItem(
-                      fiv_items?.filter(
-                        (it) =>
-                          it.item_uuid !== fiv_current_item?.item_uuid &&
-                          it?.human_verified == false
-                      )[fiv_item_number]
-                    );
+                    setFIVCurrentItem(data?.data?.items[fiv_item_number + 1]);
                     setFIVTotalItemsCount(data?.data?.total_item_count);
                     setFIVVerifiedItemsCount(data?.data?.verified_item_count);
                   }
@@ -248,15 +242,16 @@ const FastItemVerification = () => {
           }
           if (fiv_item_number < total_items - 1) {
             setFIVItemNumber(Number(fiv_item_number) + 1);
-            if (fiv_items[Number(fiv_item_number) + 1]) {
-              setFIVCurrentItem(fiv_items[Number(fiv_item_number) + 1]);
+            if (fiv_items[Number(fiv_item_number)]) {
+              setFIVCurrentItem(fiv_items[Number(fiv_item_number)]);
             }
           } else {
             if (fiv_item_number >= total_items - 1) {
               if (page <= data?.data?.total_item_count) {
                 if (!fiv_is_final_page) {
                   updateParams({ page: Number(page) + 1 });
-
+                  setFIVItemNumber(0);
+                  setFIVCurrentItem({});
                   resetStore();
                 }
               }
@@ -269,6 +264,7 @@ const FastItemVerification = () => {
       }
     );
   };
+
 
   useEffect(() => {
     setSelectedItems([]);
