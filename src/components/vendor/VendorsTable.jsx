@@ -1,4 +1,4 @@
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useState, useMemo } from "react";
 import { ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
 import approved from "@/assets/image/approved.svg";
@@ -120,14 +120,17 @@ const VendorsTable = ({ columns, data, isLoading, vendorName }) => {
                     )
 
                     ?.map((row, rowIndex) => (
-                      <TableRow
-                        onClick={() =>
-                          navigate(
-                            `/fast-item-verification/${row?.vendor?.vendor_id}?vendor_name=${encodeURIComponent(row?.vendor?.vendor_name)}&human_verified=${row?.vendor?.human_verified}&from_view=item-master-vendors`
-                          )
-                        }
+                      <Link
+                        to={`/fast-item-verification/${
+                          row?.vendor?.vendor_id
+                        }?vendor_name=${encodeURIComponent(
+                          row?.vendor?.vendor_name
+                        )}&human_verified=${
+                          row?.vendor?.human_verified
+                        }&from_view=item-master-vendors`}
+                        target="_blank"
                         key={rowIndex}
-                        className={`grid grid-cols-${columns?.length} w-full md:max-h-[2.75rem]  md:min-h-[2.65rem] 2xl:min-h-[4rem] xl:min-h-[3.25rem] self-center content-center cursor-pointer text-xs sm:text-sm`}
+                        className={`grid grid-cols-${columns?.length} w-full md:max-h-[2.75rem]  md:min-h-[2.65rem] 2xl:min-h-[4rem] xl:min-h-[3.25rem] border border-grey/5 self-center content-center cursor-pointer text-xs sm:text-sm`}
                       >
                         {columns?.map((column) => (
                           <TableCell
@@ -149,7 +152,7 @@ const VendorsTable = ({ columns, data, isLoading, vendorName }) => {
                             </div>
                           </TableCell>
                         ))}
-                      </TableRow>
+                      </Link>
                     ))
                 ) : (
                   <div className="w-full flex items-center justify-center h-full">
