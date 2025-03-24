@@ -5,6 +5,7 @@ import {
 } from "@/components/bulk-categorization/api";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import CustomDropDown from "@/components/ui/CustomDropDown";
 import CustomSelect from "@/components/ui/CustomSelect";
 import {
   Pagination,
@@ -600,7 +601,7 @@ const ItemsCategorization = () => {
                         <TooltipTrigger className="w-full">
                           {" "}
                           <div className="mt-2 ">
-                            <CustomSelect
+                            <CustomDropDown
                               value={selectedCategory}
                               placeholder="Select Category"
                               showSearch={true}
@@ -615,7 +616,7 @@ const ItemsCategorization = () => {
                                   { label: "None", value: null }
                                 ] || []
                               }
-                              onSelect={(v) => {
+                              onChange={(v) => {
                                 setSelectedCategory(v);
                               }}
                               triggerClassName={

@@ -72,7 +72,10 @@ const CustomSelect = forwardRef(
         placeholder={placeholder}
         onOpenChange={(open) => {
           setIsDropdownOpen(open);
-          if (!open) setDropDownSearch(""); // Reset search when closing dropdown
+          // Reset search only when the dropdown closes intentionally
+          if (!open) {
+            setTimeout(() => setDropDownSearch(""), 200); 
+          }
         }}
         onValueChange={(val) => {
           onSelect(val === "none" ? "none" : val);
@@ -108,7 +111,8 @@ const CustomSelect = forwardRef(
 
         <SelectContent
           className={`${contentClassName} overflow-auto`}
-          search={
+         
+        >
             <div className="p-2 mr-2 sticky top-0  ">
               <Input
                 ref={inputRef}
@@ -117,13 +121,12 @@ const CustomSelect = forwardRef(
                 className="w-full p-2 border rounded-md"
                 onChange={(e) => {
                   e.preventDefault();
+                  e.stopPropagation();
                   setDropDownSearch(e.target.value);
-                  inputRef.current.focus();
                 }}
+                
               />
             </div>
-          }
-        >
           {/* <div className="py-1 max-h-60  overflow-auto "> */}
      
               {filteredDropDownItems?.length > 0 ? (
