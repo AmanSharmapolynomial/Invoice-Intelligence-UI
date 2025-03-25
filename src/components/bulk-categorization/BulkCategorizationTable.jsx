@@ -117,6 +117,9 @@ const BulkCategorizationTable = ({
                             <ArrowUp size={16} />
                           ) : searchParams.get(sorting_key) === "desc" ? (
                             <ArrowDown size={16} />
+                          ) : !searchParams.get(sorting_key) &&
+                            sorting_key == "not_approved_items_count_order" ? (
+                            <ArrowDown size={16} className="opacity-50" />
                           ) : (
                             <ArrowUpDown size={16} className="opacity-50" />
                           ))}
