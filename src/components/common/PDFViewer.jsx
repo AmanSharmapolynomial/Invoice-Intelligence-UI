@@ -233,7 +233,7 @@ export const PdfViewer = ({
       width: `${calculatedWidth + 10}px`,
       height: `${calculatedHeight + 10}px`,
       background: "rgba(144,238,144,0.4)",
-      zIndex: 9999,
+      zIndex: 10,
       borderRadius: 5,
       paddingLeft: 10,
       paddingRight: 5,
