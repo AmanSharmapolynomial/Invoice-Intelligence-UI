@@ -334,8 +334,8 @@ const InvoiceDetails = () => {
         onSuccess: () => {
           setLoadingState({ ...loadingState, saving: false });
           queryClient.invalidateQueries({ queryKey: ["combined-table"] });
-          setWarningCheckboxChecked(false);
           queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
+
           clearUpdatedFields();
           setShowAcceptModal(false);
         },
