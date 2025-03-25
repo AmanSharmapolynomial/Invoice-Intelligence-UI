@@ -1,4 +1,4 @@
-import { BACKEND_URL } from "@/config";
+import { ACCESS_TOKEN, BACKEND_URL } from "@/config";
 import axios from "axios";
 
 export const axiosInstance = axios.create({
@@ -25,6 +25,8 @@ axiosInstance.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    // config.headers['security-token'] = `${ACCESS_TOKEN}`;
+
     return config;
   },
   (error) => Promise.reject(error)
