@@ -382,6 +382,8 @@ const HumanVerificationTable = ({
           setSimilarLineItems(data?.data?.similar_items);
           setSimilarLineItemsRequiredColumns(data?.data?.required_columns);
           setShowSimilarLineItemsModal(true);
+          setLastEditedLineItem(null);
+          setLastEditedLineItemColumns(null);
         }
       }
     );
@@ -1596,10 +1598,7 @@ const HumanVerificationTable = ({
                                               cellValue,
                                               row
                                             );
-                                            setEditMode({
-                                              rowIndex: null,
-                                              cellIndex: null
-                                            });
+                                          
                                           }}
                                           onClick={(e) => {
                                             e.preventDefault();
@@ -1618,6 +1617,7 @@ const HumanVerificationTable = ({
                                             );
                                           }}
                                           onChange={(e) => {
+                                            e.stopPropagation();
                                             handleSaveCell(
                                               index,
                                               i,
