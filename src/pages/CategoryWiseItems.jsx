@@ -115,8 +115,7 @@ const CategoryWiseItems = () => {
         : removedItems?.data?.length > 0
         ? removedItems?.data?.map((ri) => ri?.item_uuid)
         : [];
-        console.log(removedItemsIDs)
-
+ 
     let item_uuids =
       items?.data?.items
         ?.filter((it) => !unCheckedItems?.includes(it?.item_uuid))
@@ -156,9 +155,11 @@ const CategoryWiseItems = () => {
                   queryClient.invalidateQueries({
                     queryKey: ["removed-vendor-items"]
                   });
-              
-            setSelectedVendor(vendors?.data[0]);
-            updateParams({selected_vendor_id: vendors?.data[0]?.vendor?.vendor_id});
+
+                  setSelectedVendor(vendors?.data[0]);
+                  updateParams({
+                    selected_vendor_id: vendors?.data[0]?.vendor?.vendor_id
+                  });
                   updateParams({ search_term: "" });
                   if (item_uuids?.length == 0) {
                     if (page < items?.total_pages) {
@@ -208,10 +209,11 @@ const CategoryWiseItems = () => {
             queryClient.invalidateQueries({
               queryKey: ["removed-vendor-items"]
             });
-            
-           
+
             setSelectedVendor(vendors?.data[0]);
-            updateParams({selected_vendor_id: vendors?.data[0]?.vendor?.vendor_id});
+            updateParams({
+              selected_vendor_id: vendors?.data[0]?.vendor?.vendor_id
+            });
             updateParams({ search_term: "" });
             if (item_uuids?.length == 0) {
               if (page < items?.total_pages) {
@@ -245,13 +247,8 @@ const CategoryWiseItems = () => {
         }
       }
     }
-
-
-
-
-
   };
- 
+
   let timer;
   const vendorListRef = useRef(null); // Ref for the scrollable container
   const vendorItemRefs = useRef([]); // Refs for each vendor item
@@ -309,7 +306,11 @@ const CategoryWiseItems = () => {
         let matchedItemIndex = items?.data?.items.findIndex(
           (item, i) => i == Number(e.key)
         );
-        if (matchedItemIndex > -1) {
+    
+        if (
+          matchedItemIndex > -1 &&
+          !items?.data?.items[matchedItemIndex]?.category_review_required
+        ) {
           if (
             unCheckedItems?.includes(
               items?.data?.items[matchedItemIndex]?.item_uuid
@@ -370,7 +371,8 @@ const CategoryWiseItems = () => {
             let matchedItemIndex = items?.data?.items.findIndex(
               (item, i) => i == Number(e.key)
             );
-            if (matchedItemIndex > -1) {
+            if (matchedItemIndex > -1 &&
+              !items?.data?.items[matchedItemIndex]?.category_review_required) {
               // items?.data?.items[matchedItemIndex]?.item_uuid
               if (
                 unCheckedItems?.includes(
@@ -815,7 +817,8 @@ const CategoryWiseItems = () => {
                           }}
                           className={` ${
                             (isUncheckd ||
-                              unCheckedItems?.includes(item?.item_uuid)) &&
+                              unCheckedItems?.includes(item?.item_uuid) ||
+                              item?.category_review_required) &&
                             "border-[#ca5644]"
                           } border rounded-sm w-full px-4 cursor-pointer border-[#D9D9D9] min-h-[2.5rem] flex items-center justify-between`}
                         >
@@ -833,7 +836,8 @@ const CategoryWiseItems = () => {
                           </div>
 
                           {!isUncheckd &&
-                            !unCheckedItems?.includes(item?.item_uuid) && (
+                            !unCheckedItems?.includes(item?.item_uuid) &&
+                            !item?.category_review_required && (
                               <img
                                 src={check_circle}
                                 alt=""

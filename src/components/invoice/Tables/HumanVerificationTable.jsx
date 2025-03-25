@@ -1598,6 +1598,12 @@ const HumanVerificationTable = ({
                                               cellValue,
                                               row
                                             );
+                                            setEditMode(
+                                              {
+                                                rowIndex: null,
+                                                cellIndex: null
+                                              }
+                                            )
                                           
                                           }}
                                           onClick={(e) => {
