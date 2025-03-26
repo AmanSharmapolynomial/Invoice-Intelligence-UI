@@ -522,6 +522,7 @@ const InvoiceDetails = () => {
 
   useEffect(() => {
     setShowAlreadySyncedModal(false);
+    setWarningCheckboxChecked(false)
   }, [page]);
 
   const { mutate: revertChanges } = useRevertChanges();
