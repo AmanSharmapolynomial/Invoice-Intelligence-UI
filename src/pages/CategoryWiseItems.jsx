@@ -72,6 +72,13 @@ const CategoryWiseItems = () => {
       ? vendors?.data?.find((v) => v?.vendor?.vendor_id == selected_vendor_id)
       : null
   );
+  const [selectedVendorIndex, setSelectedVendorIndex] = useState(
+    vendors?.data?.length > 0
+      ? vendors?.data?.findIndex(
+          (v) => v?.vendor?.vendor_id == selected_vendor_id
+        )
+      : 0
+  );
   const { data: removedItemsCount, isLoading: loadingRemovedItemsCount } =
     useGetRemovedItemsCount({
       mode,
@@ -82,6 +89,11 @@ const CategoryWiseItems = () => {
     if (vendors?.data?.length > 0) {
       setSelectedVendor(
         vendors?.data?.find((v) => v?.vendor?.vendor_id == selected_vendor_id)
+      );
+      setSelectedVendorIndex(
+        vendors?.data?.findIndex(
+          (v) => v?.vendor?.vendor_id == selected_vendor_id
+        ) || 0
       );
     }
   }, [selected_vendor_id]);
@@ -115,7 +127,7 @@ const CategoryWiseItems = () => {
         : removedItems?.data?.length > 0
         ? removedItems?.data?.map((ri) => ri?.item_uuid)
         : [];
- 
+
     let item_uuids =
       items?.data?.items
         ?.filter((it) => !unCheckedItems?.includes(it?.item_uuid))
@@ -155,8 +167,23 @@ const CategoryWiseItems = () => {
                   queryClient.invalidateQueries({
                     queryKey: ["removed-vendor-items"]
                   });
-
-                  setSelectedVendor(vendors?.data[0]);
+                  if (selectedVendorIndex + 1 < vendors?.data?.length) {
+                    setSelectedVendor(vendors?.data[selectedVendorIndex + 1]);
+                    setSelectedVendorIndex(selectedVendorIndex + 1);
+                    updateParams({
+                      selected_vendor_id:
+                        vendors?.data[selectedVendorIndex + 1]?.vendor
+                          ?.vendor_id
+                    });
+                    updateParams({ search_term: "" });
+                  } else {
+                    setSelectedVendor(vendors?.data[0]);
+                    setSelectedVendorIndex(0);
+                    updateParams({
+                      selected_vendor_id: vendors?.data[0]?.vendor?.vendor_id
+                    });
+                    updateParams({ search_term: "" });
+                  }
                   updateParams({
                     selected_vendor_id: vendors?.data[0]?.vendor?.vendor_id
                   });
@@ -210,11 +237,23 @@ const CategoryWiseItems = () => {
               queryKey: ["removed-vendor-items"]
             });
 
-            setSelectedVendor(vendors?.data[0]);
-            updateParams({
-              selected_vendor_id: vendors?.data[0]?.vendor?.vendor_id
-            });
-            updateParams({ search_term: "" });
+            if (selectedVendorIndex + 1 < vendors?.data?.length) {
+              setSelectedVendor(vendors?.data[selectedVendorIndex + 1]);
+              setSelectedVendorIndex(selectedVendorIndex + 1);
+
+              updateParams({
+                selected_vendor_id: vendors?.data[0]?.vendor?.vendor_id
+              });
+              updateParams({ search_term: "" });
+            } else {
+              setSelectedVendor(vendors?.data[0]);
+              setSelectedVendorIndex(0);
+              updateParams({
+                selected_vendor_id: vendors?.data[0]?.vendor?.vendor_id
+              });
+              updateParams({ search_term: "" });
+            }
+
             if (item_uuids?.length == 0) {
               if (page < items?.total_pages) {
                 setSaving(false);
@@ -306,7 +345,7 @@ const CategoryWiseItems = () => {
         let matchedItemIndex = items?.data?.items.findIndex(
           (item, i) => i == Number(e.key)
         );
-    
+
         if (
           matchedItemIndex > -1 &&
           !items?.data?.items[matchedItemIndex]?.category_review_required
@@ -338,6 +377,13 @@ const CategoryWiseItems = () => {
                 ?.toLowerCase()
                 ?.includes(searchTerm?.toLowerCase())
             )[0]
+          );
+          setSelectedVendorIndex(
+            vendors?.data?.findIndex((v) =>
+              v?.vendor?.vendor_name
+                ?.toLowerCase()
+                ?.includes(searchTerm?.toLowerCase())
+            ) || 0
           );
         }
       }
@@ -371,8 +417,10 @@ const CategoryWiseItems = () => {
             let matchedItemIndex = items?.data?.items.findIndex(
               (item, i) => i == Number(e.key)
             );
-            if (matchedItemIndex > -1 &&
-              !items?.data?.items[matchedItemIndex]?.category_review_required) {
+            if (
+              matchedItemIndex > -1 &&
+              !items?.data?.items[matchedItemIndex]?.category_review_required
+            ) {
               // items?.data?.items[matchedItemIndex]?.item_uuid
               if (
                 unCheckedItems?.includes(
@@ -415,6 +463,12 @@ const CategoryWiseItems = () => {
         e.preventDefault();
         const selected = filteredVendors[focusedVendor];
         setSelectedVendor(selected);
+        setSelectedVendorIndex(
+          vendors?.data?.findIndex(
+            (v) => v?.vendor?.vendor_id == selected?.vendor?.vendor_id
+          ) || 0
+        );
+
         setFocusedVendor(-1);
         updateParams({
           page: 1,
@@ -636,6 +690,8 @@ const CategoryWiseItems = () => {
                               });
                             } else {
                               setSelectedVendor(vendor);
+                              setSelectedVendorIndex(index);
+                              
                               updateParams({
                                 page: 1,
                                 selected_vendor_id: vendor?.vendor?.vendor_id

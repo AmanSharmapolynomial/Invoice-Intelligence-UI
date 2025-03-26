@@ -113,12 +113,12 @@ const CustomSelect = forwardRef(
           className={`${contentClassName} overflow-auto`}
          
         >
-            <div className="p-2 mr-2 sticky top-0  ">
+            <div className="p-2 mr-2 sticky top-0 bg-white z-50 ">
               <Input
                 ref={inputRef}
                 placeholder={searchPlaceHolder}
                 value={dropDownSearch}
-                className="w-full p-2 border rounded-md"
+                className="w-full p-2 bg-white border rounded-md z-50"
                 onChange={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
