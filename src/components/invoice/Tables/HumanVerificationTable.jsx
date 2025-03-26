@@ -76,7 +76,7 @@ const HumanVerificationTable = ({
     document_uuid: document_uuid
   });
   const [autoCalculate, setAutoCalculate] = useState(false);
-  
+
   const [hoveredRow, setHoveredRow] = useState(false);
   const [showActionsPopup, setShowActionsPopup] = useState(false);
   const [viewVerificationColumn, setViewVerificationColumn] = useState(true);
@@ -355,8 +355,7 @@ const HumanVerificationTable = ({
     }
   }, [metaData]);
   const handleItemMasterLookup = () => {
-    
-    if(!last_edited_line_item){
+    if (!last_edited_line_item) {
       return;
     }
     let { cells } = last_edited_line_item;
@@ -366,7 +365,7 @@ const HumanVerificationTable = ({
     let item_description_text = cells?.find(
       (c) => c?.column_uuid == item_description_column_uuid
     )?.text;
-  
+
     lookUpItemMaster(
       {
         document_uuid,
@@ -375,9 +374,9 @@ const HumanVerificationTable = ({
       },
       {
         onSuccess: (data) => {
-          if(data?.data?.similar_items?.length==0){
+          if (data?.data?.similar_items?.length == 0) {
             toast.success("No Similar Items Found");
-            return
+            return;
           }
           setSimilarLineItems(data?.data?.similar_items);
           setSimilarLineItemsRequiredColumns(data?.data?.required_columns);
@@ -1201,7 +1200,6 @@ const HumanVerificationTable = ({
     );
 
   const handleInsertRow = (row) => {
-   
     let transaction_uuid = last_edited_line_item?.transaction_uuid;
 
     let copyObj = { ...data };
@@ -1268,9 +1266,7 @@ const HumanVerificationTable = ({
               Items
             </p>
             <div className="flex items-center gap-x-4">
-              <CustomTooltip content={"Highlighting"}>
-               
-              </CustomTooltip>
+              <CustomTooltip content={"Highlighting"}></CustomTooltip>
               <CustomTooltip content={"Highlight All Items"}>
                 <div className="flex items-center gap-x-2">
                   <Label
@@ -1517,7 +1513,6 @@ const HumanVerificationTable = ({
                                   onMouseEnter={(e) => {
                                     e.stopPropagation();
                                     if (stopHovering) {
-                              
                                       if (cell.bounding_box == null) {
                                         setHoveredRow(true);
                                       } else {
@@ -1598,13 +1593,10 @@ const HumanVerificationTable = ({
                                               cellValue,
                                               row
                                             );
-                                            setEditMode(
-                                              {
-                                                rowIndex: null,
-                                                cellIndex: null
-                                              }
-                                            )
-                                          
+                                            setEditMode({
+                                              rowIndex: null,
+                                              cellIndex: null
+                                            });
                                           }}
                                           onClick={(e) => {
                                             e.preventDefault();
@@ -1988,8 +1980,8 @@ const HumanVerificationTable = ({
           </div>
           <div
             onMouseEnter={() => {
-              if(!stopHovering){
-                return
+              if (!stopHovering) {
+                return;
               }
               let boundng_boxes =
                 metadataBoundingBoxes?.data?.[`invoice_extracted_total`];
@@ -2072,9 +2064,9 @@ const HumanVerificationTable = ({
         <>
           <div
             onMouseEnter={() => {
-                if(!stopHovering){
-                  return
-                }
+              if (!stopHovering) {
+                return;
+              }
               let boundng_boxes =
                 metadataBoundingBoxes?.data?.[`invoice_extracted_total`];
               if (boundng_boxes) {

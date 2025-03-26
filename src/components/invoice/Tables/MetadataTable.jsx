@@ -191,6 +191,7 @@ const MetadataTable = ({
   const { data: vendorAddress, isLoading: loadingAddresses } =
     useGetVendorAddresses(vendor?.vendor_id);
   let page = searchParams.get("page");
+  let page_number = searchParams.get("page_number");
   const { mutate: updateVendorOrBranch, isPending } = useUpdateVendorOrBranch();
   const updateVendor = (vendor) => {
     setLoadingState({ ...loadingState, savingVendor: true });
@@ -216,8 +217,9 @@ const MetadataTable = ({
           });
           setNewVendor("");
         },
-        onError: () => {
+        onError: (data) => {
           setLoadingState({ ...loadingState, savingVendor: false });
+          toast.error(data?.message);
         }
       }
     );
@@ -246,8 +248,9 @@ const MetadataTable = ({
           setEditBranch(false);
           setNewBranch("");
         },
-        onError: () => {
+        onError: (data) => {
           setLoadingState({ ...loadingState, savingBranch: false });
+          toast.error(data?.message);
         }
       }
     );
@@ -314,10 +317,6 @@ const MetadataTable = ({
       setBoundingBoxes([]);
     }
   };
-
-  useEffect(() => {
-    setWarningCheckboxChecked(false);
-  }, [page]);
 
   return (
     <div className="w-full -mt-3 border border-[#F0F0F0] shadow-sm p-2 rounded-md">
@@ -564,7 +563,7 @@ const MetadataTable = ({
                       let formattedVendors = vendorNamesFormatter(
                         vendorsData?.vendor_names
                       );
-                     
+
                       if (
                         !formattedVendors?.find(
                           (v) => v.value == vendor?.vendor_id
@@ -714,9 +713,8 @@ const MetadataTable = ({
                       if (loadingAddresses) {
                         return [];
                       }
-                      let formattedVendorAddresses = vendorAddressFormatter(
-                        vendorAddress?.branches
-                      )||[];
+                      let formattedVendorAddresses =
+                        vendorAddressFormatter(vendorAddress?.branches) || [];
 
                       if (
                         !formattedVendorAddresses?.find(
