@@ -1,9 +1,8 @@
-import check_circle from "@/assets/image/check_circle.svg";
-import no_items from "@/assets/image/no_items.svg";
 import user_grey from "@/assets/image/user_grey.svg";
 import user_white from "@/assets/image/user_white.svg";
 import {
   useApproveCategoryVendorItems,
+  useGetAllItemsOfACategory,
   useGetCategoryWiseVendor,
   useGetCategoryWiseVendorItems,
   useGetRemovedItemsCount,
@@ -11,16 +10,12 @@ import {
   useRemoveCategoryItemsInBulk,
   useRemoveVendorItem
 } from "@/components/bulk-categorization/api";
+import ItemsListingWithoutScrollingApproval from "@/components/bulk-categorization/ItemsListingWithoutScrollingApproval";
+import ItemsListingWithScrollingApproval from "@/components/bulk-categorization/ItemsListingWithScrollingApproval";
 import { Button } from "@/components/ui/button";
 import CustomInput from "@/components/ui/Custom/CustomInput";
 import { Label } from "@/components/ui/label";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink
-} from "@/components/ui/pagination";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -31,16 +26,7 @@ import {
 } from "@/components/ui/tooltip";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { queryClient } from "@/lib/utils";
-import { filter, remove } from "lodash";
-import {
-  ArrowLeft,
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-  ListX,
-  X
-} from "lucide-react";
+import { ArrowLeft, ListX, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import {
@@ -79,6 +65,9 @@ const CategoryWiseItems = () => {
         )
       : 0
   );
+  const [checkedItems, setCheckedItems] = useState([]);
+  const [scrollingMode, setScrollingMode] = useState(false);
+
   const { data: removedItemsCount, isLoading: loadingRemovedItemsCount } =
     useGetRemovedItemsCount({
       mode,
@@ -104,7 +93,8 @@ const CategoryWiseItems = () => {
       category_id,
       vendor_id: selectedVendor?.vendor?.vendor_id || null,
       page: page || 1,
-      page_size: page_size || 10
+      page_size: page_size || 10,
+      scrollingMode: scrollingMode
     });
   const { data: removedItems, isLoading: loadingRemovedItems } =
     useGetRemovedVendorItems({
@@ -119,110 +109,56 @@ const CategoryWiseItems = () => {
     useApproveCategoryVendorItems();
 
   const saveAndNextHandler = () => {
-    const removedItemsIDs =
-      mode == "vendor"
-        ? removedItems?.data?.removed_items?.length > 0
-          ? removedItems?.data?.removed_items?.map((ri) => ri?.item_uuid)
-          : []
-        : removedItems?.data?.length > 0
-        ? removedItems?.data?.map((ri) => ri?.item_uuid)
-        : [];
-
-    let item_uuids =
-      items?.data?.items
-        ?.filter((it) => !unCheckedItems?.includes(it?.item_uuid))
-        ?.map((it) => it.item_uuid)
-        ?.filter((it) => !removedItemsIDs?.includes(it)) || [];
-
-    if (unCheckedItems?.length > 0) {
+    if (scrollingMode) {
       setSaving(true);
-      removeItemsInBulk(
-        { item_uuids: unCheckedItems },
-        {
-          onSuccess: () => {
-            setSaving(false);
-            queryClient.invalidateQueries({
-              queryKey: ["category-wise-items"]
-            });
-            queryClient.invalidateQueries({
-              queryKey: ["removed-items-count"]
-            });
-            queryClient.invalidateQueries({
-              queryKey: ["removed-vendor-items"]
-            });
-
-            if (item_uuids?.length > 0) {
-              setSaving(true);
-              approveVendorItems(item_uuids, {
-                onSuccess: (data) => {
-                  setUnCheckedItems([]);
-                  toast.success(data?.message);
-                  setSaving(false);
-                  queryClient.invalidateQueries({
-                    queryKey: ["category-wise-items"]
-                  });
-                  queryClient.invalidateQueries({
-                    queryKey: ["removed-items-count"]
-                  });
-                  queryClient.invalidateQueries({
-                    queryKey: ["removed-vendor-items"]
-                  });
-                  if (selectedVendorIndex + 1 < vendors?.data?.length) {
-                    setSelectedVendor(vendors?.data[selectedVendorIndex + 1]);
-                    setSelectedVendorIndex(selectedVendorIndex + 1);
-                    updateParams({
-                      selected_vendor_id:
-                        vendors?.data[selectedVendorIndex + 1]?.vendor
-                          ?.vendor_id
-                    });
-                    updateParams({ search_term: "" });
-                  } else {
-                    setSelectedVendor(vendors?.data[0]);
-                    setSelectedVendorIndex(0);
-                    updateParams({
-                      selected_vendor_id: vendors?.data[0]?.vendor?.vendor_id
-                    });
-                    updateParams({ search_term: "" });
-                  }
-                  updateParams({
-                    selected_vendor_id: vendors?.data[0]?.vendor?.vendor_id
-                  });
-                  updateParams({ search_term: "" });
-                  if (item_uuids?.length == 0) {
-                    if (page < items?.total_pages) {
+      if (unCheckedItems?.length > 0) {
+        removeItemsInBulk(
+          { item_uuids: unCheckedItems },
+          {
+            onSuccess: () => {
+              setUnCheckedItems([]);
+              setSaving(false);
+              if (!checkedItems?.length > 0) {
+                queryClient.invalidateQueries({
+                  queryKey: ["category-wise-items"]
+                });
+                queryClient.invalidateQueries({
+                  queryKey: ["removed-items-count"]
+                });
+                queryClient.invalidateQueries({
+                  queryKey: ["removed-vendor-items"]
+                });
+              }
+              {
+                if (checkedItems?.length > 0) {
+                  approveVendorItems(checkedItems, {
+                    onSuccess: (data) => {
+                      setUnCheckedItems([]);
+                      toast.success(data?.message);
                       setSaving(false);
-                      updateParams({
-                        page: Number(page) + 1
+                      queryClient.invalidateQueries({
+                        queryKey: ["category-wise-items"]
                       });
-                    } else {
+                      queryClient.invalidateQueries({
+                        queryKey: ["removed-items-count"]
+                      });
+                      queryClient.invalidateQueries({
+                        queryKey: ["removed-vendor-items"]
+                      });
+                    },
+                    onError: (data) => {
+                      toast.error(data?.message);
                       setSaving(false);
-                      if (mode == "vendor" && selectedVendor == null) {
-                        toast.error("Select a vendor.");
-                      } else {
-                        navigate(
-                          `/items-categorization/${category_id}/${selectedVendor?.vendor?.vendor_id}?category_name=${category_name}&page=${page}&selected_vendor_id=${selected_vendor_id}&mode=${mode}`
-                        );
-                      }
                     }
-                  }
-                },
-                onError: (data) => {
-                  toast.error(data?.message);
-                  setSaving(false);
+                  });
                 }
-              });
+              }
             }
-            setUnCheckedItems([]);
-          },
-          onError: () => {
-            setSaving(false);
           }
-        }
-      );
-    } else {
-      if (item_uuids?.length > 0) {
-        setSaving(true);
-        approveVendorItems(item_uuids, {
+        );
+      }
+      if (checkedItems?.length > 0) {
+        approveVendorItems(checkedItems, {
           onSuccess: (data) => {
             setUnCheckedItems([]);
             toast.success(data?.message);
@@ -236,53 +172,194 @@ const CategoryWiseItems = () => {
             queryClient.invalidateQueries({
               queryKey: ["removed-vendor-items"]
             });
-
-            if (selectedVendorIndex + 1 < vendors?.data?.length) {
-              setSelectedVendor(vendors?.data[selectedVendorIndex + 1]);
-              setSelectedVendorIndex(selectedVendorIndex + 1);
-
-              updateParams({
-                selected_vendor_id: vendors?.data[0]?.vendor?.vendor_id
-              });
-              updateParams({ search_term: "" });
-            } else {
-              setSelectedVendor(vendors?.data[0]);
-              setSelectedVendorIndex(0);
-              updateParams({
-                selected_vendor_id: vendors?.data[0]?.vendor?.vendor_id
-              });
-              updateParams({ search_term: "" });
-            }
-
-            if (item_uuids?.length == 0) {
-              if (page < items?.total_pages) {
-                setSaving(false);
-                updateParams({
-                  page: Number(page) + 1
-                });
-              } else {
-                setSaving(false);
-                if (mode == "vendor" && selectedVendor == null) {
-                  toast.error("Select a vendor.");
-                } else {
-                  navigate(
-                    `/items-categorization/${category_id}/${selectedVendor?.vendor?.vendor_id}?category_name=${category_name}&page=${page}&selected_vendor_id=${selected_vendor_id}&mode=${mode}`
-                  );
-                }
-              }
-            }
           },
           onError: (data) => {
             toast.error(data?.message);
             setSaving(false);
           }
         });
+      }
+    } else {
+      const removedItemsIDs =
+        mode == "vendor"
+          ? removedItems?.data?.removed_items?.length > 0
+            ? removedItems?.data?.removed_items?.map((ri) => ri?.item_uuid)
+            : []
+          : removedItems?.data?.length > 0
+          ? removedItems?.data?.map((ri) => ri?.item_uuid)
+          : [];
+
+      let item_uuids =
+        (mode !== "all" ? items : allItems)?.data?.items
+          ?.filter((it) => !unCheckedItems?.includes(it?.item_uuid))
+          ?.map((it) => it.item_uuid)
+          ?.filter((it) => !removedItemsIDs?.includes(it)) || [];
+
+      if (unCheckedItems?.length > 0) {
+        setSaving(true);
+        removeItemsInBulk(
+          { item_uuids: unCheckedItems },
+          {
+            onSuccess: () => {
+              setSaving(false);
+              queryClient.invalidateQueries({
+                queryKey: ["category-wise-items"]
+              });
+              queryClient.invalidateQueries({
+                queryKey: ["removed-items-count"]
+              });
+              queryClient.invalidateQueries({
+                queryKey: ["removed-vendor-items"]
+              });
+              mode == "all" &&
+                queryClient.invalidateQueries({
+                  queryKey: ["all-items-of-category"]
+                });
+
+              if (item_uuids?.length > 0) {
+                setSaving(true);
+                approveVendorItems(item_uuids, {
+                  onSuccess: (data) => {
+                    setUnCheckedItems([]);
+                    toast.success(data?.message);
+                    setSaving(false);
+                    queryClient.invalidateQueries({
+                      queryKey: ["category-wise-items"]
+                    });
+                    queryClient.invalidateQueries({
+                      queryKey: ["removed-items-count"]
+                    });
+                    queryClient.invalidateQueries({
+                      queryKey: ["removed-vendor-items"]
+                    });
+
+                    if (items?.is_final_page) {
+                      if (selectedVendorIndex + 1 < vendors?.data?.length) {
+                        setSelectedVendor(
+                          vendors?.data[selectedVendorIndex + 1]
+                        );
+                        setSelectedVendorIndex(selectedVendorIndex + 1);
+                        updateParams({
+                          selected_vendor_id:
+                            vendors?.data[selectedVendorIndex + 1]?.vendor
+                              ?.vendor_id
+                        });
+                        updateParams({ search_term: "" });
+                      } else {
+                        setSelectedVendor(vendors?.data[0]);
+                        setSelectedVendorIndex(0);
+                        updateParams({
+                          selected_vendor_id:
+                            vendors?.data[0]?.vendor?.vendor_id
+                        });
+                        updateParams({ search_term: "" });
+                      }
+                      updateParams({
+                        selected_vendor_id: vendors?.data[0]?.vendor?.vendor_id
+                      });
+                      updateParams({ search_term: "" });
+                    }
+
+                    if (item_uuids?.length == 0) {
+                      if (page < items?.total_pages) {
+                        setSaving(false);
+                        updateParams({
+                          page: Number(page) + 1
+                        });
+                      } else {
+                        setSaving(false);
+                        if (mode == "vendor" && selectedVendor == null) {
+                          toast.error("Select a vendor.");
+                        } else {
+                          navigate(
+                            `/items-categorization/${category_id}/${selectedVendor?.vendor?.vendor_id}?category_name=${category_name}&page=${page}&selected_vendor_id=${selected_vendor_id}&mode=${mode}`
+                          );
+                        }
+                      }
+                    }
+                  },
+                  onError: (data) => {
+                    toast.error(data?.message);
+                    setSaving(false);
+                  }
+                });
+              }
+              setUnCheckedItems([]);
+            },
+            onError: () => {
+              setSaving(false);
+            }
+          }
+        );
       } else {
-        if (page < items?.total_pages) {
-          updateParams({
-            page: Number(page) + 1
+        if (item_uuids?.length > 0) {
+          setSaving(true);
+          approveVendorItems(item_uuids, {
+            onSuccess: (data) => {
+              setUnCheckedItems([]);
+              toast.success(data?.message);
+              setSaving(false);
+              queryClient.invalidateQueries({
+                queryKey: ["category-wise-items"]
+              });
+              queryClient.invalidateQueries({
+                queryKey: ["removed-items-count"]
+              });
+              queryClient.invalidateQueries({
+                queryKey: ["removed-vendor-items"]
+              });
+              mode == "all" &&
+                queryClient.invalidateQueries({
+                  queryKey: ["all-items-of-category"]
+                });
+              if ((mode !== "all" ? items : allItems)?.is_final_page) {
+                if (selectedVendorIndex + 1 < vendors?.data?.length) {
+                  setSelectedVendor(vendors?.data[selectedVendorIndex + 1]);
+                  setSelectedVendorIndex(selectedVendorIndex + 1);
+
+                  updateParams({
+                    selected_vendor_id: vendors?.data[0]?.vendor?.vendor_id
+                  });
+                  updateParams({ search_term: "" });
+                } else {
+                  setSelectedVendor(vendors?.data[0]);
+                  setSelectedVendorIndex(0);
+                  updateParams({
+                    selected_vendor_id: vendors?.data[0]?.vendor?.vendor_id
+                  });
+                  updateParams({ search_term: "" });
+                }
+              }
+              if (item_uuids?.length == 0) {
+                if (page < (mode !== "all" ? items : allItems)?.total_pages) {
+                  setSaving(false);
+                  updateParams({
+                    page: Number(page) + 1
+                  });
+                } else {
+                  setSaving(false);
+                  if (mode == "vendor" && selectedVendor == null) {
+                    toast.error("Select a vendor.");
+                  } else {
+                    navigate(
+                      `/items-categorization/${category_id}/${selectedVendor?.vendor?.vendor_id}?category_name=${category_name}&page=${page}&selected_vendor_id=${selected_vendor_id}&mode=${mode}`
+                    );
+                  }
+                }
+              }
+            },
+            onError: (data) => {
+              toast.error(data?.message);
+              setSaving(false);
+            }
           });
-          setUnCheckedItems([]);
+        } else {
+          if (page < (mode !== "all" ? items : allItems)?.total_pages) {
+            updateParams({
+              page: Number(page) + 1
+            });
+            setUnCheckedItems([]);
+          }
         }
       }
     }
@@ -294,6 +371,7 @@ const CategoryWiseItems = () => {
 
   const [focusedVendor, setFocusedVendor] = useState(-1);
   const [showShortCuts, setShowShortCuts] = useState(true);
+
   // **Filtered Vendors List**
   const filteredVendors =
     vendors?.data?.length > 0
@@ -342,28 +420,35 @@ const CategoryWiseItems = () => {
       }
       if (isEditable && inputRef.current.focus && /^[0-9]$/?.test(e.key)) {
         inputRef.current.blur();
-        let matchedItemIndex = items?.data?.items.findIndex(
-          (item, i) => i == Number(e.key)
-        );
+        let matchedItemIndex = (
+          mode !== "all" ? items : allItems
+        )?.data?.items.findIndex((item, i) => i == Number(e.key));
 
         if (
           matchedItemIndex > -1 &&
-          !items?.data?.items[matchedItemIndex]?.category_review_required
+          !(mode !== "all" ? items : allItems)?.data?.items[matchedItemIndex]
+            ?.category_review_required
         ) {
           if (
             unCheckedItems?.includes(
-              items?.data?.items[matchedItemIndex]?.item_uuid
+              (mode !== "all" ? items : allItems)?.data?.items[matchedItemIndex]
+                ?.item_uuid
             )
           ) {
             setUnCheckedItems(
               unCheckedItems?.filter(
-                (it) => it !== items?.data?.items[matchedItemIndex]?.item_uuid
+                (it) =>
+                  it !==
+                  (mode !== "all" ? items : allItems)?.data?.items[
+                    matchedItemIndex
+                  ]?.item_uuid
               )
             );
           } else {
             setUnCheckedItems([
               ...unCheckedItems,
-              items?.data?.items[matchedItemIndex]?.item_uuid
+              (mode !== "all" ? items : allItems)?.data?.items[matchedItemIndex]
+                ?.item_uuid
             ]);
           }
         }
@@ -397,12 +482,15 @@ const CategoryWiseItems = () => {
           }
         }
         if (e.key === "ArrowRight") {
-          if (unCheckedItems?.length > 0) {
-            toast("Please save the removed items.", {
+          if (unCheckedItems?.length > 0 || checkedItems?.length > 0) {
+            toast("Please save to proceed.", {
               icon: "⚠️"
             });
           } else {
-            if (page < items?.total_pages) {
+            if (
+              page <
+              (mode == "all" ? allItems?.total_pages : items?.total_pages)
+            ) {
               updateParams({
                 page: Number(page) + 1
               });
@@ -414,29 +502,38 @@ const CategoryWiseItems = () => {
         if (!removingItem) {
           if (numbers.includes(Number(e.key))) {
             inputRef.current.blur();
-            let matchedItemIndex = items?.data?.items.findIndex(
-              (item, i) => i == Number(e.key)
-            );
+            let matchedItemIndex = (
+              mode !== "all" ? items : allItems
+            )?.data?.items.findIndex((item, i) => i == Number(e.key));
             if (
               matchedItemIndex > -1 &&
-              !items?.data?.items[matchedItemIndex]?.category_review_required
+              !(mode !== "all" ? items : allItems)?.data?.items[
+                matchedItemIndex
+              ]?.category_review_required
             ) {
               // items?.data?.items[matchedItemIndex]?.item_uuid
               if (
                 unCheckedItems?.includes(
-                  items?.data?.items[matchedItemIndex]?.item_uuid
+                  (mode !== "all" ? items : allItems)?.data?.items[
+                    matchedItemIndex
+                  ]?.item_uuid
                 )
               ) {
                 setUnCheckedItems(
                   unCheckedItems?.filter(
                     (it) =>
-                      it !== items?.data?.items[matchedItemIndex]?.item_uuid
+                      it !==
+                      (mode !== "all" ? items : allItems)?.data?.items[
+                        matchedItemIndex
+                      ]?.item_uuid
                   )
                 );
               } else {
                 setUnCheckedItems([
                   ...unCheckedItems,
-                  items?.data?.items[matchedItemIndex]?.item_uuid
+                  (mode !== "all" ? items : allItems)?.data?.items[
+                    matchedItemIndex
+                  ]?.item_uuid
                 ]);
               }
             }
@@ -495,6 +592,7 @@ const CategoryWiseItems = () => {
   useEffect(() => {
     setUnCheckedItems([]);
   }, [page]);
+
   // Reset focus when search changes
   useEffect(() => {
     setFocusedVendor(-1);
@@ -510,6 +608,33 @@ const CategoryWiseItems = () => {
       });
     }
   };
+
+  useEffect(() => {
+    if (scrollingMode && mode == "all") {
+      setSelectedVendor(null);
+      updateParams({
+        selected_vendor_id: undefined,
+        search_term: ""
+      });
+    }
+
+    if (!scrollingMode && mode == "all") {
+      setSelectedVendor(null);
+      setSelectedVendorIndex(-1);
+      updateParams({
+        selected_vendor_id: undefined,
+        search_term: ""
+      });
+    }
+  }, [scrollingMode, mode]);
+  const { data: allItems, isLoading: loadingAllItems } =
+    useGetAllItemsOfACategory({
+      category_id,
+      mode,
+      scrollingMode,
+      page,
+      page_size
+    });
 
   return (
     <div className="py-4 ">
@@ -545,41 +670,68 @@ const CategoryWiseItems = () => {
               particular menu item
             </p>
           </div>
-          <div className="flex items-center gap-x-4 font-normal ">
-            <div className="mx-4 flex items-center gap-x-3">
-              <Label htmlFor="airplane-mode">Vendor Items</Label>
+          <div className="flex !items-center gap-x-4 font-normal ">
+            {
+              <div className="mx-2 flex items-center gap-x-2 ">
+                <Label htmlFor="airplane-mode" className="text-xs">
+                  Vendor Items
+                </Label>
+                <Switch
+                  className="h-5"
+                  checked={mode == "vendor" ? false : true}
+                  onCheckedChange={(v) => {
+                    updateParams({
+                      mode: v ? "all" : "vendor"
+                    });
+                  }}
+                />
+                <Label htmlFor="airplane-mode " className="text-xs">
+                  All Items
+                </Label>
+              </div>
+            }
+            {/* <div className=" flex items-center gap-x-3">
               <Switch
-                checked={mode == "vendor" ? false : true}
+                checked={scrollingMode}
                 onCheckedChange={(v) => {
                   updateParams({
-                    mode: v ? "all" : "vendor"
+                    scrolling_mode: v
                   });
+                  setScrollingMode(v);
                 }}
               />
-              <Label htmlFor="airplane-mode">All Items</Label>
-            </div>
-            {!loadingItems &&
-              selectedVendor !== null > 0 &&
-              items?.data?.items?.length > 0 && (
-                <p
-                  className="rounded-3xl underline h-[2.3rem] px-4 flex items-center justify-center font-poppins font-medium text-sm leading-5 text-black border border-[#E0E0E0] cursor-pointer "
-                  onClick={() => {
-                    window.open(
-                      `/fast-item-verification/${selectedVendor?.vendor?.vendor_id}?vendor_name=${selectedVendor?.vendor?.vendor_name}&human_verified=${selectedVendor?.vendor?.human_verified}&from_view=item-master-vendors`,
-                      "_blank"
-                    );
-                  }}
-                >
-                  FIV Items: {selectedVendor?.non_human_verified_items_count}
-                </p>
-              )}
-            {!loadingItems &&
-              selectedVendor !== null &&
-              items?.data?.items?.length > 0 && (
-                <p className="rounded-3xl h-[2.3rem] px-4 flex items-center justify-center font-poppins font-medium text-sm leading-5 text-black border border-[#E0E0E0]">
-                  Total Items : {items?.total_records}
-                </p>
-              )}
+              <Label htmlFor="airplane-mode">Auto Approve On Scroll</Label>
+            </div> */}
+            {selectedVendor && (
+              <div className="flex  gap-y-4 rounded-3xl px-3 py-2 items-center justify-center font-poppins font-medium text-xs leading-5 text-black border border-[#E0E0E0] cursor-pointer">
+                {!loadingItems &&
+                  selectedVendor !== null > 0 &&
+                  items?.data?.items?.length > 0 && (
+                    <p className=" flex  items-center gap-x-4 text-xs">
+                      {!loadingItems &&
+                        selectedVendor !== null &&
+                        items?.data?.items?.length > 0 && (
+                          <p className="!no-underline text-xs">
+                            Total Items : {items?.total_records}
+                          </p>
+                        )}
+                      <span
+                        className="underline  underline-offset-2"
+                        onClick={() => {
+                          window.open(
+                            `/fast-item-verification/${selectedVendor?.vendor?.vendor_id}?vendor_name=${selectedVendor?.vendor?.vendor_name}&human_verified=${selectedVendor?.vendor?.human_verified}&from_view=item-master-vendors`,
+                            "_blank"
+                          );
+                        }}
+                      >
+                        {" "}
+                        FIV Items:{" "}
+                        {selectedVendor?.non_human_verified_items_count}
+                      </span>
+                    </p>
+                  )}
+              </div>
+            )}
 
             <TooltipProvider>
               <Tooltip open={showShortCuts}>
@@ -588,20 +740,26 @@ const CategoryWiseItems = () => {
                     disabled={
                       saving ||
                       removingItem ||
-                      !selectedVendor ||
-                      items?.data?.items?.length == 0
+                      (mode == "vendor" && !selectedVendor) ||
+                      (mode !== "all" ? items : allItems)?.data?.items
+                        ?.length == 0
                     }
                     className="rounded-sm font-normal leading-6 w-[9rem] h-[2.3rem] text-sm  text-white"
                     onClick={() => {
                       saveAndNextHandler();
                     }}
                   >
-                    {saving ? "Saving..." : " Save & Next"}
+                    {saving
+                      ? "Saving..."
+                      : scrollingMode
+                      ? "Save"
+                      : " Save & Next"}
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent className="bg-white border relative shadow-sm px-4 flex items-center  gap-x-1  h-10">
                   <span className="mr-2 text-gray-800 text-sm ">
-                    Press <kbd>Alt</kbd> + <kbd>N</kbd> to Save & Next
+                    Press <kbd>Alt</kbd> + <kbd>N</kbd> to{" "}
+                    {scrollingMode ? "Save" : " Save & Next"}
                   </span>
                   <span onClick={() => setShowShortCuts(false)}>
                     <X className="text-gray-800 h-[1rem] absolute w-[1rem] top-1 right-1 cursor-pointer" />
@@ -684,17 +842,21 @@ const CategoryWiseItems = () => {
                         <div
                           key={index}
                           onClick={() => {
-                            if (unCheckedItems?.length > 0) {
-                              toast("Please save the removed items.", {
+                            if (
+                              unCheckedItems?.length > 0 ||
+                              checkedItems?.length > 0
+                            ) {
+                              toast("Please save to proceed.", {
                                 icon: "⚠️"
                               });
                             } else {
                               setSelectedVendor(vendor);
                               setSelectedVendorIndex(index);
-                              
+
                               updateParams({
                                 page: 1,
-                                selected_vendor_id: vendor?.vendor?.vendor_id
+                                selected_vendor_id: vendor?.vendor?.vendor_id,
+                                mode: "vendor"
                               });
                             }
                           }}
@@ -794,300 +956,38 @@ const CategoryWiseItems = () => {
           </div>
 
           {/* Items List */}
-          <div className="w-[60%]  h-full pt-8 relative">
-            <div className="flex flex-col gap-y-2 md:min-h-[30rem] 2xl:min-h-[35rem]   max-h-[40rem]">
-              {items?.data?.items?.length > 0 && (
-                <TooltipProvider>
-                  <Tooltip open={showShortCuts} className="">
-                    <TooltipTrigger className=""></TooltipTrigger>
-                    <TooltipContent className="bg-white border  shadow-sm px-4 flex items-center    gap-x-1  h-10">
-                      <span className="mr-2 text-gray-800 text-sm ">
-                        Press <kbd>0-9</kbd> to check or uncheck items.
-                      </span>
-                      <span onClick={() => setShowShortCuts(false)}>
-                        <X className="text-gray-800 h-[1rem] absolute w-[1rem] top-1 right-1 cursor-pointer" />
-                      </span>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              )}
-
-              {loadingItems ? (
-                <div className="flex flex-col gap-y-4 h-[50vh]">
-                  {new Array(10).fill(0).map((_, index) => {
-                    return (
-                      <Skeleton key={index} className={"w-full h-[2.5rem]"} />
-                    );
-                  })}
-                </div>
-              ) : (
-                <>
-                  {!selectedVendor || loadingItems ? (
-                    <div className="flex items-center justify-center    md:min-h-[25rem] 2xl:min-h-[30rem] h-[30rem] w-full">
-                      <div className="flex flex-col justify-center items-center gap-y-4">
-                        <img
-                          src={no_items}
-                          alt=""
-                          className="h-[70%] w-[60%] mt-8"
-                        />
-                        <p className="text-[#040807] font-poppins font-normal  text-[0.9rem] leading-5">
-                          To proceed, kindly choose a vendor from the side
-                          navigation menu.
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    items?.data?.items?.map((item, index) => {
-                      let isUncheckd = (
-                        mode == "vendor"
-                          ? removedItems?.data?.removed_items?.length > 0
-                          : removedItems?.data?.length > 0
-                      )
-                        ? mode == "vendor"
-                          ? removedItems?.data?.removed_items?.find(
-                              (it) => it.item_uuid == item?.item_uuid
-                            )
-                          : removedItems?.data?.find(
-                              (it) => it.item_uuid == item?.item_uuid
-                            )
-                        : false;
-
-                      return (
-                        <div
-                          key={index}
-                          onClick={() => {
-                            // removeItem({ item_uuid: item?.item_uuid });;
-
-                            if (unCheckedItems?.includes(item?.item_uuid)) {
-                              setUnCheckedItems(
-                                unCheckedItems?.filter(
-                                  (it) => it !== item?.item_uuid
-                                )
-                              );
-                            } else {
-                              setUnCheckedItems([
-                                ...unCheckedItems,
-                                item?.item_uuid
-                              ]);
-                            }
-                          }}
-                          className={` ${
-                            (isUncheckd ||
-                              unCheckedItems?.includes(item?.item_uuid) ||
-                              item?.category_review_required) &&
-                            "border-[#ca5644]"
-                          } border rounded-sm w-full px-4 cursor-pointer border-[#D9D9D9] min-h-[2.5rem] flex items-center justify-between`}
-                        >
-                          <div className="flex items-center gap-x-4">
-                            <span className="font-poppins font-normal text-xs leading-5 capitalize flex items-center gap-x-2 text-black">
-                              <span className="font-poppins font-semibold">
-                                {index}.
-                              </span>{" "}
-                              <span>
-                                {item?.item_description?.length > 90
-                                  ? item?.item_description?.slice(0, 90) + "..."
-                                  : item?.item_description}
-                              </span>
-                            </span>
-                          </div>
-
-                          {!isUncheckd &&
-                            !unCheckedItems?.includes(item?.item_uuid) &&
-                            !item?.category_review_required && (
-                              <img
-                                src={check_circle}
-                                alt=""
-                                className="h-5 w-5"
-                              />
-                            )}
-                        </div>
-                      );
-                    })
-                  )}
-                </>
-              )}
-            </div>
-            {loadingItems ? (
-              <div className="flex items-center justify-center 2xl:mt-6 md:mt-2">
-                <div className="grid grid-cols-5 gap-x-3 px-4">
-                  {new Array(5).fill(0).map((_, index) => {
-                    return (
-                      <Skeleton
-                        key={index}
-                        className={"w-[2.5rem] h-[2.5rem]"}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            ) : (
-              items?.data?.items?.length > 0 && (
-                <div className="2xl:mt-6 md:mt-2">
-                  {/* i need to  show max at 2 and then ellipssis and then at the end */}
-
-                  <Pagination>
-                    <PaginationContent>
-                      <PaginationItem className="!text-sm font-semibold cursor-pointer">
-                        <PaginationLink
-                          className={"border border-[#F1F1F1] rounded-lg"}
-                          onClick={() => {
-                            if (unCheckedItems?.length > 0) {
-                              toast("Please save the removed items.", {
-                                icon: "⚠️"
-                              });
-                            } else {
-                              updateParams({
-                                page: 1
-                              });
-                            }
-                          }}
-                        >
-                          <ChevronsLeft className="h-[1rem] w-[1rem]" />
-                        </PaginationLink>
-                      </PaginationItem>
-                      <PaginationItem className="!text-sm font-semibold cursor-pointer">
-                        <PaginationLink
-                          className={"border border-[#F1F1F1] rounded-lg"}
-                          onClick={() => {
-                            if (unCheckedItems?.length > 0) {
-                              toast("Please save the removed items.", {
-                                icon: "⚠️"
-                              });
-                            } else {
-                              if (page > 1) {
-                                updateParams({
-                                  page: page - 1
-                                });
-                              }
-                            }
-                          }}
-                        >
-                          <ChevronLeft />
-                        </PaginationLink>
-                      </PaginationItem>
-                      {new Array(items?.total_pages)
-                        ?.fill(0)
-                        ?.slice(0, items?.total_pages > 2 ? 2 : 1)
-                        ?.map((_, index) => {
-                          return (
-                            <PaginationItem
-                              key={index}
-                              className="!text-sm font-semibold cursor-pointer"
-                            >
-                              <PaginationLink
-                                className={`${
-                                  page == index + 1 &&
-                                  "bg-primary hover:bg-primary !text-white"
-                                } text-[#000000] dark:text-[#F6F6F6] border  rounded-lg font-poppins font-semibold text-sm border-[#F1F1F1]`}
-                                active={index + 1 === page}
-                                onClick={() => {
-                                  if (unCheckedItems?.length > 0) {
-                                    toast("Please save the removed items.", {
-                                      icon: "⚠️"
-                                    });
-                                  } else {
-                                    updateParams({
-                                      page: Number(index) + 1
-                                    });
-                                  }
-                                }}
-                              >
-                                {index + 1}
-                              </PaginationLink>
-                            </PaginationItem>
-                          );
-                        })}
-
-                      {items?.total_pages > 2 && (
-                        <PaginationEllipsis className="!text-sm font-semibold font-poppins " />
-                      )}
-                      {items?.total_pages > 3 &&
-                        page > 2 &&
-                        page < items?.total_pages && (
-                          <PaginationItem className="!text-sm font-semibold cursor-pointer">
-                            <PaginationLink
-                              className={`${
-                                true &&
-                                "bg-primary !text-white hover:bg-primary"
-                              } text-[#000000] border border-[#F1F1F1] rounded-lg font-poppins font-semibold text-sm dark:text-[#F6F6F6]`}
-                              onClick={() => {
-                                updateParams({
-                                  page: items?.total_pages
-                                });
-                              }}
-                            >
-                              {page}
-                            </PaginationLink>
-                          </PaginationItem>
-                        )}
-                      {items?.total_pages > 1 && (
-                        <PaginationItem className="!text-sm font-semibold cursor-pointer">
-                          <PaginationLink
-                            className={`${
-                              page == items?.total_pages &&
-                              "bg-primary !text-white hover:bg-primary"
-                            } text-[#000000] border border-[#F1F1F1] rounded-lg font-poppins font-semibold text-sm dark:text-[#F6F6F6]`}
-                            onClick={() => {
-                              if (unCheckedItems?.length > 0) {
-                                toast("Please save the removed items.", {
-                                  icon: "⚠️"
-                                });
-                              } else {
-                                updateParams({
-                                  page: items?.total_pages
-                                });
-                              }
-                            }}
-                          >
-                            {items?.total_pages}
-                          </PaginationLink>
-                        </PaginationItem>
-                      )}
-
-                      <PaginationItem className="!text-sm font-semibold cursor-pointer">
-                        <PaginationLink
-                          className={"border border-[#F1F1F1] rounded-lg"}
-                          onClick={() => {
-                            if (unCheckedItems?.length > 0) {
-                              toast("Please save the removed items.", {
-                                icon: "⚠️"
-                              });
-                            } else {
-                              if (page < items?.total_pages) {
-                                updateParams({
-                                  page: Number(page) + 1
-                                });
-                              }
-                            }
-                          }}
-                        >
-                          <ChevronRight />
-                        </PaginationLink>
-                      </PaginationItem>
-                      <PaginationItem className="!text-sm font-semibold cursor-pointer">
-                        <PaginationLink
-                          className={"border border-[#F1F1F1] rounded-lg"}
-                          onClick={() => {
-                            if (unCheckedItems?.length > 0) {
-                              toast("Please save the removed items.", {
-                                icon: "⚠️"
-                              });
-                            } else {
-                              updateParams({
-                                page: items?.total_pages
-                              });
-                            }
-                          }}
-                        >
-                          <ChevronsRight />
-                        </PaginationLink>
-                      </PaginationItem>
-                    </PaginationContent>
-                  </Pagination>
-                </div>
-              )
-            )}
-          </div>
+          {scrollingMode ? (
+            <ItemsListingWithScrollingApproval
+              items={scrollingMode && mode == "all" ? allItems : items}
+              setUnCheckedItems={setUnCheckedItems}
+              showShortCuts={showShortCuts}
+              loadingItems={
+                scrollingMode && mode == "all" ? loadingAllItems : loadingItems
+              }
+              unCheckedItems={unCheckedItems}
+              selectedVendor={selectedVendor}
+              checkedItems={checkedItems}
+              setShowShortCuts={setShowShortCuts}
+              setCheckedItems={setCheckedItems}
+              removedItems={removedItems}
+              mode={mode}
+              scrollingMode={scrollingMode}
+              page={page}
+            />
+          ) : (
+            <ItemsListingWithoutScrollingApproval
+              items={mode == "all" ? allItems : items}
+              showShortCuts={showShortCuts}
+              loadingItems={mode == "all" ? loadingAllItems : loadingItems}
+              setUnCheckedItems={setUnCheckedItems}
+              unCheckedItems={unCheckedItems}
+              selectedVendor={selectedVendor}
+              setShowShortCuts={setShowShortCuts}
+              removedItems={removedItems}
+              mode={mode}
+              page={page}
+            />
+          )}
         </div>
 
         <p className="text-[#666666] font-poppins font-normal text-base leading-5 mt-4 2xl:absolute 2xl:bottom-4 2xl:pb-4 bottom-0">

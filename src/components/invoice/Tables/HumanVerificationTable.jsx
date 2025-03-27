@@ -40,6 +40,7 @@ import {
 } from "../api";
 import ContextMenu from "../ContextMenu";
 import { Modal, ModalDescription } from "@/components/ui/Modal";
+import ResizableModal from "@/components/ui/Custom/ResizeableModal";
 
 const HumanVerificationTable = ({
   data,
@@ -86,7 +87,8 @@ const HumanVerificationTable = ({
   const [editMode, setEditMode] = useState({ rowIndex: null, cellIndex: null });
   const [cellValue, setCellValue] = useState("");
 
-  const { mutate: lookUpItemMaster } = useGetItemMasterLookUp();
+  const { mutate: lookUpItemMaster, isPending: loadingItemLookups } =
+    useGetItemMasterLookUp();
   const navigate = useNavigate();
   const [contextMenu, setContextMenu] = useState({
     visible: false,
@@ -376,13 +378,13 @@ const HumanVerificationTable = ({
         onSuccess: (data) => {
           if (data?.data?.similar_items?.length == 0) {
             toast.success("No Similar Items Found");
+            setSimilarLineItems([]);
+            setSimilarLineItemsRequiredColumns([]);
             return;
           }
           setSimilarLineItems(data?.data?.similar_items);
           setSimilarLineItemsRequiredColumns(data?.data?.required_columns);
           setShowSimilarLineItemsModal(true);
-         
-     
         }
       }
     );
@@ -392,6 +394,10 @@ const HumanVerificationTable = ({
       if (e.shiftKey && e.key == "Enter") {
         e.preventDefault();
         handleItemMasterLookup();
+        setEditMode({
+          rowIndex: null,
+          cellIndex: null
+        });
       }
     };
 
@@ -783,9 +789,8 @@ const HumanVerificationTable = ({
         updatedData?.data?.processed_table?.rows?.[rowIndex]
       );
     }
-    !last_edited_line_item && setEditMode({ rowIndex: null, cellIndex: null });
+    // !last_edited_line_item && setEditMode({ rowIndex: null, cellIndex: null });
     // Exit edit mode after saving
-    
   };
 
   const copyRow = (rowIndex, copyType) => {
@@ -1246,10 +1251,6 @@ const HumanVerificationTable = ({
     setOperations(ops); // Correctly appends new operations
 
     queryClient.setQueryData(["combined-table", document_uuid], copyObj);
-    setLastEditedLineItem(null);
-    setSimilarLineItems([]);
-    setLastEditedLineItemColumns([]);
-    setShowSimilarLineItemsModal(false);
   };
 
   return (
@@ -1594,11 +1595,6 @@ const HumanVerificationTable = ({
                                               cellValue,
                                               row
                                             );
-                                            setEditMode({
-                                              rowIndex: null,
-                                              cellIndex: null
-                                            });
-                                          
                                           }}
                                           onClick={(e) => {
                                             e.preventDefault();
@@ -2128,37 +2124,57 @@ const HumanVerificationTable = ({
           </div>
         </>
       )}
-      <Modal
-        open={showSimilarLineItemsModal}
-        setOpen={setShowSimilarLineItemsModal}
-        title={"Similar Line Items"}
-        className={"!overflow-auto !min-w-fit "}
-        titleClassName={"font-poppins font-medium text-sm"}
+      <ResizableModal
+        isOpen={showSimilarLineItemsModal}
+        onClose={() => {
+          setShowSimilarLineItemsModal(false);
+          setLastEditedLineItem(null);
+          setSimilarLineItems([]);
+          setLastEditedLineItemColumns([]);
+        }}
+        className={"max-w-[50rem] !min-w-[30rem] !h-fit"}
       >
-        <ModalDescription className="w-full">
-          {similarLineItems?.length == 0 ? (
+        <p className="font-poppins font-semibold text-sm text-black mt-1">
+          Similar Items
+        </p>
+        <div className="min-w-full mt-3">
+          {loadingItemLookups ? (
+            <div className="w-full flex flex-col gap-y-2">
+              {[0, 1, 2, 3]?.map((r, i) => {
+                return (
+                  <div key={i} className="grid grid-cols-5 gap-x-4">
+                    <Skeleton className={"h-[2rem] "} />
+                    <Skeleton className={"h-[2rem]"} />
+                    <Skeleton className={"h-[2rem]"} />
+                    <Skeleton className={"h-[2rem]"} />
+                    <Skeleton className={"h-[2rem]"} />
+                  </div>
+                );
+              })}
+            </div>
+          ) : similarLineItems?.length == 0 && !loadingItemLookups ? (
             <div className="w-full flex items-center justify-center h-40">
               <p className="font-poppins font-semibold text-sm text-black ">
                 No Similar Line Items Found.
               </p>
             </div>
           ) : (
-            <table className="  w-full ">
-              <div className=" h-60 !w-full overflow-auto relative">
+            <table className="  w-full mt-4 ">
+              <div className=" h-64 !w-full overflow-auto relative">
                 {/* <TableHeader className=" top-0 z-10 bg-white "> */}
-                <tr
+                <TableRow
                   className=" 
-               !w-full border "
+               !w-full !border !border-b-2 "
                 >
                   {last_edited_line_item_columns?.map((col, index) => (
-                    <td
+                    <TableHead
                       key={index}
-                      className={` border sticky top-0    bg-white font-poppins h-12  content-center px-4 items-center   font-semibold text-sm text-black leading-5`}
+                      className={` border sticky top-0  bg-white font-poppins h-12  content-center px-4 items-center   font-semibold text-sm text-black leading-5`}
                     >
                       {keysCapitalizer(col)}
-                    </td>
+                    </TableHead>
                   ))}
-                </tr>
+                </TableRow>
 
                 <tbody className="w-full">
                   {similarLineItems?.map((row, index) => (
@@ -2167,6 +2183,7 @@ const HumanVerificationTable = ({
                       onClick={() => {
                         handleInsertRow(row);
                       }}
+                      className="cursor-pointer"
                     >
                       {last_edited_line_item_columns?.map((col, i) => (
                         <TableCell
@@ -2182,8 +2199,8 @@ const HumanVerificationTable = ({
               </div>
             </table>
           )}
-        </ModalDescription>
-      </Modal>
+        </div>
+      </ResizableModal>
     </>
   );
 };
