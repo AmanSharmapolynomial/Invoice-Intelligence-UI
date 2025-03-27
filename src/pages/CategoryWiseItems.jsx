@@ -356,6 +356,8 @@ const CategoryWiseItems = () => {
 
   const [focusedVendor, setFocusedVendor] = useState(-1);
   const [showShortCuts, setShowShortCuts] = useState(true);
+
+  
   // **Filtered Vendors List**
   const filteredVendors =
     vendors?.data?.length > 0
@@ -557,6 +559,8 @@ const CategoryWiseItems = () => {
   useEffect(() => {
     setUnCheckedItems([]);
   }, [page]);
+
+
   // Reset focus when search changes
   useEffect(() => {
     setFocusedVendor(-1);
@@ -588,7 +592,7 @@ const CategoryWiseItems = () => {
       mode,
       scrollingMode
     });
-    console.log(allItems)
+
   return (
     <div className="py-4 ">
       {/* Navbar */}
@@ -904,12 +908,12 @@ const CategoryWiseItems = () => {
           {/* Items List */}
           {scrollingMode ? (
             <ItemsListingWithScrollingApproval
-              items={
-                scrollingMode && mode == "all" ? allItems : items
-              }
+              items={scrollingMode && mode == "all" ? allItems : items}
               setUnCheckedItems={setUnCheckedItems}
               showShortCuts={showShortCuts}
-              loadingItems={  scrollingMode && mode == "all"?loadingAllItems:loadingItems}
+              loadingItems={
+                scrollingMode && mode == "all" ? loadingAllItems : loadingItems
+              }
               unCheckedItems={unCheckedItems}
               selectedVendor={selectedVendor}
               checkedItems={checkedItems}
