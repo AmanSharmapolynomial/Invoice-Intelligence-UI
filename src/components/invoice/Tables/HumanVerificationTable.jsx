@@ -40,6 +40,7 @@ import {
 } from "../api";
 import ContextMenu from "../ContextMenu";
 import { Modal, ModalDescription } from "@/components/ui/Modal";
+import ResizableModal from "@/components/ui/Custom/ResizeableModal";
 
 const HumanVerificationTable = ({
   data,
@@ -381,8 +382,6 @@ const HumanVerificationTable = ({
           setSimilarLineItems(data?.data?.similar_items);
           setSimilarLineItemsRequiredColumns(data?.data?.required_columns);
           setShowSimilarLineItemsModal(true);
-         
-     
         }
       }
     );
@@ -392,6 +391,10 @@ const HumanVerificationTable = ({
       if (e.shiftKey && e.key == "Enter") {
         e.preventDefault();
         handleItemMasterLookup();
+        setEditMode({
+          rowIndex: null,
+          cellIndex: null
+        });
       }
     };
 
@@ -783,9 +786,8 @@ const HumanVerificationTable = ({
         updatedData?.data?.processed_table?.rows?.[rowIndex]
       );
     }
-    !last_edited_line_item && setEditMode({ rowIndex: null, cellIndex: null });
+    // !last_edited_line_item && setEditMode({ rowIndex: null, cellIndex: null });
     // Exit edit mode after saving
-    
   };
 
   const copyRow = (rowIndex, copyType) => {
@@ -1594,11 +1596,6 @@ const HumanVerificationTable = ({
                                               cellValue,
                                               row
                                             );
-                                            setEditMode({
-                                              rowIndex: null,
-                                              cellIndex: null
-                                            });
-                                          
                                           }}
                                           onClick={(e) => {
                                             e.preventDefault();
@@ -2128,14 +2125,15 @@ const HumanVerificationTable = ({
           </div>
         </>
       )}
-      <Modal
-        open={showSimilarLineItemsModal}
-        setOpen={setShowSimilarLineItemsModal}
+      <ResizableModal
+        isOpen={showSimilarLineItemsModal}
+        onClose={setShowSimilarLineItemsModal}
         title={"Similar Line Items"}
         className={"!overflow-auto !min-w-fit "}
         titleClassName={"font-poppins font-medium text-sm"}
       >
-        <ModalDescription className="w-full">
+        <p className="font-poppins font-medium text-sm text-black mt-1">Similar Items</p>
+        <div className="w-full mt-3">
           {similarLineItems?.length == 0 ? (
             <div className="w-full flex items-center justify-center h-40">
               <p className="font-poppins font-semibold text-sm text-black ">
@@ -2144,7 +2142,7 @@ const HumanVerificationTable = ({
             </div>
           ) : (
             <table className="  w-full ">
-              <div className=" h-60 !w-full overflow-auto relative">
+              <div className=" h-64 !w-full overflow-auto relative">
                 {/* <TableHeader className=" top-0 z-10 bg-white "> */}
                 <tr
                   className=" 
@@ -2167,6 +2165,7 @@ const HumanVerificationTable = ({
                       onClick={() => {
                         handleInsertRow(row);
                       }}
+                      className="cursor-pointer"
                     >
                       {last_edited_line_item_columns?.map((col, i) => (
                         <TableCell
@@ -2182,8 +2181,8 @@ const HumanVerificationTable = ({
               </div>
             </table>
           )}
-        </ModalDescription>
-      </Modal>
+        </div>
+      </ResizableModal>
     </>
   );
 };

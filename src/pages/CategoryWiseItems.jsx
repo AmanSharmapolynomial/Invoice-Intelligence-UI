@@ -190,7 +190,7 @@ const CategoryWiseItems = () => {
           : [];
 
       let item_uuids =
-        items?.data?.items
+        (mode !== "all" ? items : allItems)?.data?.items
           ?.filter((it) => !unCheckedItems?.includes(it?.item_uuid))
           ?.map((it) => it.item_uuid)
           ?.filter((it) => !removedItemsIDs?.includes(it)) || [];
@@ -211,6 +211,10 @@ const CategoryWiseItems = () => {
               queryClient.invalidateQueries({
                 queryKey: ["removed-vendor-items"]
               });
+              mode == "all" &&
+                queryClient.invalidateQueries({
+                  queryKey: ["all-items-of-category"]
+                });
 
               if (item_uuids?.length > 0) {
                 setSaving(true);
@@ -228,27 +232,34 @@ const CategoryWiseItems = () => {
                     queryClient.invalidateQueries({
                       queryKey: ["removed-vendor-items"]
                     });
-                    if (selectedVendorIndex + 1 < vendors?.data?.length) {
-                      setSelectedVendor(vendors?.data[selectedVendorIndex + 1]);
-                      setSelectedVendorIndex(selectedVendorIndex + 1);
-                      updateParams({
-                        selected_vendor_id:
-                          vendors?.data[selectedVendorIndex + 1]?.vendor
-                            ?.vendor_id
-                      });
-                      updateParams({ search_term: "" });
-                    } else {
-                      setSelectedVendor(vendors?.data[0]);
-                      setSelectedVendorIndex(0);
+
+                    if (items?.is_final_page) {
+                      if (selectedVendorIndex + 1 < vendors?.data?.length) {
+                        setSelectedVendor(
+                          vendors?.data[selectedVendorIndex + 1]
+                        );
+                        setSelectedVendorIndex(selectedVendorIndex + 1);
+                        updateParams({
+                          selected_vendor_id:
+                            vendors?.data[selectedVendorIndex + 1]?.vendor
+                              ?.vendor_id
+                        });
+                        updateParams({ search_term: "" });
+                      } else {
+                        setSelectedVendor(vendors?.data[0]);
+                        setSelectedVendorIndex(0);
+                        updateParams({
+                          selected_vendor_id:
+                            vendors?.data[0]?.vendor?.vendor_id
+                        });
+                        updateParams({ search_term: "" });
+                      }
                       updateParams({
                         selected_vendor_id: vendors?.data[0]?.vendor?.vendor_id
                       });
                       updateParams({ search_term: "" });
                     }
-                    updateParams({
-                      selected_vendor_id: vendors?.data[0]?.vendor?.vendor_id
-                    });
-                    updateParams({ search_term: "" });
+
                     if (item_uuids?.length == 0) {
                       if (page < items?.total_pages) {
                         setSaving(false);
@@ -297,26 +308,30 @@ const CategoryWiseItems = () => {
               queryClient.invalidateQueries({
                 queryKey: ["removed-vendor-items"]
               });
-
-              if (selectedVendorIndex + 1 < vendors?.data?.length) {
-                setSelectedVendor(vendors?.data[selectedVendorIndex + 1]);
-                setSelectedVendorIndex(selectedVendorIndex + 1);
-
-                updateParams({
-                  selected_vendor_id: vendors?.data[0]?.vendor?.vendor_id
+              mode == "all" &&
+                queryClient.invalidateQueries({
+                  queryKey: ["all-items-of-category"]
                 });
-                updateParams({ search_term: "" });
-              } else {
-                setSelectedVendor(vendors?.data[0]);
-                setSelectedVendorIndex(0);
-                updateParams({
-                  selected_vendor_id: vendors?.data[0]?.vendor?.vendor_id
-                });
-                updateParams({ search_term: "" });
+              if ((mode !== "all" ? items : allItems)?.is_final_page) {
+                if (selectedVendorIndex + 1 < vendors?.data?.length) {
+                  setSelectedVendor(vendors?.data[selectedVendorIndex + 1]);
+                  setSelectedVendorIndex(selectedVendorIndex + 1);
+
+                  updateParams({
+                    selected_vendor_id: vendors?.data[0]?.vendor?.vendor_id
+                  });
+                  updateParams({ search_term: "" });
+                } else {
+                  setSelectedVendor(vendors?.data[0]);
+                  setSelectedVendorIndex(0);
+                  updateParams({
+                    selected_vendor_id: vendors?.data[0]?.vendor?.vendor_id
+                  });
+                  updateParams({ search_term: "" });
+                }
               }
-
               if (item_uuids?.length == 0) {
-                if (page < items?.total_pages) {
+                if (page < (mode !== "all" ? items : allItems)?.total_pages) {
                   setSaving(false);
                   updateParams({
                     page: Number(page) + 1
@@ -339,7 +354,7 @@ const CategoryWiseItems = () => {
             }
           });
         } else {
-          if (page < items?.total_pages) {
+          if (page < (mode !== "all" ? items : allItems)?.total_pages) {
             updateParams({
               page: Number(page) + 1
             });
@@ -356,6 +371,7 @@ const CategoryWiseItems = () => {
 
   const [focusedVendor, setFocusedVendor] = useState(-1);
   const [showShortCuts, setShowShortCuts] = useState(true);
+
   // **Filtered Vendors List**
   const filteredVendors =
     vendors?.data?.length > 0
@@ -404,28 +420,35 @@ const CategoryWiseItems = () => {
       }
       if (isEditable && inputRef.current.focus && /^[0-9]$/?.test(e.key)) {
         inputRef.current.blur();
-        let matchedItemIndex = items?.data?.items.findIndex(
-          (item, i) => i == Number(e.key)
-        );
+        let matchedItemIndex = (
+          mode !== "all" ? items : allItems
+        )?.data?.items.findIndex((item, i) => i == Number(e.key));
 
         if (
           matchedItemIndex > -1 &&
-          !items?.data?.items[matchedItemIndex]?.category_review_required
+          !(mode !== "all" ? items : allItems)?.data?.items[matchedItemIndex]
+            ?.category_review_required
         ) {
           if (
             unCheckedItems?.includes(
-              items?.data?.items[matchedItemIndex]?.item_uuid
+              (mode !== "all" ? items : allItems)?.data?.items[matchedItemIndex]
+                ?.item_uuid
             )
           ) {
             setUnCheckedItems(
               unCheckedItems?.filter(
-                (it) => it !== items?.data?.items[matchedItemIndex]?.item_uuid
+                (it) =>
+                  it !==
+                  (mode !== "all" ? items : allItems)?.data?.items[
+                    matchedItemIndex
+                  ]?.item_uuid
               )
             );
           } else {
             setUnCheckedItems([
               ...unCheckedItems,
-              items?.data?.items[matchedItemIndex]?.item_uuid
+              (mode !== "all" ? items : allItems)?.data?.items[matchedItemIndex]
+                ?.item_uuid
             ]);
           }
         }
@@ -464,7 +487,10 @@ const CategoryWiseItems = () => {
               icon: "⚠️"
             });
           } else {
-            if (page < items?.total_pages) {
+            if (
+              page <
+              (mode == "all" ? allItems?.total_pages : items?.total_pages)
+            ) {
               updateParams({
                 page: Number(page) + 1
               });
@@ -476,29 +502,38 @@ const CategoryWiseItems = () => {
         if (!removingItem) {
           if (numbers.includes(Number(e.key))) {
             inputRef.current.blur();
-            let matchedItemIndex = items?.data?.items.findIndex(
-              (item, i) => i == Number(e.key)
-            );
+            let matchedItemIndex = (
+              mode !== "all" ? items : allItems
+            )?.data?.items.findIndex((item, i) => i == Number(e.key));
             if (
               matchedItemIndex > -1 &&
-              !items?.data?.items[matchedItemIndex]?.category_review_required
+              !(mode !== "all" ? items : allItems)?.data?.items[
+                matchedItemIndex
+              ]?.category_review_required
             ) {
               // items?.data?.items[matchedItemIndex]?.item_uuid
               if (
                 unCheckedItems?.includes(
-                  items?.data?.items[matchedItemIndex]?.item_uuid
+                  (mode !== "all" ? items : allItems)?.data?.items[
+                    matchedItemIndex
+                  ]?.item_uuid
                 )
               ) {
                 setUnCheckedItems(
                   unCheckedItems?.filter(
                     (it) =>
-                      it !== items?.data?.items[matchedItemIndex]?.item_uuid
+                      it !==
+                      (mode !== "all" ? items : allItems)?.data?.items[
+                        matchedItemIndex
+                      ]?.item_uuid
                   )
                 );
               } else {
                 setUnCheckedItems([
                   ...unCheckedItems,
-                  items?.data?.items[matchedItemIndex]?.item_uuid
+                  (mode !== "all" ? items : allItems)?.data?.items[
+                    matchedItemIndex
+                  ]?.item_uuid
                 ]);
               }
             }
@@ -557,6 +592,7 @@ const CategoryWiseItems = () => {
   useEffect(() => {
     setUnCheckedItems([]);
   }, [page]);
+
   // Reset focus when search changes
   useEffect(() => {
     setFocusedVendor(-1);
@@ -581,14 +617,25 @@ const CategoryWiseItems = () => {
         search_term: ""
       });
     }
+
+    if (!scrollingMode && mode == "all") {
+      setSelectedVendor(null);
+      setSelectedVendorIndex(-1);
+      updateParams({
+        selected_vendor_id: undefined,
+        search_term: ""
+      });
+    }
   }, [scrollingMode, mode]);
   const { data: allItems, isLoading: loadingAllItems } =
     useGetAllItemsOfACategory({
       category_id,
       mode,
-      scrollingMode
+      scrollingMode,
+      page,
+      page_size
     });
-    console.log(allItems)
+
   return (
     <div className="py-4 ">
       {/* Navbar */}
@@ -623,11 +670,14 @@ const CategoryWiseItems = () => {
               particular menu item
             </p>
           </div>
-          <div className="flex items-center gap-x-4 font-normal ">
+          <div className="flex !items-center gap-x-4 font-normal ">
             {
-              <div className="mx-4 flex items-center gap-x-3">
-                <Label htmlFor="airplane-mode">Vendor Items</Label>
+              <div className="mx-2 flex items-center gap-x-2 ">
+                <Label htmlFor="airplane-mode" className="text-xs">
+                  Vendor Items
+                </Label>
                 <Switch
+                  className="h-5"
                   checked={mode == "vendor" ? false : true}
                   onCheckedChange={(v) => {
                     updateParams({
@@ -635,10 +685,12 @@ const CategoryWiseItems = () => {
                     });
                   }}
                 />
-                <Label htmlFor="airplane-mode">All Items</Label>
+                <Label htmlFor="airplane-mode " className="text-xs">
+                  All Items
+                </Label>
               </div>
             }
-            <div className=" flex items-center gap-x-3">
+            {/* <div className=" flex items-center gap-x-3">
               <Switch
                 checked={scrollingMode}
                 onCheckedChange={(v) => {
@@ -649,22 +701,22 @@ const CategoryWiseItems = () => {
                 }}
               />
               <Label htmlFor="airplane-mode">Auto Approve On Scroll</Label>
-            </div>
+            </div> */}
             {selectedVendor && (
-              <div className="flex flex-col gap-y-4 rounded-3xl px-6 py-2 items-center justify-center font-poppins font-medium text-sm leading-5 text-black border border-[#E0E0E0] cursor-pointer">
+              <div className="flex  gap-y-4 rounded-3xl px-3 py-2 items-center justify-center font-poppins font-medium text-xs leading-5 text-black border border-[#E0E0E0] cursor-pointer">
                 {!loadingItems &&
                   selectedVendor !== null > 0 &&
                   items?.data?.items?.length > 0 && (
-                    <p className=" ">
+                    <p className=" flex  items-center gap-x-4 text-xs">
                       {!loadingItems &&
                         selectedVendor !== null &&
                         items?.data?.items?.length > 0 && (
-                          <p className="!no-underline text-sm">
+                          <p className="!no-underline text-xs">
                             Total Items : {items?.total_records}
                           </p>
                         )}
                       <span
-                        className="underline  "
+                        className="underline  underline-offset-2"
                         onClick={() => {
                           window.open(
                             `/fast-item-verification/${selectedVendor?.vendor?.vendor_id}?vendor_name=${selectedVendor?.vendor?.vendor_name}&human_verified=${selectedVendor?.vendor?.human_verified}&from_view=item-master-vendors`,
@@ -688,8 +740,9 @@ const CategoryWiseItems = () => {
                     disabled={
                       saving ||
                       removingItem ||
-                      !selectedVendor ||
-                      items?.data?.items?.length == 0
+                      (mode == "vendor" && !selectedVendor) ||
+                      (mode !== "all" ? items : allItems)?.data?.items
+                        ?.length == 0
                     }
                     className="rounded-sm font-normal leading-6 w-[9rem] h-[2.3rem] text-sm  text-white"
                     onClick={() => {
@@ -802,7 +855,8 @@ const CategoryWiseItems = () => {
 
                               updateParams({
                                 page: 1,
-                                selected_vendor_id: vendor?.vendor?.vendor_id
+                                selected_vendor_id: vendor?.vendor?.vendor_id,
+                                mode: "vendor"
                               });
                             }
                           }}
@@ -904,12 +958,12 @@ const CategoryWiseItems = () => {
           {/* Items List */}
           {scrollingMode ? (
             <ItemsListingWithScrollingApproval
-              items={
-                scrollingMode && mode == "all" ? allItems : items
-              }
+              items={scrollingMode && mode == "all" ? allItems : items}
               setUnCheckedItems={setUnCheckedItems}
               showShortCuts={showShortCuts}
-              loadingItems={  scrollingMode && mode == "all"?loadingAllItems:loadingItems}
+              loadingItems={
+                scrollingMode && mode == "all" ? loadingAllItems : loadingItems
+              }
               unCheckedItems={unCheckedItems}
               selectedVendor={selectedVendor}
               checkedItems={checkedItems}
@@ -922,9 +976,9 @@ const CategoryWiseItems = () => {
             />
           ) : (
             <ItemsListingWithoutScrollingApproval
-              items={items}
+              items={mode == "all" ? allItems : items}
               showShortCuts={showShortCuts}
-              loadingItems={loadingItems}
+              loadingItems={mode == "all" ? loadingAllItems : loadingItems}
               setUnCheckedItems={setUnCheckedItems}
               unCheckedItems={unCheckedItems}
               selectedVendor={selectedVendor}

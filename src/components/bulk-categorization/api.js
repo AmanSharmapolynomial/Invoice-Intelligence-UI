@@ -190,10 +190,18 @@ export const useGetAllItemsOfACategory = (payload) => {
   return useQuery({
     queryKey: ["all-items-of-category", payload],
     queryFn: async () => {
-      if (payload?.scrollingMode && payload?.mode == "all") {
-        let apiUrl = `/api/category/${payload?.category_id}/items/`;
+      console.log(payload);
+      if (payload?.mode == "all" && !payload?.scrollingMode) {
+        console.log("enenen");
+        let apiUrl = `/api/category/${payload?.category_id}/items/?page=${payload?.page}&page_size=${payload?.page_size}`;
         let response = await axiosInstance.get(apiUrl);
         return response;
+      } else {
+        if (payload?.scrollingMode && payload?.mode == "all") {
+          let apiUrl = `/api/category/${payload?.category_id}/items/`;
+          let response = await axiosInstance.get(apiUrl);
+          return response;
+        }
       }
     }
   });
