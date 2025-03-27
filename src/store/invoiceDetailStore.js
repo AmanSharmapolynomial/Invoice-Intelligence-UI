@@ -117,6 +117,7 @@ export const invoiceDetailStore = create((set, get) => ({
       last_edited_line_item_columns:[],
       similarLineItems:[],
       showSimilarLineItemsModal:false,
+      similarLineItemsRequiredColumns:[]
       
 
     })

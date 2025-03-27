@@ -381,8 +381,8 @@ const HumanVerificationTable = ({
           setSimilarLineItems(data?.data?.similar_items);
           setSimilarLineItemsRequiredColumns(data?.data?.required_columns);
           setShowSimilarLineItemsModal(true);
-          setLastEditedLineItem(null);
-          setLastEditedLineItemColumns(null);
+         
+     
         }
       }
     );
@@ -785,6 +785,7 @@ const HumanVerificationTable = ({
     }
     !last_edited_line_item && setEditMode({ rowIndex: null, cellIndex: null });
     // Exit edit mode after saving
+    
   };
 
   const copyRow = (rowIndex, copyType) => {
@@ -1597,6 +1598,7 @@ const HumanVerificationTable = ({
                                               rowIndex: null,
                                               cellIndex: null
                                             });
+                                          
                                           }}
                                           onClick={(e) => {
                                             e.preventDefault();
