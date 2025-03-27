@@ -16,11 +16,12 @@ const ItemsListingWithScrollingApproval = ({
   page,
   setUnCheckedItems,
   checkedItems,
-  setCheckedItems
+  setCheckedItems,
+  scrollingMode
 }) => {
   const lineRef = useRef(null);
   const containerRef = useRef(null);
-
+console.log(items)
   const [fromTop, setFromTop] = useState(0);
   const [lastItemAboveLine, setLastItemAboveLine] = useState(null);
   useEffect(() => {
@@ -41,7 +42,12 @@ const ItemsListingWithScrollingApproval = ({
             latestAboveLine = item;
 
             if (!unCheckedItems.includes(itemUuid)) {
-              newCheckedItems.push(itemUuid);
+              if (
+                !items?.data?.items?.find((item) => item.item_uuid == itemUuid)
+                  ?.category_review_required
+              ) {
+                newCheckedItems.push(itemUuid);
+              }
             }
 
             if (checkedItems.includes(itemUuid)) {
@@ -135,7 +141,7 @@ const ItemsListingWithScrollingApproval = ({
           </div>
         ) : (
           <>
-            {!selectedVendor || loadingItems ? (
+            {(!selectedVendor && mode!=="all")|| loadingItems ? (
               <div className="flex items-center justify-center md:min-h-[25rem] 2xl:min-h-[30rem] h-[30rem] w-full">
                 <div className="flex flex-col justify-center items-center gap-y-4">
                   <img src={no_items} alt="" className="h-[70%] w-[60%] mt-8" />
@@ -151,8 +157,8 @@ const ItemsListingWithScrollingApproval = ({
                   key={index}
                   data-uuid={item?.item_uuid}
                   className={`item-row border rounded-sm w-full px-4 cursor-pointer min-h-[2.5rem] border-[#D9D9D9] flex items-center justify-between ${
-                    unCheckedItems?.includes(item?.item_uuid) &&
-                    "border-[#ca5644]"
+                    unCheckedItems?.includes(item?.item_uuid) ||
+                    (item?.category_review_required && "border-[#ca5644]")
                   } `}
                 >
                   <div className="flex items-center justify-between w-full gap-x-4">
@@ -169,9 +175,10 @@ const ItemsListingWithScrollingApproval = ({
                     {checkedItems.includes(item?.item_uuid) ? (
                       <img src={circle_check} alt="" />
                     ) : (
-                      !unCheckedItems?.includes(item?.item_uuid) && (
+                      !unCheckedItems?.includes(item?.item_uuid) ||
+                      (item?.category_review_required && (
                         <img src={circle_check_grey} />
-                      )
+                      ))
                     )}
                   </div>
                 </div>
@@ -182,12 +189,14 @@ const ItemsListingWithScrollingApproval = ({
       </div>
 
       {/* Line after 6th item */}
-      <img
-        ref={lineRef}
-        src={dashed_line}
-        style={{ top: `${fromTop}rem` }}
-        className={`absolute w-full`}
-      />
+      {scrollingMode  && items?.data?.items?.length>0&&(
+        <img
+          ref={lineRef}
+          src={dashed_line}
+          style={{ top: `${fromTop}rem` }}
+          className={`absolute w-full`}
+        />
+      )}
     </div>
   );
 };

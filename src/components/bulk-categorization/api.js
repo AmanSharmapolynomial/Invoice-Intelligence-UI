@@ -185,3 +185,16 @@ export const useRemoveCategoryItemsInBulk = () => {
     }
   });
 };
+
+export const useGetAllItemsOfACategory = (payload) => {
+  return useQuery({
+    queryKey: ["all-items-of-category", payload],
+    queryFn: async () => {
+      if (payload?.scrollingMode && payload?.mode == "all") {
+        let apiUrl = `/api/category/${payload?.category_id}/items/`;
+        let response = await axiosInstance.get(apiUrl);
+        return response;
+      }
+    }
+  });
+};
