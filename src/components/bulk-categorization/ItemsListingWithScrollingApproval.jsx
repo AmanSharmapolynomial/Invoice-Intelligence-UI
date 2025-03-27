@@ -21,7 +21,7 @@ const ItemsListingWithScrollingApproval = ({
 }) => {
   const lineRef = useRef(null);
   const containerRef = useRef(null);
-console.log(items)
+  console.log(items);
   const [fromTop, setFromTop] = useState(0);
   const [lastItemAboveLine, setLastItemAboveLine] = useState(null);
   useEffect(() => {
@@ -100,32 +100,23 @@ console.log(items)
 
   // Adjusted fromTop Calculation
   useEffect(() => {
-    if (checkedItems.length === 0) {
-      setFromTop(1.7);
-    } else if (checkedItems.length <= 6) {
-      const newFromTop =
-        fromTopMap.find(
-          (item) => item.checkedItemsLength === checkedItems.length
-        )?.fromTop || 19.7;
-      setFromTop(newFromTop);
-    } else {
-      setFromTop(19.7);
-    }
+    setFromTop(19.7);
   }, [checkedItems, items?.length]);
 
   useEffect(() => {
     setCheckedItems([]);
   }, [items]);
-
-  let fromTopMap = [
-    { checkedItemsLength: 0, fromTop: 1.7 },
-    { checkedItemsLength: 1, fromTop: 5.7 },
-    { checkedItemsLength: 2, fromTop: 6.7 },
-    { checkedItemsLength: 3, fromTop: 7.7 },
-    { checkedItemsLength: 4, fromTop: 8.7 },
-    { checkedItemsLength: 5, fromTop: 9.7 },
-    { checkedItemsLength: 6, fromTop: 19.7 }
-  ];
+  const handleRemoveItem = (item_uuid) => {
+    if (unCheckedItems?.includes(item_uuid)) {
+      setUnCheckedItems(unCheckedItems?.filter((it) => it !== item_uuid));
+      if (!checkedItems?.includes(item_uuid)) {
+        setCheckedItems([...checkedItems, item_uuid]);
+      }
+    } else {
+      setCheckedItems(checkedItems?.filter((it) => it !== item_uuid));
+      setUnCheckedItems([...unCheckedItems, item_uuid]);
+    }
+  };
 
   return (
     <div className="w-[60%] h-full pt-8 max-w-full relative">
@@ -141,7 +132,7 @@ console.log(items)
           </div>
         ) : (
           <>
-            {(!selectedVendor && mode!=="all")|| loadingItems ? (
+            {(!selectedVendor && mode !== "all") || loadingItems ? (
               <div className="flex items-center justify-center md:min-h-[25rem] 2xl:min-h-[30rem] h-[30rem] w-full">
                 <div className="flex flex-col justify-center items-center gap-y-4">
                   <img src={no_items} alt="" className="h-[70%] w-[60%] mt-8" />
@@ -155,10 +146,14 @@ console.log(items)
               items?.data?.items?.map((item, index) => (
                 <div
                   key={index}
+                  onClick={() => {
+                    handleRemoveItem(item?.item_uuid);
+                  }}
                   data-uuid={item?.item_uuid}
                   className={`item-row border rounded-sm w-full px-4 cursor-pointer min-h-[2.5rem] border-[#D9D9D9] flex items-center justify-between ${
-                    unCheckedItems?.includes(item?.item_uuid) ||
-                    (item?.category_review_required && "border-[#ca5644]")
+                    (unCheckedItems?.includes(item?.item_uuid) ||
+                      item?.category_review_required) &&
+                    "border-[#ca5644]"
                   } `}
                 >
                   <div className="flex items-center justify-between w-full gap-x-4">
@@ -175,10 +170,10 @@ console.log(items)
                     {checkedItems.includes(item?.item_uuid) ? (
                       <img src={circle_check} alt="" />
                     ) : (
-                      !unCheckedItems?.includes(item?.item_uuid) ||
-                      (item?.category_review_required && (
+                      (!unCheckedItems?.includes(item?.item_uuid) ||
+                        item?.category_review_required) && (
                         <img src={circle_check_grey} />
-                      ))
+                      )
                     )}
                   </div>
                 </div>
@@ -189,7 +184,7 @@ console.log(items)
       </div>
 
       {/* Line after 6th item */}
-      {scrollingMode  && items?.data?.items?.length>0&&(
+      {scrollingMode && items?.data?.items?.length > 0 && (
         <img
           ref={lineRef}
           src={dashed_line}
