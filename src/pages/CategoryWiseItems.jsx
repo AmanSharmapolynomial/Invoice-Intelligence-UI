@@ -110,8 +110,9 @@ const CategoryWiseItems = () => {
 
   const saveAndNextHandler = () => {
     if (scrollingMode) {
-      setSaving(true);
+   
       if (unCheckedItems?.length > 0) {
+        setSaving(true);
         removeItemsInBulk(
           { item_uuids: unCheckedItems },
           {
@@ -128,6 +129,10 @@ const CategoryWiseItems = () => {
                 queryClient.invalidateQueries({
                   queryKey: ["removed-vendor-items"]
                 });
+                mode == "all" &&
+                  queryClient.invalidateQueries({
+                    queryKey: ["all-items-of-category"]
+                  });
               }
               {
                 if (checkedItems?.length > 0) {
@@ -145,6 +150,10 @@ const CategoryWiseItems = () => {
                       queryClient.invalidateQueries({
                         queryKey: ["removed-vendor-items"]
                       });
+                      mode == "all" &&
+                        queryClient.invalidateQueries({
+                          queryKey: ["all-items-of-category"]
+                        });
                     },
                     onError: (data) => {
                       toast.error(data?.message);
@@ -158,6 +167,7 @@ const CategoryWiseItems = () => {
         );
       }
       if (checkedItems?.length > 0) {
+        setSaving(true);
         approveVendorItems(checkedItems, {
           onSuccess: (data) => {
             setUnCheckedItems([]);
@@ -171,6 +181,10 @@ const CategoryWiseItems = () => {
             });
             queryClient.invalidateQueries({
               queryKey: ["removed-vendor-items"]
+            });
+            mode == "all" &&
+            queryClient.invalidateQueries({
+              queryKey: ["all-items-of-category"]
             });
           },
           onError: (data) => {
@@ -690,7 +704,7 @@ const CategoryWiseItems = () => {
                 </Label>
               </div>
             }
-            {/* <div className=" flex items-center gap-x-3">
+            <div className=" flex items-center gap-x-3">
               <Switch
                 checked={scrollingMode}
                 onCheckedChange={(v) => {
@@ -701,7 +715,7 @@ const CategoryWiseItems = () => {
                 }}
               />
               <Label htmlFor="airplane-mode">Auto Approve On Scroll</Label>
-            </div> */}
+            </div>
             {selectedVendor && (
               <div className="flex  gap-y-4 rounded-3xl px-3 py-2 items-center justify-center font-poppins font-medium text-xs leading-5 text-black border border-[#E0E0E0] cursor-pointer">
                 {!loadingItems &&
