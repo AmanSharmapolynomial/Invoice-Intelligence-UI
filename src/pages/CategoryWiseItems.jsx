@@ -2,6 +2,7 @@ import user_grey from "@/assets/image/user_grey.svg";
 import user_white from "@/assets/image/user_white.svg";
 import {
   useApproveCategoryVendorItems,
+  useGetAllItemsOfACategory,
   useGetCategoryWiseVendor,
   useGetCategoryWiseVendorItems,
   useGetRemovedItemsCount,
@@ -572,6 +573,22 @@ const CategoryWiseItems = () => {
     }
   };
 
+  useEffect(() => {
+    if (scrollingMode && mode == "all") {
+      setSelectedVendor(null);
+      updateParams({
+        selected_vendor_id: undefined,
+        search_term: ""
+      });
+    }
+  }, [scrollingMode, mode]);
+  const { data: allItems, isLoading: loadingAllItems } =
+    useGetAllItemsOfACategory({
+      category_id,
+      mode,
+      scrollingMode
+    });
+    console.log(allItems)
   return (
     <div className="py-4 ">
       {/* Navbar */}
@@ -607,7 +624,7 @@ const CategoryWiseItems = () => {
             </p>
           </div>
           <div className="flex items-center gap-x-4 font-normal ">
-            {!scrollingMode && (
+            {
               <div className="mx-4 flex items-center gap-x-3">
                 <Label htmlFor="airplane-mode">Vendor Items</Label>
                 <Switch
@@ -620,7 +637,7 @@ const CategoryWiseItems = () => {
                 />
                 <Label htmlFor="airplane-mode">All Items</Label>
               </div>
-            )}
+            }
             <div className=" flex items-center gap-x-3">
               <Switch
                 checked={scrollingMode}
@@ -633,34 +650,36 @@ const CategoryWiseItems = () => {
               />
               <Label htmlFor="airplane-mode">Auto Approve On Scroll</Label>
             </div>
-            <div className="flex flex-col gap-y-4 rounded-3xl px-6 py-2 items-center justify-center font-poppins font-medium text-sm leading-5 text-black border border-[#E0E0E0] cursor-pointer">
-              {!loadingItems &&
-                selectedVendor !== null > 0 &&
-                items?.data?.items?.length > 0 && (
-                  <p className=" ">
-                    {!loadingItems &&
-                      selectedVendor !== null &&
-                      items?.data?.items?.length > 0 && (
-                        <p className="!no-underline text-sm">
-                          Total Items : {items?.total_records}
-                        </p>
-                      )}
-                    <span
-                      className="underline  "
-                      onClick={() => {
-                        window.open(
-                          `/fast-item-verification/${selectedVendor?.vendor?.vendor_id}?vendor_name=${selectedVendor?.vendor?.vendor_name}&human_verified=${selectedVendor?.vendor?.human_verified}&from_view=item-master-vendors`,
-                          "_blank"
-                        );
-                      }}
-                    >
-                      {" "}
-                      FIV Items:{" "}
-                      {selectedVendor?.non_human_verified_items_count}
-                    </span>
-                  </p>
-                )}
-            </div>
+            {selectedVendor && (
+              <div className="flex flex-col gap-y-4 rounded-3xl px-6 py-2 items-center justify-center font-poppins font-medium text-sm leading-5 text-black border border-[#E0E0E0] cursor-pointer">
+                {!loadingItems &&
+                  selectedVendor !== null > 0 &&
+                  items?.data?.items?.length > 0 && (
+                    <p className=" ">
+                      {!loadingItems &&
+                        selectedVendor !== null &&
+                        items?.data?.items?.length > 0 && (
+                          <p className="!no-underline text-sm">
+                            Total Items : {items?.total_records}
+                          </p>
+                        )}
+                      <span
+                        className="underline  "
+                        onClick={() => {
+                          window.open(
+                            `/fast-item-verification/${selectedVendor?.vendor?.vendor_id}?vendor_name=${selectedVendor?.vendor?.vendor_name}&human_verified=${selectedVendor?.vendor?.human_verified}&from_view=item-master-vendors`,
+                            "_blank"
+                          );
+                        }}
+                      >
+                        {" "}
+                        FIV Items:{" "}
+                        {selectedVendor?.non_human_verified_items_count}
+                      </span>
+                    </p>
+                  )}
+              </div>
+            )}
 
             <TooltipProvider>
               <Tooltip open={showShortCuts}>
@@ -686,7 +705,8 @@ const CategoryWiseItems = () => {
                 </TooltipTrigger>
                 <TooltipContent className="bg-white border relative shadow-sm px-4 flex items-center  gap-x-1  h-10">
                   <span className="mr-2 text-gray-800 text-sm ">
-                    Press <kbd>Alt</kbd> + <kbd>N</kbd> to Save & Next
+                    Press <kbd>Alt</kbd> + <kbd>N</kbd> to{" "}
+                    {scrollingMode ? "Save" : " Save & Next"}
                   </span>
                   <span onClick={() => setShowShortCuts(false)}>
                     <X className="text-gray-800 h-[1rem] absolute w-[1rem] top-1 right-1 cursor-pointer" />
@@ -884,10 +904,12 @@ const CategoryWiseItems = () => {
           {/* Items List */}
           {scrollingMode ? (
             <ItemsListingWithScrollingApproval
-              items={items}
+              items={
+                scrollingMode && mode == "all" ? allItems : items
+              }
               setUnCheckedItems={setUnCheckedItems}
               showShortCuts={showShortCuts}
-              loadingItems={loadingItems}
+              loadingItems={  scrollingMode && mode == "all"?loadingAllItems:loadingItems}
               unCheckedItems={unCheckedItems}
               selectedVendor={selectedVendor}
               checkedItems={checkedItems}
@@ -895,6 +917,7 @@ const CategoryWiseItems = () => {
               setCheckedItems={setCheckedItems}
               removedItems={removedItems}
               mode={mode}
+              scrollingMode={scrollingMode}
               page={page}
             />
           ) : (
