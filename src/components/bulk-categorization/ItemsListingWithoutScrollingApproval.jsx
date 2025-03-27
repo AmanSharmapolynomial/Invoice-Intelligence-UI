@@ -23,8 +23,10 @@ import {
   X
 } from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
+import useUpdateParams from "@/lib/hooks/useUpdateParams";
 
 const ItemsListingWithoutScrollingApproval = ({items,showShortCuts,loadingItems,selectedVendor,removedItems,unCheckedItems,mode,page,setUnCheckedItems,setShowShortCuts}) => {
+  const updateParams=useUpdateParams()
   return (
     <div className="w-[60%]  h-full pt-8 relative">
       <div className="flex flex-col gap-y-2 md:min-h-[30rem] 2xl:min-h-[35rem]   max-h-[40rem]">
