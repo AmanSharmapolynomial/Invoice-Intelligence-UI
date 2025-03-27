@@ -18,14 +18,14 @@ export const useGetCategoriesForBulkCategorization = (payload) => {
     }
   });
 };
-export const useGetCategoriesForBulkCategorizationWithoutPagination = (payload) => {
+export const useGetCategoriesForBulkCategorizationWithoutPagination = (
+  payload
+) => {
   return useQuery({
     queryKey: ["categories-for-bulk-categorization", payload],
     queryFn: async () => {
       try {
-        const response = await axiosInstance.get(
-          `/api/category/`
-        );
+        const response = await axiosInstance.get(`/api/category/`);
         return response;
       } catch (error) {
         return error?.response?.data?.message;
@@ -63,11 +63,15 @@ export const useGetCategoryWiseVendorItems = (payload) => {
       ) {
         return;
       }
-
+      // scrollingMode
+      let apiUrl = ``;
+      if (payload?.scrollingMode) {
+        apiUrl = `/api/category/${payload?.category_id}/vendor/${payload?.vendor_id}/`;
+      } else {
+        apiUrl = `/api/category/${payload?.category_id}/vendor/${payload?.vendor_id}/?page=${payload?.page}&page_size=${payload?.page_size}`;
+      }
       try {
-        let response = await axiosInstance.get(
-          `/api/category/${payload?.category_id}/vendor/${payload?.vendor_id}/?page=${payload?.page}&page_size=${payload?.page_size}`
-        );
+        let response = await axiosInstance.get(apiUrl);
         return response;
       } catch (error) {
         return error?.response?.data?.message;
@@ -80,14 +84,12 @@ export const useGetRemovedVendorItems = (payload) => {
   return useQuery({
     queryKey: ["removed-vendor-items", payload],
     queryFn: async () => {
-
       if (payload?.mode == "all") {
-     
         try {
           let response = await axiosInstance.get(
             `/api/category/${payload?.category_id}/removed-items/?page=${payload?.page}&page_size=${payload?.page_size}`
           );
-          
+
           return response;
         } catch (error) {
           return error?.response?.data?.message;
@@ -172,13 +174,14 @@ export const useGetRemovedItemsCount = (payload) => {
   });
 };
 
-
-export const useRemoveCategoryItemsInBulk=()=>{
+export const useRemoveCategoryItemsInBulk = () => {
   return useMutation({
-    mutationFn:async(payload)=>{
-      let apiUrl=`/api/category/removed-items-bulk/`;
-      let response=await axiosInstance.post(apiUrl,{item_uuids:payload?.item_uuids});
-      return response
+    mutationFn: async (payload) => {
+      let apiUrl = `/api/category/removed-items-bulk/`;
+      let response = await axiosInstance.post(apiUrl, {
+        item_uuids: payload?.item_uuids
+      });
+      return response;
     }
-  })
-}
+  });
+};
