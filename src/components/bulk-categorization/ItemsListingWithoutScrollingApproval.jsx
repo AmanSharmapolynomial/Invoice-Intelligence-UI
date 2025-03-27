@@ -23,11 +23,24 @@ import {
   X
 } from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
+import useUpdateParams from "@/lib/hooks/useUpdateParams";
 
-const ItemsListingWithoutScrollingApproval = ({items,showShortCuts,loadingItems,selectedVendor,removedItems,unCheckedItems,mode,page,setUnCheckedItems,setShowShortCuts}) => {
+const ItemsListingWithoutScrollingApproval = ({
+  items,
+  showShortCuts,
+  loadingItems,
+  selectedVendor,
+  removedItems,
+  unCheckedItems,
+  mode,
+  page,
+  setUnCheckedItems,
+  setShowShortCuts
+}) => {
+  const updateParams = useUpdateParams();
   return (
     <div className="w-[60%]  h-full pt-8 relative">
-      <div className="flex flex-col gap-y-2 md:min-h-[30rem] 2xl:min-h-[35rem]   max-h-[40rem]">
+      <div className="flex flex-col gap-y-2 md:h-[30rem] 2xl:h-[30rem]  h-[30rem]">
         {items?.data?.items?.length > 0 && (
           <TooltipProvider>
             <Tooltip open={showShortCuts} className="">
@@ -47,12 +60,14 @@ const ItemsListingWithoutScrollingApproval = ({items,showShortCuts,loadingItems,
         {loadingItems ? (
           <div className="flex flex-col gap-y-4 h-[50vh]">
             {new Array(10).fill(0).map((_, index) => {
-              return <Skeleton key={index} className={"w-full h-[2.5rem]"} />;
+              return (
+                <Skeleton key={index} className={"w-full min-h-[2.15rem]"} />
+              );
             })}
           </div>
         ) : (
           <>
-            {!selectedVendor || loadingItems ? (
+            {(!selectedVendor && mode !== "all") || loadingItems ? (
               <div className="flex items-center justify-center    md:min-h-[25rem] 2xl:min-h-[30rem] h-[30rem] w-full">
                 <div className="flex flex-col justify-center items-center gap-y-4">
                   <img src={no_items} alt="" className="h-[70%] w-[60%] mt-8" />
@@ -222,7 +237,7 @@ const ItemsListingWithoutScrollingApproval = ({items,showShortCuts,loadingItems,
                       <PaginationLink
                         className={`${
                           true && "bg-primary !text-white hover:bg-primary"
-                        } text-[#000000] border border-[#F1F1F1] rounded-lg font-poppins font-semibold text-sm dark:text-[#F6F6F6]`}
+                        } text-[#000000] border border-[#F1F1F1] rounded-lg font-poppins font-semibold text-sm min-w-fit px-1.5 dark:text-[#F6F6F6]`}
                         onClick={() => {
                           updateParams({
                             page: items?.total_pages
@@ -239,7 +254,7 @@ const ItemsListingWithoutScrollingApproval = ({items,showShortCuts,loadingItems,
                       className={`${
                         page == items?.total_pages &&
                         "bg-primary !text-white hover:bg-primary"
-                      } text-[#000000] border border-[#F1F1F1] rounded-lg font-poppins font-semibold text-sm dark:text-[#F6F6F6]`}
+                      } text-[#000000] border border-[#F1F1F1] rounded-lg font-poppins font-semibold text-sm min-w-fit px-1.5 dark:text-[#F6F6F6]`}
                       onClick={() => {
                         if (unCheckedItems?.length > 0) {
                           toast("Please save the removed items.", {
