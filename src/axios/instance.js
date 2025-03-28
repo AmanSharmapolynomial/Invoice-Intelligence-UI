@@ -25,7 +25,7 @@ axiosInstance.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    // config.headers['security-token'] = `${ACCESS_TOKEN}`;
+    config.headers['Access-Token'] = `${ACCESS_TOKEN}`;
 
     return config;
   },
