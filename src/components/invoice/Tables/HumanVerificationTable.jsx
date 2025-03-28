@@ -1262,6 +1262,11 @@ const HumanVerificationTable = ({
           "max-h-[42rem]   overflow-hidden"
         } w-full -mt-3 border border-[#F0F0F0] shadow-sm rounded-md  `}
       >
+        {
+          loadingItemLookups && <div className="w-full h-full  bg-white bg-opacity-50 !z-50 absolute">
+      
+          </div>
+        }
         {metadata?.invoice_type !== "Summary Invoice" && (
           <div className="w-full flex items-center justify-between pr-[1rem] border-b border-[#E0E0E0]">
             <p className="font-poppins font-semibold  p-3 text-base leading-6">
