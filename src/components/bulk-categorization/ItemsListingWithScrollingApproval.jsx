@@ -37,30 +37,55 @@ const ItemsListingWithScrollingApproval = ({
         itemElements.forEach((item) => {
           const itemPosition = item.getBoundingClientRect().bottom;
           const itemUuid = item.getAttribute("data-uuid");
-
           if (itemPosition < linePosition) {
             latestAboveLine = item;
-
-            if (!unCheckedItems.includes(itemUuid)) {
-              if (
-                !items?.data?.items?.find((item) => item.item_uuid == itemUuid)
-                  ?.category_review_required
-              ) {
+    
+            if (
+              !unCheckedItems.includes(itemUuid) &&
+              !items?.data?.items?.find(
+                (item) => item.item_uuid === itemUuid
+              )?.category_review_required
+            ) {
+              if (!newCheckedItems.includes(itemUuid)) {
                 newCheckedItems.push(itemUuid);
               }
             }
-
+    
             if (checkedItems.includes(itemUuid)) {
-              setUnCheckedItems(
-                unCheckedItems.filter((uuid) => uuid !== itemUuid)
-              );
+              newUncheckedItems.splice(newUncheckedItems.indexOf(itemUuid), 1);
             }
           } else {
-            if (unCheckedItems.includes(itemUuid)) {
-              const index = newUncheckedItems.indexOf(itemUuid);
-              if (index !== -1) newUncheckedItems.splice(index, 1);
+            if (checkedItems.includes(itemUuid)) {
+              if (!newUncheckedItems.includes(itemUuid)) {
+                newUncheckedItems.push(itemUuid);
+              }
             }
           }
+            
+          // if (itemPosition < linePosition) {
+          //   latestAboveLine = item;
+
+          //   if (!unCheckedItems.includes(itemUuid)) {
+          //     if (
+          //       !items?.data?.items?.find((item) => item.item_uuid == itemUuid)
+          //         ?.category_review_required
+          //     ) {
+          //       newCheckedItems.push(itemUuid);
+          //     }
+          //   }
+
+          //   if (checkedItems.includes(itemUuid)) {
+          //     setUnCheckedItems(
+          //       unCheckedItems.filter((uuid) => uuid !== itemUuid)
+          //     );
+          //   }
+            
+          // } else {
+          //   if (unCheckedItems.includes(itemUuid)) {
+          //     const index = newUncheckedItems.indexOf(itemUuid);
+          //     if (index !== -1) newUncheckedItems.splice(index, 1);
+          //   }
+          // }
         });
 
         setLastItemAboveLine(latestAboveLine);
@@ -90,6 +115,11 @@ const ItemsListingWithScrollingApproval = ({
 
     window.addEventListener("keydown", handleKeyDown);
 
+
+  
+    // Initial check on page load (after layout calculation)
+    requestAnimationFrame(handleScroll);
+  
     return () => {
       if (container) {
         container.removeEventListener("scroll", handleScroll);
@@ -119,7 +149,7 @@ const ItemsListingWithScrollingApproval = ({
   };
 
   return (
-    <div className="w-[60%] h-full pt-8 max-w-full relative">
+    <div className="w-[60%] h-full pt-8 max-w-full !relative">
       <div
         ref={containerRef}
         className="flex flex-col gap-y-2 md:!h-[30rem] max-w-full 2xl:h-[35rem] !h-[40rem] overflow-auto"
@@ -147,14 +177,21 @@ const ItemsListingWithScrollingApproval = ({
                 <div
                   key={index}
                   onClick={() => {
-                    handleRemoveItem(item?.item_uuid);
+                    if (checkedItems?.includes(item?.item_uuid)) {
+                      handleRemoveItem(item?.item_uuid);
+                    }
                   }}
                   data-uuid={item?.item_uuid}
                   className={`item-row border rounded-sm w-full px-4 cursor-pointer min-h-[2.5rem] border-[#D9D9D9] flex items-center justify-between ${
                     (unCheckedItems?.includes(item?.item_uuid) ||
                       item?.category_review_required) &&
                     "border-[#ca5644]"
-                  } `}
+                  }  ${
+                    ((!unCheckedItems?.includes(item?.item_uuid) &&
+                      !checkedItems?.includes(item?.item_uuid)) ||
+                      item?.category_review_required) &&
+                    "bg-[#D1D1D1]/50"
+                  }`}
                 >
                   <div className="flex items-center justify-between w-full gap-x-4">
                     <span className="font-poppins font-normal text-xs leading-5 capitalize flex items-center gap-x-2 text-black">
@@ -171,8 +208,8 @@ const ItemsListingWithScrollingApproval = ({
                       <img src={circle_check} alt="" />
                     ) : (
                       (!unCheckedItems?.includes(item?.item_uuid) ||
-                        item?.category_review_required) && (
-                        <img src={circle_check_grey} />
+                        !item?.category_review_required) && (
+                        <img src={circle_check_grey}  className="fill-white"/>
                       )
                     )}
                   </div>
@@ -185,12 +222,11 @@ const ItemsListingWithScrollingApproval = ({
 
       {/* Line after 6th item */}
       {scrollingMode && items?.data?.items?.length > 0 && (
-        <img
-          ref={lineRef}
-          src={dashed_line}
-          style={{ top: `${fromTop}rem` }}
-          className={`absolute w-full`}
-        />
+        <div  ref={lineRef}
+        src={dashed_line}
+        style={{ top: `${fromTop}rem` }} className="w-[98.5%] absolute border-t-[0.2rem] border-dashed border-black/45 "></div>
+
+      
       )}
     </div>
   );
