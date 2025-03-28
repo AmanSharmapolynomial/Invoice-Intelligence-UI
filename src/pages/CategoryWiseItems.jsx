@@ -48,6 +48,7 @@ const CategoryWiseItems = () => {
   const { mutate: removeItemsInBulk, isPending: removingItemsInBulk } =
     useRemoveCategoryItemsInBulk();
 
+  const [fromTop, setFromTop] = useState(1.5);
   const inputRef = useRef();
   const { data: vendors, isLoading: loadingVendors } = useGetCategoryWiseVendor(
     { category_id }
@@ -110,7 +111,6 @@ const CategoryWiseItems = () => {
 
   const saveAndNextHandler = () => {
     if (scrollingMode) {
-   
       if (unCheckedItems?.length > 0) {
         setSaving(true);
         removeItemsInBulk(
@@ -133,6 +133,7 @@ const CategoryWiseItems = () => {
                   queryClient.invalidateQueries({
                     queryKey: ["all-items-of-category"]
                   });
+                setFromTop(1.7);
               }
               {
                 if (checkedItems?.length > 0) {
@@ -154,6 +155,7 @@ const CategoryWiseItems = () => {
                         queryClient.invalidateQueries({
                           queryKey: ["all-items-of-category"]
                         });
+                      setFromTop(1.7);
                     },
                     onError: (data) => {
                       toast.error(data?.message);
@@ -183,9 +185,10 @@ const CategoryWiseItems = () => {
               queryKey: ["removed-vendor-items"]
             });
             mode == "all" &&
-            queryClient.invalidateQueries({
-              queryKey: ["all-items-of-category"]
-            });
+              queryClient.invalidateQueries({
+                queryKey: ["all-items-of-category"]
+              });
+            setFromTop(1.7);
           },
           onError: (data) => {
             toast.error(data?.message);
@@ -979,6 +982,8 @@ const CategoryWiseItems = () => {
                 scrollingMode && mode == "all" ? loadingAllItems : loadingItems
               }
               unCheckedItems={unCheckedItems}
+              fromTop={fromTop}
+              setFromTop={setFromTop}
               selectedVendor={selectedVendor}
               checkedItems={checkedItems}
               setShowShortCuts={setShowShortCuts}

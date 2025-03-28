@@ -17,75 +17,70 @@ const ItemsListingWithScrollingApproval = ({
   setUnCheckedItems,
   checkedItems,
   setCheckedItems,
-  scrollingMode
+  scrollingMode,
+  fromTop,
+  setFromTop
 }) => {
   const lineRef = useRef(null);
   const containerRef = useRef(null);
-  console.log(items);
-  const [fromTop, setFromTop] = useState(0);
+
   const [lastItemAboveLine, setLastItemAboveLine] = useState(null);
+  const [manualChange, setManualChange] = useState(false);
+  const [scrolling, setScrolling] = useState(false);
   useEffect(() => {
     const handleScroll = () => {
       if (lineRef.current) {
+        setScrolling(true);
+
         const linePosition = lineRef.current.getBoundingClientRect().top;
         const itemElements = document.querySelectorAll(".item-row");
 
         let latestAboveLine = null;
         const newCheckedItems = [];
-        const newUncheckedItems = [...unCheckedItems];
+        const newUncheckedItems = [];
 
         itemElements.forEach((item) => {
           const itemPosition = item.getBoundingClientRect().bottom;
           const itemUuid = item.getAttribute("data-uuid");
+
           if (itemPosition < linePosition) {
             latestAboveLine = item;
-    
+
+            // Handle CHECKED items
             if (
               !unCheckedItems.includes(itemUuid) &&
-              !items?.data?.items?.find(
-                (item) => item.item_uuid === itemUuid
-              )?.category_review_required
+              !items?.data?.items?.find((item) => item.item_uuid === itemUuid)
+                ?.category_review_required
             ) {
               if (!newCheckedItems.includes(itemUuid)) {
                 newCheckedItems.push(itemUuid);
               }
             }
-    
+
             if (checkedItems.includes(itemUuid)) {
-              newUncheckedItems.splice(newUncheckedItems.indexOf(itemUuid), 1);
+              if (!newCheckedItems.includes(itemUuid)) {
+                newCheckedItems.push(itemUuid);
+              }
+            }
+
+            // Ensure unchecked items ABOVE the line stay unchecked
+            if (unCheckedItems.includes(itemUuid)) {
+              if (!newUncheckedItems.includes(itemUuid)) {
+                newUncheckedItems.push(itemUuid);
+              }
             }
           } else {
+            // Handle items BELOW the line
+            if (unCheckedItems.includes(itemUuid)) {
+              return; // Remove it from `unCheckedItems`
+            }
+
             if (checkedItems.includes(itemUuid)) {
               if (!newUncheckedItems.includes(itemUuid)) {
                 newUncheckedItems.push(itemUuid);
               }
             }
           }
-            
-          // if (itemPosition < linePosition) {
-          //   latestAboveLine = item;
-
-          //   if (!unCheckedItems.includes(itemUuid)) {
-          //     if (
-          //       !items?.data?.items?.find((item) => item.item_uuid == itemUuid)
-          //         ?.category_review_required
-          //     ) {
-          //       newCheckedItems.push(itemUuid);
-          //     }
-          //   }
-
-          //   if (checkedItems.includes(itemUuid)) {
-          //     setUnCheckedItems(
-          //       unCheckedItems.filter((uuid) => uuid !== itemUuid)
-          //     );
-          //   }
-            
-          // } else {
-          //   if (unCheckedItems.includes(itemUuid)) {
-          //     const index = newUncheckedItems.indexOf(itemUuid);
-          //     if (index !== -1) newUncheckedItems.splice(index, 1);
-          //   }
-          // }
         });
 
         setLastItemAboveLine(latestAboveLine);
@@ -108,6 +103,7 @@ const ItemsListingWithScrollingApproval = ({
       }
     };
 
+    setScrolling(false);
     const container = containerRef.current;
     if (container) {
       container.addEventListener("scroll", handleScroll);
@@ -115,11 +111,6 @@ const ItemsListingWithScrollingApproval = ({
 
     window.addEventListener("keydown", handleKeyDown);
 
-
-  
-    // Initial check on page load (after layout calculation)
-    requestAnimationFrame(handleScroll);
-  
     return () => {
       if (container) {
         container.removeEventListener("scroll", handleScroll);
@@ -128,15 +119,20 @@ const ItemsListingWithScrollingApproval = ({
     };
   }, [items, checkedItems, unCheckedItems]);
 
-  // Adjusted fromTop Calculation
   useEffect(() => {
-    setFromTop(19.7);
-  }, [checkedItems, items?.length]);
+    if(scrolling){
+
+      setFromTop(19.7);
+    }
+  }, [checkedItems, items?.length,scrolling]);
 
   useEffect(() => {
     setCheckedItems([]);
   }, [items]);
+
   const handleRemoveItem = (item_uuid) => {
+    setManualChange(true);
+
     if (unCheckedItems?.includes(item_uuid)) {
       setUnCheckedItems(unCheckedItems?.filter((it) => it !== item_uuid));
       if (!checkedItems?.includes(item_uuid)) {
@@ -146,6 +142,8 @@ const ItemsListingWithScrollingApproval = ({
       setCheckedItems(checkedItems?.filter((it) => it !== item_uuid));
       setUnCheckedItems([...unCheckedItems, item_uuid]);
     }
+
+    setManualChange(false);
   };
 
   return (
@@ -177,7 +175,10 @@ const ItemsListingWithScrollingApproval = ({
                 <div
                   key={index}
                   onClick={() => {
-                    if (checkedItems?.includes(item?.item_uuid)) {
+                    if (
+                      checkedItems?.includes(item?.item_uuid) ||
+                      unCheckedItems?.includes(item?.item_uuid)
+                    ) {
                       handleRemoveItem(item?.item_uuid);
                     }
                   }}
@@ -208,8 +209,8 @@ const ItemsListingWithScrollingApproval = ({
                       <img src={circle_check} alt="" />
                     ) : (
                       (!unCheckedItems?.includes(item?.item_uuid) ||
-                        !item?.category_review_required) && (
-                        <img src={circle_check_grey}  className="fill-white"/>
+                        item?.category_review_required) && (
+                        <img src={circle_check_grey} className="fill-white" />
                       )
                     )}
                   </div>
@@ -222,11 +223,12 @@ const ItemsListingWithScrollingApproval = ({
 
       {/* Line after 6th item */}
       {scrollingMode && items?.data?.items?.length > 0 && (
-        <div  ref={lineRef}
-        src={dashed_line}
-        style={{ top: `${fromTop}rem` }} className="w-[98.5%] absolute border-t-[0.2rem] border-dashed border-black/45 "></div>
-
-      
+        <div
+          ref={lineRef}
+          src={dashed_line}
+          style={{ top: `${fromTop}rem` }}
+          className="w-[98.5%] absolute border-t-[0.2rem] border-dashed border-black/45 "
+        ></div>
       )}
     </div>
   );
