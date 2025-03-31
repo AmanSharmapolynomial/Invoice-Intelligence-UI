@@ -216,52 +216,12 @@ const HumanVerificationTable = ({
 
   const { columns = [], rows = [] } = data?.data?.processed_table;
 
-  const handleDropdownChange = (column_uuid, column_name) => {
-    // Deep copy of the data to avoid direct mutation
-    let copyObj = JSON.parse(JSON.stringify(data));
-    const { rows, columns } = copyObj?.data?.processed_table;
+ 
 
-    // Update the column name in the columns array
-    columns?.forEach((col) => {
-      if (col?.column_uuid === column_uuid) {
-        col.column_name = column_name;
-      }
-    });
 
-    // Update the query data with the modified table structure
-    queryClient.setQueryData(["combined-table", document_uuid], copyObj);
 
-    // Check if an update operation for this column already exists
-    const existingIndex = operations?.findIndex(
-      (op) =>
-        op?.type === "update_column" && op?.data?.column_uuid === column_uuid
-    );
 
-    if (existingIndex === -1) {
-      // Add a new operation if it doesn't exist
-      const newOperation = {
-        type: "update_column",
-        operation_order: operations?.length + 1,
-        data: {
-          column_uuid,
-          selected_column: true,
-          column_name
-        }
-      };
-      setOperations([...operations, newOperation]);
-    } else {
-      // Update the existing operation with the new column name
-      let updatedOperations = [...operations];
-      updatedOperations[existingIndex] = {
-        ...updatedOperations[existingIndex],
-        data: {
-          ...updatedOperations[existingIndex]?.data,
-          column_name
-        }
-      };
-      setOperations(updatedOperations);
-    }
-  };
+
   let item_code_column_uuid = data?.data?.processed_table?.columns
     ?.filter((c) => c?.selected_column)
     ?.filter(
@@ -671,7 +631,7 @@ const HumanVerificationTable = ({
     rows.push(newRow);
     queryClient.setQueryData(["combined-table", document_uuid], copyData);
   };
-  const handleSaveCell = async (rowIndex, cellIndex, value, row) => {
+  const handleSaveCell = async (rowIndex, cellIndex, value, row,resetEditMode=true) => {
     const originalValue =
       data?.data?.processed_table?.rows?.[rowIndex]?.cells?.[cellIndex]?.text ||
       "";
@@ -679,10 +639,10 @@ const HumanVerificationTable = ({
     if (value !== originalValue) {
       saveHistory();
 
-      const updatedData = JSON.parse(JSON.stringify(data));
+      const copyObj = JSON.parse(JSON.stringify(data));
       // Create a deep copy of the data
 
-      const targetCell = updatedData?.data?.processed_table?.rows?.[
+      const targetCell = copyObj?.data?.processed_table?.rows?.[
         rowIndex
       ]?.cells?.filter((c) => selectedColumnIds?.includes(c.column_uuid))?.[
         cellIndex
@@ -695,11 +655,9 @@ const HumanVerificationTable = ({
 
       // Update the cell's text
       targetCell.text = value;
-      updatedData.data.processed_table.rows[rowIndex].cells[cellIndex].text =
-        value;
-      let copyObj = JSON.parse(JSON.stringify(updatedData));
-      copyObj.data.processed_table.rows[rowIndex].cells[cellIndex].text = value;
-
+      // copyObj.data.processed_table.rows[rowIndex].cells[cellIndex].text =
+      //   value;
+   
       // Create an operation to track the update
       const operation = {
         type: "update_cell",
@@ -707,16 +665,16 @@ const HumanVerificationTable = ({
         data: {
           cell_uuid: targetCell.cell_uuid,
           row_uuid:
-            updatedData.data.processed_table.rows[rowIndex].transaction_uuid,
+          copyObj.data.processed_table.rows[rowIndex].transaction_uuid,
           column_uuid: targetCell.column_uuid,
           text: value || null
         }
       };
-      updatedData.data.processed_table.rows[rowIndex].cells.forEach((c, i) => {
+      copyObj.data.processed_table.rows[rowIndex].cells.forEach((c, i) => {
         c["column_name"] = data.data.processed_table.columns[i]?.column_name;
       });
       let extPriceCellColumnUUID =
-        updatedData.data.processed_table.columns?.find(
+      copyObj.data.processed_table.columns?.find(
           (col) => col?.column_name === "Extended Price"
         )?.["column_uuid"];
 
@@ -728,13 +686,13 @@ const HumanVerificationTable = ({
       setOperations([...operations, operation]);
       if (autoCalculate) {
         let rowCopy = JSON.parse(
-          JSON.stringify(updatedData.data.processed_table.rows[rowIndex])
+          JSON.stringify(copyObj.data.processed_table.rows[rowIndex])
         );
         let cells = rowCopy?.cells?.filter((c) =>
           selectedColumnIds?.includes(c?.column_uuid)
         );
         let row = {
-          ...updatedData.data.processed_table.rows[rowIndex],
+          ...copyObj.data.processed_table.rows[rowIndex],
           cells: cells
         };
 
@@ -755,7 +713,7 @@ const HumanVerificationTable = ({
                 data: {
                   cell_uuid: extPriceCell?.cell_uuid,
                   row_uuid:
-                    updatedData.data.processed_table.rows[rowIndex]
+                  copyObj.data.processed_table.rows[rowIndex]
                       .transaction_uuid,
                   column_uuid: extPriceCellColumnUUID,
                   text: extPriceCell?.text || null
@@ -764,14 +722,14 @@ const HumanVerificationTable = ({
 
               // Add the new operation for the extended price
               setOperations([...copyOperations, newOperation]);
-              updatedData.data.processed_table.rows[rowIndex] = data.data;
+              copyObj.data.processed_table.rows[rowIndex] = data.data;
 
               setReCalculateCWiseSum(true); // Recalculate category-wise sum
               queryClient.setQueryData(
                 ["combined-table", document_uuid],
-                updatedData
+                copyObj
               );
-              setEditMode({ rowIndex: null, cellIndex: null });
+             
               return;
             }
           }
@@ -779,16 +737,20 @@ const HumanVerificationTable = ({
       }
 
       // Update query data for the combined table
-      queryClient.setQueryData(["combined-table", document_uuid], updatedData);
+      queryClient.setQueryData(["combined-table", document_uuid], copyObj);
       setLastEditedLineItemColumns(
-        updatedData?.data?.processed_table?.columns
+        copyObj?.data?.processed_table?.columns
           ?.filter((c) => c?.selected_column)
           ?.map((c) => keysDecapitalizer(c?.column_name))
       );
       setLastEditedLineItem(
-        updatedData?.data?.processed_table?.rows?.[rowIndex]
+        copyObj?.data?.processed_table?.rows?.[rowIndex]
       );
     }
+    resetEditMode&&  setEditMode({
+      cellIndex:null,
+      rowIndex:null
+    })
     // !last_edited_line_item && setEditMode({ rowIndex: null, cellIndex: null });
     // Exit edit mode after saving
   };
@@ -868,10 +830,16 @@ const HumanVerificationTable = ({
 
   const addRow = (rowIndex = -1) => {
     saveHistory();
-
+  
     let copyData = JSON.parse(JSON.stringify(data));
     let { rows, columns } = copyData?.data?.processed_table;
     let clickedRow = rows[rowIndex];
+    if(editMode?.cellIndex){
+      setEditMode({
+        cellIndex:editMode?.cellIndex,
+        rowIndex:editMode?.rowIndex+1
+      })
+    }
     // Create a new empty row
     const newRow = {
       cells: columns.map((column) => ({
@@ -1127,7 +1095,7 @@ const HumanVerificationTable = ({
       row.cells.map((cell) => cell.cell_uuid)
     );
     if (new Set(allCellUuids).size !== allCellUuids.length) {
-      console.error("Duplicate UUIDs detected in final table state.");
+     
       toast.error("Duplicate UUIDs found after cell deletion.");
     }
 
@@ -1197,7 +1165,52 @@ const HumanVerificationTable = ({
       };
     });
   };
+  const handleDropdownChange = (column_uuid, column_name) => {
+    // Deep copy of the data to avoid direct mutation
+    let copyObj = JSON.parse(JSON.stringify(data));
+    const { rows, columns } = copyObj?.data?.processed_table;
 
+    // Update the column name in the columns array
+    columns?.forEach((col) => {
+      if (col?.column_uuid === column_uuid) {
+        col.column_name = column_name;
+      }
+    });
+
+    // Update the query data with the modified table structure
+    queryClient.setQueryData(["combined-table", document_uuid], copyObj);
+
+    // Check if an update operation for this column already exists
+    const existingIndex = operations?.findIndex(
+      (op) =>
+        op?.type === "update_column" && op?.data?.column_uuid === column_uuid
+    );
+
+    if (existingIndex === -1) {
+      // Add a new operation if it doesn't exist
+      const newOperation = {
+        type: "update_column",
+        operation_order: operations?.length + 1,
+        data: {
+          column_uuid,
+          selected_column: true,
+          column_name
+        }
+      };
+      setOperations([...operations, newOperation]);
+    } else {
+      // Update the existing operation with the new column name
+      let updatedOperations = [...operations];
+      updatedOperations[existingIndex] = {
+        ...updatedOperations[existingIndex],
+        data: {
+          ...updatedOperations[existingIndex]?.data,
+          column_name
+        }
+      };
+      setOperations(updatedOperations);
+    }
+  };
   const existing_column_names = data?.data?.processed_table?.columns
     ?.filter((c) => c?.selected_column)
     ?.map(
@@ -1429,6 +1442,7 @@ const HumanVerificationTable = ({
             <Table className="w-full   overflow-auto      ">
               <TableBody
                 className="w-full "
+                
                 onMouseLeave={() => {
                   if (stopHovering) {
                     setBoundingBox({});
@@ -1598,8 +1612,10 @@ const HumanVerificationTable = ({
                                               index,
                                               i,
                                               cellValue,
-                                              row
+                                              row,
+                                              false
                                             );
+                                          
                                           }}
                                           onClick={(e) => {
                                             e.preventDefault();
@@ -1614,7 +1630,8 @@ const HumanVerificationTable = ({
                                               index,
                                               i,
                                               cellValue,
-                                              row
+                                              row,
+                                              false
                                             );
                                           }}
                                           onChange={(e) => {
@@ -1623,7 +1640,8 @@ const HumanVerificationTable = ({
                                               index,
                                               i,
                                               e.target.value,
-                                              row
+                                              row,
+                                              false
                                             );
                                             setCellValue(e.target.value);
                                           }}
