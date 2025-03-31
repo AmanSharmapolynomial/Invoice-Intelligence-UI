@@ -216,12 +216,6 @@ const HumanVerificationTable = ({
 
   const { columns = [], rows = [] } = data?.data?.processed_table;
 
- 
-
-
-
-
-
   let item_code_column_uuid = data?.data?.processed_table?.columns
     ?.filter((c) => c?.selected_column)
     ?.filter(
@@ -631,7 +625,13 @@ const HumanVerificationTable = ({
     rows.push(newRow);
     queryClient.setQueryData(["combined-table", document_uuid], copyData);
   };
-  const handleSaveCell = async (rowIndex, cellIndex, value, row,resetEditMode=true) => {
+  const handleSaveCell = async (
+    rowIndex,
+    cellIndex,
+    value,
+    row,
+    resetEditMode = true
+  ) => {
     const originalValue =
       data?.data?.processed_table?.rows?.[rowIndex]?.cells?.[cellIndex]?.text ||
       "";
@@ -657,7 +657,7 @@ const HumanVerificationTable = ({
       targetCell.text = value;
       // copyObj.data.processed_table.rows[rowIndex].cells[cellIndex].text =
       //   value;
-   
+
       // Create an operation to track the update
       const operation = {
         type: "update_cell",
@@ -665,7 +665,7 @@ const HumanVerificationTable = ({
         data: {
           cell_uuid: targetCell.cell_uuid,
           row_uuid:
-          copyObj.data.processed_table.rows[rowIndex].transaction_uuid,
+            copyObj.data.processed_table.rows[rowIndex].transaction_uuid,
           column_uuid: targetCell.column_uuid,
           text: value || null
         }
@@ -673,10 +673,9 @@ const HumanVerificationTable = ({
       copyObj.data.processed_table.rows[rowIndex].cells.forEach((c, i) => {
         c["column_name"] = data.data.processed_table.columns[i]?.column_name;
       });
-      let extPriceCellColumnUUID =
-      copyObj.data.processed_table.columns?.find(
-          (col) => col?.column_name === "Extended Price"
-        )?.["column_uuid"];
+      let extPriceCellColumnUUID = copyObj.data.processed_table.columns?.find(
+        (col) => col?.column_name === "Extended Price"
+      )?.["column_uuid"];
 
       // Copy operations for recalculation
       let copyOperations = JSON.parse(
@@ -713,7 +712,7 @@ const HumanVerificationTable = ({
                 data: {
                   cell_uuid: extPriceCell?.cell_uuid,
                   row_uuid:
-                  copyObj.data.processed_table.rows[rowIndex]
+                    copyObj.data.processed_table.rows[rowIndex]
                       .transaction_uuid,
                   column_uuid: extPriceCellColumnUUID,
                   text: extPriceCell?.text || null
@@ -729,7 +728,7 @@ const HumanVerificationTable = ({
                 ["combined-table", document_uuid],
                 copyObj
               );
-             
+
               return;
             }
           }
@@ -743,14 +742,13 @@ const HumanVerificationTable = ({
           ?.filter((c) => c?.selected_column)
           ?.map((c) => keysDecapitalizer(c?.column_name))
       );
-      setLastEditedLineItem(
-        copyObj?.data?.processed_table?.rows?.[rowIndex]
-      );
+      setLastEditedLineItem(copyObj?.data?.processed_table?.rows?.[rowIndex]);
     }
-    resetEditMode&&  setEditMode({
-      cellIndex:null,
-      rowIndex:null
-    })
+    resetEditMode &&
+      setEditMode({
+        cellIndex: null,
+        rowIndex: null
+      });
     // !last_edited_line_item && setEditMode({ rowIndex: null, cellIndex: null });
     // Exit edit mode after saving
   };
@@ -830,15 +828,15 @@ const HumanVerificationTable = ({
 
   const addRow = (rowIndex = -1) => {
     saveHistory();
-  
+
     let copyData = JSON.parse(JSON.stringify(data));
     let { rows, columns } = copyData?.data?.processed_table;
     let clickedRow = rows[rowIndex];
-    if(editMode?.cellIndex){
+    if (editMode?.cellIndex) {
       setEditMode({
-        cellIndex:editMode?.cellIndex,
-        rowIndex:editMode?.rowIndex+1
-      })
+        cellIndex: editMode?.cellIndex,
+        rowIndex: editMode?.rowIndex + 1
+      });
     }
     // Create a new empty row
     const newRow = {
@@ -1095,7 +1093,6 @@ const HumanVerificationTable = ({
       row.cells.map((cell) => cell.cell_uuid)
     );
     if (new Set(allCellUuids).size !== allCellUuids.length) {
-     
       toast.error("Duplicate UUIDs found after cell deletion.");
     }
 
@@ -1232,31 +1229,35 @@ const HumanVerificationTable = ({
     lastEditedRow.cells.forEach((cell) => {
       if (selectedColumnIds.includes(cell?.column_uuid)) {
         if (cell.column_name !== "Category") {
-          ops.push({
-            type: "update_cell",
-            operation_order: lng + 1,
-            data: {
-              cell_uuid: cell.cell_uuid,
-              row_uuid: transaction_uuid,
-              column_uuid: cell.column_uuid,
-              text: row[keysDecapitalizer(cell?.column_name)] || null
-            }
-          });
-          cell.text = row[keysDecapitalizer(cell?.column_name)];
-          lng += 1;
+          if (!cell?.text || cell?.column_name=="Item Description"||cell?.column_name=="Item Code") {
+            ops.push({
+              type: "update_cell",
+              operation_order: lng + 1,
+              data: {
+                cell_uuid: cell.cell_uuid,
+                row_uuid: transaction_uuid,
+                column_uuid: cell.column_uuid,
+                text: row[keysDecapitalizer(cell?.column_name)] || null
+              }
+            });
+            cell.text = row[keysDecapitalizer(cell?.column_name)];
+            lng += 1;
+          }
         } else {
-          ops.push({
-            type: "update_cell",
-            operation_order: lng + 1,
-            data: {
-              cell_uuid: cell.cell_uuid,
-              row_uuid: transaction_uuid,
-              column_uuid: cell.column_uuid,
-              text: row[keysDecapitalizer(cell?.column_name)]?.name || null
-            }
-          });
-          cell.text = row[keysDecapitalizer(cell?.column_name)]?.name;
-          lng += 1;
+          if (!cell?.text) {
+            ops.push({
+              type: "update_cell",
+              operation_order: lng + 1,
+              data: {
+                cell_uuid: cell.cell_uuid,
+                row_uuid: transaction_uuid,
+                column_uuid: cell.column_uuid,
+                text: row[keysDecapitalizer(cell?.column_name)]?.name || null
+              }
+            });
+            cell.text = row[keysDecapitalizer(cell?.column_name)]?.name;
+            lng += 1;
+          }
         }
       }
     });
@@ -1275,11 +1276,9 @@ const HumanVerificationTable = ({
           "max-h-[42rem]   overflow-hidden"
         } w-full -mt-3 border border-[#F0F0F0] shadow-sm rounded-md  `}
       >
-        {
-          loadingItemLookups && <div className="w-full h-full  bg-white bg-opacity-50 !z-50 absolute">
-      
-          </div>
-        }
+        {loadingItemLookups && (
+          <div className="w-full h-full  bg-white bg-opacity-50 !z-50 absolute"></div>
+        )}
         {metadata?.invoice_type !== "Summary Invoice" && (
           <div className="w-full flex items-center justify-between pr-[1rem] border-b border-[#E0E0E0]">
             <p className="font-poppins font-semibold  p-3 text-base leading-6">
@@ -1442,7 +1441,6 @@ const HumanVerificationTable = ({
             <Table className="w-full   overflow-auto      ">
               <TableBody
                 className="w-full "
-                
                 onMouseLeave={() => {
                   if (stopHovering) {
                     setBoundingBox({});
@@ -1615,7 +1613,6 @@ const HumanVerificationTable = ({
                                               row,
                                               false
                                             );
-                                          
                                           }}
                                           onClick={(e) => {
                                             e.preventDefault();
