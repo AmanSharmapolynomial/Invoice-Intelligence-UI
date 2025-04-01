@@ -77,6 +77,7 @@ const Home = () => {
     useListRestaurants();
   const { data: vendorNamesList, isLoading: vendorNamesLoading } =
     useGetVendorNames();
+    
   const {
     setRestaurantFilter,
     setVendorFilter,

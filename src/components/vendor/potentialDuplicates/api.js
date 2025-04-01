@@ -43,3 +43,28 @@ export const useMarkAsNotDuplicate = () => {
     }
   });
 };
+
+export const useGetVendorBranchDuplicateFindingsSummary = ({
+  page,
+  page_size
+}) => {
+  return useQuery({
+    queryKey: ["vendor-duplicate-branches-listing", { page, page_size }],
+    queryFn: async () => {
+      return axiosInstance.get(
+        `/api/vendor-branch/duplicate-finder/vendor-duplicate-branch-summary/?page=${page}&page_size=${page_size}`
+      );
+    }
+  });
+};
+
+export const useGetVendorPotentialDuplicateBranches = (vendor_id) => {
+  return useQuery({
+    queryKey: ["duplicate-branches-listing", vendor_id],
+    queryFn: async () => {
+      return axiosInstance.get(
+        `/api/vendor-branch/duplicate-finder/vendor/${vendor_id}/findings/`
+      );
+    }
+  });
+};
