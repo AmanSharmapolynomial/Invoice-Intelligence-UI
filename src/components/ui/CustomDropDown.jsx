@@ -125,8 +125,8 @@ const CustomDropDown = ({
           <Link2 className="text-[#348355] !h-4 !w-4" />
           <span className="text-[#348355] text-sm w-full font-poppins font-normal truncate">
             {selectedItem
-              ? selectedItem?.label?.slice(0, 50) +
-                (selectedItem?.label?.length > 50 ? ".." : "")
+              ? selectedItem?.label?.slice(0, 35) +
+                (selectedItem?.label?.length > 35 ? ".." : "")
               : placeholder}
           </span>
           {selectedItem?.human_verified && (
