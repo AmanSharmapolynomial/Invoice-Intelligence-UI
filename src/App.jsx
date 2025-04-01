@@ -90,6 +90,14 @@ function App() {
             title="Duplicate Vendor Findings"
           
           />
+          <CustomCard
+            Icon={frame15}
+            className={"cursor-pointer"}
+            showIcon={true}
+            onClick={() => navigate(`/vendors-duplicate-branch-findings`)}
+            title="Duplicate Branch Findings"
+          
+          />
         </div>
       </Layout>
   
