@@ -61,7 +61,7 @@ axiosInstance.interceptors.response.use(
       try {
         const refreshToken = localStorage.getItem("refresh_token");
         if (!refreshToken) {
-          throw new Error("Refresh token not available");
+         return
         }
 
         // Request new token
