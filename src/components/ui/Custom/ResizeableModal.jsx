@@ -80,13 +80,13 @@ const ResizableModal = ({
         onMouseDown={allowModalDragging && handleMouseDown}
         style={{
           width: `${size.width}px`,
-          height: `${size.height}px`,
+     
           top: `${position.y}px`,
           left: `${position.x}px`,
           position: "fixed", // Fixed for full-screen movement
           pointerEvents: "auto",
         }}
-        className={`${className} bg-white rounded-lg shadow-lg border p-0 !z-50 overflow-auto`}
+        className={`${className} bg-white rounded-lg shadow-lg border p-0 !z-50 overflow-auto !h-[${size.height}px] `}
       >
         <div
           onClick={onClose}
@@ -95,7 +95,7 @@ const ResizableModal = ({
           <X className="w-6 h-6 text-black/70 cursor-pointer" />
         </div>
         <div
-          className="p-4 overflow-auto max-h-full z-50"
+          className="p-4 overflow-auto max-h-full z-50 "
           style={{ height: "calc(100% - 40px)" }}
         >
           {children}

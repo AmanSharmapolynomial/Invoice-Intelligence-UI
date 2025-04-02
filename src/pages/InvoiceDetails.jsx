@@ -1417,12 +1417,11 @@ const InvoiceDetails = () => {
 
       <ResizableModal
         isOpen={showAcceptModal}
+
         onClose={() => setShowAcceptModal()}
         title={"Information"}
-        className={"!rounded-2xl  max-w-[50rem] !h-[21rem]"}
-        titleClassName={
-          "flex justify-center   text-[#000000] font-poppins  font-medium  text-base  leading-4 pt-0.5 "
-        }
+        className={"!rounded-2xl  max-w-[50rem] "}
+      
       >
         {similarVendors?.data?.length > 0 && (
           <div className="my-2">
