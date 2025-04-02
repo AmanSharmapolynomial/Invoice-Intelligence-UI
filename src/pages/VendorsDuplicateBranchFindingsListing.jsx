@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/table";
 import { useGetVendorBranchDuplicateFindingsSummary } from "@/components/vendor/potentialDuplicates/api";
 import React from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import no_data from "@/assets/image/no-data.svg";
 
@@ -26,7 +26,7 @@ const VendorsDuplicateBranchFindingsListing = () => {
     page,
     page_size
   });
-
+  console.log(data);
   return (
     <div className="overflow-hidden flex w-full h-full">
       <Sidebar />
@@ -70,14 +70,16 @@ const VendorsDuplicateBranchFindingsListing = () => {
                           </TableRow>
                         ))}
                       </div>
-                    ) : !data?.data?.length > 0 ? (
+                    ) : data?.data?.length > 0 ? (
                       data?.data?.map((item, index) => {
                         return (
-                          <TableRow
+                          <Link
                             key={index}
+                            target="_blank"
+                            to={`/combine-duplicate-branch-findings/${item?.vendor?.vendor_id}`}
                             className={`${
                               index == 0 && "!border-t-0"
-                            } grid grid-cols-2 cursor-pointer md:max-h-[2.75rem] md:min-h-[2.65rem] 2xl:min-h-[4rem] content-center self-center w-full items-center text-xs sm:text-sm `}
+                            } grid grid-cols-2 border-b cursor-pointer md:max-h-[2.75rem] md:min-h-[2.65rem] 2xl:min-h-[4rem] content-center self-center w-full items-center text-xs sm:text-sm `}
                           >
                             <TableCell className="border-r h-full font-poppins !break-word dark:text-white md:max-h-[2.75rem] md:min-h-[2.65rem] 2xl:min-h-[4rem] self-center content-center !truncate whitespace-normal px-[0.8rem] capitalize text-sm font-normal">
                               <div className="flex items-center gap-x-2">
@@ -96,7 +98,7 @@ const VendorsDuplicateBranchFindingsListing = () => {
                             <TableCell className="font-normal md:max-h-[5.65rem] md:min-h-[2.65rem] 2xl:min-h-[4rem]  font-poppins text-sm text-black content-center">
                               {item?.total_findings}
                             </TableCell>
-                          </TableRow>
+                          </Link>
                         );
                       })
                     ) : (
