@@ -1229,7 +1229,11 @@ const HumanVerificationTable = ({
     lastEditedRow.cells.forEach((cell) => {
       if (selectedColumnIds.includes(cell?.column_uuid)) {
         if (cell.column_name !== "Category") {
-          if (!cell?.text || cell?.column_name=="Item Description"||cell?.column_name=="Item Code") {
+          if (
+            !cell?.text ||
+            cell?.column_name == "Item Description" ||
+            cell?.column_name == "Item Code"
+          ) {
             ops.push({
               type: "update_cell",
               operation_order: lng + 1,
@@ -2157,7 +2161,7 @@ const HumanVerificationTable = ({
         <p className="font-poppins font-semibold text-sm text-black mt-1">
           Similar Items
         </p>
-        <div className="min-w-full mt-3">
+        <div className="!w-full mt-3 max-w-[50rem] !min-w-[30rem] ">
           {loadingItemLookups ? (
             <div className="w-full flex flex-col gap-y-2">
               {[0, 1, 2, 3]?.map((r, i) => {

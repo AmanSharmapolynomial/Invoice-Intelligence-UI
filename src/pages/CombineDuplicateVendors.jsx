@@ -89,7 +89,9 @@ const CombineDuplicateVendors = () => {
                       className="font-poppins capitalize flex items-center gap-x-2 font-bold text-lg mt-2 mb-2"
                     >
                       <span> {vendor_1_name}</span>{" "}
-                      {vendor_1_human_verified && <img src={approved} alt="" className="h-4 w-4" />}
+                      {vendor_1_human_verified && (
+                        <img src={approved} alt="" className="h-4 w-4" />
+                      )}
                     </Link>
                     {data?.data?.[vendor1] ? (
                       <PdfViewer
@@ -143,7 +145,7 @@ const CombineDuplicateVendors = () => {
                             onClick={() => {
                               markAsNotDuplicate(finding_id, {
                                 onSuccess: () => {
-                                  navigate("/vendors-potential-duplicates");
+                                  window.close();
                                 }
                               });
                             }}
