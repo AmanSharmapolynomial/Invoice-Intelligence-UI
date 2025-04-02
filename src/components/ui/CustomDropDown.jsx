@@ -96,7 +96,11 @@ const CustomDropDown = ({
       .filter((item) =>
         item.label?.toLowerCase().includes(searchTerm.toLowerCase())
       )
-     
+      .sort((a, b) => {
+        if (itemsArray.includes(a.value)) return -1;
+        if (itemsArray.includes(b.value)) return 1;
+        return 0;
+      });
   }, [data, itemsArray, searchTerm]);
 
   const renderTriggerContent = () => {
