@@ -204,7 +204,7 @@ const CustomDropDown = ({
         }  mr-1 !z-50`}
         contentClassName={`${contentClassName}  !max-w-[17rem] min-w-full`}
       >
-        <Command className="dark:!border-[#051C14] px-1 py-2 dark:bg-[#051C14]  !min-w-full !z-50">
+        <Command className="dark:!border-[#051C14] px-1 py-2 dark:bg-[#051C14]  !min-w-full  !z-50">
           {showSearch && (
             <Input
               placeholder={searchPlaceholder}

@@ -7,7 +7,13 @@ import {
 } from "@/components/ui/accordion";
 import chevron from "@/assets/image/arrow_drop_down.svg";
 
-const CustomAccordion = ({ title = "Accordion", children, triggerButtons }) => {
+const CustomAccordion = ({
+  title = "Accordion",
+  children,
+  triggerButtons,
+  contentClassName,
+  className
+}) => {
   const [isOpen, setIsOpen] = useState(true); // Set to true for default open
 
   const handleToggle = () => {
@@ -20,7 +26,7 @@ const CustomAccordion = ({ title = "Accordion", children, triggerButtons }) => {
       collapsible
       defaultValue={isOpen ? "item-1" : ""}
       value={isOpen ? "item-1" : ""}
-      className="rounded-xl"
+      className={`${className} rounded-xl`}
       style={{ boxShadow: "0px 0px 8px 0px rgba(0, 0, 0, 0.12)" }}
     >
       <AccordionItem value="item-1" className="border-none">
@@ -46,7 +52,9 @@ const CustomAccordion = ({ title = "Accordion", children, triggerButtons }) => {
             {triggerButtons}
           </div>
         </AccordionTrigger>
-        <AccordionContent>{children}</AccordionContent>
+        <AccordionContent className={`${contentClassName}`}>
+          {children}
+        </AccordionContent>
       </AccordionItem>
     </Accordion>
   );
