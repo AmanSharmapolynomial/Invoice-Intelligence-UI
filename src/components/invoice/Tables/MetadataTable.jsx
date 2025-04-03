@@ -215,6 +215,9 @@ const MetadataTable = ({
           queryClient.invalidateQueries({
             queryKey: ["combined-table", document_uuid]
           });
+          queryClient.invalidateQueries({
+            queryKey: ["get-similar-vendors"]
+          });
           setNewVendor("");
         },
         onError: (data) => {
@@ -244,6 +247,9 @@ const MetadataTable = ({
           });
           queryClient.invalidateQueries({
             queryKey: ["combined-table", document_uuid]
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["get-similar-vendors"]
           });
           setEditBranch(false);
           setNewBranch("");
