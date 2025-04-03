@@ -68,3 +68,13 @@ export const useGetVendorPotentialDuplicateBranches = (vendor_id) => {
     }
   });
 };
+
+export const useMartBranchAsNotDuplicate = () => {
+  return useMutation({
+    mutationFn: async (finding_id) => {
+      return axiosInstance.post(
+        `/api/vendor-branch/duplicate-finder/findings/${finding_id}/mark-as-not-duplicate/`
+      );
+    }
+  });
+};

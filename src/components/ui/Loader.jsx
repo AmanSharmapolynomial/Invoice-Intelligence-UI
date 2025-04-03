@@ -1,7 +1,7 @@
 export default function Loader({className}) {
   return (
-    <div className={className}>
-      <div className="relative w-16 h-16">
+    <div className={''}>
+      <div className={`${className} relative w-6 h-6`}>
       {[...Array(3)].map((_, i) => (
         <div
           key={i}
