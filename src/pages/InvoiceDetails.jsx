@@ -1001,7 +1001,10 @@ const InvoiceDetails = () => {
             >
               <Button
                 onClick={() => {
-                  if (is_unverified_vendor) {
+                  if (
+                    is_unverified_vendor &&
+                    similarVendors?.data?.length > 0
+                  ) {
                     setShowAcceptModal(true);
                   } else {
                     handleAccept();
@@ -1417,11 +1420,9 @@ const InvoiceDetails = () => {
 
       <ResizableModal
         isOpen={showAcceptModal}
-
         onClose={() => setShowAcceptModal()}
         title={"Information"}
         className={"!rounded-2xl  max-w-[50rem] "}
-      
       >
         {similarVendors?.data?.length > 0 && (
           <div className="my-2">

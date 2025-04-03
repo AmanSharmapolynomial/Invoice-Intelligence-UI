@@ -90,7 +90,7 @@ const CombineDuplicateVendors = () => {
                     className="font-poppins capitalize flex items-center gap-x-2 font-bold text-lg mt-2 mb-2"
                   >
                     <span> {vendor_1_name}</span>{" "}
-                    {vendor_1_human_verified && (
+                    {vendor_1_human_verified == "true" && (
                       <img src={approved} alt="" className="h-4 w-4" />
                     )}
                   </Link>
@@ -122,7 +122,9 @@ const CombineDuplicateVendors = () => {
                       className="font-poppins capitalize flex items-center gap-x-2 font-bold text-lg mt-2 mb-2"
                     >
                       <span> {vendor_2_name} </span>{" "}
-                      {vendor_2_human_verified && <img src={approved} alt="" />}
+                      {vendor_2_human_verified == "true" && (
+                        <img src={approved} alt="" />
+                      )}
                     </Link>
                     <div className="flex items-center gap-x-2 justify-end">
                       <div className="flex items-center gap-x-2">
@@ -148,8 +150,8 @@ const CombineDuplicateVendors = () => {
                               onSuccess: () => {
                                 window.close();
                               },
-                              onError:(data)=>{
-                                toast.error(data?.message)
+                              onError: (data) => {
+                                toast.error(data?.message);
                               }
                             });
                           }}
