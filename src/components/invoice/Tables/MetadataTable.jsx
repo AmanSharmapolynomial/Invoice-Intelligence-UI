@@ -93,6 +93,7 @@ const MetadataTable = ({
     setEditVendor,
     setIsUnverifiedVendor,
     setCurrentDocumentUUID,
+    setIsUnverifiedBranch,
     setBoundingBoxes,
     setBoundingBox,
     warning_checkbox_checked,
@@ -126,6 +127,10 @@ const MetadataTable = ({
   useEffect(() => {
     if (!vendor?.human_verified) {
       setIsUnverifiedVendor(true);
+      setCurrentDocumentUUID(document_uuid);
+    }
+    if (!branch?.human_verified) {
+      setIsUnverifiedBranch(true);
       setCurrentDocumentUUID(document_uuid);
     }
   }, [vendor]);

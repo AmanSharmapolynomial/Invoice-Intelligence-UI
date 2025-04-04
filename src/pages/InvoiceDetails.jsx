@@ -70,6 +70,7 @@ import useThemeStore from "@/store/themeStore";
 import {
   ArrowRight,
   ChevronRight,
+  Copy,
   Filter,
   Info,
   Menu,
@@ -150,7 +151,8 @@ const InvoiceDetails = () => {
     is_unverified_vendor,
     current_document_uuid,
     warning_checkbox_checked,
-    setWarningCheckboxChecked
+    setWarningCheckboxChecked,
+    is_unverified_branch
   } = invoiceDetailStore();
   const [isLoading, setIsLoading] = useState(true);
   const [loadingState, setLoadingState] = useState({
@@ -170,6 +172,7 @@ const InvoiceDetails = () => {
 
   const { data: similarBranches, isLoading: loadingSimilarBranches } =
     useGetSimilarBranches(metaData?.document_uuid);
+
   useEffect(() => {
     if (
       (similarVendors && similarVendors?.data?.length > 0) ||
@@ -177,7 +180,7 @@ const InvoiceDetails = () => {
     ) {
       setShowSimilarVendorsAndBranchesWarningModal(true);
     }
-  }, [similarVendors]);
+  }, [similarVendors, similarBranches]);
   const { filters, setFilters } = useFilterStore();
   const { mutate: updateTable } = useUpdateDocumentMetadata();
   const { mutate: markForReview, isPending: markingForReview } =
@@ -539,8 +542,8 @@ const InvoiceDetails = () => {
   useEffect(() => {
     setShowAlreadySyncedModal(false);
     setWarningCheckboxChecked(false);
-    setShowSimilarVendorsAndBranchesWarningModal(false)
-    setShowAcceptModal(false)
+    setShowSimilarVendorsAndBranchesWarningModal(false);
+    setShowAcceptModal(false);
   }, [page]);
 
   const { mutate: revertChanges } = useRevertChanges();
@@ -1054,7 +1057,7 @@ const InvoiceDetails = () => {
                   if (
                     (is_unverified_vendor &&
                       similarVendors?.data?.length > 0) ||
-                    (is_unverified_vendor && similarBranches?.data?.length > 0)
+                    (is_unverified_branch && similarBranches?.data?.length > 0)
                   ) {
                     setShowAcceptModal(true);
                   } else {
@@ -1528,6 +1531,10 @@ const InvoiceDetails = () => {
                               <div className="flex items-center gap-x-2 capitalize">
                                 <span> {row?.vendor?.vendor_name}</span>
                                 <img src={approved} alt="" />
+                                <Copy className="cursor-pointer" onClick={()=>{
+                                  navigator.clipboard.writeText(row?.vendor?.vendor_name)
+                                  toast.success("Vendor Name Copied")
+                                }}/>
                               </div>
                             </TableCell>
                             <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
@@ -1592,6 +1599,10 @@ const InvoiceDetails = () => {
                               <div className="flex items-center gap-x-2 capitalize">
                                 <span> {row?.branch?.vendor_address}</span>
                                 <img src={approved} alt="" />
+                                <Copy className="cursor-pointer" onClick={()=>{
+                                  navigator.clipboard.writeText(row?.branch?.vendor_address)
+                                  toast.success("Branch Address Copied")
+                                }}/>
                               </div>
                             </TableCell>
                             <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
