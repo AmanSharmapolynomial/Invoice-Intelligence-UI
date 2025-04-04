@@ -167,8 +167,8 @@ export const useGetItemMasterLookUp = () => {
       }
       return axiosInstance.get(apiUrl);
     },
-    onError:(data)=>{
-      toast.error(data?.message)
+    onError: (data) => {
+      toast.error(data?.message);
     }
   });
 };
@@ -346,6 +346,22 @@ export const useGetSimilarVendors = (payload) => {
       if (!toFetch) {
         return;
       }
+      try {
+        let response = await axiosInstance.get(apiUrl);
+        return response;
+      } catch (error) {
+        return error?.response?.data?.message;
+      }
+    }
+  });
+};
+
+export const useGetSimilarBranches = (document_uuid) => {
+  return useQuery({
+    queryKey: ["get-similar-branches", document_uuid],
+    queryFn: async () => {
+      if(!document_uuid) return;
+      let apiUrl = `/api/document/${document_uuid}/potential-verified-branches/`;
       try {
         let response = await axiosInstance.get(apiUrl);
         return response;
