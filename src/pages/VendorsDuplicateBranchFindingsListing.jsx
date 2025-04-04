@@ -26,7 +26,7 @@ const VendorsDuplicateBranchFindingsListing = () => {
     page,
     page_size
   });
-  console.log(data);
+
   return (
     <div className="overflow-hidden flex w-full h-full">
       <Sidebar />
@@ -42,7 +42,7 @@ const VendorsDuplicateBranchFindingsListing = () => {
           />
           <div className="w-full mt-4">
             <div className="rounded-md border overflow-x-auto">
-              <Table className="!rounded-md !relative box-border flex flex-col min-w-full h-[78vh] 2xl:max-h-[72.5vh] 3xl:h-[80vh] overflow-auto">
+              <Table className="!rounded-md !relative box-border flex flex-col min-w-full h-[73vh] 2xl:max-h-[78vh] overflow-auto">
                 <TableHeader className="w-full sticky top-0 z-10 bg-white dark:bg-primary">
                   <TableRow className="!text-white !rounded-md w-full grid grid-cols-2 md:max-h-[5.65rem] md:min-h-[2.65rem] 2xl:min-h-[4rem] self-center content-center items-center justify-center text-xs sm:text-sm">
                     <TableHead className="cursor-pointer font-poppins !px-[0.75rem] font-semibold text-black md:max-h-[5.65rem] md:min-h-[2.65rem] 2xl:min-h-[4rem] self-center content-center leading-5 text-sm border-r items-center flex gap-1">
@@ -95,7 +95,7 @@ const VendorsDuplicateBranchFindingsListing = () => {
                                 )}
                               </div>
                             </TableCell>
-                            <TableCell className="font-normal md:max-h-[5.65rem] md:min-h-[2.65rem] 2xl:min-h-[4rem]  font-poppins text-sm text-black content-center">
+                            <TableCell className="font-normal md:max-h-[2.75rem] md:min-h-[2.65rem] 2xl:min-h-[4rem]  font-poppins text-sm text-black content-center">
                               {item?.total_findings}
                             </TableCell>
                           </Link>

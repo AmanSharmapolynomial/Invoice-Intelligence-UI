@@ -311,7 +311,7 @@ const CustomDropDown = ({
                             {item?.count !== undefined && (
                               <CustomTooltip
                                 content={"Duplicate Findings Count"}
-                                right={16}
+                                right={24}
                               >
                                 <span className="font-poppins mr-2">
                                   {item?.count}
