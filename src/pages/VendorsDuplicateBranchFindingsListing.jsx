@@ -42,9 +42,9 @@ const VendorsDuplicateBranchFindingsListing = () => {
           />
           <div className="w-full mt-4">
             <div className="rounded-md border overflow-x-auto">
-              <Table className="!rounded-md !relative box-border flex flex-col min-w-full h-[73vh] 2xl:max-h-[78vh] overflow-auto">
+              <Table className="!rounded-md !relative box-border flex flex-col min-w-full h-[72vh] 2xl:max-h-[78vh] overflow-auto">
                 <TableHeader className="w-full sticky top-0 z-10 bg-white dark:bg-primary">
-                  <TableRow className="!text-white !rounded-md w-full grid grid-cols-2 md:max-h-[5.65rem] md:min-h-[2.65rem] 2xl:min-h-[4rem] self-center content-center items-center justify-center text-xs sm:text-sm">
+                  <TableRow className="!text-white !rounded-md w-full grid grid-cols-2 md:max-h-[5.65rem] md:min-h-[3.65rem] 2xl:min-h-[4rem] self-center content-center items-center justify-center text-xs sm:text-sm">
                     <TableHead className="cursor-pointer font-poppins !px-[0.75rem] font-semibold text-black md:max-h-[5.65rem] md:min-h-[2.65rem] 2xl:min-h-[4rem] self-center content-center leading-5 text-sm border-r items-center flex gap-1">
                       Vendor
                     </TableHead>
@@ -79,9 +79,9 @@ const VendorsDuplicateBranchFindingsListing = () => {
                             to={`/combine-duplicate-branch-findings/${item?.vendor?.vendor_id}`}
                             className={`${
                               index == 0 && "!border-t-0"
-                            } grid grid-cols-2 border-b cursor-pointer md:max-h-[2.75rem] md:min-h-[2.65rem] 2xl:min-h-[4rem] content-center self-center w-full items-center text-xs sm:text-sm `}
+                            } grid grid-cols-2 border-b cursor-pointer md:h-[2.75rem] md:min-h-[3.65rem] 2xl:min-h-[4rem] content-center self-center w-full items-center text-xs sm:text-sm `}
                           >
-                            <TableCell className="border-r h-full font-poppins !break-word dark:text-white md:max-h-[2.75rem] md:min-h-[2.65rem] 2xl:min-h-[4rem] self-center content-center !truncate whitespace-normal px-[0.8rem] capitalize text-sm font-normal">
+                            <TableCell className="border-r h-full font-poppins !break-word dark:text-white md:h-[2.75rem] md:min-h-[2.65rem] 2xl:h-[4rem] self-center content-center !truncate whitespace-normal px-[0.8rem] capitalize text-sm font-normal">
                               <div className="flex items-center gap-x-2">
                                 <span>{item?.vendor?.vendor_name}</span>
                                 {item?.vendor?.human_verified && (
