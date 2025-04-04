@@ -112,6 +112,7 @@ export const invoiceDetailStore = create((set, get) => ({
       showTextExtractionModal: false,
       metadataTableCopy: {},
       is_unverified_vendor: false,
+      is_unverified_branch:false,
       current_document_uuid:  null,
       warning_checkbox_checked:  false,
       stopHovering: true,

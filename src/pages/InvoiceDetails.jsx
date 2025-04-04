@@ -175,8 +175,8 @@ const InvoiceDetails = () => {
 
   useEffect(() => {
     if (
-      (similarVendors && similarVendors?.data?.length > 0) ||
-      similarBranches?.data?.length > 0
+      (is_unverified_vendor && similarVendors?.data?.length > 0) ||
+      (similarBranches?.data?.length > 0 && is_unverified_branch)
     ) {
       setShowSimilarVendorsAndBranchesWarningModal(true);
     }
@@ -1491,7 +1491,6 @@ const InvoiceDetails = () => {
             <p className="mb-3 pl-0.5  font-poppins text-[0.9rem] font-semibold text-[#000000] ">
               Matching Verified Vendors ({similarVendors?.data?.length})
             </p>
-            
           </div>
         ) : (
           <div className="my-2">
@@ -1656,7 +1655,6 @@ const InvoiceDetails = () => {
             )}
           </div>
         )}
-      
       </ResizableModal>
     </div>
   );
