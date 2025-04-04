@@ -167,7 +167,7 @@ const FastItemVerification = () => {
         );
       }
     }
-  }, [fiv_items, data]);
+  }, [fiv_items]);
   useEffect(() => {
     if (fiv_items?.length !== 0) {
       setIsGoodDocument(true);
@@ -204,7 +204,7 @@ const FastItemVerification = () => {
 
           setFIVItems(updatedItems);
           setFIVVerifiedItemsCount(Number(fiv_verified_items_count) + 1);
-
+          setFIVItems(fiv_items?.filter((it) => !it?.human_verified));
           // Handle pagination & moving to the next item
           if (updatedItems?.length == 0) {
             getAllItems(
@@ -225,13 +225,11 @@ const FastItemVerification = () => {
                 }
               }
             );
-          } 
-          
-          else {
+          } else {
             if (fiv_item_number < total_items - 1) {
               setFIVItemNumber(Number(fiv_item_number) + 1);
               setFIVCurrentItem(fiv_items[Number(fiv_item_number) + 1]);
-              setFIVItems(fiv_items?.filter((it) => !it?.human_verified));
+            
             } else {
               if (!data?.is_final_page) {
                 if (!fiv_is_final_page) {

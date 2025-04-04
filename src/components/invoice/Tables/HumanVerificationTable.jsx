@@ -1229,7 +1229,11 @@ const HumanVerificationTable = ({
     lastEditedRow.cells.forEach((cell) => {
       if (selectedColumnIds.includes(cell?.column_uuid)) {
         if (cell.column_name !== "Category") {
-          if (!cell?.text || cell?.column_name=="Item Description"||cell?.column_name=="Item Code") {
+          if (
+            !cell?.text ||
+            cell?.column_name == "Item Description" ||
+            cell?.column_name == "Item Code"
+          ) {
             ops.push({
               type: "update_cell",
               operation_order: lng + 1,
@@ -2157,7 +2161,7 @@ const HumanVerificationTable = ({
         <p className="font-poppins font-semibold text-sm text-black mt-1">
           Similar Items
         </p>
-        <div className="min-w-full mt-3">
+        <div className="!w-full mt-3 max-w-[50rem] !min-w-[30rem] ">
           {loadingItemLookups ? (
             <div className="w-full flex flex-col gap-y-2">
               {[0, 1, 2, 3]?.map((r, i) => {
@@ -2179,45 +2183,47 @@ const HumanVerificationTable = ({
               </p>
             </div>
           ) : (
-            <table className="  w-full mt-4 ">
-              <div className=" h-64 !w-full overflow-auto relative">
-                {/* <TableHeader className=" top-0 z-10 bg-white "> */}
-                <TableRow
-                  className=" 
-               !w-full !border !border-b-2 "
-                >
-                  {last_edited_line_item_columns?.map((col, index) => (
-                    <TableHead
-                      key={index}
-                      className={` border sticky top-0  bg-white font-poppins h-12  content-center px-4 items-center   font-semibold text-sm text-black leading-5`}
-                    >
+           <div className="max-h-60 overflow-auto">
+             <table className="  w-full mt-4 ">
+              {/* <TableHeader className=" top-0 z-10 bg-white "> */}
+              <tr
+                className={`
+                  !w-full !border !border-l-2 border-t-2 `}
+              >
+                {last_edited_line_item_columns?.map((col, index) => (
+                  <th
+                    key={index}
+                    className={` border sticky top-0  !border-l bg-white font-poppins h-12  content-center px-2 items-center !justify-start font-semibold text-sm text-black   leading-5`}
+                  >
+                    <div className="flex items-center h-full  justify-normal">
                       {keysCapitalizer(col)}
-                    </TableHead>
-                  ))}
-                </TableRow>
+                    </div>
+                  </th>
+                ))}
+              </tr>
 
-                <tbody className="w-full">
-                  {similarLineItems?.map((row, index) => (
-                    <TableRow
-                      key={index}
-                      onClick={() => {
-                        handleInsertRow(row);
-                      }}
-                      className="cursor-pointer"
-                    >
-                      {last_edited_line_item_columns?.map((col, i) => (
-                        <TableCell
-                          key={i}
-                          className="border font-poppins text-black !font-normal !text-xs"
-                        >
-                          {col == "category" ? row["category"]?.name : row[col]}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-                </tbody>
-              </div>
+              <tbody className="w-full ">
+                {similarLineItems?.map((row, index) => (
+                  <tr
+                    key={index}
+                    onClick={() => {
+                      handleInsertRow(row);
+                    }}
+                    className={` cursor-pointer`}
+                  >
+                    {last_edited_line_item_columns?.map((col, i) => (
+                      <td
+                        key={i}
+                        className="border  py-2 px-2 font-poppins text-black !font-normal !text-xs"
+                      >
+                        {col == "category" ? row["category"]?.name : row[col]}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
             </table>
+            </div>
           )}
         </div>
       </ResizableModal>

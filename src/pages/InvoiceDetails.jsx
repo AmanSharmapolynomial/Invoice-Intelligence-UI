@@ -99,6 +99,7 @@ import {
   TooltipTrigger
 } from "@/components/ui/tooltip";
 import userStore from "@/components/auth/store/userStore";
+import ResizableModal from "@/components/ui/Custom/ResizeableModal";
 
 const rejectionReasons = [
   "Duplicate invoice",
@@ -522,7 +523,7 @@ const InvoiceDetails = () => {
 
   useEffect(() => {
     setShowAlreadySyncedModal(false);
-    setWarningCheckboxChecked(false)
+    setWarningCheckboxChecked(false);
   }, [page]);
 
   const { mutate: revertChanges } = useRevertChanges();
@@ -1000,7 +1001,10 @@ const InvoiceDetails = () => {
             >
               <Button
                 onClick={() => {
-                  if (is_unverified_vendor) {
+                  if (
+                    is_unverified_vendor &&
+                    similarVendors?.data?.length > 0
+                  ) {
                     setShowAcceptModal(true);
                   } else {
                     handleAccept();
@@ -1414,54 +1418,54 @@ const InvoiceDetails = () => {
         </ModalDescription>
       </Modal>
 
-      <Modal
-        open={showAcceptModal}
-        setOpen={setShowAcceptModal}
+      <ResizableModal
+        isOpen={showAcceptModal}
+        onClose={() => setShowAcceptModal()}
         title={"Information"}
-        className={"!rounded-2xl  max-w-[50rem] min-h-[10rem] max-h-[40rem]"}
-        titleClassName={
-          "flex justify-center   text-[#000000] font-poppins  font-medium  text-base  leading-4 pt-0.5 "
-        }
+        className={"!rounded-2xl  max-w-[50rem] "}
       >
-        <ModalDescription>
-          {similarVendors?.data?.length > 0 && (
-            <div className="my-2">
-              <p className="mb-3 pl-0.5  font-poppins text-[0.9rem] font-normal text-[#000000] ">
-                Matching Verified Vendors
-              </p>
-            </div>
-          )}
-          <div className="max-h-52  overflow-auto">
-            {similarVendors?.data?.length > 0 ? (
-              <>
-                <Table>
-                  <TableRow className="border grid grid-cols-3 items-center content-center">
-                    <TableHead className="border font-poppins text-sm font-semibold content-center text-black leading-5">
+        {similarVendors?.data?.length > 0 && (
+          <div className="my-2">
+            <p className="mb-3 pl-0.5  font-poppins text-[0.9rem] font-semibold text-[#000000] ">
+              Matching Verified Vendors
+            </p>
+          </div>
+        )}
+
+        <div className="w-full !max-h-52 overflow-auto !relative">
+          {similarVendors?.data?.length > 0 ? (
+            <>
+              <div className="sticky top-0 bg-white z-50">
+                <Table className="!sticky !top-0">
+                  <TableRow className="grid grid-cols-3 items-center content-center ">
+                    <TableHead className="border-r  border-t border-l font-poppins text-sm font-semibold content-center text-black leading-5">
                       Vendor Name
                     </TableHead>
-                    <TableHead className="border font-poppins text-sm font-semibold text-black leading-5 content-center">
+                    <TableHead className="border-r border-t  font-poppins text-sm font-semibold text-black leading-5 content-center">
                       Similarity{" "}
                     </TableHead>
-                    <TableHead className="border font-poppins text-sm font-semibold text-black leading-5 content-center">
+                    <TableHead className=" font-poppins text-sm border-t border-r font-semibold text-black leading-5 content-center">
                       Finding Method
                     </TableHead>
                   </TableRow>
                 </Table>
-                <Table className="mb-4">
+              </div>
+              <div className="">
+                <Table className="mb-4  ">
                   <TableBody>
                     {similarVendors?.data?.length > 0 &&
                       similarVendors?.data?.map((row, index) => (
                         <TableRow
-                          className="border grid grid-cols-3 "
+                          className=" !border-b grid grid-cols-3 "
                           key={index}
                         >
-                          <TableCell className="border font-poppins font-normal content-center text-black text-sm">
+                          <TableCell className=" border-l font-poppins border-r font-normal content-center text-black text-sm">
                             <div className="flex items-center gap-x-2 capitalize">
                               <span> {row?.vendor?.vendor_name}</span>
                               <img src={approved} alt="" />
                             </div>
                           </TableCell>
-                          <TableCell className="border content-center font-poppins font-normal text-black text-sm">
+                          <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger div className=" z-50">
@@ -1473,41 +1477,41 @@ const InvoiceDetails = () => {
                               </Tooltip>
                             </TooltipProvider>
                           </TableCell>
-                          <TableCell className="border content-center font-poppins font-normal text-black text-sm">
+                          <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
                             {row?.finding_method}
                           </TableCell>
                         </TableRow>
                       ))}
                   </TableBody>
                 </Table>
-              </>
-            ) : (
-              <div className="w-full h-[10rem] flex items-center justify-center">
-                <p className="font-medium text-sm font-poppins text-black">
-                  No Matching Verified Vendors Found.
-                </p>
               </div>
-            )}
-          </div>
-          <div className="flex justify-center  absolute bottom-4 left-[50%] right-[50%] items-center gap-x-2">
-            <Button
-              onClick={() => {
-                setShowAcceptModal(false);
-              }}
-              className="mt-8 border bg-transparent hover:bg-transparent border-primary text-black font-poppins tracking-wide  !font-normal text-xs rounded-sm leading-4 "
-            >
-              {"Go Back"}
-            </Button>
-            <Button
-              disabled={loadingState?.saving}
-              onClick={handleAccept}
-              className="mt-8 text-[#FFFFFF] font-poppins tracking-wide  !font-normal text-xs rounded-sm leading-4 "
-            >
-              {loadingState?.saving ? "Accepting...." : "Accept"}
-            </Button>
-          </div>
-        </ModalDescription>
-      </Modal>
+            </>
+          ) : (
+            <div className="w-full h-[10rem] flex items-center justify-center">
+              <p className="font-medium text-sm font-poppins text-black">
+                No Matching Verified Vendors Found.
+              </p>
+            </div>
+          )}
+        </div>
+        <div className="flex justify-center mt-4   items-center gap-x-2">
+          <Button
+            onClick={() => {
+              setShowAcceptModal(false);
+            }}
+            className=" border bg-transparent hover:bg-transparent border-primary text-black font-poppins tracking-wide  !font-normal text-xs rounded-sm leading-4 "
+          >
+            {"Go Back"}
+          </Button>
+          <Button
+            disabled={loadingState?.saving}
+            onClick={handleAccept}
+            className="text-[#FFFFFF] font-poppins tracking-wide  !font-normal text-xs rounded-sm leading-4 "
+          >
+            {loadingState?.saving ? "Accepting...." : "Accept"}
+          </Button>
+        </div>
+      </ResizableModal>
     </div>
   );
 };
