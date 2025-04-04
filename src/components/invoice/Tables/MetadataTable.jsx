@@ -133,7 +133,8 @@ const MetadataTable = ({
       setIsUnverifiedBranch(true);
       setCurrentDocumentUUID(document_uuid);
     }
-  }, [vendor]);
+  }, [vendor,branch]);
+
   const [showToChangeCategoriesAndTypes, setShowToChangeCategoriesAndTypes] =
     useState(false);
   const [highlight, setHighlight] = useState(false);
