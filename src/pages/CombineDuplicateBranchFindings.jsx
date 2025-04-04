@@ -123,7 +123,7 @@ const CombineDuplicateBranchFindings = () => {
       window.close();
     }
   }, [data]);
-  
+
   return (
     <div className="overflow-hidden flex w-full h-full">
       <Sidebar />
@@ -165,12 +165,27 @@ const CombineDuplicateBranchFindings = () => {
                 <p className="text-2xl">|</p>
                 <div>
                   <p className="text-[#6D6D6D] font-poppins font-medium text-xs leading-4">
-                    Total Findings
+                    Group Findings
                   </p>
                   <p className="capitalize text-[#121212] flex items-center gap-x-2 font-semibold font-poppins text-xl">
                     <span>
                       {
-                         data?.data?.findings?.find((f) => f.branch?.branch_id == currentBranch)?.total_potential_duplicates
+                        data?.data?.findings?.find(
+                          (f) => f.branch?.branch_id == currentBranch
+                        )?.total_potential_duplicates
+                      }
+                    </span>
+                  </p>
+                </div>
+                <p className="text-2xl">|</p>
+                <div>
+                  <p className="text-[#6D6D6D] font-poppins font-medium text-xs leading-4">
+                    Total Groups
+                  </p>
+                  <p className="capitalize text-[#121212] flex items-center gap-x-2 font-semibold font-poppins text-xl">
+                    <span>
+                      {
+                       data?.data?.findings?.length
                       }
                     </span>
                   </p>
@@ -234,28 +249,28 @@ const CombineDuplicateBranchFindings = () => {
           </div>
           <div className=" border-b  mt-2 relative">
             <Table className="">
-              <TableRow className="grid bg-white sticky top-0 z-50 grid-cols-6 items-center content-center ">
-                <TableHead className="font-semibold font-poppins text-sm border-t border-l text-black content-center border-r">
+              <TableRow className="grid border-r border-t bg-white sticky top-0 z-50 grid-cols-6 items-center content-center pr-[0.75rem]">
+                <TableHead className="font-semibold font-poppins text-sm  border-l text-black content-center border-r">
                   Branch Name
                 </TableHead>
-                <TableHead className="font-semibold font-poppins text-sm text-black border-t content-center border-r">
+                <TableHead className="font-semibold font-poppins text-sm text-black  content-center border-r">
                   Similarity Score
                 </TableHead>
-                <TableHead className="font-semibold font-poppins text-sm text-black border-t content-center border-r">
+                <TableHead className="font-semibold font-poppins text-sm text-black  content-center border-r">
                   Matching Reason
                 </TableHead>
-                <TableHead className="font-semibold font-poppins text-sm border-t text-black content-center border-r">
+                <TableHead className="font-semibold font-poppins text-sm  text-black content-center border-r">
                   Select Master
                 </TableHead>
-                <TableHead className="font-semibold font-poppins text-sm text-black border-t content-center border-r">
+                <TableHead className="font-semibold font-poppins text-sm text-black  content-center border-r">
                   Select For Merge
                 </TableHead>
-                <TableHead className="font-semibold font-poppins text-sm text-black border-t content-center border-r">
+                <TableHead className="font-semibold font-poppins text-sm text-black  content-center border-r">
                   Mark As Not Duplicate
                 </TableHead>
               </TableRow>
               <TableBody>
-                <div className="max-h-[50vh]">
+                <div className="max-h-[50vh] overflow-auto">
                   {isLoading ? (
                     <>
                       {[0, 1, 2, 3, 4, 5, 6, 7]?.map((_, i) => {
@@ -294,17 +309,19 @@ const CombineDuplicateBranchFindings = () => {
                               }}
                               className="font-normal  text-black font-poppins border-r  text-sm content-center border-l"
                             >
-                              <div className="flex items-center gap-x-2">
-                                <span className="cursor-pointer !max-w-[12rem] text-primary">
+                              <div className="flex items-center gap-x-2 justify-between">
+                                <span className="cursor-pointer capitalize !max-w-[12rem] text-primary">
                                   {" "}
                                   {i == 0 && dup?.vendor_address
                                     ? dup?.vendor_address
                                     : dup?.branch?.vendor_address}
                                 </span>
                                 <span>
-                                  {dup?.branch?.human_verified && (
-                                    <img src={approved} alt="" />
-                                  )}
+                                  {(i == 0 && dup?.human_verified
+                                    ? dup?.human_verified
+                                    : dup?.branch?.human_verified) && (
+                                        <img src={approved} alt="" />
+                                      )}
                                 </span>
                               </div>
                             </TableCell>
