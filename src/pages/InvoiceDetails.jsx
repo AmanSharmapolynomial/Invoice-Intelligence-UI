@@ -9,6 +9,7 @@ import { PdfViewer } from "@/components/common/PDFViewer";
 import {
   useFindDuplicateInvoices,
   useGetDocumentNotes,
+  useGetSimilarBranches,
   useGetSimilarVendors,
   useMarkAsNotSupported,
   useMarkReviewLater,
@@ -124,6 +125,10 @@ const InvoiceDetails = () => {
   const [reviewLaterComments, setReviewLaterComments] = useState("");
   const [rejectionReason, setRejectionReason] = useState("");
   const [showAlreadySyncedModal, setShowAlreadySyncedModal] = useState(false);
+  const [
+    showSimilarVendorsAndBranchesWarningModal,
+    setShowSimilarVendorsAndBranchesWarningModal
+  ] = useState(false);
   const [showDuplicateInvoicesModal, setShowDuplicateInvoicesModal] =
     useState(false);
   const [showDuplicateInvoicesWarning, setShowDuplicateInvoicesWarning] =
@@ -163,6 +168,16 @@ const InvoiceDetails = () => {
       document_uuid: current_document_uuid
     });
 
+  const { data: similarBranches, isLoading: loadingSimilarBranches } =
+    useGetSimilarBranches(metaData?.document_uuid);
+  useEffect(() => {
+    if (
+      (similarVendors && similarVendors?.data?.length > 0) ||
+      similarBranches?.data?.length > 0
+    ) {
+      setShowSimilarVendorsAndBranchesWarningModal(true);
+    }
+  }, [similarVendors]);
   const { filters, setFilters } = useFilterStore();
   const { mutate: updateTable } = useUpdateDocumentMetadata();
   const { mutate: markForReview, isPending: markingForReview } =
@@ -524,6 +539,8 @@ const InvoiceDetails = () => {
   useEffect(() => {
     setShowAlreadySyncedModal(false);
     setWarningCheckboxChecked(false);
+    setShowSimilarVendorsAndBranchesWarningModal(false)
+    setShowAcceptModal(false)
   }, [page]);
 
   const { mutate: revertChanges } = useRevertChanges();
@@ -719,7 +736,40 @@ const InvoiceDetails = () => {
             />
           </div>
         )}
+        {showSimilarVendorsAndBranchesWarningModal && (
+          <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
+            <div className="flex items-center gap-x-2">
+              <Info className="h-5 w-5 text-[#FF9800]" />
+              <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
+                {similarBranches?.data?.length > 0 &&
+                similarVendors?.data?.length > 0
+                  ? `Found ${similarVendors?.data?.length} Vendors and ${similarBranches?.data?.length} Branches.`
+                  : similarVendors?.data?.length > 0
+                  ? `Found ${similarVendors?.data?.length} Similar ${
+                      similarVendors?.data?.length > 1 ? "Vendors." : "Vendor."
+                    }`
+                  : `Found ${similarBranches?.data?.length} Similar ${
+                      similarBranches?.data?.length > 1
+                        ? "Branches."
+                        : "Branch."
+                    }`}
+              </p>
+              <p
+                onClick={() => setShowAcceptModal(true)}
+                className="text-[#1E7944] font-poppins cursor-pointer font-medium  text-sm  leading-5 border-b border-b-[#1E7944]"
+              >
+                Check Now
+              </p>
+            </div>
 
+            <X
+              className="h-6 w-6 text-[#546E7A] absolute top-2 right-2 cursor-pointer"
+              onClick={() => {
+                setShowSimilarVendorsAndBranchesWarningModal(false);
+              }}
+            />
+          </div>
+        )}
         {showAlreadySyncedModal && (
           <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
             <div className="flex items-center gap-x-2">
@@ -1002,8 +1052,9 @@ const InvoiceDetails = () => {
               <Button
                 onClick={() => {
                   if (
-                    is_unverified_vendor &&
-                    similarVendors?.data?.length > 0
+                    (is_unverified_vendor &&
+                      similarVendors?.data?.length > 0) ||
+                    (is_unverified_vendor && similarBranches?.data?.length > 0)
                   ) {
                     setShowAcceptModal(true);
                   } else {
@@ -1424,76 +1475,155 @@ const InvoiceDetails = () => {
         title={"Information"}
         className={"!rounded-2xl  max-w-[50rem] "}
       >
-        {similarVendors?.data?.length > 0 && (
+        {similarVendors?.data?.length > 0 &&
+        similarBranches?.data?.length > 0 ? (
+          <div className="my-2">
+            <p className="mb-3 pl-0.5  font-poppins text-[0.9rem] font-semibold text-[#000000] ">
+              Matching Verified Vendors and Branches
+            </p>
+          </div>
+        ) : similarVendors?.data?.length > 0 ? (
           <div className="my-2">
             <p className="mb-3 pl-0.5  font-poppins text-[0.9rem] font-semibold text-[#000000] ">
               Matching Verified Vendors
             </p>
           </div>
+        ) : (
+          <div className="my-2">
+            <p className="mb-3 pl-0.5  font-poppins text-[0.9rem] font-semibold text-[#000000] ">
+              Matching Verified Branches
+            </p>
+          </div>
         )}
 
-        <div className="w-full !max-h-52 overflow-auto !relative">
-          {similarVendors?.data?.length > 0 ? (
-            <>
-              <div className="sticky top-0 bg-white z-50">
-                <Table className="!sticky !top-0">
-                  <TableRow className="grid grid-cols-3 items-center content-center ">
-                    <TableHead className="border-r  border-t border-l font-poppins text-sm font-semibold content-center text-black leading-5">
-                      Vendor Name
-                    </TableHead>
-                    <TableHead className="border-r border-t  font-poppins text-sm font-semibold text-black leading-5 content-center">
-                      Similarity{" "}
-                    </TableHead>
-                    <TableHead className=" font-poppins text-sm border-t border-r font-semibold text-black leading-5 content-center">
-                      Finding Method
-                    </TableHead>
-                  </TableRow>
-                </Table>
+        {similarVendors?.data?.length > 0 && (
+          <div className="w-full !max-h-52 overflow-auto !relative">
+            {similarVendors?.data?.length > 0 ? (
+              <>
+                <div className="sticky top-0 bg-white z-50">
+                  <Table className="!sticky !top-0">
+                    <TableRow className="grid grid-cols-3 items-center content-center ">
+                      <TableHead className="border-r  border-t border-l font-poppins text-sm font-semibold content-center text-black leading-5">
+                        Vendor Name
+                      </TableHead>
+                      <TableHead className="border-r border-t  font-poppins text-sm font-semibold text-black leading-5 content-center">
+                        Similarity{" "}
+                      </TableHead>
+                      <TableHead className=" font-poppins text-sm border-t border-r font-semibold text-black leading-5 content-center">
+                        Finding Method
+                      </TableHead>
+                    </TableRow>
+                  </Table>
+                </div>
+                <div className="">
+                  <Table className="mb-4  ">
+                    <TableBody>
+                      {similarVendors?.data?.length > 0 &&
+                        similarVendors?.data?.map((row, index) => (
+                          <TableRow
+                            className=" !border-b grid grid-cols-3 "
+                            key={index}
+                          >
+                            <TableCell className=" border-l font-poppins border-r font-normal content-center text-black text-sm">
+                              <div className="flex items-center gap-x-2 capitalize">
+                                <span> {row?.vendor?.vendor_name}</span>
+                                <img src={approved} alt="" />
+                              </div>
+                            </TableCell>
+                            <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger div className=" z-50">
+                                    <span> {row?.similarity_score}%</span>
+                                  </TooltipTrigger>
+                                  <TooltipContent className="bg-white text-black border  absolute -top-[3rem] -left-[15rem] shadow-sm px-4 flex items-center  gap-x-1  min-w-[18rem]    min-h-10 ml-[16rem]">
+                                    {row?.match_reason}
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </TableCell>
+                            <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
+                              {row?.finding_method}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </>
+            ) : (
+              <div className="w-full h-[10rem] flex items-center justify-center">
+                <p className="font-medium text-sm font-poppins text-black">
+                  No Matching Verified Vendors Found.
+                </p>
               </div>
-              <div className="">
-                <Table className="mb-4  ">
-                  <TableBody>
-                    {similarVendors?.data?.length > 0 &&
-                      similarVendors?.data?.map((row, index) => (
-                        <TableRow
-                          className=" !border-b grid grid-cols-3 "
-                          key={index}
-                        >
-                          <TableCell className=" border-l font-poppins border-r font-normal content-center text-black text-sm">
-                            <div className="flex items-center gap-x-2 capitalize">
-                              <span> {row?.vendor?.vendor_name}</span>
-                              <img src={approved} alt="" />
-                            </div>
-                          </TableCell>
-                          <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger div className=" z-50">
-                                  <span> {row?.similarity_score}%</span>
-                                </TooltipTrigger>
-                                <TooltipContent className="bg-white text-black border  absolute -top-[3rem] -left-[15rem] shadow-sm px-4 flex items-center  gap-x-1  min-w-[18rem]    min-h-10 ml-[16rem]">
-                                  {row?.match_reason}
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          </TableCell>
-                          <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
-                            {row?.finding_method}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
+            )}
+          </div>
+        )}
+        {similarBranches?.data?.length > 0 && (
+          <div className="w-full !max-h-52 overflow-auto !relative">
+            {similarBranches?.data?.length > 0 ? (
+              <>
+                <div className="sticky top-0 bg-white z-50">
+                  <Table className="!sticky !top-0">
+                    <TableRow className="grid grid-cols-3 items-center content-center ">
+                      <TableHead className="border-r  border-t border-l font-poppins text-sm font-semibold content-center text-black leading-5">
+                        Branch Name
+                      </TableHead>
+                      <TableHead className="border-r border-t  font-poppins text-sm font-semibold text-black leading-5 content-center">
+                        Similarity{" "}
+                      </TableHead>
+                      <TableHead className=" font-poppins text-sm border-t border-r font-semibold text-black leading-5 content-center">
+                        Finding Method
+                      </TableHead>
+                    </TableRow>
+                  </Table>
+                </div>
+                <div className="">
+                  <Table className="mb-4  ">
+                    <TableBody>
+                      {similarBranches?.data?.length > 0 &&
+                        similarBranches?.data?.map((row, index) => (
+                          <TableRow
+                            className=" !border-b grid grid-cols-3 "
+                            key={index}
+                          >
+                            <TableCell className=" border-l font-poppins border-r font-normal content-center text-black text-sm">
+                              <div className="flex items-center gap-x-2 capitalize">
+                                <span> {row?.branch?.vendor_address}</span>
+                                <img src={approved} alt="" />
+                              </div>
+                            </TableCell>
+                            <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger div className=" z-50">
+                                    <span> {row?.similarity_score}%</span>
+                                  </TooltipTrigger>
+                                  <TooltipContent className="bg-white text-black border  absolute -top-[3rem] -left-[15rem] shadow-sm px-4 flex items-center  gap-x-1  min-w-[18rem]    min-h-10 ml-[16rem]">
+                                    {row?.match_reason}
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </TableCell>
+                            <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
+                              {row?.finding_method}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </>
+            ) : (
+              <div className="w-full h-[10rem] flex items-center justify-center">
+                <p className="font-medium text-sm font-poppins text-black">
+                  No Matching Verified Branches Found.
+                </p>
               </div>
-            </>
-          ) : (
-            <div className="w-full h-[10rem] flex items-center justify-center">
-              <p className="font-medium text-sm font-poppins text-black">
-                No Matching Verified Vendors Found.
-              </p>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
         <div className="flex justify-center mt-4   items-center gap-x-2">
           <Button
             onClick={() => {
