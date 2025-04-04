@@ -1482,19 +1482,21 @@ const InvoiceDetails = () => {
         similarBranches?.data?.length > 0 ? (
           <div className="my-2">
             <p className="mb-3 pl-0.5  font-poppins text-[0.9rem] font-semibold text-[#000000] ">
-              Matching Verified Vendors and Branches
+              Matching Verified Vendors ({similarVendors?.data?.length}) and
+              Branches ({similarBranches?.data?.length})
             </p>
           </div>
         ) : similarVendors?.data?.length > 0 ? (
           <div className="my-2">
             <p className="mb-3 pl-0.5  font-poppins text-[0.9rem] font-semibold text-[#000000] ">
-              Matching Verified Vendors
+              Matching Verified Vendors ({similarVendors?.data?.length})
             </p>
+            
           </div>
         ) : (
           <div className="my-2">
             <p className="mb-3 pl-0.5  font-poppins text-[0.9rem] font-semibold text-[#000000] ">
-              Matching Verified Branches
+              Matching Verified Branches ({similarBranches?.data?.length})
             </p>
           </div>
         )}
@@ -1528,13 +1530,23 @@ const InvoiceDetails = () => {
                             key={index}
                           >
                             <TableCell className=" border-l font-poppins border-r font-normal content-center text-black text-sm">
-                              <div className="flex items-center gap-x-2 capitalize">
-                                <span> {row?.vendor?.vendor_name}</span>
-                                <img src={approved} alt="" />
-                                <Copy className="cursor-pointer" onClick={()=>{
-                                  navigator.clipboard.writeText(row?.vendor?.vendor_name)
-                                  toast.success("Vendor Name Copied")
-                                }}/>
+                              <div className="flex items-center gap-x-2  justify-between w-full capitalize">
+                                <span className="max-w-44">
+                                  {" "}
+                                  {row?.vendor?.vendor_name}
+                                </span>
+                                <div className="flex items-center gap-x-2 !w-12">
+                                  <img src={approved} alt="" />
+                                  <Copy
+                                    className="cursor-pointer h-4 w-4"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(
+                                        row?.vendor?.vendor_name
+                                      );
+                                      toast.success("Vendor Name Copied");
+                                    }}
+                                  />
+                                </div>
                               </div>
                             </TableCell>
                             <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
@@ -1596,13 +1608,22 @@ const InvoiceDetails = () => {
                             key={index}
                           >
                             <TableCell className=" border-l font-poppins border-r font-normal content-center text-black text-sm">
-                              <div className="flex items-center gap-x-2 capitalize">
-                                <span> {row?.branch?.vendor_address}</span>
-                                <img src={approved} alt="" />
-                                <Copy className="cursor-pointer" onClick={()=>{
-                                  navigator.clipboard.writeText(row?.branch?.vendor_address)
-                                  toast.success("Branch Address Copied")
-                                }}/>
+                              <div className="flex items-center gap-x-2 capitalize justify-between">
+                                <span className="max-w-44">
+                                  {row?.branch?.vendor_address}
+                                </span>
+                                <div className="flex items-center gap-x-2">
+                                  <img src={approved} alt="" />
+                                  <Copy
+                                    className="cursor-pointer h-4 w-4"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(
+                                        row?.branch?.vendor_address
+                                      );
+                                      toast.success("Branch Address Copied");
+                                    }}
+                                  />
+                                </div>
                               </div>
                             </TableCell>
                             <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
@@ -1635,23 +1656,7 @@ const InvoiceDetails = () => {
             )}
           </div>
         )}
-        <div className="flex justify-center mt-4   items-center gap-x-2">
-          <Button
-            onClick={() => {
-              setShowAcceptModal(false);
-            }}
-            className=" border bg-transparent hover:bg-transparent border-primary text-black font-poppins tracking-wide  !font-normal text-xs rounded-sm leading-4 "
-          >
-            {"Go Back"}
-          </Button>
-          <Button
-            disabled={loadingState?.saving}
-            onClick={handleAccept}
-            className="text-[#FFFFFF] font-poppins tracking-wide  !font-normal text-xs rounded-sm leading-4 "
-          >
-            {loadingState?.saving ? "Accepting...." : "Accept"}
-          </Button>
-        </div>
+      
       </ResizableModal>
     </div>
   );
