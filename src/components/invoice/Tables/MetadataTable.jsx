@@ -93,6 +93,7 @@ const MetadataTable = ({
     setEditVendor,
     setIsUnverifiedVendor,
     setCurrentDocumentUUID,
+    setIsUnverifiedBranch,
     setBoundingBoxes,
     setBoundingBox,
     warning_checkbox_checked,
@@ -128,7 +129,12 @@ const MetadataTable = ({
       setIsUnverifiedVendor(true);
       setCurrentDocumentUUID(document_uuid);
     }
-  }, [vendor]);
+    if (!branch?.human_verified) {
+      setIsUnverifiedBranch(true);
+      setCurrentDocumentUUID(document_uuid);
+    }
+  }, [vendor,branch]);
+
   const [showToChangeCategoriesAndTypes, setShowToChangeCategoriesAndTypes] =
     useState(false);
   const [highlight, setHighlight] = useState(false);
