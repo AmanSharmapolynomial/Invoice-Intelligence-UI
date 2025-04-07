@@ -90,6 +90,13 @@ function App() {
             onClick={() => navigate(`/vendors-potential-duplicates`)}
             title="Duplicate Vendor Findings"
           />
+          <CustomCard
+            Icon={frame15}
+            className={"cursor-pointer"}
+            showIcon={true}
+            onClick={() => navigate(`/vendor-consolidation`)}
+            title="Vendor Consolidation"
+          />
           {(role?.toLowerCase() == "manager" ||
             role?.toLowerCase() == "admin") && (
             <CustomCard

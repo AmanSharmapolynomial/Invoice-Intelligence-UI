@@ -1,4 +1,4 @@
-import approved from '@/assets/image/approved.svg';
+import approved from "@/assets/image/approved.svg";
 import no_data from "@/assets/image/no-data.svg";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -29,25 +29,28 @@ const VendorConsolidationTable = ({
 
   return (
     <Table
-      className={`flex flex-col dark:bg-[#051C14]  box-border  scrollbar pt-4 !h-[100%] w-[100%]   dark:border-l dark:border-r dark:border-primary  overflow-auto    `}
+      className={`flex flex-col border dark:bg-[#051C14]   mt-4 !h-[100%] w-[100%]   dark:border-l dark:border-r dark:border-primary  overflow-auto    `}
     >
-      <TableHeader className="bg-white dark:bg-[#051C14] !sticky top-0 ">
-        <TableRow className="flex  text-base !sticky   !border-none  w-full  justify-between pl-2">
+      <TableHeader className="bg-white dark:bg-[#051C14] h-12 !sticky top-0 ">
+        <TableRow className="flex  text-base !sticky     items-center w-full  justify-between pl-[1rem]">
           {vendorConsolidationHeaders?.map(({ label, styling }) => (
             <TableHead
               key={label}
-              className={`font-poppins w-[10%] !font-semibold text-sm !text-[#000000] dark:!text-[#F6F6F6] ${
+              className={`font-poppins w-[10%] border-r h-12 !font-semibold   text-center text-sm !text-[#000000] dark:!text-[#F6F6F6] ${
                 [
                   "Item Count",
                   "Verified Branch Count",
                   "Branch Count",
-                  "Actions"
+                  "Actions",
+                  "Verified Item Count"
                 ]?.includes(label)
-                  ? "flex justify-center"
-                  : ""
+                  ? "flex justify-start pl-[1rem]"
+                  : "pl-[1rem]"
               }`}
             >
-              {label}
+              <div className="flex items-center justify-start h-full">
+                <p> {label}</p>
+              </div>
             </TableHead>
           ))}
         </TableRow>
@@ -55,14 +58,14 @@ const VendorConsolidationTable = ({
       {/* <div className="flex-1 "> */}
       <TableBody
         style={{ height: `${height}vh` }}
-        className={`     !overflow-auto  w-full dark:border-b dark:border-b-primary pl-2 `}
+        className={`!rounded-none  w-full dark:border-b dark:border-b-primary pl-[1rem] `}
       >
         {/* <div> */}
         {isLoading ? (
-          [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]?.map((_, index) => {
+          [1, 2, 3, 4, 5, 6, 7, 8, 9,10]?.map((_, index) => {
             return (
               <TableRow
-                className="flex  !text-sm !border-none  !min-w-[100%] h-[2.375rem]"
+                className="flex  !text-sm !border-none  !min-w-[100%] h-14"
                 key={index}
               >
                 {["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]?.map(
@@ -73,7 +76,7 @@ const VendorConsolidationTable = ({
                         className="flex  !text-left items-center justify-center   !font-semibold !text-gray-800 border-none  w-[10%] "
                       >
                         {" "}
-                        <Skeleton className={"w-full h-4"} />
+                        <Skeleton className={"w-full h-[2rem]"} />
                       </TableCell>
                     );
                   }
@@ -103,10 +106,10 @@ const VendorConsolidationTable = ({
                 <TableRow
                   className={`${
                     index == data?.length - 1 && "pb-0"
-                  }  flex justify-between border-none items-center w-full !text-sm   !font-poppins`}
+                  }  flex justify-between border-none items-center w-full h-14 !text-sm   !font-poppins`}
                   key={index}
                 >
-                  <TableCell className="w-[10%] border-none flex items-center gap-x-2 justify-between !pr-5  !text-[#1E7944] !font-normal font-poppins ">
+                  <TableCell className="w-[10%] border-r h-full border-b content-center flex items-center gap-x-2 justify-between !pr-5  !text-[#1E7944] !font-normal font-poppins ">
                     <Link to={`/vendor-details/${vendor_id}`} className="">
                       {vendor_name?.slice(0, 15)}
                     </Link>
@@ -117,38 +120,38 @@ const VendorConsolidationTable = ({
                     </span>
                   </TableCell>
 
-                  <TableCell className="w-[10%] dark:text-[#F6F6F6] !border-none  font-poppins font-normal !text-sm text-[#000000] h-[2.375rem]">
+                  <TableCell className="w-[10%] border-r dark:text-[#F6F6F6] content-center h-full  font-poppins font-normal !text-sm text-[#000000] border-b">
                     {vendor_category}{" "}
                   </TableCell>
 
-                  <TableCell className="w-[10%] dark:text-[#F6F6F6] !border-none font-poppins font-normal !text-sm text-[#000000] h-[2.375rem] ">
+                  <TableCell className="w-[10%] border-r dark:text-[#F6F6F6] content-center h-full font-poppins font-normal !text-sm text-[#000000] border-b ">
                     {created_date?.split("T")[0]}{" "}
                   </TableCell>
 
-                  <TableCell className="w-[10%] dark:text-[#F6F6F6] !border-none  font-poppins font-normal !text-sm text-[#000000] h-[2.375rem] pl-[3.5rem]">
+                  <TableCell className="w-[10%] border-r dark:text-[#F6F6F6] content-center h-full  font-poppins font-normal !text-sm text-[#000000] border-b pl-[1rem]">
                     {document_count}{" "}
                   </TableCell>
 
-                  <TableCell className="w-[10%] dark:text-[#F6F6F6] !border-none  font-poppins font-normal !text-sm text-[#000000] h-[2.375rem] flex justify-center">
+                  <TableCell className="w-[10%] border-r dark:text-[#F6F6F6] !content-center h-full  items-center font-poppins font-normal !text-sm text-[#000000] border-b flex justify-start pl-[1rem]">
                     {branch_count}{" "}
                   </TableCell>
-                  <TableCell className="w-[10%] dark:text-[#F6F6F6] !border-none  font-poppins font-normal !text-sm text-[#000000] h-[2.375rem] flex justify-center">
+                  <TableCell className="w-[10%] border-r dark:text-[#F6F6F6] content-center h-full  items-center font-poppins font-normal !text-sm text-[#000000] border-b flex justify-start pl-[1rem]">
                     {verified_branch_count}{" "}
                   </TableCell>
 
-                  <TableCell className="w-[10%] dark:text-[#F6F6F6] !border-none  font-poppins font-normal !text-sm text-[#000000] h-[2.375rem] flex justify-center">
+                  <TableCell className="w-[10%] border-r dark:text-[#F6F6F6] content-center h-full items-center font-poppins font-normal !text-sm text-[#000000] border-b flex justify-start pl-[1rem]">
                     {item_count}{" "}
                   </TableCell>
 
-                  <TableCell className="w-[10%] dark:text-[#F6F6F6] !border-none  font-poppins font-normal !text-sm text-[#000000] h-[2.375rem] pl-[4.8rem]">
+                  <TableCell className="w-[10%] border-r dark:text-[#F6F6F6] content-center h-full   font-poppins font-normal !text-sm text-[#000000] border-b  pl-[1rem]">
                     {verified_item_count}{" "}
                   </TableCell>
 
-                  <TableCell className="w-[10%] dark:text-[#F6F6F6] !border-none font-poppins font-normal !text-sm text-[#000000] h-[2.375rem] ">
+                  <TableCell className="w-[10%] border-r dark:text-[#F6F6F6] content-center h-full font-poppins font-normal !text-sm text-[#000000] border-b ">
                     {verified_by?.["username"]}{" "}
                   </TableCell>
 
-                  <TableCell className="w-[10%] dark:text-[#F6F6F6] !border-none  font-poppins font-normal !text-sm text-[#000000] h-[2.375rem] items-center gap-x-4 justify-center flex">
+                  <TableCell className="w-[10%] border-r dark:text-[#F6F6F6] content-center h-full  font-poppins font-normal !text-sm text-[#000000] border-b items-center gap-x-4 justify-start pl-[1rem] flex">
                     <Link to={`/invoice-details?vendor=${vendor_id}`}>
                       <Button
                         className="bg-transparent border-none shadow-none hover:bg-transparent p-0"

@@ -37,7 +37,7 @@ const VendorConsolidation = () => {
   const [searchParams] = useSearchParams();
   const updateParams = useUpdateParams();
   const page = searchParams.get("page") || 1;
-  const page_size = searchParams.get("page_size") || 15;
+  const page_size = searchParams.get("page_size") || 10;
   const verified_by = searchParams.get("verified_by") || "";
   const human_verified = searchParams.get("human_verified") || "all";
   const vendor_category = searchParams.get("vendor_category") ?? "";
@@ -102,7 +102,7 @@ const VendorConsolidation = () => {
   return (
     <div className="h-screen flex" id="maindiv">
       <Sidebar />
-      <div className="w-full">
+      <div className="w-full pl-12">
         <Navbar className="" />
         <Layout className="mx-6 box-border flex flex-col gap-y-4 mt-2  ">
           <BreadCrumb
@@ -110,10 +110,10 @@ const VendorConsolidation = () => {
               { path: "/vendor-consolidation", label: "Vendor Consolidation" }
             ]}
           />
-          <div className="flex flex-col flex-grow dark:border-t  dark:rounded-b-lg dark:rounded-t-xl   dark:border-primary ">
+          <div className="flex flex-col flex-grow dark:border-t     dark:border-primary ">
             <div
               id="div1"
-              className="flex dark:bg-[#051C14] justify-between dark:border-l dark:border-r items-center  dark:border-b rounded-t-xl dark:border-primary pr-[0.625rem] "
+              className="flex dark:bg-[#051C14] justify-between dark:border-l dark:border-r items-center  dark:border-b dark:border-primary pr-[0.625rem] "
             >
               <ProgressBar
                 title={"Verified Vendors"}
@@ -240,7 +240,7 @@ const VendorConsolidation = () => {
             <TablePagination
               isFinalPage={vendorsData?.is_final_page}
               totalPages={vendorsData?.total_pages}
-              className={"h-[5.5vh] mt-4"}
+              className={"h-[5.5vh] mt-0"}
             />
           </div>
         </Layout>
