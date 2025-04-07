@@ -19,15 +19,16 @@ import { usePersistStore } from "./components/vendor/store/persisitStore";
 import useFilterStore from "./store/filtersStore";
 import useThemeStore from "./store/themeStore";
 import { invoiceDetailStore } from "./store/invoiceDetailStore";
+import userStore from "./components/auth/store/userStore";
 
 function App() {
-
   const { setActualVendorName } = usePersistStore();
   const [open, setOpen] = useState(false);
   const [vendorName, setVendorName] = useState("");
   const [isItemMaster, setIsItemMaster] = useState(false);
-  
+
   const { theme } = useThemeStore();
+  let { role } = userStore();
   const { clearStore } = invoiceDetailStore();
 
   const navigate = useNavigate();
@@ -88,19 +89,19 @@ function App() {
             showIcon={true}
             onClick={() => navigate(`/vendors-potential-duplicates`)}
             title="Duplicate Vendor Findings"
-          
           />
-          <CustomCard
-            Icon={frame15}
-            className={"cursor-pointer"}
-            showIcon={true}
-            onClick={() => navigate(`/vendors-duplicate-branch-findings`)}
-            title="Duplicate Branch Findings"
-          
-          />
+          {(role?.toLowerCase() == "manager" ||
+            role?.toLowerCase() == "admin") && (
+            <CustomCard
+              Icon={frame15}
+              className={"cursor-pointer"}
+              showIcon={true}
+              onClick={() => navigate(`/vendors-duplicate-branch-findings`)}
+              title="Duplicate Branch Findings"
+            />
+          )}
         </div>
       </Layout>
-  
     </div>
   );
 }
