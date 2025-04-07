@@ -43,7 +43,7 @@ export const invoiceDetailStore = create((set, get) => ({
   is_unverified_vendor: false,
   is_unverified_branch: false,
   current_document_uuid: null,
-  last_edited_line_item:  null,
+  last_edited_line_item: null,
   setLastEditedLineItem: (v) => set({ last_edited_line_item: v }),
   setReviewLater: (val) => set({ review_later: val }),
   setCombinedTableHistory: (history) => set({ combinedTableHistory: history }),
@@ -112,16 +112,14 @@ export const invoiceDetailStore = create((set, get) => ({
       showTextExtractionModal: false,
       metadataTableCopy: {},
       is_unverified_vendor: false,
-      is_unverified_branch:false,
-      current_document_uuid:  null,
-      warning_checkbox_checked:  false,
+      is_unverified_branch: false,
+      current_document_uuid: null,
+      warning_checkbox_checked: false,
       stopHovering: true,
-      last_edited_line_item:null,
-      last_edited_line_item_columns:[],
-      similarLineItems:[],
-      showSimilarLineItemsModal:false,
-      similarLineItemsRequiredColumns:[]
-      
-
+      last_edited_line_item: null,
+      last_edited_line_item_columns: [],
+      similarLineItems: [],
+      showSimilarLineItemsModal: false,
+      similarLineItemsRequiredColumns: []
     })
 }));

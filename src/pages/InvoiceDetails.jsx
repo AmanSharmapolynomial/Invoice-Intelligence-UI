@@ -126,6 +126,7 @@ const InvoiceDetails = () => {
   const [reviewLaterComments, setReviewLaterComments] = useState("");
   const [rejectionReason, setRejectionReason] = useState("");
   const [showAlreadySyncedModal, setShowAlreadySyncedModal] = useState(false);
+  const [clickedOnAcceptButton, setClickedOnAcceptButton] = useState(false);
   const [
     showSimilarVendorsAndBranchesWarningModal,
     setShowSimilarVendorsAndBranchesWarningModal
@@ -1060,6 +1061,8 @@ const InvoiceDetails = () => {
                     (is_unverified_branch && similarBranches?.data?.length > 0)
                   ) {
                     setShowAcceptModal(true);
+                    setClickedOnAcceptButton(true);
+                    setShowSimilarVendorsAndBranchesWarningModal(false);
                   } else {
                     handleAccept();
                   }
@@ -1655,6 +1658,28 @@ const InvoiceDetails = () => {
             )}
           </div>
         )}
+
+       {clickedOnAcceptButton&& <div className="flex justify-center mt-4 mb-2 gap-x-4">
+          <Button 
+          onClick={()=>{
+            handleAccept();
+            setShowAcceptModal(false);
+            setClickedOnAcceptButton(false);
+            setShowSimilarVendorsAndBranchesWarningModal(false);
+
+          }}
+          className="rounded-sm font-normal font-poppins ">Accept</Button>
+          <Button
+            className="rounded-sm font-normal font-poppins bg-transparent hover:bg-transparent border border-primary text-black"
+            onClick={() => {
+              setShowAcceptModal(false);
+              setClickedOnAcceptButton(false);
+              setShowSimilarVendorsAndBranchesWarningModal(false);
+            }}
+          >
+            Close
+          </Button>
+        </div>}
       </ResizableModal>
     </div>
   );
