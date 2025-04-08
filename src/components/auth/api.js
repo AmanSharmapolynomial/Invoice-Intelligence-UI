@@ -25,7 +25,7 @@ export const useSignIn = () => {
       return response;
     },
     onError: (data) => {
-      toast.error(data?.message);
+      toast.error(Object?.values(data?.errors)?.[0]?.[0]);
     },
     onSuccess: (data) => {
       toast.success(data?.message);

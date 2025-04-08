@@ -34,13 +34,13 @@ const BreadCrumb = ({
   const navigator = () => {
     if (pathname == "/home") {
       navigate("/");
-    }else if (pathname=="/item-master-vendors"){
-      navigate("/")
-    } else if (pathname=="/bulk-categorization"){
-      navigate('/')
-    }
-    
-    else if (from_view == "item-master-vendors") {
+    } else if (pathname == "/item-master-vendors") {
+      navigate("/");
+    } else if (pathname == "/bulk-categorization") {
+      navigate("/");
+    } else if (pathname?.includes("/combine-duplicate-branch-findings/")) {
+      navigate("/vendors-duplicate-branch-findings");
+    } else if (from_view == "item-master-vendors") {
       navigate("/item-master-vendors");
     } else if (pathname == "/invoice-details/") {
       if (from_view == "review_later") {

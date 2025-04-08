@@ -105,15 +105,51 @@ const CombinedTable = ({
     queryClient.setQueryData(["combined-table", document_uuid], copyObj);
   };
 
-  const handleDropdownChange = (column_uuid, col_name) => {
+  const handleDropdownChange = (column_uuid, column_name) => {
+    // Deep copy of the data to avoid direct mutation
     let copyObj = JSON.parse(JSON.stringify(data));
-    const { rows = [], columns = [] } = copyObj?.data?.processed_table;
+    const { rows, columns } = copyObj?.data?.processed_table;
+
+    // Update the column name in the columns array
     columns?.forEach((col) => {
-      if (col?.column_uuid == column_uuid) {
-        col.column_name = col_name;
+      if (col?.column_uuid === column_uuid) {
+        col.column_name = column_name;
       }
     });
+
+    // Update the query data with the modified table structure
     queryClient.setQueryData(["combined-table", document_uuid], copyObj);
+
+    // Check if an update operation for this column already exists
+    const existingIndex = operations?.findIndex(
+      (op) =>
+        op?.type === "update_column" && op?.data?.column_uuid === column_uuid
+    );
+
+    if (existingIndex === -1) {
+      // Add a new operation if it doesn't exist
+      const newOperation = {
+        type: "update_column",
+        operation_order: operations?.length + 1,
+        data: {
+          column_uuid,
+          selected_column: true,
+          column_name
+        }
+      };
+      setOperations([...operations, newOperation]);
+    } else {
+      // Update the existing operation with the new column name
+      let updatedOperations = [...operations];
+      updatedOperations[existingIndex] = {
+        ...updatedOperations[existingIndex],
+        data: {
+          ...updatedOperations[existingIndex]?.data,
+          column_name
+        }
+      };
+      setOperations(updatedOperations);
+    }
   };
 
   const existingColumn_names = data?.data?.processed_table?.columns?.map(

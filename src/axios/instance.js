@@ -1,12 +1,12 @@
-import { BACKEND_URL } from "@/config";
+import { ACCESS_TOKEN, BACKEND_URL } from "@/config";
 import axios from "axios";
 
 export const axiosInstance = axios.create({
   baseURL: BACKEND_URL
 });
 
-let isRefreshing = false; // To prevent multiple refresh calls
-let failedQueue = []; // To queue requests while the token is being refreshed
+let isRefreshing = false;
+let failedQueue = [];
 
 const processQueue = (error, token = null) => {
   failedQueue.forEach((prom) => {
@@ -21,10 +21,16 @@ const processQueue = (error, token = null) => {
 
 axiosInstance.interceptors.request.use(
   (config) => {
+    // Bypass token handling for login requests
+    if (config.url.includes("/auth/login")) {
+      return config;
+    }
+
     const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    config.headers["Access-Token"] = `${ACCESS_TOKEN}`;
     return config;
   },
   (error) => Promise.reject(error)
@@ -35,14 +41,29 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Check if error is due to an expired token
+    // If the request is for login, don't retry or refresh
+    if (originalRequest.url.includes("/auth/login")) {
+      return Promise.reject(error);
+    }
+
+    // Handle 401 (Unauthorized) errors
     if (
       error.response &&
       error.response.status === 401 &&
       !originalRequest._retry
     ) {
+      const refreshToken = localStorage.getItem("refresh_token");
+
+      // If no refresh token exists, logout the user
+      if (!refreshToken) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("refresh_token");
+        window.location.href = "/login";
+        return Promise.reject(error);
+      }
+
+      // If a refresh request is already in progress, queue the request
       if (isRefreshing) {
-        // Queue requests if a refresh token request is already in progress
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
@@ -59,7 +80,7 @@ axiosInstance.interceptors.response.use(
       try {
         const refreshToken = localStorage.getItem("refresh_token");
         if (!refreshToken) {
-          throw new Error("Refresh token not available");
+         return
         }
 
         // Request new token
@@ -70,21 +91,17 @@ axiosInstance.interceptors.response.use(
         const newToken = response.data.token;
         const newRefreshToken = response.data.refresh_token;
 
-        // Update tokens in localStorage
         localStorage.setItem("token", newToken);
         localStorage.setItem("refresh_token", newRefreshToken);
 
-        // Update headers for queued requests
         processQueue(null, newToken);
-
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return axiosInstance(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
-        // Redirect to login or handle logout
         localStorage.removeItem("token");
         localStorage.removeItem("refresh_token");
-        window.location.href = "/login"; // Adjust the route as per your app
+        window.location.href = "/login";
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

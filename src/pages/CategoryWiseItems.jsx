@@ -14,6 +14,7 @@ import ItemsListingWithoutScrollingApproval from "@/components/bulk-categorizati
 import ItemsListingWithScrollingApproval from "@/components/bulk-categorization/ItemsListingWithScrollingApproval";
 import { Button } from "@/components/ui/button";
 import CustomInput from "@/components/ui/Custom/CustomInput";
+import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
 import { Label } from "@/components/ui/label";
 
 import { Skeleton } from "@/components/ui/skeleton";
@@ -652,7 +653,14 @@ const CategoryWiseItems = () => {
       page,
       page_size
     });
-
+  useEffect(() => {
+    if (items?.data?.items?.length <= 15) {
+      setScrollingMode(false);
+      updateParams({
+        scrollingMode: false
+      });
+    }
+  }, [items]);
   return (
     <div className="py-4 ">
       {/* Navbar */}
@@ -700,6 +708,8 @@ const CategoryWiseItems = () => {
                     updateParams({
                       mode: v ? "all" : "vendor"
                     });
+                    setCheckedItems([]);
+                    setUnCheckedItems([]);
                   }}
                 />
                 <Label htmlFor="airplane-mode " className="text-xs">
@@ -708,16 +718,32 @@ const CategoryWiseItems = () => {
               </div>
             }
             <div className=" flex items-center gap-x-3">
-              <Switch
-                checked={scrollingMode}
-                onCheckedChange={(v) => {
-                  updateParams({
-                    scrolling_mode: v
-                  });
-                  setScrollingMode(v);
-                }}
-              />
-              <Label htmlFor="airplane-mode">Auto Approve On Scroll</Label>
+              <CustomTooltip
+                content={
+                  items?.data?.items?.length <= 15 &&
+                  "Can't use this feature for less than 15 items."
+                }
+              >
+                <Button
+                  className="bg-transparent shadow-none hover:bg-transparent"
+                  disabled={items?.data?.items?.length <= 15}
+                >
+                  <Switch
+                    checked={scrollingMode}
+                    onCheckedChange={(v) => {
+                      updateParams({
+                        scrolling_mode: v
+                      });
+                      setScrollingMode(v);
+                      setCheckedItems([]);
+                      setUnCheckedItems([]);
+                    }}
+                  />
+                  <Label htmlFor="airplane-mode" className="text-black">
+                    Auto Approve On Scroll
+                  </Label>
+                </Button>
+              </CustomTooltip>
             </div>
             {selectedVendor && (
               <div className="flex  gap-y-4 rounded-3xl px-3 py-2 items-center justify-center font-poppins font-medium text-xs leading-5 text-black border border-[#E0E0E0] cursor-pointer">

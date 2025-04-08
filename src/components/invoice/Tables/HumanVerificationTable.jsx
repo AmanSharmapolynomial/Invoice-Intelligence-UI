@@ -87,7 +87,8 @@ const HumanVerificationTable = ({
   const [editMode, setEditMode] = useState({ rowIndex: null, cellIndex: null });
   const [cellValue, setCellValue] = useState("");
 
-  const { mutate: lookUpItemMaster } = useGetItemMasterLookUp();
+  const { mutate: lookUpItemMaster, isPending: loadingItemLookups } =
+    useGetItemMasterLookUp();
   const navigate = useNavigate();
   const [contextMenu, setContextMenu] = useState({
     visible: false,
@@ -215,52 +216,6 @@ const HumanVerificationTable = ({
 
   const { columns = [], rows = [] } = data?.data?.processed_table;
 
-  const handleDropdownChange = (column_uuid, column_name) => {
-    // Deep copy of the data to avoid direct mutation
-    let copyObj = JSON.parse(JSON.stringify(data));
-    const { rows, columns } = copyObj?.data?.processed_table;
-
-    // Update the column name in the columns array
-    columns?.forEach((col) => {
-      if (col?.column_uuid === column_uuid) {
-        col.column_name = column_name;
-      }
-    });
-
-    // Update the query data with the modified table structure
-    queryClient.setQueryData(["combined-table", document_uuid], copyObj);
-
-    // Check if an update operation for this column already exists
-    const existingIndex = operations?.findIndex(
-      (op) =>
-        op?.type === "update_column" && op?.data?.column_uuid === column_uuid
-    );
-
-    if (existingIndex === -1) {
-      // Add a new operation if it doesn't exist
-      const newOperation = {
-        type: "update_column",
-        operation_order: operations?.length + 1,
-        data: {
-          column_uuid,
-          selected_column: true,
-          column_name
-        }
-      };
-      setOperations([...operations, newOperation]);
-    } else {
-      // Update the existing operation with the new column name
-      let updatedOperations = [...operations];
-      updatedOperations[existingIndex] = {
-        ...updatedOperations[existingIndex],
-        data: {
-          ...updatedOperations[existingIndex]?.data,
-          column_name
-        }
-      };
-      setOperations(updatedOperations);
-    }
-  };
   let item_code_column_uuid = data?.data?.processed_table?.columns
     ?.filter((c) => c?.selected_column)
     ?.filter(
@@ -377,6 +332,8 @@ const HumanVerificationTable = ({
         onSuccess: (data) => {
           if (data?.data?.similar_items?.length == 0) {
             toast.success("No Similar Items Found");
+            setSimilarLineItems([]);
+            setSimilarLineItemsRequiredColumns([]);
             return;
           }
           setSimilarLineItems(data?.data?.similar_items);
@@ -668,7 +625,13 @@ const HumanVerificationTable = ({
     rows.push(newRow);
     queryClient.setQueryData(["combined-table", document_uuid], copyData);
   };
-  const handleSaveCell = async (rowIndex, cellIndex, value, row) => {
+  const handleSaveCell = async (
+    rowIndex,
+    cellIndex,
+    value,
+    row,
+    resetEditMode = true
+  ) => {
     const originalValue =
       data?.data?.processed_table?.rows?.[rowIndex]?.cells?.[cellIndex]?.text ||
       "";
@@ -676,10 +639,10 @@ const HumanVerificationTable = ({
     if (value !== originalValue) {
       saveHistory();
 
-      const updatedData = JSON.parse(JSON.stringify(data));
+      const copyObj = JSON.parse(JSON.stringify(data));
       // Create a deep copy of the data
 
-      const targetCell = updatedData?.data?.processed_table?.rows?.[
+      const targetCell = copyObj?.data?.processed_table?.rows?.[
         rowIndex
       ]?.cells?.filter((c) => selectedColumnIds?.includes(c.column_uuid))?.[
         cellIndex
@@ -692,10 +655,8 @@ const HumanVerificationTable = ({
 
       // Update the cell's text
       targetCell.text = value;
-      updatedData.data.processed_table.rows[rowIndex].cells[cellIndex].text =
-        value;
-      let copyObj = JSON.parse(JSON.stringify(updatedData));
-      copyObj.data.processed_table.rows[rowIndex].cells[cellIndex].text = value;
+      // copyObj.data.processed_table.rows[rowIndex].cells[cellIndex].text =
+      //   value;
 
       // Create an operation to track the update
       const operation = {
@@ -704,18 +665,17 @@ const HumanVerificationTable = ({
         data: {
           cell_uuid: targetCell.cell_uuid,
           row_uuid:
-            updatedData.data.processed_table.rows[rowIndex].transaction_uuid,
+            copyObj.data.processed_table.rows[rowIndex].transaction_uuid,
           column_uuid: targetCell.column_uuid,
           text: value || null
         }
       };
-      updatedData.data.processed_table.rows[rowIndex].cells.forEach((c, i) => {
+      copyObj.data.processed_table.rows[rowIndex].cells.forEach((c, i) => {
         c["column_name"] = data.data.processed_table.columns[i]?.column_name;
       });
-      let extPriceCellColumnUUID =
-        updatedData.data.processed_table.columns?.find(
-          (col) => col?.column_name === "Extended Price"
-        )?.["column_uuid"];
+      let extPriceCellColumnUUID = copyObj.data.processed_table.columns?.find(
+        (col) => col?.column_name === "Extended Price"
+      )?.["column_uuid"];
 
       // Copy operations for recalculation
       let copyOperations = JSON.parse(
@@ -725,13 +685,13 @@ const HumanVerificationTable = ({
       setOperations([...operations, operation]);
       if (autoCalculate) {
         let rowCopy = JSON.parse(
-          JSON.stringify(updatedData.data.processed_table.rows[rowIndex])
+          JSON.stringify(copyObj.data.processed_table.rows[rowIndex])
         );
         let cells = rowCopy?.cells?.filter((c) =>
           selectedColumnIds?.includes(c?.column_uuid)
         );
         let row = {
-          ...updatedData.data.processed_table.rows[rowIndex],
+          ...copyObj.data.processed_table.rows[rowIndex],
           cells: cells
         };
 
@@ -752,7 +712,7 @@ const HumanVerificationTable = ({
                 data: {
                   cell_uuid: extPriceCell?.cell_uuid,
                   row_uuid:
-                    updatedData.data.processed_table.rows[rowIndex]
+                    copyObj.data.processed_table.rows[rowIndex]
                       .transaction_uuid,
                   column_uuid: extPriceCellColumnUUID,
                   text: extPriceCell?.text || null
@@ -761,14 +721,14 @@ const HumanVerificationTable = ({
 
               // Add the new operation for the extended price
               setOperations([...copyOperations, newOperation]);
-              updatedData.data.processed_table.rows[rowIndex] = data.data;
+              copyObj.data.processed_table.rows[rowIndex] = data.data;
 
               setReCalculateCWiseSum(true); // Recalculate category-wise sum
               queryClient.setQueryData(
                 ["combined-table", document_uuid],
-                updatedData
+                copyObj
               );
-              setEditMode({ rowIndex: null, cellIndex: null });
+
               return;
             }
           }
@@ -776,16 +736,19 @@ const HumanVerificationTable = ({
       }
 
       // Update query data for the combined table
-      queryClient.setQueryData(["combined-table", document_uuid], updatedData);
+      queryClient.setQueryData(["combined-table", document_uuid], copyObj);
       setLastEditedLineItemColumns(
-        updatedData?.data?.processed_table?.columns
+        copyObj?.data?.processed_table?.columns
           ?.filter((c) => c?.selected_column)
           ?.map((c) => keysDecapitalizer(c?.column_name))
       );
-      setLastEditedLineItem(
-        updatedData?.data?.processed_table?.rows?.[rowIndex]
-      );
+      setLastEditedLineItem(copyObj?.data?.processed_table?.rows?.[rowIndex]);
     }
+    resetEditMode &&
+      setEditMode({
+        cellIndex: null,
+        rowIndex: null
+      });
     // !last_edited_line_item && setEditMode({ rowIndex: null, cellIndex: null });
     // Exit edit mode after saving
   };
@@ -869,6 +832,12 @@ const HumanVerificationTable = ({
     let copyData = JSON.parse(JSON.stringify(data));
     let { rows, columns } = copyData?.data?.processed_table;
     let clickedRow = rows[rowIndex];
+    if (editMode?.cellIndex) {
+      setEditMode({
+        cellIndex: editMode?.cellIndex,
+        rowIndex: editMode?.rowIndex + 1
+      });
+    }
     // Create a new empty row
     const newRow = {
       cells: columns.map((column) => ({
@@ -1124,7 +1093,6 @@ const HumanVerificationTable = ({
       row.cells.map((cell) => cell.cell_uuid)
     );
     if (new Set(allCellUuids).size !== allCellUuids.length) {
-      console.error("Duplicate UUIDs detected in final table state.");
       toast.error("Duplicate UUIDs found after cell deletion.");
     }
 
@@ -1194,7 +1162,52 @@ const HumanVerificationTable = ({
       };
     });
   };
+  const handleDropdownChange = (column_uuid, column_name) => {
+    // Deep copy of the data to avoid direct mutation
+    let copyObj = JSON.parse(JSON.stringify(data));
+    const { rows, columns } = copyObj?.data?.processed_table;
 
+    // Update the column name in the columns array
+    columns?.forEach((col) => {
+      if (col?.column_uuid === column_uuid) {
+        col.column_name = column_name;
+      }
+    });
+
+    // Update the query data with the modified table structure
+    queryClient.setQueryData(["combined-table", document_uuid], copyObj);
+
+    // Check if an update operation for this column already exists
+    const existingIndex = operations?.findIndex(
+      (op) =>
+        op?.type === "update_column" && op?.data?.column_uuid === column_uuid
+    );
+
+    if (existingIndex === -1) {
+      // Add a new operation if it doesn't exist
+      const newOperation = {
+        type: "update_column",
+        operation_order: operations?.length + 1,
+        data: {
+          column_uuid,
+          selected_column: true,
+          column_name
+        }
+      };
+      setOperations([...operations, newOperation]);
+    } else {
+      // Update the existing operation with the new column name
+      let updatedOperations = [...operations];
+      updatedOperations[existingIndex] = {
+        ...updatedOperations[existingIndex],
+        data: {
+          ...updatedOperations[existingIndex]?.data,
+          column_name
+        }
+      };
+      setOperations(updatedOperations);
+    }
+  };
   const existing_column_names = data?.data?.processed_table?.columns
     ?.filter((c) => c?.selected_column)
     ?.map(
@@ -1216,31 +1229,39 @@ const HumanVerificationTable = ({
     lastEditedRow.cells.forEach((cell) => {
       if (selectedColumnIds.includes(cell?.column_uuid)) {
         if (cell.column_name !== "Category") {
-          ops.push({
-            type: "update_cell",
-            operation_order: lng + 1,
-            data: {
-              cell_uuid: cell.cell_uuid,
-              row_uuid: transaction_uuid,
-              column_uuid: cell.column_uuid,
-              text: row[keysDecapitalizer(cell?.column_name)] || null
-            }
-          });
-          cell.text = row[keysDecapitalizer(cell?.column_name)];
-          lng += 1;
+          if (
+            !cell?.text ||
+            cell?.column_name == "Item Description" ||
+            cell?.column_name == "Item Code"
+          ) {
+            ops.push({
+              type: "update_cell",
+              operation_order: lng + 1,
+              data: {
+                cell_uuid: cell.cell_uuid,
+                row_uuid: transaction_uuid,
+                column_uuid: cell.column_uuid,
+                text: row[keysDecapitalizer(cell?.column_name)] || null
+              }
+            });
+            cell.text = row[keysDecapitalizer(cell?.column_name)];
+            lng += 1;
+          }
         } else {
-          ops.push({
-            type: "update_cell",
-            operation_order: lng + 1,
-            data: {
-              cell_uuid: cell.cell_uuid,
-              row_uuid: transaction_uuid,
-              column_uuid: cell.column_uuid,
-              text: row[keysDecapitalizer(cell?.column_name)]?.name || null
-            }
-          });
-          cell.text = row[keysDecapitalizer(cell?.column_name)]?.name;
-          lng += 1;
+          if (!cell?.text) {
+            ops.push({
+              type: "update_cell",
+              operation_order: lng + 1,
+              data: {
+                cell_uuid: cell.cell_uuid,
+                row_uuid: transaction_uuid,
+                column_uuid: cell.column_uuid,
+                text: row[keysDecapitalizer(cell?.column_name)]?.name || null
+              }
+            });
+            cell.text = row[keysDecapitalizer(cell?.column_name)]?.name;
+            lng += 1;
+          }
         }
       }
     });
@@ -1248,10 +1269,6 @@ const HumanVerificationTable = ({
     setOperations(ops); // Correctly appends new operations
 
     queryClient.setQueryData(["combined-table", document_uuid], copyObj);
-    setLastEditedLineItem(null);
-    setSimilarLineItems([]);
-    setLastEditedLineItemColumns([]);
-    setShowSimilarLineItemsModal(false);
   };
 
   return (
@@ -1263,6 +1280,9 @@ const HumanVerificationTable = ({
           "max-h-[42rem]   overflow-hidden"
         } w-full -mt-3 border border-[#F0F0F0] shadow-sm rounded-md  `}
       >
+        {loadingItemLookups && (
+          <div className="w-full h-full  bg-white bg-opacity-50 !z-50 absolute"></div>
+        )}
         {metadata?.invoice_type !== "Summary Invoice" && (
           <div className="w-full flex items-center justify-between pr-[1rem] border-b border-[#E0E0E0]">
             <p className="font-poppins font-semibold  p-3 text-base leading-6">
@@ -1594,7 +1614,8 @@ const HumanVerificationTable = ({
                                               index,
                                               i,
                                               cellValue,
-                                              row
+                                              row,
+                                              false
                                             );
                                           }}
                                           onClick={(e) => {
@@ -1610,7 +1631,8 @@ const HumanVerificationTable = ({
                                               index,
                                               i,
                                               cellValue,
-                                              row
+                                              row,
+                                              false
                                             );
                                           }}
                                           onChange={(e) => {
@@ -1619,7 +1641,8 @@ const HumanVerificationTable = ({
                                               index,
                                               i,
                                               e.target.value,
-                                              row
+                                              row,
+                                              false
                                             );
                                             setCellValue(e.target.value);
                                           }}
@@ -2127,59 +2150,80 @@ const HumanVerificationTable = ({
       )}
       <ResizableModal
         isOpen={showSimilarLineItemsModal}
-        onClose={setShowSimilarLineItemsModal}
-        title={"Similar Line Items"}
-        className={"!overflow-auto !min-w-fit "}
-        titleClassName={"font-poppins font-medium text-sm"}
+        onClose={() => {
+          setShowSimilarLineItemsModal(false);
+          setLastEditedLineItem(null);
+          setSimilarLineItems([]);
+          setLastEditedLineItemColumns([]);
+        }}
+        className={"max-w-[50rem] !min-w-[30rem] !h-fit"}
       >
-        <p className="font-poppins font-medium text-sm text-black mt-1">Similar Items</p>
-        <div className="w-full mt-3">
-          {similarLineItems?.length == 0 ? (
+        <p className="font-poppins font-semibold text-sm text-black mt-1">
+          Similar Items
+        </p>
+        <div className="!w-full mt-3 max-w-[50rem] !min-w-[30rem] ">
+          {loadingItemLookups ? (
+            <div className="w-full flex flex-col gap-y-2">
+              {[0, 1, 2, 3]?.map((r, i) => {
+                return (
+                  <div key={i} className="grid grid-cols-5 gap-x-4">
+                    <Skeleton className={"h-[2rem] "} />
+                    <Skeleton className={"h-[2rem]"} />
+                    <Skeleton className={"h-[2rem]"} />
+                    <Skeleton className={"h-[2rem]"} />
+                    <Skeleton className={"h-[2rem]"} />
+                  </div>
+                );
+              })}
+            </div>
+          ) : similarLineItems?.length == 0 && !loadingItemLookups ? (
             <div className="w-full flex items-center justify-center h-40">
               <p className="font-poppins font-semibold text-sm text-black ">
                 No Similar Line Items Found.
               </p>
             </div>
           ) : (
-            <table className="  w-full ">
-              <div className=" h-64 !w-full overflow-auto relative">
-                {/* <TableHeader className=" top-0 z-10 bg-white "> */}
-                <tr
-                  className=" 
-               !w-full border "
-                >
-                  {last_edited_line_item_columns?.map((col, index) => (
-                    <td
-                      key={index}
-                      className={` border sticky top-0    bg-white font-poppins h-12  content-center px-4 items-center   font-semibold text-sm text-black leading-5`}
-                    >
+           <div className="max-h-60 overflow-auto">
+             <table className="  w-full mt-4 ">
+              {/* <TableHeader className=" top-0 z-10 bg-white "> */}
+              <tr
+                className={`
+                  !w-full !border !border-l-2 border-t-2 `}
+              >
+                {last_edited_line_item_columns?.map((col, index) => (
+                  <th
+                    key={index}
+                    className={` border sticky top-0  !border-l bg-white font-poppins h-12  content-center px-2 items-center !justify-start font-semibold text-sm text-black   leading-5`}
+                  >
+                    <div className="flex items-center h-full  justify-normal">
                       {keysCapitalizer(col)}
-                    </td>
-                  ))}
-                </tr>
+                    </div>
+                  </th>
+                ))}
+              </tr>
 
-                <tbody className="w-full">
-                  {similarLineItems?.map((row, index) => (
-                    <TableRow
-                      key={index}
-                      onClick={() => {
-                        handleInsertRow(row);
-                      }}
-                      className="cursor-pointer"
-                    >
-                      {last_edited_line_item_columns?.map((col, i) => (
-                        <TableCell
-                          key={i}
-                          className="border font-poppins text-black !font-normal !text-xs"
-                        >
-                          {col == "category" ? row["category"]?.name : row[col]}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-                </tbody>
-              </div>
+              <tbody className="w-full ">
+                {similarLineItems?.map((row, index) => (
+                  <tr
+                    key={index}
+                    onClick={() => {
+                      handleInsertRow(row);
+                    }}
+                    className={` cursor-pointer`}
+                  >
+                    {last_edited_line_item_columns?.map((col, i) => (
+                      <td
+                        key={i}
+                        className="border  py-2 px-2 font-poppins text-black !font-normal !text-xs"
+                      >
+                        {col == "category" ? row["category"]?.name : row[col]}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
             </table>
+            </div>
           )}
         </div>
       </ResizableModal>

@@ -93,6 +93,7 @@ const MetadataTable = ({
     setEditVendor,
     setIsUnverifiedVendor,
     setCurrentDocumentUUID,
+    setIsUnverifiedBranch,
     setBoundingBoxes,
     setBoundingBox,
     warning_checkbox_checked,
@@ -128,7 +129,12 @@ const MetadataTable = ({
       setIsUnverifiedVendor(true);
       setCurrentDocumentUUID(document_uuid);
     }
-  }, [vendor]);
+    if (!branch?.human_verified) {
+      setIsUnverifiedBranch(true);
+      setCurrentDocumentUUID(document_uuid);
+    }
+  }, [vendor,branch]);
+
   const [showToChangeCategoriesAndTypes, setShowToChangeCategoriesAndTypes] =
     useState(false);
   const [highlight, setHighlight] = useState(false);
@@ -215,6 +221,9 @@ const MetadataTable = ({
           queryClient.invalidateQueries({
             queryKey: ["combined-table", document_uuid]
           });
+          queryClient.invalidateQueries({
+            queryKey: ["get-similar-vendors"]
+          });
           setNewVendor("");
         },
         onError: (data) => {
@@ -244,6 +253,9 @@ const MetadataTable = ({
           });
           queryClient.invalidateQueries({
             queryKey: ["combined-table", document_uuid]
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["get-similar-vendors"]
           });
           setEditBranch(false);
           setNewBranch("");
