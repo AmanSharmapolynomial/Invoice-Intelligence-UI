@@ -1,6 +1,7 @@
 import approved from "@/assets/image/approved.svg";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
+import { PdfViewer } from "@/components/common/PDFViewer";
 import Sidebar from "@/components/common/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -16,14 +17,17 @@ import {
   TableHead,
   TableRow
 } from "@/components/ui/table";
-import { useCombineVendorBranches } from "@/components/vendor/api";
+import {
+  useCombineVendorBranches,
+  useGetVendorBranchPdfs
+} from "@/components/vendor/api";
 import {
   useGetVendorPotentialDuplicateBranches,
   useMartBranchAsNotDuplicate
 } from "@/components/vendor/potentialDuplicates/api";
 import { OLD_UI } from "@/config";
 import { queryClient } from "@/lib/utils";
-import { CopyX } from "lucide-react";
+import { CopyX, Eye, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useParams } from "react-router-dom";
@@ -38,6 +42,7 @@ const CombineDuplicateBranchFindings = () => {
   const [currentBranch, setCurrentBranch] = useState(
     data?.data?.findings?.[0]?.branch?.branch_id
   );
+  const [currentBranchId, setCurrentBranchId] = useState(null);
   const [masterUUID, setMasterUUID] = useState(null);
   const [checkedBranches, setCheckedBranches] = useState([]);
   useEffect(() => {
@@ -123,7 +128,9 @@ const CombineDuplicateBranchFindings = () => {
       window.close();
     }
   }, [data]);
-
+  const { data: branchPdfs, isLoading: loadingBranchPdfs } =
+    useGetVendorBranchPdfs(currentBranchId);
+  console.log(branchPdfs);
   return (
     <div className="overflow-hidden flex w-full h-full">
       <Sidebar />
@@ -183,11 +190,7 @@ const CombineDuplicateBranchFindings = () => {
                     Total Groups
                   </p>
                   <p className="capitalize text-[#121212] flex items-center gap-x-2 font-semibold font-poppins text-xl">
-                    <span>
-                      {
-                       data?.data?.findings?.length
-                      }
-                    </span>
+                    <span>{data?.data?.findings?.length}</span>
                   </p>
                 </div>
               </div>
@@ -247,177 +250,235 @@ const CombineDuplicateBranchFindings = () => {
               {combiningVendorBranches ? "Combining..." : "Combine"}
             </Button>
           </div>
-          <div className=" border-b  mt-2 relative">
-            <Table className="">
-              <TableRow className="grid border-r border-t bg-white sticky top-0 z-50 grid-cols-6 items-center content-center pr-[0.75rem]">
-                <TableHead className="font-semibold font-poppins text-sm  border-l text-black content-center border-r">
+
+          <div className={`${currentBranchId && "grid grid-cols-2 items-start gap-x-2"}`}>
+            <div>
+              <TableRow className="grid border-r border-t bg-white min-h-14 !max-h-44 mt-2 !sticky !top-0 z-50 grid-cols-7 items-center content-center 2xl:pr-[0.55rem] 3xl:!pr-[0.55rem] md:pl-[0rem]">
+                <TableHead className="font-semibold font-poppins text-sm  border-l min-h-14  text-black content-center border-r">
                   Branch Name
                 </TableHead>
-                <TableHead className="font-semibold font-poppins text-sm text-black  content-center border-r">
+                <TableHead className="font-semibold font-poppins text-sm text-black min-h-14  content-center border-r">
                   Similarity Score
                 </TableHead>
-                <TableHead className="font-semibold font-poppins text-sm text-black  content-center border-r">
+                <TableHead className="font-semibold font-poppins text-sm text-black min-h-14  content-center border-r">
                   Matching Reason
                 </TableHead>
-                <TableHead className="font-semibold font-poppins text-sm  text-black content-center border-r">
+                <TableHead className="font-semibold font-poppins text-sm  text-black min-h-14  content-center border-r">
                   Select Master
                 </TableHead>
-                <TableHead className="font-semibold font-poppins text-sm text-black  content-center border-r">
+                <TableHead className="font-semibold font-poppins text-sm text-black min-h-14  content-center border-r">
                   Select For Merge
                 </TableHead>
-                <TableHead className="font-semibold font-poppins text-sm text-black  content-center border-r">
+                <TableHead className="font-semibold  truncate break-word whitespace-normal min-h-14  font-poppins text-sm text-black  content-center border-r">
                   Mark As Not Duplicate
                 </TableHead>
+                <TableHead className="font-semibold font-poppins text-sm text-black min-h-14  content-center border-r">
+                  View Invoices
+                </TableHead>
               </TableRow>
-              <TableBody>
-                <div className="max-h-[50vh] overflow-auto">
-                  {isLoading ? (
-                    <>
-                      {[0, 1, 2, 3, 4, 5, 6, 7]?.map((_, i) => {
-                        return (
-                          <TableRow key={i} className="grid grid-cols-6">
-                            {[0, 1, 2, 3, 4, 5]?.map((_, ind) => (
-                              <TableCell key={ind}>
-                                <Skeleton className={"h-[2.5rem] w-full"} />
-                              </TableCell>
-                            ))}
-                          </TableRow>
-                        );
-                      })}
-                    </>
-                  ) : (
-                    duplicates
-                      ?.sort((a, b) => Boolean(b.parent) - Boolean(a.parent))
+              <div className=" border-b   relative">
+                <Table className="">
+                  <TableBody className="">
+                    <div className=" max-h-[50vh]  overflow-auto">
+                      {isLoading ? (
+                        <>
+                          {[0, 1, 2, 3, 4, 5, 6, 7]?.map((_, i) => {
+                            return (
+                              <TableRow key={i} className="grid grid-cols-6">
+                                {[0, 1, 2, 3, 4, 5]?.map((_, ind) => (
+                                  <TableCell key={ind}>
+                                    <Skeleton className={"h-[2.5rem] w-full"} />
+                                  </TableCell>
+                                ))}
+                              </TableRow>
+                            );
+                          })}
+                        </>
+                      ) : (
+                        duplicates
+                          ?.sort(
+                            (a, b) => Boolean(b.parent) - Boolean(a.parent)
+                          )
 
-                      ?.map((dup, i) => {
-                        return (
-                          <TableRow
-                            key={i}
-                            className="grid grid-cols-6  items-center content-center  !border-b"
-                          >
-                            <TableCell
-                              onClick={() => {
-                                window.open(
-                                  `${OLD_UI}/vendor-v2/${
-                                    data?.data?.vendor?.vendor_id
-                                  }/branch/${
-                                    i == 0 && dup?.vendor_address
-                                      ? dup?.branch_id
-                                      : dup?.branch?.branch_id
-                                  }`
-                                );
-                              }}
-                              className="font-normal  text-black font-poppins border-r  text-sm content-center border-l"
-                            >
-                              <div className="flex items-center gap-x-2 justify-between">
-                                <span className="cursor-pointer capitalize !max-w-[12rem] text-primary">
-                                  {" "}
-                                  {i == 0 && dup?.vendor_address
-                                    ? dup?.vendor_address
-                                    : dup?.branch?.vendor_address}
-                                </span>
-                                <span>
-                                  {(i == 0 && dup?.human_verified
-                                    ? dup?.human_verified
-                                    : dup?.branch?.human_verified) && (
-                                        <img src={approved} alt="" />
-                                      )}
-                                </span>
-                              </div>
-                            </TableCell>
-                            <TableCell className="font-normal text-black  font-poppins h-full border-r text-sm content-center">
-                              {i == 0 && dup?.vendor_address ? 100 : dup?.score}
-                            </TableCell>
-                            <TableCell className="font-normal text-black  font-poppins h-full border-r text-sm content-center">
-                              {i == 0 && dup?.vendor_address
-                                ? "Fuzzy Matching"
-                                : dup?.match_reason}
-                            </TableCell>
-                            <TableCell className="font-normal text-black  font-poppins h-full border-r text-sm content-center ">
-                              <Checkbox
-                                checked={
-                                  i == 0 && dup?.vendor_address
-                                    ? masterUUID === dup?.branch_id
-                                    : masterUUID === dup?.branch?.branch_id
-                                }
-                                onCheckedChange={() => {
-                                  if (i == 0 && dup?.vendor_address) {
-                                    handleSelectMaster(dup?.branch_id);
-                                  } else {
-                                    handleSelectMaster(dup?.branch?.branch_id);
-                                  }
-                                }}
-                                // Disable if it's already checked for merging
-                                disabled={
-                                  i == 0 && dup?.vendor_address
-                                    ? checkedBranches.includes(dup?.branch_id)
-                                    : checkedBranches.includes(
-                                        dup?.branch?.branch_id
-                                      )
-                                }
-                              />
-                            </TableCell>
-                            <TableCell className="font-normal text-black h-full  font-poppins border-r text-sm content-center ">
-                              <Checkbox
-                                checked={
-                                  i == 0 && dup?.vendor_address
-                                    ? checkedBranches.includes(dup?.branch_id)
-                                    : checkedBranches.includes(
-                                        dup?.branch?.branch_id
-                                      )
-                                }
-                                onCheckedChange={() => {
-                                  if (i == 0 && dup?.vendor_address) {
-                                    handleSelectBranch(dup?.branch_id);
-                                  } else {
-                                    handleSelectBranch(dup?.branch?.branch_id);
-                                  }
-                                }}
-                                // Disable if it's selected as master
-                                disabled={
-                                  i == 0 && dup?.vendor_address
-                                    ? dup?.branch_id == masterUUID
-                                    : dup?.branch?.branch_id === masterUUID
-                                }
-                              />
-                            </TableCell>
-                            <TableCell className="font-normal text-black h-full font-poppins border-r text-sm content-center">
-                              <CustomTooltip
-                                content={
-                                  i == 0 && dup?.vendor_address
-                                    ? "Can't Mark it as not Duplicate."
-                                    : ""
-                                }
+                          ?.map((dup, i) => {
+                            return (
+                              <TableRow
+                                key={i}
+                                className="grid grid-cols-7  items-center content-center  !border-b"
                               >
-                                <Button
-                                  disabled={
-                                    (i == 0 && dup?.vendor_address) ||
-                                    currentMarkedBranch == dup?.finding_id ||
-                                    markingAsNOtDuplicate
-                                  }
-                                  className="bg-transparent hover:bg-transparent shadow-none"
+                                <TableCell
                                   onClick={() => {
-                                    handleMarkingAsNotDuplicate(
-                                      dup?.branch?.branch_id,
-                                      dup?.finding_id
+                                    window.open(
+                                      `${OLD_UI}/vendor-v2/${
+                                        data?.data?.vendor?.vendor_id
+                                      }/branch/${
+                                        i == 0 && dup?.vendor_address
+                                          ? dup?.branch_id
+                                          : dup?.branch?.branch_id
+                                      }`
                                     );
                                   }}
+                                  className="font-normal  text-black font-poppins border-r  text-sm content-center border-l"
                                 >
-                                  {currentMarkedBranch === dup?.finding_id ? (
-                                    <Loader className="text-primary h-4 w-4" />
+                                  <div className="flex items-center gap-x-2 justify-between">
+                                    <span className="cursor-pointer capitalize !max-w-[12rem] text-primary">
+                                      {" "}
+                                      {i == 0 && dup?.vendor_address
+                                        ? dup?.vendor_address
+                                        : dup?.branch?.vendor_address}
+                                    </span>
+                                    <span>
+                                      {(i == 0 && dup?.human_verified
+                                        ? dup?.human_verified
+                                        : dup?.branch?.human_verified) && (
+                                        <img src={approved} alt="" />
+                                      )}
+                                    </span>
+                                  </div>
+                                </TableCell>
+                                <TableCell className="font-normal text-black  font-poppins h-full border-r text-sm content-center">
+                                  {i == 0 && dup?.vendor_address
+                                    ? 100
+                                    : dup?.score}
+                                </TableCell>
+                                <TableCell className="font-normal text-black  font-poppins h-full border-r text-sm content-center">
+                                  {i == 0 && dup?.vendor_address
+                                    ? "Fuzzy Matching"
+                                    : dup?.match_reason}
+                                </TableCell>
+                                <TableCell className="font-normal text-black  font-poppins h-full border-r text-sm content-center ">
+                                  <Checkbox
+                                    checked={
+                                      i == 0 && dup?.vendor_address
+                                        ? masterUUID === dup?.branch_id
+                                        : masterUUID === dup?.branch?.branch_id
+                                    }
+                                    onCheckedChange={() => {
+                                      if (i == 0 && dup?.vendor_address) {
+                                        handleSelectMaster(dup?.branch_id);
+                                      } else {
+                                        handleSelectMaster(
+                                          dup?.branch?.branch_id
+                                        );
+                                      }
+                                    }}
+                                    // Disable if it's already checked for merging
+                                    disabled={
+                                      i == 0 && dup?.vendor_address
+                                        ? checkedBranches.includes(
+                                            dup?.branch_id
+                                          )
+                                        : checkedBranches.includes(
+                                            dup?.branch?.branch_id
+                                          )
+                                    }
+                                  />
+                                </TableCell>
+                                <TableCell className="font-normal text-black h-full  font-poppins border-r text-sm content-center ">
+                                  <Checkbox
+                                    checked={
+                                      i == 0 && dup?.vendor_address
+                                        ? checkedBranches.includes(
+                                            dup?.branch_id
+                                          )
+                                        : checkedBranches.includes(
+                                            dup?.branch?.branch_id
+                                          )
+                                    }
+                                    onCheckedChange={() => {
+                                      if (i == 0 && dup?.vendor_address) {
+                                        handleSelectBranch(dup?.branch_id);
+                                      } else {
+                                        handleSelectBranch(
+                                          dup?.branch?.branch_id
+                                        );
+                                      }
+                                    }}
+                                    // Disable if it's selected as master
+                                    disabled={
+                                      i == 0 && dup?.vendor_address
+                                        ? dup?.branch_id == masterUUID
+                                        : dup?.branch?.branch_id === masterUUID
+                                    }
+                                  />
+                                </TableCell>
+                                <TableCell className="font-normal text-black h-full font-poppins border-r text-sm content-center">
+                                  <CustomTooltip
+                                    content={
+                                      i == 0 && dup?.vendor_address
+                                        ? "Can't Mark it as not Duplicate."
+                                        : ""
+                                    }
+                                  >
+                                    <Button
+                                      disabled={
+                                        (i == 0 && dup?.vendor_address) ||
+                                        currentMarkedBranch ==
+                                          dup?.finding_id ||
+                                        markingAsNOtDuplicate
+                                      }
+                                      className="bg-transparent hover:bg-transparent shadow-none"
+                                      onClick={() => {
+                                        handleMarkingAsNotDuplicate(
+                                          dup?.branch?.branch_id,
+                                          dup?.finding_id
+                                        );
+                                      }}
+                                    >
+                                      {currentMarkedBranch ===
+                                      dup?.finding_id ? (
+                                        <Loader className="text-primary h-4 w-4" />
+                                      ) : (
+                                        <CopyX className="!font-thin border-none fill-none text-gray-600" />
+                                      )}
+                                    </Button>
+                                  </CustomTooltip>
+                                </TableCell>
+                                <TableCell className="font-normal text-black h-full  font-poppins border-r text-sm content-center ">
+                                  {currentBranchId ==
+                                  (i == 0 && dup?.vendor_address
+                                    ? dup?.branch_id
+                                    : dup?.branch?.branch_id) ? (
+                                    <X
+                                      className="h-4 w-4 text-red-600 cursor-pointer"
+                                      onClick={() => {
+                                        setCurrentBranchId(null);
+                                      }}
+                                    />
                                   ) : (
-                                    <CopyX className="!font-thin border-none fill-none text-gray-600" />
+                                    <Eye
+                                      onClick={() => {
+                                        if (i == 0 && dup?.vendor_address) {
+                                          setCurrentBranchId(dup?.branch_id);
+                                        } else {
+                                          setCurrentBranchId(
+                                            dup?.branch?.branch_id
+                                          );
+                                        }
+                                      }}
+                                      className="text-gray-600 h-4 w-4 ml-2 cursor-pointer"
+                                    />
                                   )}
-                                </Button>
-                              </CustomTooltip>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })
-                  )}
-                </div>
-              </TableBody>
-            </Table>
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })
+                      )}
+                    </div>
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+
+            {currentBranchId && !loadingBranchPdfs && (
+             branchPdfs?.data?.length>0 ? <PdfViewer
+             pdfUrls={branchPdfs?.data ? branchPdfs?.data : []}
+             multiple={true}
+             className={"!max-h-[50rem]"}
+           />:<div className="w-full !h-[50vh] flex items-center justify-center">
+<p className="font-poppins font-medium text-black">No Pdf Found</p>
+           </div>
+            )}
           </div>
         </Layout>
       </div>
