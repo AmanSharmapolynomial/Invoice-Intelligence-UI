@@ -370,7 +370,7 @@ const InvoiceTable = ({
                             : "!w-[11.1111111%] "
                         } text-sm `}
                       >
-                        <div className="flex items-center gap-x-4">
+                        <div className="flex items-center justify-between w-full gap-x-4">
                           <span>
                             {" "}
                             {restaurant?.restaurant_name !== null
