@@ -659,13 +659,18 @@ const CategoryWiseItems = () => {
         {/* Header */}
         <div className="mt-8 flex items-center justify-between border-b-2  pb-2 border-b-[#E0E0E0]">
           <div>
-            <p className="font-poppins font-semibold capitalize text-xl leading-8 text-black">
+            <p className="font-poppins font-semibold capitalize 2xl:text-xl md:!text-lg leading-8 text-black">
               Here are all the items under the category{" "}
               <span className="font-extrabold text-primary">
                 {category_name}
               </span>{" "}
+              <span>
+                (
+                {mode == "all" ? allItems?.total_records||0  : items?.total_records||0}
+                )
+              </span>
             </p>
-            <p className="font-poppins capitalize text-primary font-medium text-[0.9rem] leading-6 ">
+            <p className="font-poppins capitalize text-primary font-medium 2xl:!text-[0.9rem] md:!text-[0.75rem] leading-6 ">
               You can change the category of any item by clicking on the
               particular menu item
             </p>
