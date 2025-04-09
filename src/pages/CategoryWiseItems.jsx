@@ -684,7 +684,7 @@ const CategoryWiseItems = () => {
         {/* Header */}
         <div className="mt-8 flex items-center justify-between border-b-2  pb-2 border-b-[#E0E0E0]">
           <div>
-            <p className="font-poppins font-semibold capitalize 2xl:text-xl md:!text-lg leading-8 text-black">
+            <p className="font-poppins font-semibold capitalize 2xl:!text-xl 3xl:!text-xl md:!text-sm leading-8 text-black">
               Here are all the items under the category{" "}
               <span className="font-extrabold text-primary">
                 {category_name}
@@ -695,7 +695,7 @@ const CategoryWiseItems = () => {
                 )
               </span>
             </p>
-            <p className="font-poppins capitalize text-primary font-medium 2xl:!text-[0.9rem] md:!text-[0.75rem] leading-6 ">
+            <p className="font-poppins capitalize text-primary font-medium 2xl:!text-[0.9rem] md:!text-xs leading-6 ">
               You can change the category of any item by clicking on the
               particular menu item
             </p>
@@ -731,7 +731,7 @@ const CategoryWiseItems = () => {
               >
                 <Button
                   className="bg-transparent shadow-none hover:bg-transparent"
-                  disabled={items?.data?.items?.length <= 15}
+                  disabled={items?.data?.items?.length <= 15 && mode=="all"}
                 >
                   <Switch
                     checked={scrollingMode}
@@ -751,20 +751,20 @@ const CategoryWiseItems = () => {
               </CustomTooltip>
             </div>
             {selectedVendor && (
-              <div className="flex  gap-y-4 rounded-3xl px-3 py-2 items-center justify-center font-poppins font-medium text-xs leading-5 text-black border border-[#E0E0E0] cursor-pointer">
+              <div className="flex   gap-y-4 rounded-3xl px-3 py-2 items-center justify-center font-poppins font-medium text-xs leading-5 text-black border min-w-fit border-[#E0E0E0] cursor-pointer">
                 {!loadingItems &&
                   selectedVendor !== null > 0 &&
                   items?.data?.items?.length > 0 && (
-                    <p className=" flex  items-center gap-x-4 text-xs">
-                      {!loadingItems &&
+                    <p className=" flex flex-col justify-start items-start min-w-fit   gap-x-4 text-xs">
+                      {/* {!loadingItems &&
                         selectedVendor !== null &&
                         items?.data?.items?.length > 0 && (
                           <p className="!no-underline text-xs">
                             Total Items : {items?.total_records}
                           </p>
-                        )}
+                        )} */}
                       <span
-                        className="underline  underline-offset-2"
+                        className="underline flex items-center justify-start gap-x-0 w-full  underline-offset-2"
                         onClick={() => {
                           window.open(
                             `/fast-item-verification/${selectedVendor?.vendor?.vendor_id}?vendor_name=${selectedVendor?.vendor?.vendor_name}&human_verified=${selectedVendor?.vendor?.human_verified}&from_view=item-master-vendors`,
@@ -773,7 +773,7 @@ const CategoryWiseItems = () => {
                         }}
                       >
                         {" "}
-                        FIV Items:{" "}
+                        <span>FIV Items :- {" "}</span>
                         {selectedVendor?.non_human_verified_items_count}
                       </span>
                     </p>
@@ -1040,7 +1040,7 @@ const CategoryWiseItems = () => {
           )}
         </div>
 
-        <p className="text-[#666666] font-poppins font-normal text-base leading-5 mt-4 2xl:absolute 2xl:bottom-4 2xl:pb-4 bottom-0">
+        <p className="text-[#666666] font-poppins font-normal text-base leading-5 mt-4  2xl:bottom-4 2xl:pb-4 bottom-0">
           Note: Once done, click on “Next” to proceed. You can categorises the
           deselected items later.
         </p>

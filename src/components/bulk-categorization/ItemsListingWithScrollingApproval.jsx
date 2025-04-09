@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import circle_check from "@/assets/image/check_circle.svg";
 import circle_check_grey from "@/assets/image/check_circle_grey.svg";
 import { Skeleton } from "../ui/skeleton";
+import { debounce } from "lodash";
+import { Check, CirclePlus } from "lucide-react";
 
 const ItemsListingWithScrollingApproval = ({
   items,
@@ -28,7 +30,7 @@ const ItemsListingWithScrollingApproval = ({
   const [manualChange, setManualChange] = useState(false);
   const [scrolling, setScrolling] = useState(false);
   useEffect(() => {
-    const handleScroll = () => {
+    const handleScroll = debounce(() => {
       if (lineRef.current) {
         setScrolling(true);
 
@@ -58,9 +60,9 @@ const ItemsListingWithScrollingApproval = ({
             }
 
             if (checkedItems.includes(itemUuid)) {
-              if (!newCheckedItems.includes(itemUuid)) {
-                newCheckedItems.push(itemUuid);
-              }
+              // if (!newCheckedItems.includes(itemUuid)) {
+              //   newCheckedItems.push(itemUuid);
+              // }
             }
 
             // Ensure unchecked items ABOVE the line stay unchecked
@@ -77,7 +79,7 @@ const ItemsListingWithScrollingApproval = ({
 
             if (checkedItems.includes(itemUuid)) {
               if (!newUncheckedItems.includes(itemUuid)) {
-                newUncheckedItems.push(itemUuid);
+                // newUncheckedItems.push(itemUuid);
               }
             }
           }
@@ -87,7 +89,7 @@ const ItemsListingWithScrollingApproval = ({
         setCheckedItems(newCheckedItems);
         setUnCheckedItems(newUncheckedItems);
       }
-    };
+    }, 50);
 
     const handleKeyDown = (e) => {
       if (e.key === "x" && lastItemAboveLine) {
@@ -118,13 +120,12 @@ const ItemsListingWithScrollingApproval = ({
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [items, checkedItems, unCheckedItems]);
-
+  console.log(unCheckedItems);
   useEffect(() => {
-    if(scrolling){
-
+    if (scrolling) {
       setFromTop(19.7);
     }
-  }, [checkedItems, items?.length,scrolling]);
+  }, [checkedItems, items?.length, scrolling]);
 
   useEffect(() => {
     setCheckedItems([]);
@@ -147,89 +148,105 @@ const ItemsListingWithScrollingApproval = ({
   };
 
   return (
-    <div className="w-[60%] h-full pt-8 max-w-full !relative">
-      <div
-        ref={containerRef}
-        className="flex flex-col gap-y-2 md:!h-[30rem] max-w-full 2xl:h-[35rem] !h-[40rem] overflow-auto"
-      >
-        {loadingItems ? (
-          <div className="flex flex-col gap-y-4 h-[50vh]">
-            {new Array(10).fill(0).map((_, index) => (
-              <Skeleton key={index} className={"w-full h-[2.5rem]"} />
-            ))}
-          </div>
-        ) : (
-          <>
-            {(!selectedVendor && mode !== "all") || loadingItems ? (
-              <div className="flex items-center justify-center md:min-h-[25rem] 2xl:min-h-[30rem] h-[30rem] w-full">
-                <div className="flex flex-col justify-center items-center gap-y-4">
-                  <img src={no_items} alt="" className="h-[70%] w-[60%] mt-8" />
-                  <p className="text-[#040807] font-poppins font-normal text-[0.9rem] leading-5">
-                    To proceed, kindly choose a vendor from the side navigation
-                    menu.
-                  </p>
-                </div>
-              </div>
-            ) : (
-              items?.data?.items?.map((item, index) => (
-                <div
-                  key={index}
-                  onClick={() => {
-                    if (
-                      checkedItems?.includes(item?.item_uuid) ||
-                      unCheckedItems?.includes(item?.item_uuid)
-                    ) {
-                      handleRemoveItem(item?.item_uuid);
-                    }
-                  }}
-                  data-uuid={item?.item_uuid}
-                  className={`item-row border rounded-sm w-full px-4 cursor-pointer min-h-[2.5rem] border-[#D9D9D9] flex items-center justify-between ${
-                    (unCheckedItems?.includes(item?.item_uuid) ||
-                      item?.category_review_required) &&
-                    "border-[#ca5644]"
-                  }  ${
-                    ((!unCheckedItems?.includes(item?.item_uuid) &&
-                      !checkedItems?.includes(item?.item_uuid)) ||
-                      item?.category_review_required) &&
-                    "bg-[#D1D1D1]/50"
-                  }`}
-                >
-                  <div className="flex items-center justify-between w-full gap-x-4">
-                    <span className="font-poppins font-normal text-xs leading-5 capitalize flex items-center gap-x-2 text-black">
-                      <span className="font-poppins font-semibold">
-                        {index}.
-                      </span>{" "}
-                      <span>
-                        {item?.item_description?.length > 90
-                          ? item?.item_description?.slice(0, 90) + "..."
-                          : item?.item_description}
-                      </span>
-                    </span>
-                    {checkedItems.includes(item?.item_uuid) ? (
-                      <img src={circle_check} alt="" />
-                    ) : (
-                      (!unCheckedItems?.includes(item?.item_uuid) ||
-                        item?.category_review_required) && (
-                        <img src={circle_check_grey} className="fill-white" />
-                      )
-                    )}
+    <div className="w-[60%] flex flex-col">
+      <div className="my-0 w-full flex justify-end pr-4  items-start gap-x-8 mt-4">
+        <div className="flex items-center gap-x-2">
+          <img src={circle_check} className=" h-[1.9rem] w-[1.9rem]" />
+          <span className="font-poppins font-medium text-xl">{checkedItems?.length}</span>
+        </div>
+        <div className="flex items-center gap-x-2">
+          <CirclePlus className="rotate-45 h-[1.75rem] w-[1.65rem] text-red-500" />
+          <span className="font-poppins font-medium text-xl">{unCheckedItems?.length}</span>
+        </div>
+      </div>
+      <div className=" h-full pt-2 max-w-full !relative">
+        <div
+          ref={containerRef}
+          className="flex flex-col gap-y-2 md:h-[30rem] max-w-full 2xl:h-[40rem] !h-[38rem] overflow-auto"
+        >
+          {loadingItems ? (
+            <div className="flex flex-col gap-y-4 h-[50vh]">
+              {new Array(10).fill(0).map((_, index) => (
+                <Skeleton key={index} className={"w-full h-[2.5rem]"} />
+              ))}
+            </div>
+          ) : (
+            <>
+              {(!selectedVendor && mode !== "all") || loadingItems ? (
+                <div className="flex items-center justify-center md:min-h-[25rem] 2xl:min-h-[30rem] h-[30rem] w-full">
+                  <div className="flex flex-col justify-center items-center gap-y-4">
+                    <img
+                      src={no_items}
+                      alt=""
+                      className="h-[70%] w-[60%] mt-8"
+                    />
+                    <p className="text-[#040807] font-poppins font-normal text-[0.9rem] leading-5">
+                      To proceed, kindly choose a vendor from the side
+                      navigation menu.
+                    </p>
                   </div>
                 </div>
-              ))
-            )}
-          </>
+              ) : (
+                items?.data?.items?.map((item, index) => (
+                  <div
+                    key={index}
+                    onClick={() => {
+                      if (
+                        checkedItems?.includes(item?.item_uuid) ||
+                        unCheckedItems?.includes(item?.item_uuid)
+                      ) {
+                        handleRemoveItem(item?.item_uuid);
+                      }
+                    }}
+                    data-uuid={item?.item_uuid}
+                    className={`item-row border rounded-sm w-full px-4 cursor-pointer min-h-[2.5rem] border-[#D9D9D9] flex items-center justify-between ${
+                      (unCheckedItems?.includes(item?.item_uuid) ||
+                        item?.category_review_required) &&
+                      "border-[#ca5644]"
+                    }  ${
+                      ((!unCheckedItems?.includes(item?.item_uuid) &&
+                        !checkedItems?.includes(item?.item_uuid)) ||
+                        item?.category_review_required) &&
+                      "bg-[#D1D1D1]/50"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between w-full gap-x-4">
+                      <span className="font-poppins font-normal text-xs leading-5 capitalize flex items-center gap-x-2 text-black">
+                        <span className="font-poppins font-semibold">
+                          {index}.
+                        </span>{" "}
+                        <span>
+                          {item?.item_description?.length > 90
+                            ? item?.item_description?.slice(0, 90) + "..."
+                            : item?.item_description}
+                        </span>
+                      </span>
+                      {checkedItems.includes(item?.item_uuid) ? (
+                        <img src={circle_check} alt="" />
+                      ) : (
+                        (!unCheckedItems?.includes(item?.item_uuid) ||
+                          item?.category_review_required) && (
+                          <img src={circle_check_grey} className="fill-white" />
+                        )
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Line after 6th item */}
+        {scrollingMode && items?.data?.items?.length > 0 && (
+          <div
+            ref={lineRef}
+            src={dashed_line}
+            style={{ top: `${fromTop}rem` }}
+            className="w-[98.5%] absolute border-t-[0.2rem] border-dashed border-black/45 "
+          ></div>
         )}
       </div>
-
-      {/* Line after 6th item */}
-      {scrollingMode && items?.data?.items?.length > 0 && (
-        <div
-          ref={lineRef}
-          src={dashed_line}
-          style={{ top: `${fromTop}rem` }}
-          className="w-[98.5%] absolute border-t-[0.2rem] border-dashed border-black/45 "
-        ></div>
-      )}
     </div>
   );
 };
