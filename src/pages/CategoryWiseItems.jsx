@@ -826,7 +826,7 @@ const CategoryWiseItems = () => {
                       (mode == "vendor" && !selectedVendor) ||
                       (mode !== "all" ? items : allItems)?.data?.items
                         ?.length == 0 ||
-                      (unCheckedItems == 0 && checkedItems?.length == 0)
+                      (unCheckedItems == 0 && checkedItems?.length == 0 && scrollingMode)
                     }
                     className="rounded-sm font-normal leading-6 w-[9rem] h-[2.3rem] text-sm  text-white"
                     onClick={() => {
