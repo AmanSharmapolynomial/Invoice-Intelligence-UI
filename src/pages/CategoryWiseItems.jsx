@@ -49,7 +49,8 @@ const CategoryWiseItems = () => {
   const { mutate: removeItemsInBulk, isPending: removingItemsInBulk } =
     useRemoveCategoryItemsInBulk();
 
-  const [fromTop, setFromTop] = useState(1.5);
+  const [fromTop, setFromTop] = useState(0);
+  const containerRef = useRef(null);
   const inputRef = useRef();
   const { data: vendors, isLoading: loadingVendors } = useGetCategoryWiseVendor(
     { category_id }
@@ -81,6 +82,7 @@ const CategoryWiseItems = () => {
       setSelectedVendor(
         vendors?.data?.find((v) => v?.vendor?.vendor_id == selected_vendor_id)
       );
+      // setFromTop(0)
       setSelectedVendorIndex(
         vendors?.data?.findIndex(
           (v) => v?.vendor?.vendor_id == selected_vendor_id
@@ -134,10 +136,14 @@ const CategoryWiseItems = () => {
                   queryClient.invalidateQueries({
                     queryKey: ["all-items-of-category"]
                   });
-                setFromTop(1.7);
+                setFromTop(0);
+                if (containerRef.current) {
+                  containerRef.current.scrollTop = 0;
+                }
               }
               {
                 if (checkedItems?.length > 0) {
+                  setSaving(true);
                   approveVendorItems(checkedItems, {
                     onSuccess: (data) => {
                       setUnCheckedItems([]);
@@ -156,7 +162,10 @@ const CategoryWiseItems = () => {
                         queryClient.invalidateQueries({
                           queryKey: ["all-items-of-category"]
                         });
-                      setFromTop(1.7);
+                      setFromTop(0);
+                      if (containerRef.current) {
+                        containerRef.current.scrollTop = 0;
+                      }
                     },
                     onError: (data) => {
                       toast.error(data?.message);
@@ -189,7 +198,10 @@ const CategoryWiseItems = () => {
               queryClient.invalidateQueries({
                 queryKey: ["all-items-of-category"]
               });
-            setFromTop(1.7);
+            setFromTop(0);
+            if (containerRef.current) {
+              containerRef.current.scrollTop = 0;
+            }
           },
           onError: (data) => {
             toast.error(data?.message);
@@ -250,12 +262,19 @@ const CategoryWiseItems = () => {
                     queryClient.invalidateQueries({
                       queryKey: ["removed-vendor-items"]
                     });
-
+                    setFromTop(0);
+                    if (containerRef.current) {
+                      containerRef.current.scrollTop = 0;
+                    }
                     if (items?.is_final_page) {
                       if (selectedVendorIndex + 1 < vendors?.data?.length) {
                         setSelectedVendor(
                           vendors?.data[selectedVendorIndex + 1]
                         );
+                        setFromTop(0);
+                        if (containerRef.current) {
+                          containerRef.current.scrollTop = 0;
+                        }
                         setSelectedVendorIndex(selectedVendorIndex + 1);
                         updateParams({
                           selected_vendor_id:
@@ -266,6 +285,10 @@ const CategoryWiseItems = () => {
                       } else {
                         setSelectedVendor(vendors?.data[0]);
                         setSelectedVendorIndex(0);
+                        setFromTop(0);
+                        if (containerRef.current) {
+                          containerRef.current.scrollTop = 0;
+                        }
                         updateParams({
                           selected_vendor_id:
                             vendors?.data[0]?.vendor?.vendor_id
@@ -284,6 +307,7 @@ const CategoryWiseItems = () => {
                         updateParams({
                           page: Number(page) + 1
                         });
+                        setFromTop(0);
                       } else {
                         setSaving(false);
                         if (mode == "vendor" && selectedVendor == null) {
@@ -330,17 +354,19 @@ const CategoryWiseItems = () => {
                 queryClient.invalidateQueries({
                   queryKey: ["all-items-of-category"]
                 });
+                setFromTop(0);
               if ((mode !== "all" ? items : allItems)?.is_final_page) {
                 if (selectedVendorIndex + 1 < vendors?.data?.length) {
                   setSelectedVendor(vendors?.data[selectedVendorIndex + 1]);
                   setSelectedVendorIndex(selectedVendorIndex + 1);
-
+                  setFromTop(0);
                   updateParams({
                     selected_vendor_id: vendors?.data[0]?.vendor?.vendor_id
                   });
                   updateParams({ search_term: "" });
                 } else {
                   setSelectedVendor(vendors?.data[0]);
+                  setFromTop(0);
                   setSelectedVendorIndex(0);
                   updateParams({
                     selected_vendor_id: vendors?.data[0]?.vendor?.vendor_id
@@ -351,6 +377,7 @@ const CategoryWiseItems = () => {
               if (item_uuids?.length == 0) {
                 if (page < (mode !== "all" ? items : allItems)?.total_pages) {
                   setSaving(false);
+                  setFromTop(0);
                   updateParams({
                     page: Number(page) + 1
                   });
@@ -376,6 +403,7 @@ const CategoryWiseItems = () => {
             updateParams({
               page: Number(page) + 1
             });
+            setFromTop(0);
             setUnCheckedItems([]);
           }
         }
@@ -481,6 +509,7 @@ const CategoryWiseItems = () => {
                 ?.includes(searchTerm?.toLowerCase())
             )[0]
           );
+          setFromTop(0);
           setSelectedVendorIndex(
             vendors?.data?.findIndex((v) =>
               v?.vendor?.vendor_name
@@ -578,6 +607,7 @@ const CategoryWiseItems = () => {
         e.preventDefault();
         const selected = filteredVendors[focusedVendor];
         setSelectedVendor(selected);
+        setFromTop(0);
         setSelectedVendorIndex(
           vendors?.data?.findIndex(
             (v) => v?.vendor?.vendor_id == selected?.vendor?.vendor_id
@@ -630,6 +660,7 @@ const CategoryWiseItems = () => {
   useEffect(() => {
     if (scrollingMode && mode == "all") {
       setSelectedVendor(null);
+      setFromTop(0);
       updateParams({
         selected_vendor_id: undefined,
         search_term: ""
@@ -638,6 +669,7 @@ const CategoryWiseItems = () => {
 
     if (!scrollingMode && mode == "all") {
       setSelectedVendor(null);
+      setFromTop(0);
       setSelectedVendorIndex(-1);
       updateParams({
         selected_vendor_id: undefined,
@@ -691,7 +723,9 @@ const CategoryWiseItems = () => {
               </span>{" "}
               <span>
                 (
-                {mode == "all" ? allItems?.total_records||0  : items?.total_records||0}
+                {mode == "all"
+                  ? allItems?.total_records || 0
+                  : items?.total_records || 0}
                 )
               </span>
             </p>
@@ -726,12 +760,13 @@ const CategoryWiseItems = () => {
               <CustomTooltip
                 content={
                   items?.data?.items?.length <= 15 &&
+                  mode == "all" &&
                   "Can't use this feature for less than 15 items."
                 }
               >
                 <Button
                   className="bg-transparent shadow-none hover:bg-transparent"
-                  disabled={items?.data?.items?.length <= 15 && mode=="all"}
+                  disabled={items?.data?.items?.length <= 15 && mode == "all"}
                 >
                   <Switch
                     checked={scrollingMode}
@@ -773,7 +808,7 @@ const CategoryWiseItems = () => {
                         }}
                       >
                         {" "}
-                        <span>FIV Items :- {" "}</span>
+                        <span>FIV Items :- </span>
                         {selectedVendor?.non_human_verified_items_count}
                       </span>
                     </p>
@@ -790,7 +825,8 @@ const CategoryWiseItems = () => {
                       removingItem ||
                       (mode == "vendor" && !selectedVendor) ||
                       (mode !== "all" ? items : allItems)?.data?.items
-                        ?.length == 0
+                        ?.length == 0 ||
+                      (unCheckedItems == 0 && checkedItems?.length == 0)
                     }
                     className="rounded-sm font-normal leading-6 w-[9rem] h-[2.3rem] text-sm  text-white"
                     onClick={() => {
@@ -899,6 +935,7 @@ const CategoryWiseItems = () => {
                               });
                             } else {
                               setSelectedVendor(vendor);
+                              setFromTop(0);
                               setSelectedVendorIndex(index);
 
                               updateParams({
@@ -1020,6 +1057,7 @@ const CategoryWiseItems = () => {
               setShowShortCuts={setShowShortCuts}
               setCheckedItems={setCheckedItems}
               removedItems={removedItems}
+              ref={containerRef}
               mode={mode}
               scrollingMode={scrollingMode}
               page={page}
