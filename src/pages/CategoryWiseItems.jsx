@@ -551,7 +551,7 @@ const CategoryWiseItems = () => {
 
         let numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
         if (!removingItem) {
-          if (numbers.includes(Number(e.key) && !scrollingMode)) {
+          if (numbers.includes(Number(e.key) )&&!scrollingMode) {
             inputRef.current.blur();
             let matchedItemIndex = (
               mode !== "all" ? items : allItems
