@@ -440,7 +440,9 @@ const CategoryWiseItems = () => {
         tagName === "input" ||
         tagName === "textarea" ||
         tagName === "select";
-
+  if(e.key=="0" && scrollingMode){
+    return
+  }
       if (!isEditable && e.key == "Backspace") {
         navigate("/bulk-categorization");
       }
@@ -464,12 +466,14 @@ const CategoryWiseItems = () => {
           );
         }
       }
-      if (isEditable && inputRef.current.focus && /^[0-9]$/?.test(e.key)) {
+      if (isEditable && inputRef.current.focus && /^[0-9]$/?.test(e.key) && !scrollingMode) {
         inputRef.current.blur();
         let matchedItemIndex = (
           mode !== "all" ? items : allItems
         )?.data?.items.findIndex((item, i) => i == Number(e.key));
-
+ if(scrollingMode){
+  return
+ }
         if (
           matchedItemIndex > -1 &&
           !(mode !== "all" ? items : allItems)?.data?.items[matchedItemIndex]
@@ -547,7 +551,7 @@ const CategoryWiseItems = () => {
 
         let numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
         if (!removingItem) {
-          if (numbers.includes(Number(e.key))) {
+          if (numbers.includes(Number(e.key) && !scrollingMode)) {
             inputRef.current.blur();
             let matchedItemIndex = (
               mode !== "all" ? items : allItems
@@ -634,7 +638,8 @@ const CategoryWiseItems = () => {
     selected_vendor_id,
     searchTerm,
     focusedVendor,
-    filteredVendors
+    filteredVendors,
+    scrollingMode
   ]);
 
   useEffect(() => {

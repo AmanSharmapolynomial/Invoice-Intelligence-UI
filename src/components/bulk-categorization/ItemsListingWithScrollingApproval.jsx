@@ -100,6 +100,9 @@ const ItemsListingWithScrollingApproval = forwardRef(
       );
 
       const handleKeyDown = (e) => {
+        if (e.key == "0") {
+          return;
+        }
         if (e.key === "x" && lastItemAboveLine) {
           const itemUuid = lastItemAboveLine.getAttribute("data-uuid");
 
@@ -132,8 +135,8 @@ const ItemsListingWithScrollingApproval = forwardRef(
     }, [items, checkedItems, unCheckedItems]);
     console.log(unCheckedItems);
     useEffect(() => {
-      if(checkedItems?.length==0){
-        setFromTop(0)
+      if (checkedItems?.length == 0) {
+        setFromTop(0);
       }
       if (scrolling) {
         setFromTop(18.2);
