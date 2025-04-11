@@ -100,9 +100,7 @@ const ItemsListingWithScrollingApproval = forwardRef(
       );
 
       const handleKeyDown = (e) => {
-        if (e.key == "0") {
-          return;
-        }
+       
         if (e.key === "x" && lastItemAboveLine) {
           const itemUuid = lastItemAboveLine.getAttribute("data-uuid");
 
