@@ -683,7 +683,7 @@ const ItemsCategorization = () => {
             </div>
           </div>
         </div>
-        <p className="text-[#666666] font-poppins font-normal text-base leading-5 mt-4 2xl:absolute 2xl:bottom-4 2xl:pb-4 bottom-0">
+        <p className="text-[#666666] font-poppins font-normal text-base leading-5 mt-4  2xl:bottom-4 2xl:pb-4 bottom-0">
           Note: Once done, click on “Next” to proceed.
         </p>
       </div>
