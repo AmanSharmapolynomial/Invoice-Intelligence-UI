@@ -14,6 +14,8 @@ import ItemsListingWithoutScrollingApproval from "@/components/bulk-categorizati
 import ItemsListingWithScrollingApproval from "@/components/bulk-categorization/ItemsListingWithScrollingApproval";
 import { Button } from "@/components/ui/button";
 import CustomInput from "@/components/ui/Custom/CustomInput";
+import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
+
 import { Label } from "@/components/ui/label";
 
 import { Skeleton } from "@/components/ui/skeleton";
@@ -48,6 +50,8 @@ const CategoryWiseItems = () => {
   const { mutate: removeItemsInBulk, isPending: removingItemsInBulk } =
     useRemoveCategoryItemsInBulk();
 
+  const [fromTop, setFromTop] = useState(0);
+  const containerRef = useRef(null);
   const inputRef = useRef();
   const { data: vendors, isLoading: loadingVendors } = useGetCategoryWiseVendor(
     { category_id }
@@ -79,6 +83,7 @@ const CategoryWiseItems = () => {
       setSelectedVendor(
         vendors?.data?.find((v) => v?.vendor?.vendor_id == selected_vendor_id)
       );
+      // setFromTop(0)
       setSelectedVendorIndex(
         vendors?.data?.findIndex(
           (v) => v?.vendor?.vendor_id == selected_vendor_id
@@ -110,8 +115,8 @@ const CategoryWiseItems = () => {
 
   const saveAndNextHandler = () => {
     if (scrollingMode) {
-      setSaving(true);
       if (unCheckedItems?.length > 0) {
+        setSaving(true);
         removeItemsInBulk(
           { item_uuids: unCheckedItems },
           {
@@ -128,9 +133,18 @@ const CategoryWiseItems = () => {
                 queryClient.invalidateQueries({
                   queryKey: ["removed-vendor-items"]
                 });
+                mode == "all" &&
+                  queryClient.invalidateQueries({
+                    queryKey: ["all-items-of-category"]
+                  });
+                setFromTop(0);
+                if (containerRef.current) {
+                  containerRef.current.scrollTop = 0;
+                }
               }
               {
                 if (checkedItems?.length > 0) {
+                  setSaving(true);
                   approveVendorItems(checkedItems, {
                     onSuccess: (data) => {
                       setUnCheckedItems([]);
@@ -145,6 +159,14 @@ const CategoryWiseItems = () => {
                       queryClient.invalidateQueries({
                         queryKey: ["removed-vendor-items"]
                       });
+                      mode == "all" &&
+                        queryClient.invalidateQueries({
+                          queryKey: ["all-items-of-category"]
+                        });
+                      setFromTop(0);
+                      if (containerRef.current) {
+                        containerRef.current.scrollTop = 0;
+                      }
                     },
                     onError: (data) => {
                       toast.error(data?.message);
@@ -158,6 +180,7 @@ const CategoryWiseItems = () => {
         );
       }
       if (checkedItems?.length > 0) {
+        setSaving(true);
         approveVendorItems(checkedItems, {
           onSuccess: (data) => {
             setUnCheckedItems([]);
@@ -172,6 +195,14 @@ const CategoryWiseItems = () => {
             queryClient.invalidateQueries({
               queryKey: ["removed-vendor-items"]
             });
+            mode == "all" &&
+              queryClient.invalidateQueries({
+                queryKey: ["all-items-of-category"]
+              });
+            setFromTop(0);
+            if (containerRef.current) {
+              containerRef.current.scrollTop = 0;
+            }
           },
           onError: (data) => {
             toast.error(data?.message);
@@ -232,12 +263,19 @@ const CategoryWiseItems = () => {
                     queryClient.invalidateQueries({
                       queryKey: ["removed-vendor-items"]
                     });
-
+                    setFromTop(0);
+                    if (containerRef.current) {
+                      containerRef.current.scrollTop = 0;
+                    }
                     if (items?.is_final_page) {
                       if (selectedVendorIndex + 1 < vendors?.data?.length) {
                         setSelectedVendor(
                           vendors?.data[selectedVendorIndex + 1]
                         );
+                        setFromTop(0);
+                        if (containerRef.current) {
+                          containerRef.current.scrollTop = 0;
+                        }
                         setSelectedVendorIndex(selectedVendorIndex + 1);
                         updateParams({
                           selected_vendor_id:
@@ -248,6 +286,10 @@ const CategoryWiseItems = () => {
                       } else {
                         setSelectedVendor(vendors?.data[0]);
                         setSelectedVendorIndex(0);
+                        setFromTop(0);
+                        if (containerRef.current) {
+                          containerRef.current.scrollTop = 0;
+                        }
                         updateParams({
                           selected_vendor_id:
                             vendors?.data[0]?.vendor?.vendor_id
@@ -266,6 +308,7 @@ const CategoryWiseItems = () => {
                         updateParams({
                           page: Number(page) + 1
                         });
+                        setFromTop(0);
                       } else {
                         setSaving(false);
                         if (mode == "vendor" && selectedVendor == null) {
@@ -312,17 +355,19 @@ const CategoryWiseItems = () => {
                 queryClient.invalidateQueries({
                   queryKey: ["all-items-of-category"]
                 });
+              setFromTop(0);
               if ((mode !== "all" ? items : allItems)?.is_final_page) {
                 if (selectedVendorIndex + 1 < vendors?.data?.length) {
                   setSelectedVendor(vendors?.data[selectedVendorIndex + 1]);
                   setSelectedVendorIndex(selectedVendorIndex + 1);
-
+                  setFromTop(0);
                   updateParams({
                     selected_vendor_id: vendors?.data[0]?.vendor?.vendor_id
                   });
                   updateParams({ search_term: "" });
                 } else {
                   setSelectedVendor(vendors?.data[0]);
+                  setFromTop(0);
                   setSelectedVendorIndex(0);
                   updateParams({
                     selected_vendor_id: vendors?.data[0]?.vendor?.vendor_id
@@ -333,6 +378,7 @@ const CategoryWiseItems = () => {
               if (item_uuids?.length == 0) {
                 if (page < (mode !== "all" ? items : allItems)?.total_pages) {
                   setSaving(false);
+                  setFromTop(0);
                   updateParams({
                     page: Number(page) + 1
                   });
@@ -358,6 +404,7 @@ const CategoryWiseItems = () => {
             updateParams({
               page: Number(page) + 1
             });
+            setFromTop(0);
             setUnCheckedItems([]);
           }
         }
@@ -394,7 +441,9 @@ const CategoryWiseItems = () => {
         tagName === "input" ||
         tagName === "textarea" ||
         tagName === "select";
-
+      if (e.key == "0" && scrollingMode) {
+        return;
+      }
       if (!isEditable && e.key == "Backspace") {
         navigate("/bulk-categorization");
       }
@@ -418,12 +467,19 @@ const CategoryWiseItems = () => {
           );
         }
       }
-      if (isEditable && inputRef.current.focus && /^[0-9]$/?.test(e.key)) {
+      if (
+        isEditable &&
+        inputRef.current.focus &&
+        /^[0-9]$/?.test(e.key) &&
+        !scrollingMode
+      ) {
         inputRef.current.blur();
         let matchedItemIndex = (
           mode !== "all" ? items : allItems
         )?.data?.items.findIndex((item, i) => i == Number(e.key));
-
+        if (scrollingMode) {
+          return;
+        }
         if (
           matchedItemIndex > -1 &&
           !(mode !== "all" ? items : allItems)?.data?.items[matchedItemIndex]
@@ -463,6 +519,7 @@ const CategoryWiseItems = () => {
                 ?.includes(searchTerm?.toLowerCase())
             )[0]
           );
+          setFromTop(0);
           setSelectedVendorIndex(
             vendors?.data?.findIndex((v) =>
               v?.vendor?.vendor_name
@@ -500,7 +557,7 @@ const CategoryWiseItems = () => {
 
         let numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
         if (!removingItem) {
-          if (numbers.includes(Number(e.key))) {
+          if (numbers.includes(Number(e.key)) && !scrollingMode) {
             inputRef.current.blur();
             let matchedItemIndex = (
               mode !== "all" ? items : allItems
@@ -560,6 +617,7 @@ const CategoryWiseItems = () => {
         e.preventDefault();
         const selected = filteredVendors[focusedVendor];
         setSelectedVendor(selected);
+        setFromTop(0);
         setSelectedVendorIndex(
           vendors?.data?.findIndex(
             (v) => v?.vendor?.vendor_id == selected?.vendor?.vendor_id
@@ -586,7 +644,8 @@ const CategoryWiseItems = () => {
     selected_vendor_id,
     searchTerm,
     focusedVendor,
-    filteredVendors
+    filteredVendors,
+    scrollingMode
   ]);
 
   useEffect(() => {
@@ -612,6 +671,7 @@ const CategoryWiseItems = () => {
   useEffect(() => {
     if (scrollingMode && mode == "all") {
       setSelectedVendor(null);
+      setFromTop(0);
       updateParams({
         selected_vendor_id: undefined,
         search_term: ""
@@ -620,6 +680,7 @@ const CategoryWiseItems = () => {
 
     if (!scrollingMode && mode == "all") {
       setSelectedVendor(null);
+      setFromTop(0);
       setSelectedVendorIndex(-1);
       updateParams({
         selected_vendor_id: undefined,
@@ -635,7 +696,14 @@ const CategoryWiseItems = () => {
       page,
       page_size
     });
-
+  useEffect(() => {
+    if (items?.data?.items?.length <= 15) {
+      setScrollingMode(false);
+      updateParams({
+        scrollingMode: false
+      });
+    }
+  }, [items]);
   return (
     <div className="py-4 ">
       {/* Navbar */}
@@ -659,18 +727,20 @@ const CategoryWiseItems = () => {
         {/* Header */}
         <div className="mt-8 flex items-center justify-between border-b-2  pb-2 border-b-[#E0E0E0]">
           <div>
-            <p className="font-poppins font-semibold capitalize 2xl:text-xl md:!text-lg leading-8 text-black">
+            <p className="font-poppins font-semibold capitalize 2xl:!text-xl 3xl:!text-xl md:!text-sm leading-8 text-black">
               Here are all the items under the category{" "}
               <span className="font-extrabold text-primary">
                 {category_name}
               </span>{" "}
               <span>
                 (
-                {mode == "all" ? allItems?.total_records||0  : items?.total_records||0}
+                {mode == "all"
+                  ? allItems?.total_records || 0
+                  : items?.total_records || 0}
                 )
               </span>
             </p>
-            <p className="font-poppins capitalize text-primary font-medium 2xl:!text-[0.9rem] md:!text-[0.75rem] leading-6 ">
+            <p className="font-poppins capitalize text-primary font-medium 2xl:!text-[0.9rem] md:!text-xs leading-6 ">
               You can change the category of any item by clicking on the
               particular menu item
             </p>
@@ -681,47 +751,76 @@ const CategoryWiseItems = () => {
                 <Label htmlFor="airplane-mode" className="text-xs">
                   Vendor Items
                 </Label>
-                <Switch
-                  className="h-5"
-                  checked={mode == "vendor" ? false : true}
-                  onCheckedChange={(v) => {
-                    updateParams({
-                      mode: v ? "all" : "vendor"
-                    });
-                  }}
-                />
+                <CustomTooltip content={!vendors?.data?.length>0 && "No Items "}>
+                  <Button
+                    className="bg-transparent shadow-none hover:bg-transparent"
+                    disabled={!vendors?.data?.length>0}
+                  >
+                    <Switch
+                      className="h-5"
+                      checked={mode == "vendor" ? false : true}
+                      onCheckedChange={(v) => {
+                        updateParams({
+                          mode: v ? "all" : "vendor"
+                        });
+                        setCheckedItems([]);
+                        setUnCheckedItems([]);
+                      }}
+                    />
+                  </Button>
+                </CustomTooltip>
                 <Label htmlFor="airplane-mode " className="text-xs">
                   All Items
                 </Label>
               </div>
             }
-            {/* <div className=" flex items-center gap-x-3">
-              <Switch
-                checked={scrollingMode}
-                onCheckedChange={(v) => {
-                  updateParams({
-                    scrolling_mode: v
-                  });
-                  setScrollingMode(v);
-                }}
-              />
-              <Label htmlFor="airplane-mode">Auto Approve On Scroll</Label>
-            </div> */}
+            <div className=" flex items-center gap-x-3">
+              <CustomTooltip
+                content={
+                  (((items?.data?.items?.length <= 15 && mode == "all") ||
+                    (items?.total_records <= 15 && mode == "vendor")) &&
+                  "Can't use this feature for less than 15 items.")||(!vendors?.data?.length>0 && "No Items ")
+                }
+              >
+                <Button
+                  className="bg-transparent shadow-none hover:bg-transparent"
+                  disabled={
+                    (items?.data?.items?.length <= 15 && mode == "all") ||
+                    (items?.total_records <= 15 && mode == "vendor")||!vendors?.data?.length>0
+                  }
+                >
+                  <Switch
+                    checked={scrollingMode}
+                    onCheckedChange={(v) => {
+                      updateParams({
+                        scrolling_mode: v
+                      });
+                      setScrollingMode(v);
+                      setCheckedItems([]);
+                      setUnCheckedItems([]);
+                    }}
+                  />
+                  <Label htmlFor="airplane-mode" className="text-black">
+                    Auto Approve On Scroll
+                  </Label>
+                </Button>
+              </CustomTooltip>
+            </div>
             {selectedVendor && (
-              <div className="flex  gap-y-4 rounded-3xl px-3 py-2 items-center justify-center font-poppins font-medium text-xs leading-5 text-black border border-[#E0E0E0] cursor-pointer">
+              <div className="flex   gap-y-4 rounded-3xl px-3 py-2 items-center justify-center font-poppins font-medium text-xs leading-5 text-black border min-w-fit border-[#E0E0E0] cursor-pointer">
                 {!loadingItems &&
                   selectedVendor !== null > 0 &&
                   items?.data?.items?.length > 0 && (
-                    <p className=" flex  items-center gap-x-4 text-xs">
-                      {!loadingItems &&
+                    <p className=" flex flex-col justify-start items-start min-w-fit   gap-x-4 text-xs">
+                      {/* {!loadingItems &&
                         selectedVendor !== null &&
                         items?.data?.items?.length > 0 && (
                           <p className="!no-underline text-xs">
                             Total Items : {items?.total_records}
                           </p>
-                        )}
+                        )} */}
                       <span
-                        className="underline  underline-offset-2"
+                        className="underline flex items-center justify-start gap-x-0 w-full  underline-offset-2"
                         onClick={() => {
                           window.open(
                             `/fast-item-verification/${selectedVendor?.vendor?.vendor_id}?vendor_name=${selectedVendor?.vendor?.vendor_name}&human_verified=${selectedVendor?.vendor?.human_verified}&from_view=item-master-vendors`,
@@ -730,7 +829,7 @@ const CategoryWiseItems = () => {
                         }}
                       >
                         {" "}
-                        FIV Items:{" "}
+                        <span>FIV Items :- </span>
                         {selectedVendor?.non_human_verified_items_count}
                       </span>
                     </p>
@@ -747,7 +846,10 @@ const CategoryWiseItems = () => {
                       removingItem ||
                       (mode == "vendor" && !selectedVendor) ||
                       (mode !== "all" ? items : allItems)?.data?.items
-                        ?.length == 0
+                        ?.length == 0 ||
+                      (unCheckedItems == 0 &&
+                        checkedItems?.length == 0 &&
+                        scrollingMode)
                     }
                     className="rounded-sm font-normal leading-6 w-[9rem] h-[2.3rem] text-sm  text-white"
                     onClick={() => {
@@ -856,6 +958,7 @@ const CategoryWiseItems = () => {
                               });
                             } else {
                               setSelectedVendor(vendor);
+                              setFromTop(0);
                               setSelectedVendorIndex(index);
 
                               updateParams({
@@ -970,11 +1073,14 @@ const CategoryWiseItems = () => {
                 scrollingMode && mode == "all" ? loadingAllItems : loadingItems
               }
               unCheckedItems={unCheckedItems}
+              fromTop={fromTop}
+              setFromTop={setFromTop}
               selectedVendor={selectedVendor}
               checkedItems={checkedItems}
               setShowShortCuts={setShowShortCuts}
               setCheckedItems={setCheckedItems}
               removedItems={removedItems}
+              ref={containerRef}
               mode={mode}
               scrollingMode={scrollingMode}
               page={page}
@@ -995,7 +1101,7 @@ const CategoryWiseItems = () => {
           )}
         </div>
 
-        <p className="text-[#666666] font-poppins font-normal text-base leading-5 mt-4 2xl:absolute 2xl:bottom-4 2xl:pb-4 bottom-0">
+        <p className="text-[#666666] font-poppins font-normal text-base leading-5 mt-4  2xl:bottom-4 2xl:pb-4 bottom-0">
           Note: Once done, click on “Next” to proceed. You can categorises the
           deselected items later.
         </p>
