@@ -153,7 +153,8 @@ const InvoiceDetails = () => {
     current_document_uuid,
     warning_checkbox_checked,
     setWarningCheckboxChecked,
-    is_unverified_branch
+    is_unverified_branch,
+    clearStore
   } = invoiceDetailStore();
   const [isLoading, setIsLoading] = useState(true);
   const [loadingState, setLoadingState] = useState({
@@ -545,7 +546,8 @@ const InvoiceDetails = () => {
     setWarningCheckboxChecked(false);
     setShowSimilarVendorsAndBranchesWarningModal(false);
     setShowAcceptModal(false);
-  }, [page]);
+    clearStore();
+  }, [page_number]);
 
   const { mutate: revertChanges } = useRevertChanges();
   let rest_tier =

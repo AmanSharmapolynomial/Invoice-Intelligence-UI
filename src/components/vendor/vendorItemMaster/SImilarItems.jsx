@@ -9,7 +9,7 @@ import {
   TableRow
 } from "@/components/ui/table";
 import React from "react";
-import { keysCapitalizer } from "@/lib/helpers";
+import { columnsSorter, keysCapitalizer } from "@/lib/helpers";
 
 const SimilarItems = ({
   data,
@@ -39,7 +39,7 @@ const SimilarItems = ({
           <TableRow
             className={`!text-white !rounded-none justify-between  w-full items-center  sm:text-sm `}
           >
-            {data?.data?.required_columns?.map((v, i) => (
+            {columnsSorter(data?.data?.required_columns)?.map((v, i) => (
               <TableHead
                 key={i}
                 className={`${
@@ -100,7 +100,7 @@ const SimilarItems = ({
                   key={index}
                   className={`!rounded-md w-full items-center justify-between text-xs sm:text-sm `}
                 >
-                  {data?.data?.required_columns?.map((v, i) => (
+                  {columnsSorter(data?.data?.required_columns)?.map((v, i) => (
                     <TableCell
                       key={i}
                       className="border-r border-l border-b h-full  items-center justify-between !pr-8  w-auto  gap-x-4 px-[0.75rem]"

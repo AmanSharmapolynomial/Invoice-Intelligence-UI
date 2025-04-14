@@ -779,7 +779,8 @@ const HumanVerificationTable = ({
       cells: rowToCopy?.cells?.map((cell) => ({
         ...cell,
         row_uuid: uuidv4(),
-        cell_uuid: uuidv4()
+        cell_uuid: uuidv4(),
+        text:cell?.text||null
       }))
     };
 
@@ -904,6 +905,7 @@ const HumanVerificationTable = ({
   };
 
   const addNewCell = (rowIndex, column_uuid, cell_uuid, row_uuid) => {
+    console.log("add new cell called")
     // Step 1: Deep copy the data object
     const combinedTableCopy = JSON.parse(JSON.stringify(data));
     const copyData = combinedTableCopy.data.processed_table;
