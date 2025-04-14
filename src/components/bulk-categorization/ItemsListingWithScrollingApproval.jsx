@@ -133,7 +133,7 @@ const ItemsListingWithScrollingApproval = forwardRef(
     }, [items, checkedItems, unCheckedItems]);
     console.log(unCheckedItems);
     useEffect(() => {
-      if (checkedItems?.length == 0) {
+      if (checkedItems?.length == 0 && unCheckedItems?.length==0) {
         setFromTop(0);
       }
       if (scrolling) {
