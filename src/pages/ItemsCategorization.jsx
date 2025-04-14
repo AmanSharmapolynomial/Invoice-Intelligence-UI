@@ -198,6 +198,7 @@ const ItemsCategorization = () => {
     category_name,
     searchParams
   ]);
+  console.log(selectedCategory)
 
   return (
     <div className="py-4 ">
@@ -602,7 +603,7 @@ const ItemsCategorization = () => {
                           {" "}
                           <div className="mt-2 ">
                             <CustomDropDown
-                              value={selectedCategory}
+                              Value={selectedCategory}
                               placeholder="Select Category"
                               showSearch={true}
                               contentClassName="max-h-[15rem]"

@@ -15,6 +15,7 @@ import ItemsListingWithScrollingApproval from "@/components/bulk-categorization/
 import { Button } from "@/components/ui/button";
 import CustomInput from "@/components/ui/Custom/CustomInput";
 import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
+
 import { Label } from "@/components/ui/label";
 
 import { Skeleton } from "@/components/ui/skeleton";
@@ -354,7 +355,7 @@ const CategoryWiseItems = () => {
                 queryClient.invalidateQueries({
                   queryKey: ["all-items-of-category"]
                 });
-                setFromTop(0);
+              setFromTop(0);
               if ((mode !== "all" ? items : allItems)?.is_final_page) {
                 if (selectedVendorIndex + 1 < vendors?.data?.length) {
                   setSelectedVendor(vendors?.data[selectedVendorIndex + 1]);
@@ -440,9 +441,9 @@ const CategoryWiseItems = () => {
         tagName === "input" ||
         tagName === "textarea" ||
         tagName === "select";
-  if(e.key=="0" && scrollingMode){
-    return
-  }
+      if (e.key == "0" && scrollingMode) {
+        return;
+      }
       if (!isEditable && e.key == "Backspace") {
         navigate("/bulk-categorization");
       }
@@ -466,14 +467,19 @@ const CategoryWiseItems = () => {
           );
         }
       }
-      if (isEditable && inputRef.current.focus && /^[0-9]$/?.test(e.key) && !scrollingMode) {
+      if (
+        isEditable &&
+        inputRef.current.focus &&
+        /^[0-9]$/?.test(e.key) &&
+        !scrollingMode
+      ) {
         inputRef.current.blur();
         let matchedItemIndex = (
           mode !== "all" ? items : allItems
         )?.data?.items.findIndex((item, i) => i == Number(e.key));
- if(scrollingMode){
-  return
- }
+        if (scrollingMode) {
+          return;
+        }
         if (
           matchedItemIndex > -1 &&
           !(mode !== "all" ? items : allItems)?.data?.items[matchedItemIndex]
@@ -551,7 +557,7 @@ const CategoryWiseItems = () => {
 
         let numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
         if (!removingItem) {
-          if (numbers.includes(Number(e.key) )&&!scrollingMode) {
+          if (numbers.includes(Number(e.key)) && !scrollingMode) {
             inputRef.current.blur();
             let matchedItemIndex = (
               mode !== "all" ? items : allItems
@@ -745,17 +751,24 @@ const CategoryWiseItems = () => {
                 <Label htmlFor="airplane-mode" className="text-xs">
                   Vendor Items
                 </Label>
-                <Switch
-                  className="h-5"
-                  checked={mode == "vendor" ? false : true}
-                  onCheckedChange={(v) => {
-                    updateParams({
-                      mode: v ? "all" : "vendor"
-                    });
-                    setCheckedItems([]);
-                    setUnCheckedItems([]);
-                  }}
-                />
+                <CustomTooltip content={!vendors?.data?.length>0 && "No Items "}>
+                  <Button
+                    className="bg-transparent shadow-none hover:bg-transparent"
+                    disabled={!vendors?.data?.length>0}
+                  >
+                    <Switch
+                      className="h-5"
+                      checked={mode == "vendor" ? false : true}
+                      onCheckedChange={(v) => {
+                        updateParams({
+                          mode: v ? "all" : "vendor"
+                        });
+                        setCheckedItems([]);
+                        setUnCheckedItems([]);
+                      }}
+                    />
+                  </Button>
+                </CustomTooltip>
                 <Label htmlFor="airplane-mode " className="text-xs">
                   All Items
                 </Label>
@@ -764,14 +777,17 @@ const CategoryWiseItems = () => {
             <div className=" flex items-center gap-x-3">
               <CustomTooltip
                 content={
-                  items?.data?.items?.length <= 15 &&
-                  mode == "all" &&
-                  "Can't use this feature for less than 15 items."
+                  (((items?.data?.items?.length <= 15 && mode == "all") ||
+                    (items?.total_records <= 15 && mode == "vendor")) &&
+                  "Can't use this feature for less than 15 items.")||(!vendors?.data?.length>0 && "No Items ")
                 }
               >
                 <Button
                   className="bg-transparent shadow-none hover:bg-transparent"
-                  disabled={items?.data?.items?.length <= 15 && mode == "all"}
+                  disabled={
+                    (items?.data?.items?.length <= 15 && mode == "all") ||
+                    (items?.total_records <= 15 && mode == "vendor")||!vendors?.data?.length>0
+                  }
                 >
                   <Switch
                     checked={scrollingMode}
@@ -831,7 +847,9 @@ const CategoryWiseItems = () => {
                       (mode == "vendor" && !selectedVendor) ||
                       (mode !== "all" ? items : allItems)?.data?.items
                         ?.length == 0 ||
-                      (unCheckedItems == 0 && checkedItems?.length == 0 && scrollingMode)
+                      (unCheckedItems == 0 &&
+                        checkedItems?.length == 0 &&
+                        scrollingMode)
                     }
                     className="rounded-sm font-normal leading-6 w-[9rem] h-[2.3rem] text-sm  text-white"
                     onClick={() => {
