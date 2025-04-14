@@ -41,8 +41,9 @@ export const invoiceDetailStore = create((set, get) => ({
   totalPages: null,
   review_later: false,
   is_unverified_vendor: false,
+  is_unverified_branch: false,
   current_document_uuid: null,
-  last_edited_line_item:  null,
+  last_edited_line_item: null,
   setLastEditedLineItem: (v) => set({ last_edited_line_item: v }),
   setReviewLater: (val) => set({ review_later: val }),
   setCombinedTableHistory: (history) => set({ combinedTableHistory: history }),
@@ -87,6 +88,7 @@ export const invoiceDetailStore = create((set, get) => ({
   setBoundingBox: (box) => set({ bounding_box: box }),
   setHighlightAll: (highlightAll) => set({ highlightAll: highlightAll }),
   setIsUnverifiedVendor: (v) => set({ is_unverified_vendor: v }),
+  setIsUnverifiedBranch: (v) => set({ is_unverified_branch: v }),
   setBoundingBoxes: (boxes) => set({ bounding_boxes: boxes }),
   setCurrentDocumentUUID: (v) => set({ current_document_uuid: v }),
   setAdded: (flag) => set({ added: flag }),
@@ -110,14 +112,14 @@ export const invoiceDetailStore = create((set, get) => ({
       showTextExtractionModal: false,
       metadataTableCopy: {},
       is_unverified_vendor: false,
-      current_document_uuid:  null,
-      warning_checkbox_checked:  false,
+      is_unverified_branch: false,
+      current_document_uuid: null,
+      warning_checkbox_checked: false,
       stopHovering: true,
-      last_edited_line_item:null,
-      last_edited_line_item_columns:[],
-      similarLineItems:[],
-      showSimilarLineItemsModal:false,
-      
-
+      last_edited_line_item: null,
+      last_edited_line_item_columns: [],
+      similarLineItems: [],
+      showSimilarLineItemsModal: false,
+      similarLineItemsRequiredColumns: []
     })
 }));

@@ -171,7 +171,7 @@ const InvoiceFilters = () => {
             data={clickBACONStatusFilterOptions}
           />
         </div>
-        <div>
+        {/* <div>
           <CustomSelect
             value={restaurant_tier}
             label="Restaurant Tier"
@@ -194,7 +194,7 @@ const InvoiceFilters = () => {
               }
             }}
           />
-        </div>
+        </div> */}
         <div>
           {(role?.toLowerCase() == "admin" ||
             role?.toLowerCase() == "manager") && (

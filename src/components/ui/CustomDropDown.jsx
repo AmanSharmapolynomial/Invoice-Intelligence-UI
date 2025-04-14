@@ -123,10 +123,10 @@ const CustomDropDown = ({
           className="flex items-center gap-x-2"
         >
           <Link2 className="text-[#348355] !h-4 !w-4" />
-          <span className="text-[#348355] text-sm font-poppins font-normal truncate">
+          <span className="text-[#348355] text-sm w-full font-poppins font-normal truncate">
             {selectedItem
-              ? selectedItem?.label?.slice(0, 50) +
-                (selectedItem?.label?.length > 50 ? "....." : "")
+              ? selectedItem?.label?.slice(0, 35) +
+                (selectedItem?.label?.length > 35 ? ".." : "")
               : placeholder}
           </span>
           {selectedItem?.human_verified && (
@@ -184,14 +184,14 @@ const CustomDropDown = ({
           role="combobox"
           aria-expanded={open}
           className={cn(
-            "min-w-fit border h-[2.5rem] dark:bg-[#000000] dark:text-textColor/200 dark:border-[#000000] bg-[#FFFFFF] hover:bg-[#FFFFFF] border-[#E0E0E0] justify-between capitalize shadow-none !rounded-[4px] text-[#000000] hover:text-[#666666] font-poppins font-normal text-xs",
+            "min-w-fit relative border pr-12 h-[2.5rem] dark:bg-[#000000] dark:text-textColor/200 dark:border-[#000000] bg-[#FFFFFF] hover:bg-[#FFFFFF] border-[#E0E0E0] justify-between capitalize shadow-none !rounded-[4px] text-[#000000] hover:text-[#666666] font-poppins w-full font-normal text-xs",
             multiSelect && itemsArray?.length > 0 && "!bg-primary !text-white "
           )}
         >
           {renderTriggerContent()}
           <ChevronDown
             className={cn(
-              "ml-2 h-4 font-bold w-4 shrink-0 !text-[#666666] dark:text-textColor/200 transition-transform duration-300",
+              "ml-2 h-4 font-bold right-3   absolute w-4 shrink-0 !text-[#666666] dark:text-textColor/200 transition-transform duration-300",
               open && "rotate-180",
               multiSelect && itemsArray?.length > 0 && "!text-white"
             )}
@@ -204,7 +204,7 @@ const CustomDropDown = ({
         }  mr-1 !z-50`}
         contentClassName={`${contentClassName}  !max-w-[17rem] min-w-full`}
       >
-        <Command className="dark:!border-[#051C14] px-1 py-2 dark:bg-[#051C14]  !min-w-full !z-50">
+        <Command className="dark:!border-[#051C14] px-1 py-2 dark:bg-[#051C14]  !min-w-full  !z-50">
           {showSearch && (
             <Input
               placeholder={searchPlaceholder}
@@ -311,7 +311,7 @@ const CustomDropDown = ({
                             {item?.count !== undefined && (
                               <CustomTooltip
                                 content={"Duplicate Findings Count"}
-                                right={16}
+                                right={24}
                               >
                                 <span className="font-poppins mr-2">
                                   {item?.count}

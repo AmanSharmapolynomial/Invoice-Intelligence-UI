@@ -27,6 +27,8 @@ import CategoryWiseItems from "@/pages/CategoryWiseItems";
 import ItemsCategorization from "@/pages/ItemsCategorization";
 import VendorsWithPotentialDuplicates from "@/pages/VendorsWithPotentialDuplicates";
 import CombineDuplicateVendors from "@/pages/CombineDuplicateVendors";
+import VendorsDuplicateBranchFindingsListing from "@/pages/VendorsDuplicateBranchFindingsListing";
+import CombineDuplicateBranchFindings from "@/pages/CombineDuplicateBranchFindings";
 
 const publicRoutes = [
   {
@@ -231,6 +233,8 @@ const protectedRoutes = [
       </Protected>
     )
   },
+
+  // Duplicate Vendors Findings
   {
     path: "/vendors-potential-duplicates",
     element: (
@@ -244,6 +248,24 @@ const protectedRoutes = [
     element: (
       <Protected>
         <CombineDuplicateVendors/>
+      </Protected>
+    )
+  },
+
+  // Duplicate Branch Findings
+  {
+    path: "/vendors-duplicate-branch-findings",
+    element: (
+      <Protected>
+        <VendorsDuplicateBranchFindingsListing/>
+      </Protected>
+    )
+  },
+  {
+    path: "/combine-duplicate-branch-findings/:vendor_id",
+    element: (
+      <Protected>
+        <CombineDuplicateBranchFindings/>
       </Protected>
     )
   },

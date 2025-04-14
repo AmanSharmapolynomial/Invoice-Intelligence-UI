@@ -1,6 +1,8 @@
 import approved from "@/assets/image/approved.svg";
 import no_data from "@/assets/image/no-data.svg";
-
+import tier_1 from "@/assets/image/tier_1.svg";
+import tier_2 from "@/assets/image/tier_2.svg";
+import tier_3 from "@/assets/image/tier_3.svg";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -368,9 +370,27 @@ const InvoiceTable = ({
                             : "!w-[11.1111111%] "
                         } text-sm `}
                       >
-                        {restaurant?.restaurant_name !== null
-                          ? restaurant?.restaurant_name
-                          : restaurant?.restaurant_id}
+                        <div className="flex items-center justify-between w-full gap-x-4">
+                          <span>
+                            {" "}
+                            {restaurant?.restaurant_name !== null
+                              ? restaurant?.restaurant_name
+                              : restaurant?.restaurant_id}
+                          </span>
+                          {restaurant?.tier && (
+                            <img
+                              className="h-4 w-4"
+                              src={
+                                restaurant?.tier == 1
+                                  ? tier_1
+                                  : restaurant?.tier == 2
+                                  ? tier_2
+                                  : tier_3
+                              }
+                              alt=""
+                            />
+                          )}
+                        </div>
                       </TableCell>
 
                       <TableCell

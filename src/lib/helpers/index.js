@@ -19,18 +19,18 @@ export const getUserNameFromId = (users, ID) => {
 export const formatRestaurantsList = (data = []) => {
   let formatted = [];
   data &&
-    data?.forEach(({ restaurant_id, restaurant_name,tier }) => {
+    data?.forEach(({ restaurant_id, restaurant_name, tier }) => {
       if (restaurant_name === "") {
         formatted.push({
           label: restaurant_id,
           value: restaurant_id,
-          tier:tier
+          tier: tier
         });
       } else {
         formatted.push({
           label: restaurant_name,
           value: restaurant_id,
-          tier:tier
+          tier: tier
         });
       }
     });
@@ -56,12 +56,13 @@ export const vendorNamesFormatter = (data = []) => {
   data?.length > 0 &&
     data?.forEach(
       ({ vendor_name, vendor_id, human_verified, archive_status }) => {
-        returnArray.push({
-          label: vendor_name,
-          value: vendor_id,
-          human_verified: human_verified,
-          archived_status: archive_status
-        });
+        if (!archive_status) {
+          returnArray.push({
+            label: vendor_name,
+            value: vendor_id,
+            human_verified: human_verified,
+          });
+        }
       }
     );
   returnArray.push({
@@ -265,8 +266,8 @@ export const headerNamesFormatter = (header_names) => {
 };
 
 export const categoryNamesFormatter = (categories) => {
-  if(!categories){
-    return []
+  if (!categories) {
+    return [];
   }
   return categories?.map((c) => {
     let obj = {
@@ -297,4 +298,3 @@ export const columnsSorter = (columns) => {
     return columns_order.indexOf(a) - columns_order.indexOf(b);
   });
 };
-

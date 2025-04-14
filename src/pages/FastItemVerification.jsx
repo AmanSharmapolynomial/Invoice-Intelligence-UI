@@ -77,6 +77,7 @@ const FastItemVerification = () => {
   const [selectedItems, setSelectedItems] = useState([]);
   const updateParams = useUpdateParams();
   const [masterUUID, setMasterUUID] = useState(null);
+  const [retrigger, setRetrigger] = useState(false);
   let vendor_name = searchParams.get("vendor_name");
   let human_verified = searchParams.get("human_verified");
   const { data, isLoading } = useGetVendorItemMaster({
@@ -89,7 +90,8 @@ const FastItemVerification = () => {
     item_code: "",
     item_description: "",
     page: page,
-    is_bounding_box_present: true
+    is_bounding_box_present: true,
+    retrigger: retrigger
   });
   useEffect(() => {
     if (data?.detail?.trim() == "Invalid page.") {
@@ -149,25 +151,41 @@ const FastItemVerification = () => {
           },
           {
             onSuccess: (data) => {
-              setFIVItems(
-                data?.data?.items?.filter(
-                  (it) => it.item_uuid !== fiv_current_item?.item_uuid
-                )
-              );
-              setIsGoodDocument(false);
-              setFIVTotalItemsCount(data?.data?.total_item_count);
-              setFIVVerifiedItemsCount(data?.data?.verified_item_count);
-              setFIVCurrentItem(
-                data?.data?.items?.length == 1
-                  ? data?.data?.items[fiv_item_number]
-                  : data?.data?.items[fiv_item_number + 1]
-              );
+              if (data?.data?.items?.length == 0) {
+                setFIVItems([]);
+                setRetrigger((prev) => !prev);
+
+                if (page > 1) {
+                  updateParams({ page: Number(page) - 1 });
+                  resetStore();
+                } else {
+                  setFIVCurrentItem({});
+                  setFIVItems([]);
+                
+                }
+              }
+
+              if (data?.data?.items?.length > 0) {
+                setFIVItems(data?.data?.items);
+                setFIVCurrentItem(data?.data?.items[0]);
+                setFIVItemNumber(Number(fiv_item_number) + 1);
+                setFIVDocumentUUID(
+                  data?.data?.item?.[fiv_current_pdf_index]?.document_uuid
+                );
+                setFIVDocumentLink(
+                  data?.data?.item?.[fiv_current_pdf_index]?.document_link
+                );
+                setFIVVerifiedItemsCount(data?.data?.verified_item_count);
+
+                setFIVTotalItemsCount(data?.data?.total_item_count);
+                setFIVVerifiedItemsCount(data?.data?.verified_item_count);
+              }
             }
           }
         );
       }
     }
-  }, [fiv_items, data]);
+  }, [fiv_items]);
   useEffect(() => {
     if (fiv_items?.length !== 0) {
       setIsGoodDocument(true);
@@ -193,65 +211,61 @@ const FastItemVerification = () => {
           setLoadingState((prev) => ({ ...prev, nextAndApproving: false }));
 
           // Update item verification state
-          const updatedItems = fiv_items.map((item) =>
-            item.item_uuid === fiv_current_item?.item_uuid
-              ? { ...item, human_verified: true }
-              : item
-          );
-          if (updatedItems?.length == 0) {
-            if (!fiv_is_final_page) {
-              if (page > 1) {
-                setFIVItems(updatedItems);
-                setIsGoodDocument(fiv_items.length === 0);
-                setFIVVerifiedItemsCount(Number(fiv_verified_items_count) + 1);
-                updateParams({ page: Number(page) - 1 });
-                return;
-              }
-            }
-          }
+          const updatedItems =
+            fiv_items?.length > 0
+              ? fiv_items.map((item) =>
+                  item.item_uuid === fiv_current_item?.item_uuid
+                    ? { ...item, human_verified: true }
+                    : item
+                )
+              : [];
+
           setFIVItems(updatedItems);
-          setIsGoodDocument(fiv_items.length === 0);
           setFIVVerifiedItemsCount(Number(fiv_verified_items_count) + 1);
-
+          setFIVItems(fiv_items?.filter((it) => !it?.item_uuid!==fiv_current_item?.item_uuid));
+          setFIVCurrentItem(fiv_items?.filter((it) => !it?.item_uuid!==fiv_current_item?.item_uuid)[0]);
           // Handle pagination & moving to the next item
-          if (fiv_items?.length == 0) {
-            if (fiv_document_loaded) {
-              getAllItems(
-                {
-                  vendor_id,
-                  document_uuid:
-                    data?.data?.item?.[fiv_current_pdf_index]?.document_uuid,
-                  page: page
-                },
-                {
-                  onSuccess: (data) => {
-                    setFIVItems(
-                      data?.data?.items?.filter(
-                        (it) => it.item_uuid !== fiv_current_item?.item_uuid
-                      )
-                    );
-                    setIsGoodDocument(false);
-
-                    setFIVCurrentItem(data?.data?.items[fiv_item_number + 1]);
-                    setFIVTotalItemsCount(data?.data?.total_item_count);
-                    setFIVVerifiedItemsCount(data?.data?.verified_item_count);
+          if (updatedItems?.length == 0) {
+            getAllItems(
+              {
+                vendor_id,
+                document_uuid:
+                  data?.data?.item?.[fiv_current_pdf_index]?.document_uuid,
+                page: page
+              },
+              {
+                onSuccess: (data) => {
+                  setFIVItems(data?.data?.items);
+                  setIsGoodDocument(false);
+                  
+                  if (data?.data?.items?.length == 0) {
+                    setFIVItems([]);
+                    setRetrigger((prev) => !prev);
+    
+                    if (page > 1) {
+                      updateParams({ page: Number(page) - 1 });
+                      resetStore();
+                    } else {
+                      setFIVCurrentItem({});
+                      setFIVItems([]);
+                    
+                    }
                   }
+                  setFIVCurrentItem(data?.data?.items[fiv_item_number]);
+                  setFIVItemNumber(Number(fiv_item_number) + 1);
+                  setFIVTotalItemsCount(data?.data?.total_item_count);
+                  setFIVVerifiedItemsCount(data?.data?.verified_item_count);
                 }
-              );
-            }
-          }
-          if (fiv_item_number < total_items - 1) {
-            setFIVItemNumber(Number(fiv_item_number) + 1);
-            if (fiv_items[Number(fiv_item_number)]) {
-              setFIVCurrentItem(fiv_items[Number(fiv_item_number)]);
-            }
+              }
+            );
           } else {
-            if (fiv_item_number >= total_items - 1) {
-              if (page <= data?.data?.total_item_count) {
+            if (fiv_item_number < total_items - 1) {
+              setFIVItemNumber(Number(fiv_item_number) + 1);
+              setFIVCurrentItem(fiv_items[Number(fiv_item_number)]);
+            } else {
+              if (!data?.is_final_page) {
                 if (!fiv_is_final_page) {
                   updateParams({ page: Number(page) + 1 });
-                  setFIVItemNumber(0);
-                  setFIVCurrentItem({});
                   resetStore();
                 }
               }
@@ -264,7 +278,6 @@ const FastItemVerification = () => {
       }
     );
   };
-
 
   useEffect(() => {
     setSelectedItems([]);
@@ -520,13 +533,6 @@ const FastItemVerification = () => {
     }
   }, [similarItems]);
 
-  useEffect(() => {
-    if (fiv_current_item?.human_verified) {
-      if (fiv_items?.length > 0) {
-        setFIVCurrentItem(fiv_items[fiv_current_item]);
-      }
-    }
-  }, [fiv_current_item]);
   return (
     <div className="h-screen  flex w-full " id="maindiv">
       <Sidebar />
