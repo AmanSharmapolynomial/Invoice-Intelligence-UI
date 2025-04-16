@@ -129,28 +129,28 @@ const HumanVerificationTable = ({
       }
     },
 
-    {
-      label: "Add Cell",
-      action: () => {
-        // rowIndex, column_uuid, cell_uuid, row_uuid
-        addNewCell(
-          contextMenu.rowIndex,
-          contextMenu?.column_uuid,
-          contextMenu?.cell_uuid,
-          contextMenu?.row_uuid
-        );
-      }
-    },
-    {
-      label: "Delete Cell",
-      action: () => {
-        deleteCell(
-          contextMenu?.rowIndex,
-          contextMenu?.column_uuid,
-          contextMenu?.cell_uuid
-        );
-      }
-    },
+    // {
+    //   label: "Add Cell",
+    //   action: () => {
+    //     // rowIndex, column_uuid, cell_uuid, row_uuid
+    //     addNewCell(
+    //       contextMenu.rowIndex,
+    //       contextMenu?.column_uuid,
+    //       contextMenu?.cell_uuid,
+    //       contextMenu?.row_uuid
+    //     );
+    //   }
+    // },
+    // {
+    //   label: "Delete Cell",
+    //   action: () => {
+    //     deleteCell(
+    //       contextMenu?.rowIndex,
+    //       contextMenu?.column_uuid,
+    //       contextMenu?.cell_uuid
+    //     );
+    //   }
+    // },
 
     {
       label: "Shift Row Up",
@@ -780,7 +780,7 @@ const HumanVerificationTable = ({
         ...cell,
         row_uuid: uuidv4(),
         cell_uuid: uuidv4(),
-        text:cell?.text||null
+        text: cell?.text || null
       }))
     };
 
@@ -905,7 +905,7 @@ const HumanVerificationTable = ({
   };
 
   const addNewCell = (rowIndex, column_uuid, cell_uuid, row_uuid) => {
-    console.log("add new cell called")
+    console.log("add new cell called");
     // Step 1: Deep copy the data object
     const combinedTableCopy = JSON.parse(JSON.stringify(data));
     const copyData = combinedTableCopy.data.processed_table;
@@ -2185,46 +2185,46 @@ const HumanVerificationTable = ({
               </p>
             </div>
           ) : (
-           <div className="max-h-60 overflow-auto">
-             <table className="  w-full mt-4 ">
-              {/* <TableHeader className=" top-0 z-10 bg-white "> */}
-              <tr
-                className={`
+            <div className="max-h-60 overflow-auto">
+              <table className="  w-full mt-4 ">
+                {/* <TableHeader className=" top-0 z-10 bg-white "> */}
+                <tr
+                  className={`
                   !w-full !border !border-l-2 border-t-2 `}
-              >
-                {last_edited_line_item_columns?.map((col, index) => (
-                  <th
-                    key={index}
-                    className={` border sticky top-0  !border-l bg-white font-poppins h-12  content-center px-2 items-center !justify-start font-semibold text-sm text-black   leading-5`}
-                  >
-                    <div className="flex items-center h-full  justify-normal">
-                      {keysCapitalizer(col)}
-                    </div>
-                  </th>
-                ))}
-              </tr>
+                >
+                  {last_edited_line_item_columns?.map((col, index) => (
+                    <th
+                      key={index}
+                      className={` border sticky top-0  !border-l bg-white font-poppins h-12  content-center px-2 items-center !justify-start font-semibold text-sm text-black   leading-5`}
+                    >
+                      <div className="flex items-center h-full  justify-normal">
+                        {keysCapitalizer(col)}
+                      </div>
+                    </th>
+                  ))}
+                </tr>
 
-              <tbody className="w-full ">
-                {similarLineItems?.map((row, index) => (
-                  <tr
-                    key={index}
-                    onClick={() => {
-                      handleInsertRow(row);
-                    }}
-                    className={` cursor-pointer`}
-                  >
-                    {last_edited_line_item_columns?.map((col, i) => (
-                      <td
-                        key={i}
-                        className="border  py-2 px-2 font-poppins text-black !font-normal !text-xs"
-                      >
-                        {col == "category" ? row["category"]?.name : row[col]}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                <tbody className="w-full ">
+                  {similarLineItems?.map((row, index) => (
+                    <tr
+                      key={index}
+                      onClick={() => {
+                        handleInsertRow(row);
+                      }}
+                      className={` cursor-pointer`}
+                    >
+                      {last_edited_line_item_columns?.map((col, i) => (
+                        <td
+                          key={i}
+                          className="border  py-2 px-2 font-poppins text-black !font-normal !text-xs"
+                        >
+                          {col == "category" ? row["category"]?.name : row[col]}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>
