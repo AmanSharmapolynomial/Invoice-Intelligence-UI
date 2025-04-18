@@ -19,14 +19,8 @@ import Navbar from "@/components/common/Navbar";
 import userStore from "@/components/auth/store/userStore";
 
 const formSchema = z.object({
-  username: z
-    .string()
-    .min(2, "username must have minimum 4 characters.")
-    .max(50),
-  password: z
-    .string()
-    .min(4, "password should be atleast of 4 characters.")
-    .max(20)
+  username: z.string().min(2, "username must have minimum 4 characters."),
+  password: z.string().min(4, "password should be atleast of 4 characters.")
 });
 
 const Login = () => {
@@ -75,7 +69,7 @@ const Login = () => {
         setAccessToken(access_token);
         setRefreshToken(refresh_token);
         clearTimeout(timeout);
-        setUserId(user_id)
+        setUserId(user_id);
         timeout = setTimeout(() => {
           navigate("/");
         }, 500);
