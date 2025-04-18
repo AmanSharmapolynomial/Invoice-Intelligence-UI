@@ -2218,7 +2218,17 @@ const HumanVerificationTable = ({
                           key={i}
                           className="border  py-2 px-2 font-poppins text-black !font-normal !text-xs"
                         >
-                          {col == "category" ? row["category"]?.name : row[col]}
+                          <div className="w-full flex items-center justify-between">
+                            <span>
+                              {col == "category"
+                                ? row["category"]?.name
+                                : row[col]}
+                            </span>
+
+                            {row?.["human_verified"] && col == "category" && (
+                              <img src={approved} alt="" />
+                            )}
+                          </div>
                         </td>
                       ))}
                     </tr>

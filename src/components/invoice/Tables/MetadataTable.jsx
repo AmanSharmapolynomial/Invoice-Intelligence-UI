@@ -837,6 +837,14 @@ const MetadataTable = ({
       </div>
       <div className="grid grid-cols-2 gap-x-4 mt-4">
         <Template title="Credit Card Name">
+        <div
+            onMouseEnter={() => {
+              handleHighlighting("credit_card_name");
+            }}
+            onMouseLeave={() => {
+              handleRestBoundingBoxes("credit_card_name");
+            }}
+          >
           <CustomInput
             value={document_metadata?.credit_card_name}
             className={`${
@@ -866,8 +874,17 @@ const MetadataTable = ({
               }
             }}
           />
+          </div>
         </Template>
         <Template title="Credit Card Number">
+        <div
+            onMouseEnter={() => {
+              handleHighlighting("credit_card_number");
+            }}
+            onMouseLeave={() => {
+              handleRestBoundingBoxes("credit_card_number");
+            }}
+          >
           <CustomInput
             value={document_metadata?.credit_card_number}
             className={`${
@@ -897,6 +914,7 @@ const MetadataTable = ({
               }
             }}
           />
+          </div>
         </Template>
       </div>
 

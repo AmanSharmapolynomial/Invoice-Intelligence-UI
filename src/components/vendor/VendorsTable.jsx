@@ -20,17 +20,37 @@ const sortingStates = ["all", "asc", "desc"];
 const VendorsTable = ({ columns, data, isLoading, vendorName }) => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [sortConfig, setSortConfig] = useState({ key: "", order: "all" });
+  const [sortConfig, setSortConfig] = useState([]); // [{ key: "vendor[vendor_name]", order: "asc" }]
+
   let vendor_name = searchParams.get("vendor_name");
 
   const handleSort = (column) => {
-    const newOrder =
-      sortConfig.key === column.key && sortConfig.order === "asc"
-        ? "desc"
-        : "asc";
-    setSortConfig({ key: column.key, order: newOrder });
-    setSearchParams({ sort_by: column.key, sort_order: newOrder });
+    setSortConfig((prevConfig) => {
+      const existingIndex = prevConfig.findIndex(
+        (item) => item.key === column.key
+      );
+      let updatedConfig = [...prevConfig];
+
+      if (existingIndex > -1) {
+        const currentOrder = prevConfig[existingIndex].order;
+        if (currentOrder === "asc") {
+          updatedConfig[existingIndex].order = "desc";
+        } else if (currentOrder === "desc") {
+          updatedConfig.splice(existingIndex, 1); // remove it (reset)
+        }
+      } else {
+        updatedConfig.push({ key: column.key, order: "asc" });
+      }
+
+      // optional: sync to search params
+      const keys = updatedConfig.map((s) => s.key).join(",");
+      const orders = updatedConfig.map((s) => s.order).join(",");
+      setSearchParams({ sort_by: keys, sort_order: orders });
+
+      return updatedConfig;
+    });
   };
+
   const getValue = (obj, key) => {
     return key.includes("[")
       ? key
@@ -40,26 +60,27 @@ const VendorsTable = ({ columns, data, isLoading, vendorName }) => {
       : obj[key];
   };
   const sortedData = useMemo(() => {
-    if (!sortConfig.key || sortConfig.order === "all") return data;
+    if (!sortConfig.length) return data;
 
     return [...data]?.sort((a, b) => {
-      const aValue = getValue(a, sortConfig.key);
-      const bValue = getValue(b, sortConfig.key);
+      for (const { key, order } of sortConfig) {
+        const aValue = getValue(a, key);
+        const bValue = getValue(b, key);
 
-      if (sortConfig?.key === "vendor[recent_addition_date]") {
-        return sortConfig?.order === "asc"
-          ? new Date(aValue) - new Date(bValue)
-          : new Date(bValue) - new Date(aValue);
+        let compareResult = 0;
+
+        if (key === "vendor[recent_addition_date]") {
+          compareResult = new Date(aValue) - new Date(bValue);
+        } else if (key === "vendor[vendor_name]") {
+          compareResult = (aValue || "").localeCompare(bValue || "");
+        } else {
+          compareResult = aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+        }
+
+        if (compareResult !== 0) {
+          return order === "asc" ? compareResult : -compareResult;
+        }
       }
-
-      if (sortConfig?.key === "vendor[vendor_name]") {
-        return sortConfig?.order === "asc"
-          ? aValue.localeCompare(bValue)
-          : bValue.localeCompare(aValue);
-      }
-
-      if (aValue < bValue) return sortConfig.order === "asc" ? -1 : 1;
-      if (aValue > bValue) return sortConfig.order === "asc" ? 1 : -1;
       return 0;
     });
   }, [data, sortConfig]);
@@ -74,20 +95,20 @@ const VendorsTable = ({ columns, data, isLoading, vendorName }) => {
             >
               {columns?.map((column) => (
                 <TableHead
-                  key={column.key}
+                  key={column?.key}
                   onClick={() => handleSort(column)}
                   className="cursor-pointer font-poppins !px-[0.75rem] font-semibold text-black md:max-h-[5.65rem] md:min-h-[2.65rem] 2xl:min-h-[4rem] self-center content-center leading-5 text-sm border-r items-center flex gap-1"
                 >
                   {column?.label}
-                  {sortConfig.key === column.key ? (
-                    sortConfig.order === "asc" ? (
+                  {(() => {
+                    const sort = sortConfig?.find((s) => s?.key === column?.key);
+                    if (!sort) return <ChevronsUpDown className="w-4 h-4" />;
+                    return sort.order === "asc" ? (
                       <ChevronUp className="w-4 h-4" />
                     ) : (
                       <ChevronDown className="w-4 h-4" />
-                    )
-                  ) : (
-                    <ChevronsUpDown className="w-4 h-4" />
-                  )}
+                    );
+                  })()}
                 </TableHead>
               ))}
             </TableRow>
