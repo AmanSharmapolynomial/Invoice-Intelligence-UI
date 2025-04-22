@@ -39,6 +39,7 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
   let assigned_to = searchParams.get("assigned_to");
   let auto_accepted_by_vda = searchParams.get("auto_accepted_by_vda") || "all";
   let restaurant_tier=searchParams.get('restaurant_tier')||"all"
+  let rejected=searchParams.get('rejected')||"all"
   let from_view = searchParams.get("from_view") || "";
   let payload = {
     page: page,
@@ -62,7 +63,8 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
     from_view: from_view?.includes("not-supported")
       ? "not-supported-documents"
       : "",
-      restaurant_tier
+      restaurant_tier,
+      rejected
   };
 
   const { data, isLoading, isPending, isFetched } =
