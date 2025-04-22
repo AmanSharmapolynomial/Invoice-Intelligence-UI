@@ -68,6 +68,7 @@ const MyTasks = () => {
   let sort_order = searchParams.get("sort_order") || "desc";
   let invoice_number = searchParams.get("invoice_number") || "";
   let assigned_to = searchParams.get("assigned_to");
+  let rejected = searchParams.get("rejected") || "all";
   let auto_accepted_by_vda = searchParams.get("auto_accepted_by_vda") || "all";
 
   let { userId } = userStore();
@@ -108,7 +109,8 @@ const MyTasks = () => {
     document_priority,
     auto_accepted_by_vda,
     review_later: "false",
-    restaurant_tier: restaurant_tier || "all"
+    restaurant_tier: restaurant_tier || "all",
+    rejected
   };
   const { data, isLoading } = useListInvoices(payload);
   useEffect(() => {

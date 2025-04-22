@@ -37,6 +37,7 @@ const InvoiceFilters = () => {
   let auto_accepted = searchParams.get("auto_accepted") || "all";
   let auto_accepted_by_vda = searchParams.get("auto_accepted_by_vda") || "all";
   let assigned_to = searchParams.get("assigned_to") || "none";
+  let rejected = searchParams.get("rejected") || "all";
   let start_date = searchParams.get("start_date") || "";
   let end_date = searchParams.get("end_date") || "";
   const { data: users, isLoading: loadingUsers } = useGetUsersList();
@@ -83,7 +84,8 @@ const InvoiceFilters = () => {
       // rerun_status: "all",
       detected: "all",
       auto_accepted: "all",
-      auto_accepted_by_vda: ""
+      auto_accepted_by_vda: "",
+      rejected:'all'
     };
 
     setFilters(defaultFilters);
@@ -95,7 +97,8 @@ const InvoiceFilters = () => {
       vendor: "",
       restaurant: "",
       assigned_to: "",
-      sort_order: "desc"
+      sort_order: "desc",
+         rejected:'all'
     });
 
     setRestaurantFilter("none");
@@ -169,6 +172,16 @@ const InvoiceFilters = () => {
             value={clickbacon_status}
             onSelect={(val) => updateFilter("clickbacon_status", val)}
             data={clickBACONStatusFilterOptions}
+          />
+        </div>
+        <div>
+          <CustomSelect
+            placeholder="All"
+            triggerClassName={"!w-full"}
+            label="Rejected"
+            value={rejected}
+            onSelect={(val) => updateFilter("rejected", val)}
+            data={AutoAcceptedFilterFilterOptions}
           />
         </div>
         {/* <div>
