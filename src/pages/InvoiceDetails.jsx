@@ -824,86 +824,82 @@ const InvoiceDetails = () => {
             />
           </div>
         )}
-        <div className="flex justify-end gap-x-2 items-center">
-        {metaData?.extraction_source&&
-          <p className="font-poppins font-medium text-sm leading-5 capitalize mx-4">Extraction Source :- {metaData?.extraction_source}</p>}
-          <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
-            <CustomDropDown
-              triggerClassName={"bg-gray-100"}
-              contentClassName={"bg-gray-100"}
-              Value={searchParams.get("restaurant") || restaurantFilterValue}
-              placeholder="All Restaurants"
-              multiSelect={true}
-              className={"!max-w-fit"}
-              data={formatRestaurantsList(
-                restaurantsList && restaurantsList?.data
-              )}
-              searchPlaceholder="Search Restaurant"
-              onChange={(val) => {
-                if (typeof val == "object") {
-                  let restaurant = val.map((item) => item).join(",");
-                  setFilters({ ...filters, restaurant: restaurant });
-                  updateParams({ restaurant: restaurant });
-                } else {
-                  if (val == "none") {
-                    updateParams({ restaurant: undefined });
-                    setFilters({ ...filters, restaurant: undefined });
+
+        <div className={`${metaData?.extraction_source?"justify-between":"justify-end"} flex  gap-x-2 items-center`}>
+          {/* <div className="flex items-center justify-start"> */}
+
+         {metaData?.extraction_source&& <CustomTooltip content={"Extraction Source"}>
+            {/* {metadata?.extraction_source && ( */}
+            <p className="font-poppins font-medium text-sm leading-5 capitalize px-4 border border-primary rounded-md py-0.5 cursor-pointer">
+              {metaData?.extraction_source}
+            </p>
+            {/* )} */}
+          </CustomTooltip>}
+          {/* </div> */}
+          <div className="flex items-center gap-x-2">
+            <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
+              <CustomDropDown
+                triggerClassName={"bg-gray-100"}
+                contentClassName={"bg-gray-100"}
+                Value={searchParams.get("restaurant") || restaurantFilterValue}
+                placeholder="All Restaurants"
+                multiSelect={true}
+                className={"!max-w-fit"}
+                data={formatRestaurantsList(
+                  restaurantsList && restaurantsList?.data
+                )}
+                searchPlaceholder="Search Restaurant"
+                onChange={(val) => {
+                  if (typeof val == "object") {
+                    let restaurant = val.map((item) => item).join(",");
+                    setFilters({ ...filters, restaurant: restaurant });
+                    updateParams({ restaurant: restaurant });
                   } else {
-                    updateParams({ restaurant: val });
-                    setFilters({ ...filters, restaurant: val });
+                    if (val == "none") {
+                      updateParams({ restaurant: undefined });
+                      setFilters({ ...filters, restaurant: undefined });
+                    } else {
+                      updateParams({ restaurant: val });
+                      setFilters({ ...filters, restaurant: val });
+                    }
                   }
-                }
-              }}
-            />{" "}
-            <CustomDropDown
-              Value={searchParams.get("vendor") || vendorFilterValue}
-              className={"!max-w-56"}
-              triggerClassName={"bg-gray-100"}
-              contentClassName={"bg-gray-100"}
-              data={vendorNamesFormatter(
-                vendorNamesList?.data && vendorNamesList?.data?.vendor_names
-              )}
-              multiSelect={true}
-              onChange={(val) => {
-                if (typeof val == "object") {
-                  let vendor = val.map((item) => item).join(",");
-                  updateParams({ vendor: vendor });
-                  setFilters({ ...filters, vendor: vendor });
-                } else {
-                  if (val == "none") {
-                    updateParams({ vendor: undefined });
-                    setFilters({ ...filters, vendor: undefined });
+                }}
+              />{" "}
+              <CustomDropDown
+                Value={searchParams.get("vendor") || vendorFilterValue}
+                className={"!max-w-56"}
+                triggerClassName={"bg-gray-100"}
+                contentClassName={"bg-gray-100"}
+                data={vendorNamesFormatter(
+                  vendorNamesList?.data && vendorNamesList?.data?.vendor_names
+                )}
+                multiSelect={true}
+                onChange={(val) => {
+                  if (typeof val == "object") {
+                    let vendor = val.map((item) => item).join(",");
+                    updateParams({ vendor: vendor });
+                    setFilters({ ...filters, vendor: vendor });
                   } else {
-                    setFilters({ ...filters, vendor: val });
+                    if (val == "none") {
+                      updateParams({ vendor: undefined });
+                      setFilters({ ...filters, vendor: undefined });
+                    } else {
+                      setFilters({ ...filters, vendor: val });
+                    }
                   }
-                }
-              }}
-              placeholder="All Vendors"
-              searchPlaceholder="Search Vendor Name"
-            />{" "}
-            <Sheet
-              className="!overflow-auto "
-              open={open}
-              onOpenChange={() => setOpen(!open)}
-            >
-              <SheetTrigger>
-                {" "}
-                <Button
-                  className={`bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000] ${
-                    open ||
-                    filters?.human_verified !== "all" ||
-                    filters?.human_verification !== "all" ||
-                    filters?.invoice_type !== "" ||
-                    filters?.start_date !== "" ||
-                    filters?.end_date !== "" ||
-                    filters?.clickbacon_status !== "" ||
-                    filters?.auto_accepted !== ""
-                      ? "!bg-primary !text-white"
-                      : "!bg-white"
-                  }   `}
-                >
-                  <Filter
-                    className={`${
+                }}
+                placeholder="All Vendors"
+                searchPlaceholder="Search Vendor Name"
+              />{" "}
+              <Sheet
+                className="!overflow-auto "
+                open={open}
+                onOpenChange={() => setOpen(!open)}
+              >
+                <SheetTrigger>
+                  {" "}
+                  <Button
+                    className={`bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000] ${
                       open ||
                       filters?.human_verified !== "all" ||
                       filters?.human_verification !== "all" ||
@@ -912,212 +908,230 @@ const InvoiceDetails = () => {
                       filters?.end_date !== "" ||
                       filters?.clickbacon_status !== "" ||
                       filters?.auto_accepted !== ""
-                        ? "!text-white"
-                        : ""
-                    } h-5  text-black/40 dark:text-white/50`}
-                  />
-                </Button>
-              </SheetTrigger>
-              <SheetContent className="min-w-fit !max-w-[20rem] !overflow-auto">
-                <SheetHeader>
-                  <SheetTitle>
-                    <div
-                      id="invoice-filters"
-                      className="flex justify-between items-center"
-                    >
-                      <p>Filters</p>
+                        ? "!bg-primary !text-white"
+                        : "!bg-white"
+                    }   `}
+                  >
+                    <Filter
+                      className={`${
+                        open ||
+                        filters?.human_verified !== "all" ||
+                        filters?.human_verification !== "all" ||
+                        filters?.invoice_type !== "" ||
+                        filters?.start_date !== "" ||
+                        filters?.end_date !== "" ||
+                        filters?.clickbacon_status !== "" ||
+                        filters?.auto_accepted !== ""
+                          ? "!text-white"
+                          : ""
+                      } h-5  text-black/40 dark:text-white/50`}
+                    />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent className="min-w-fit !max-w-[20rem] !overflow-auto">
+                  <SheetHeader>
+                    <SheetTitle>
                       <div
-                        className="flex items-center gap-x-2 cursor-pointer"
-                        onClick={() => setOpen(!open)}
+                        id="invoice-filters"
+                        className="flex justify-between items-center"
                       >
-                        <p className="text-sm font-poppins font-normal text-[#000000]">
-                          Collapse
-                        </p>
-                        <ArrowRight className="h-4 w-4 text-[#000000]" />
+                        <p>Filters</p>
+                        <div
+                          className="flex items-center gap-x-2 cursor-pointer"
+                          onClick={() => setOpen(!open)}
+                        >
+                          <p className="text-sm font-poppins font-normal text-[#000000]">
+                            Collapse
+                          </p>
+                          <ArrowRight className="h-4 w-4 text-[#000000]" />
+                        </div>
                       </div>
-                    </div>
-                  </SheetTitle>
-                </SheetHeader>
-                <InvoiceFilters />
-              </SheetContent>
-            </Sheet>
-          </div>
-          <div className="flex items-center gap-x-3">
-            <CustomTooltip content={"Click To Copy The Link."}>
-              <Button
-                onClick={() => {
-                  navigator.clipboard.writeText(
-                    `${window.location.origin}/invoice-details?document_uuid=${
-                      document_uuid ||
-                      data?.data?.[0]?.document_uuid ||
-                      data?.data?.document_uuid
-                    }`
-                  );
-                  toast.success("Link copied to clipboard");
-                }}
-                disabled={markingForReview}
-                className="bg-transparent h-[2.4rem] border-primary w-[3rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
-              >
-                <Share2 className="dark:text-white" />
-              </Button>
-            </CustomTooltip>
-
-            <DocumentNotes
-              data={documentNotes?.data}
-              document_uuid={
-                data?.data?.document_uuid || data?.data?.[0]?.document_uuid
-              }
-              isLoading={loadingDocumentNotes}
-            />
-
-            <VendorNotes
-              data={vendorNotes?.data}
-              isLoading={loadingVendorNotes}
-              vendor_id={
-                data?.data?.vendor?.vendor_id ||
-                data?.data?.[0]?.vendor?.vendor_id
-              }
-            />
-            {(role?.toLowerCase() == "admin" ||
-              role?.toLowerCase() == "manager") && (
-              <CustomTooltip content={"Click To reset the invoice status ."}>
+                    </SheetTitle>
+                  </SheetHeader>
+                  <InvoiceFilters />
+                </SheetContent>
+              </Sheet>
+            </div>
+            <div className="flex items-center gap-x-3">
+              <CustomTooltip content={"Click To Copy The Link."}>
                 <Button
                   onClick={() => {
-                    setLoadingState((prev) => ({ ...prev, reverting: true }));
-                    revertChanges(
-                      data?.data?.document_uuid ||
-                        data?.data?.[0]?.document_uuid,
-                      {
-                        onSuccess: () => {
-                          setLoadingState((prev) => ({
-                            ...prev,
-                            reverting: false
-                          }));
-                        },
-                        onError: () => {
-                          setLoadingState((prev) => ({
-                            ...prev,
-                            reverting: false
-                          }));
-                        }
-                      }
+                    navigator.clipboard.writeText(
+                      `${
+                        window.location.origin
+                      }/invoice-details?document_uuid=${
+                        document_uuid ||
+                        data?.data?.[0]?.document_uuid ||
+                        data?.data?.document_uuid
+                      }`
                     );
+                    toast.success("Link copied to clipboard");
                   }}
-                  disabled={loadingState?.reverting}
-                  className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                  disabled={markingForReview}
+                  className="bg-transparent h-[2.4rem] border-primary w-[3rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                 >
-                  {loadingState?.reverting ? "Resetting.." : "Reset Status"}
+                  <Share2 className="dark:text-white" />
                 </Button>
               </CustomTooltip>
-            )}
-            <CustomTooltip
-              content={
-                action_controls?.review_later?.disabled
-                  ? action_controls?.review_later?.reason
-                  : "Click To Mark It For A Review."
-              }
-            >
-              <Button
-                onClick={() => {
-                  setMarkForReviewModal(true);
-                  return;
-                }}
-                disabled={
-                  action_controls?.review_later?.disabled || markingForReview
+
+              <DocumentNotes
+                data={documentNotes?.data}
+                document_uuid={
+                  data?.data?.document_uuid || data?.data?.[0]?.document_uuid
                 }
-                className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                isLoading={loadingDocumentNotes}
+              />
+
+              <VendorNotes
+                data={vendorNotes?.data}
+                isLoading={loadingVendorNotes}
+                vendor_id={
+                  data?.data?.vendor?.vendor_id ||
+                  data?.data?.[0]?.vendor?.vendor_id
+                }
+              />
+              {(role?.toLowerCase() == "admin" ||
+                role?.toLowerCase() == "manager") && (
+                <CustomTooltip content={"Click To reset the invoice status ."}>
+                  <Button
+                    onClick={() => {
+                      setLoadingState((prev) => ({ ...prev, reverting: true }));
+                      revertChanges(
+                        data?.data?.document_uuid ||
+                          data?.data?.[0]?.document_uuid,
+                        {
+                          onSuccess: () => {
+                            setLoadingState((prev) => ({
+                              ...prev,
+                              reverting: false
+                            }));
+                          },
+                          onError: () => {
+                            setLoadingState((prev) => ({
+                              ...prev,
+                              reverting: false
+                            }));
+                          }
+                        }
+                      );
+                    }}
+                    disabled={loadingState?.reverting}
+                    className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                  >
+                    {loadingState?.reverting ? "Resetting.." : "Reset Status"}
+                  </Button>
+                </CustomTooltip>
+              )}
+              <CustomTooltip
+                content={
+                  action_controls?.review_later?.disabled
+                    ? action_controls?.review_later?.reason
+                    : "Click To Mark It For A Review."
+                }
               >
-                Review Later
-              </Button>
-            </CustomTooltip>
-            <CustomTooltip
-              content={
-                action_controls?.reject?.disabled
-                  ? action_controls?.reject?.reason
-                  : "Click To Reject This Document."
-              }
-            >
-              <Button
-                onClick={() => {
-                  setShowRejectionModal(true);
-                }}
-                disabled={action_controls?.reject?.disabled}
-                className="bg-transparent w-[6.5rem] dark:text-white h-[2.4rem] border-[#F15156]  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
-              >
-                Reject
-              </Button>
-            </CustomTooltip>
-            <CustomTooltip
-              className={"!max-w-72"}
-              content={
-                !warning_checkbox_checked
-                  ? "Please check vendor name checkbox."
-                  : action_controls?.accept?.disabled
-                  ? action_controls?.accept?.reason
-                  : "Click To Accept This Document."
-              }
-            >
-              <Button
-                onClick={() => {
-                  if (
-                    (is_unverified_vendor &&
-                      similarVendors?.data?.length > 0) ||
-                    (is_unverified_branch && similarBranches?.data?.length > 0)
-                  ) {
-                    setShowAcceptModal(true);
-                    setClickedOnAcceptButton(true);
-                    setShowSimilarVendorsAndBranchesWarningModal(false);
-                  } else {
-                    handleAccept();
+                <Button
+                  onClick={() => {
+                    setMarkForReviewModal(true);
+                    return;
+                  }}
+                  disabled={
+                    action_controls?.review_later?.disabled || markingForReview
                   }
-                }}
-                disabled={
-                  !warning_checkbox_checked ||
-                  action_controls?.accept?.disabled ||
-                  loadingState?.accepting
+                  className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                >
+                  Review Later
+                </Button>
+              </CustomTooltip>
+              <CustomTooltip
+                content={
+                  action_controls?.reject?.disabled
+                    ? action_controls?.reject?.reason
+                    : "Click To Reject This Document."
                 }
-                className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
               >
-                {loadingState?.accepting ? "Accepting..." : "Accept"}
-              </Button>
-            </CustomTooltip>
-
-            <CustomTooltip
-              content={
-                action_controls?.mark_as_not_supported?.disabled
-                  ? action_controls?.mark_as_not_supported?.reason
-                  : "Click To Mark This Document As Not Supported."
-              }
-            >
-              <Button
-                disabled={action_controls?.mark_as_not_supported?.disabled}
-                onClick={() => setMarkAsNotSupportedModal(true)}
-                className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[7.25rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
-              >
-                Not Supported
-              </Button>
-            </CustomTooltip>
-
-            <CustomTooltip
-              content={
-                action_controls?.save?.disabled
-                  ? action_controls?.save?.reason
-                  : "Click To Save This Document."
-              }
-            >
-              <Button
-                disabled={
-                  action_controls?.save?.disabled ||
-                  loadingState?.saving ||
-                  loadingState?.rejecting ||
-                  loadingState?.accepting
+                <Button
+                  onClick={() => {
+                    setShowRejectionModal(true);
+                  }}
+                  disabled={action_controls?.reject?.disabled}
+                  className="bg-transparent w-[6.5rem] dark:text-white h-[2.4rem] border-[#F15156]  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                >
+                  Reject
+                </Button>
+              </CustomTooltip>
+              <CustomTooltip
+                className={"!max-w-72"}
+                content={
+                  !warning_checkbox_checked
+                    ? "Please check vendor name checkbox."
+                    : action_controls?.accept?.disabled
+                    ? action_controls?.accept?.reason
+                    : "Click To Accept This Document."
                 }
-                onClick={() => handleSave()}
-                className="font-poppins h-[2.4rem] dark:text-white font-normal text-sm leading-5 border-2 border-primary text-[#ffffff]"
               >
-                {loadingState?.saving ? "Saving..." : "Save"}
-              </Button>
-            </CustomTooltip>
+                <Button
+                  onClick={() => {
+                    if (
+                      (is_unverified_vendor &&
+                        similarVendors?.data?.length > 0) ||
+                      (is_unverified_branch &&
+                        similarBranches?.data?.length > 0)
+                    ) {
+                      setShowAcceptModal(true);
+                      setClickedOnAcceptButton(true);
+                      setShowSimilarVendorsAndBranchesWarningModal(false);
+                    } else {
+                      handleAccept();
+                    }
+                  }}
+                  disabled={
+                    !warning_checkbox_checked ||
+                    action_controls?.accept?.disabled ||
+                    loadingState?.accepting
+                  }
+                  className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                >
+                  {loadingState?.accepting ? "Accepting..." : "Accept"}
+                </Button>
+              </CustomTooltip>
+
+              <CustomTooltip
+                content={
+                  action_controls?.mark_as_not_supported?.disabled
+                    ? action_controls?.mark_as_not_supported?.reason
+                    : "Click To Mark This Document As Not Supported."
+                }
+              >
+                <Button
+                  disabled={action_controls?.mark_as_not_supported?.disabled}
+                  onClick={() => setMarkAsNotSupportedModal(true)}
+                  className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[7.25rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                >
+                  Not Supported
+                </Button>
+              </CustomTooltip>
+
+              <CustomTooltip
+                content={
+                  action_controls?.save?.disabled
+                    ? action_controls?.save?.reason
+                    : "Click To Save This Document."
+                }
+              >
+                <Button
+                  disabled={
+                    action_controls?.save?.disabled ||
+                    loadingState?.saving ||
+                    loadingState?.rejecting ||
+                    loadingState?.accepting
+                  }
+                  onClick={() => handleSave()}
+                  className="font-poppins h-[2.4rem] dark:text-white font-normal text-sm leading-5 border-2 border-primary text-[#ffffff]"
+                >
+                  {loadingState?.saving ? "Saving..." : "Save"}
+                </Button>
+              </CustomTooltip>
+            </div>
           </div>
         </div>
 
@@ -1663,27 +1677,31 @@ const InvoiceDetails = () => {
           </div>
         )}
 
-       {clickedOnAcceptButton&& <div className="flex justify-center mt-4 mb-2 gap-x-4">
-          <Button 
-          onClick={()=>{
-            handleAccept();
-            setShowAcceptModal(false);
-            setClickedOnAcceptButton(false);
-            setShowSimilarVendorsAndBranchesWarningModal(false);
-
-          }}
-          className="rounded-sm font-normal font-poppins ">Accept</Button>
-          <Button
-            className="rounded-sm font-normal font-poppins bg-transparent hover:bg-transparent border border-primary text-black"
-            onClick={() => {
-              setShowAcceptModal(false);
-              setClickedOnAcceptButton(false);
-              setShowSimilarVendorsAndBranchesWarningModal(false);
-            }}
-          >
-            Close
-          </Button>
-        </div>}
+        {clickedOnAcceptButton && (
+          <div className="flex justify-center mt-4 mb-2 gap-x-4">
+            <Button
+              onClick={() => {
+                handleAccept();
+                setShowAcceptModal(false);
+                setClickedOnAcceptButton(false);
+                setShowSimilarVendorsAndBranchesWarningModal(false);
+              }}
+              className="rounded-sm font-normal font-poppins "
+            >
+              Accept
+            </Button>
+            <Button
+              className="rounded-sm font-normal font-poppins bg-transparent hover:bg-transparent border border-primary text-black"
+              onClick={() => {
+                setShowAcceptModal(false);
+                setClickedOnAcceptButton(false);
+                setShowSimilarVendorsAndBranchesWarningModal(false);
+              }}
+            >
+              Close
+            </Button>
+          </div>
+        )}
       </ResizableModal>
     </div>
   );
