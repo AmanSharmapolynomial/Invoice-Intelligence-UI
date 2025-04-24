@@ -824,7 +824,9 @@ const InvoiceDetails = () => {
             />
           </div>
         )}
-        <div className="flex justify-end gap-x-2">
+        <div className="flex justify-end gap-x-2 items-center">
+        {metaData?.extraction_source&&
+          <p className="font-poppins font-medium text-sm leading-5 capitalize mx-4">Extraction Source :- {metaData?.extraction_source}</p>}
           <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
             <CustomDropDown
               triggerClassName={"bg-gray-100"}
