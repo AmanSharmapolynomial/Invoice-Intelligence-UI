@@ -338,44 +338,50 @@ export const vendorConsolidationHeaders = [
 export const invoiceTableHeaders = [
   {
     label: "Invoice #",
-    styling: "w-[11.1111111%]  justify-start"
+    styling: "w-[10%]  justify-start"
   },
 
   {
     label: "Restaurant",
-    styling: "!w-[11.1111111%]  !justify-start"
+    styling: "!w-[10%]  !justify-start"
   },
   {
     label: "Vendor",
-    styling: "!w-[11.1111111%]"
+    styling: "!w-[10%]"
   },
   {
     label: "Load Date",
-    styling: "w-[11.1111111%] !justify-start "
+    styling: "!w-[10%] !justify-start "
   },
   {
     label: "Due Time",
-      styling: "w-[11.1111111%] justify-start pl-[0.9rem] "
+      styling: "!w-[10%] justify-start pl-[0.9rem] "
   },
   {
     label: "Invoice Status",
-    styling: "w-[11.1111111%] justify-start pl-[1rem]"
+    styling: "!w-[10%] justify-start pl-[1rem]"
   },
 
   {
     label: "clickBACON Status",
-    styling: "w-[11.1111111%]  pl-[0.9rem]"
+    styling: "!w-[10%]  pl-[0.9rem]"
   },
 
 
   {
     label: "Invoice Type",
-    styling: "min-w-[11.1111111%] justify-start  pl-[0.9rem]"
+    styling: "min-w-[10%] justify-start  pl-[0.9rem]"
   },
   {
     label: "Human Verification Date",
-    styling: "min-w-[11.1111111%] justify-center text-center pl-[0.9rem]"
-  }
+    styling: "min-w-[10%] justify-center text-center pl-[0.9rem]"
+  },
+  
+  {
+    label: "Extraction Source",
+    styling: "min-w-[10%] justify-center text-center pl-[0.9rem]"
+  },
+
 ];
 
 export const rawMetaDataHeaders = [
