@@ -52,6 +52,7 @@ const NotSupportedDocuments = () => {
     searchParams.get("invoice_detection_status") || filters?.detected;
   let rerun_status =
     searchParams.get("rerun_status") || filters?.human_verified;
+    let rejected = searchParams.get("rejected") || "all";
   let auto_accepted =
     searchParams.get("auto_accepted") || filters?.auto_accepted;
   let start_date = searchParams.get("start_date") || filters?.start_date;
@@ -66,6 +67,7 @@ const NotSupportedDocuments = () => {
   let sort_order = searchParams.get("sort_order") || "desc";
   let invoice_number = searchParams.get("invoice_number") || "";
   let assigned_to = searchParams.get("assigned_to");
+  
   let document_priority = searchParams.get("document_priority") || "all";
   let restaurant_tier =
     searchParams.get("restaurant_tier") == "null" ||
@@ -105,7 +107,8 @@ const NotSupportedDocuments = () => {
     document_priority,
     review_later: false,
     supported_documents: false,
-    restaurant_tier:restaurant_tier||"all"
+    restaurant_tier:restaurant_tier||"all",
+    rejected
   };
   const { data, isLoading } = useListInvoices(payload);
   useEffect(() => {
