@@ -81,7 +81,7 @@ const ResizableModal = ({
         style={{
           width: `${size.width}px !important`,
      
-          top: `${position.y}px !important`,
+          top: `${position.y}px`,
           left: `${position.x}px`,
           position: "fixed", // Fixed for full-screen movement
           pointerEvents: "auto",
