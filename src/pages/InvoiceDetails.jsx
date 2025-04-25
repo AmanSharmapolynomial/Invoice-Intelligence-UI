@@ -74,6 +74,7 @@ import {
   Filter,
   Info,
   Menu,
+  NotebookTabs,
   Share2,
   X
 } from "lucide-react";
@@ -102,6 +103,14 @@ import {
 } from "@/components/ui/tooltip";
 import userStore from "@/components/auth/store/userStore";
 import ResizableModal from "@/components/ui/Custom/ResizeableModal";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 
 const rejectionReasons = [
   "Duplicate invoice",
@@ -555,8 +564,45 @@ const InvoiceDetails = () => {
     data?.data?.[0]?.restaurant?.tier ||
     data?.data?.restaurant?.tier ||
     data?.data?.[0]?.restaurant?.tier;
+  const [showAiNotesModal, setShowAiNotesModal] = useState(false);
   return (
     <div className="hide-scrollbar relative">
+      {/* <div> */}{" "}
+      <ResizableModal
+        title={"AI Notes"}
+        y={50}
+        x={500}
+        width={200}
+        isOpen={showAiNotesModal}
+        onClose={() => {
+          setShowAiNotesModal(false);
+        }}
+      >
+        <span className="font-poppins font-semibold p-2 text-base">
+          AI Notes
+        </span>
+        <div className="flex flex-col gap-y-4 max-h-96 overflow-auto my-4">
+          {metaData?.ai_notes?.length > 0 &&
+            metaData?.ai_notes?.map(({ note_type, note, created_at }) => {
+              return (
+                <div key={note} className="bg-accent rounded-md z-10 px-2">
+                  <div className="w-96">
+                    <p className="font-poppins font-semibold capitalize text-sm border-b py-2">
+                      {note_type}
+                    </p>
+                    <p className="max-w-96 font-poppins font-medium text-xs mt-1 leading-5">
+                      {note}
+                    </p>
+                    <p className="max-w-96 font-poppins font-medium text-xs mt-1.5 text-end leading-5">
+                      {formatDateToReadable(created_at)}{" "}
+                      {created_at?.split(".")?.[0]?.split("T")[1]}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+        </div>
+      </ResizableModal>
       <Navbar />
       <Sheet>
         <SheetTrigger asChild>
@@ -624,10 +670,10 @@ const InvoiceDetails = () => {
           })}
         </SheetContent>
       </Sheet>
-
+      {/* </div> */}
       <Layout
         className={
-          "mx-6 rounded-md  hide-scrollbar   !shadow-none flex flex-1 flex-col justify-between gap-y-4   "
+          "mx-6 rounded-md  hide-scrollbar  !relative !shadow-none flex flex-1 flex-col justify-between gap-y-4   "
         }
       >
         <BreadCrumb
@@ -825,16 +871,22 @@ const InvoiceDetails = () => {
           </div>
         )}
 
-        <div className={`${metaData?.extraction_source?"justify-between":"justify-end"} flex  gap-x-2 items-center`}>
+        <div
+          className={`${
+            metaData?.extraction_source ? "justify-between" : "justify-end"
+          } flex  gap-x-2 items-center`}
+        >
           {/* <div className="flex items-center justify-start"> */}
 
-         {metaData?.extraction_source&& <CustomTooltip content={"Extraction Source"}>
-            {/* {metadata?.extraction_source && ( */}
-            <p className="font-poppins font-medium text-sm leading-5 capitalize px-4 border border-primary rounded-md py-0.5 cursor-pointer">
-              {metaData?.extraction_source}
-            </p>
-            {/* )} */}
-          </CustomTooltip>}
+          {metaData?.extraction_source && (
+            <CustomTooltip content={"Extraction Source"}>
+              {/* {metadata?.extraction_source && ( */}
+              <p className="font-poppins font-medium text-sm leading-5 capitalize px-4 border border-primary rounded-md py-0.5 cursor-pointer">
+                {metaData?.extraction_source}
+              </p>
+              {/* )} */}
+            </CustomTooltip>
+          )}
           {/* </div> */}
           <div className="flex items-center gap-x-2">
             <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
@@ -973,6 +1025,23 @@ const InvoiceDetails = () => {
                   <Share2 className="dark:text-white" />
                 </Button>
               </CustomTooltip>
+              {metaData?.ai_notes?.length > 0 && (
+                <CustomTooltip content={"AI Notes"}>
+                  <Button
+                    onClick={() => {
+                      setShowAiNotesModal(!showAiNotesModal);
+                    }}
+                    disabled={markingForReview}
+                    className="bg-transparent h-[2.4rem] fixed bottom-5 left-4 border-primary w-[3rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                  >
+                    <div className="w-full h-full relative">
+
+                    <NotebookTabs className="dark:text-white" />
+                    <p className="absolute px-2 rounded-full border bg-primary  -top-5 -right-6 text-white">{metaData?.ai_notes?.length}</p>
+                    </div>
+                  </Button>
+                </CustomTooltip>
+              )}
 
               <DocumentNotes
                 data={documentNotes?.data}
@@ -1390,7 +1459,6 @@ const InvoiceDetails = () => {
           </ModalDescription>
         </Modal>
       </Layout>
-
       <Modal
         iconCN={"top-[28px]"}
         open={showDuplicateInvoicesModal}
@@ -1492,7 +1560,6 @@ const InvoiceDetails = () => {
           </div>
         </ModalDescription>
       </Modal>
-
       <ResizableModal
         isOpen={showAcceptModal}
         onClose={() => setShowAcceptModal()}
