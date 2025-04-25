@@ -567,6 +567,42 @@ const InvoiceDetails = () => {
   const [showAiNotesModal, setShowAiNotesModal] = useState(false);
   return (
     <div className="hide-scrollbar relative">
+      {/* <div> */}{" "}
+      <ResizableModal
+        title={"AI Notes"}
+        y={50}
+        x={500}
+        width={200}
+        isOpen={showAiNotesModal}
+        onClose={() => {
+          setShowAiNotesModal(false);
+        }}
+      >
+        <span className="font-poppins font-semibold p-2 text-base">
+          AI Notes
+        </span>
+        <div className="flex flex-col gap-y-4 max-h-96 overflow-auto my-4">
+          {metaData?.ai_notes?.length > 0 &&
+            metaData?.ai_notes?.map(({ note_type, note, created_at }) => {
+              return (
+                <div key={note} className="bg-accent rounded-md z-10 px-2">
+                  <div className="w-96">
+                    <p className="font-poppins font-semibold capitalize text-sm border-b py-2">
+                      {note_type}
+                    </p>
+                    <p className="max-w-96 font-poppins font-medium text-xs mt-1 leading-5">
+                      {note}
+                    </p>
+                    <p className="max-w-96 font-poppins font-medium text-xs mt-1.5 text-end leading-5">
+                      {formatDateToReadable(created_at)}{" "}
+                      {created_at?.split(".")?.[0]?.split("T")[1]}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+        </div>
+      </ResizableModal>
       <Navbar />
       <Sheet>
         <SheetTrigger asChild>
@@ -634,47 +670,12 @@ const InvoiceDetails = () => {
           })}
         </SheetContent>
       </Sheet>
-      <ResizableModal
-        title={"AI Notes"}
-        y={50}
-        x={500}
-        width={200}
-        isOpen={showAiNotesModal}
-        onClose={() => {
-          setShowAiNotesModal(false);
-        }}
-      >
-        <span className="font-poppins font-semibold p-2 text-base">AI Notes</span>
-        <div className="flex flex-col gap-y-4 max-h-96 overflow-auto my-4">
-          {metaData?.ai_notes?.length > 0 &&
-            metaData?.ai_notes?.map(({ note_type, note, created_at }) => {
-              return (
-                <div key={note} className="bg-accent rounded-md z-10 px-2">
-                  <div className="w-96">
-                    <p className="font-poppins font-semibold capitalize text-sm border-b py-2">
-                      {note_type}
-                    </p>
-                    <p className="max-w-96 font-poppins font-medium text-xs mt-1 leading-5">
-                      {note}
-                    </p>
-                    <p className="max-w-96 font-poppins font-medium text-xs mt-1.5 text-end leading-5">
-                      {formatDateToReadable(created_at)}{" "}
-                      {created_at?.split(".")?.[0]?.split("T")[1]}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-        </div>
-      </ResizableModal>
       {/* </div> */}
       <Layout
         className={
           "mx-6 rounded-md  hide-scrollbar  !relative !shadow-none flex flex-1 flex-col justify-between gap-y-4   "
         }
       >
-        {/* <div> */}
-
         <BreadCrumb
           showCustom={true}
           hideTitle={true}
@@ -1028,12 +1029,16 @@ const InvoiceDetails = () => {
                 <CustomTooltip content={"AI Notes"}>
                   <Button
                     onClick={() => {
-                      setShowAiNotesModal(true);
+                      setShowAiNotesModal(!showAiNotesModal);
                     }}
                     disabled={markingForReview}
                     className="bg-transparent h-[2.4rem] fixed bottom-5 left-4 border-primary w-[3rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                   >
+                    <div className="w-full h-full relative">
+
                     <NotebookTabs className="dark:text-white" />
+                    <p className="absolute px-2 rounded-full border bg-primary  -top-5 -right-6 text-white">{metaData?.ai_notes?.length}</p>
+                    </div>
                   </Button>
                 </CustomTooltip>
               )}
@@ -1454,7 +1459,6 @@ const InvoiceDetails = () => {
           </ModalDescription>
         </Modal>
       </Layout>
-
       <Modal
         iconCN={"top-[28px]"}
         open={showDuplicateInvoicesModal}
@@ -1556,7 +1560,6 @@ const InvoiceDetails = () => {
           </div>
         </ModalDescription>
       </Modal>
-
       <ResizableModal
         isOpen={showAcceptModal}
         onClose={() => setShowAcceptModal()}
