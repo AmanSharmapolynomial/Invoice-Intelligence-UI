@@ -636,6 +636,8 @@ const InvoiceDetails = () => {
       </Sheet>
       <ResizableModal
         title={"AI Notes"}
+        y={50}
+        x={500}
         width={200}
         isOpen={showAiNotesModal}
         onClose={() => {
@@ -1029,7 +1031,7 @@ const InvoiceDetails = () => {
                       setShowAiNotesModal(true);
                     }}
                     disabled={markingForReview}
-                    className="bg-transparent h-[2.4rem] border-primary w-[3rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                    className="bg-transparent h-[2.4rem] fixed bottom-5 left-4 border-primary w-[3rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                   >
                     <NotebookTabs className="dark:text-white" />
                   </Button>
