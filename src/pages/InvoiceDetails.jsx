@@ -564,6 +564,7 @@ const InvoiceDetails = () => {
     data?.data?.[0]?.restaurant?.tier ||
     data?.data?.restaurant?.tier ||
     data?.data?.[0]?.restaurant?.tier;
+  const [showAiNotesModal, setShowAiNotesModal] = useState(false);
   return (
     <div className="hide-scrollbar relative">
       <Navbar />
@@ -633,30 +634,20 @@ const InvoiceDetails = () => {
           })}
         </SheetContent>
       </Sheet>
-      <DropdownMenu>
-        {metaData?.ai_notes?.length > 0 && (
-          <DropdownMenuTrigger className="fixed   bottom-10 right-4 z-50">
-            <CustomTooltip content={"AI Notes"}>
-              {/* {metadata?.extraction_source && ( */}
-              <div className="bg-white h-12 flex items-center justify-center w-12 rounded-full z-50">
-                <NotebookTabs className="" />
-              </div>
-              {/* )} */}
-            </CustomTooltip>
-          </DropdownMenuTrigger>
-        )}
-        <DropdownMenuContent className="mr-4 max-h-96 overflow-auto relative flex flex-col gap-y-2 px-2">
-          <p className="p-2 font-semibold text-base font-poppins sticky top-0 z-50 w-full bg-white">
-            AI Notes
-          </p>
-          
+      <ResizableModal
+        title={"AI Notes"}
+        width={200}
+        isOpen={showAiNotesModal}
+        onClose={() => {
+          setShowAiNotesModal(false);
+        }}
+      >
+        <span className="font-poppins font-semibold p-2 text-base">AI Notes</span>
+        <div className="flex flex-col gap-y-4 max-h-96 overflow-auto my-4">
           {metaData?.ai_notes?.length > 0 &&
             metaData?.ai_notes?.map(({ note_type, note, created_at }) => {
               return (
-                <DropdownMenuItem
-                  key={note}
-                  className="bg-accent rounded-md z-10"
-                >
+                <div key={note} className="bg-accent rounded-md z-10 px-2">
                   <div className="w-96">
                     <p className="font-poppins font-semibold capitalize text-sm border-b py-2">
                       {note_type}
@@ -669,11 +660,11 @@ const InvoiceDetails = () => {
                       {created_at?.split(".")?.[0]?.split("T")[1]}
                     </p>
                   </div>
-                </DropdownMenuItem>
+                </div>
               );
             })}
-        </DropdownMenuContent>
-      </DropdownMenu>
+        </div>
+      </ResizableModal>
       {/* </div> */}
       <Layout
         className={
@@ -1031,6 +1022,19 @@ const InvoiceDetails = () => {
                   <Share2 className="dark:text-white" />
                 </Button>
               </CustomTooltip>
+              {metaData?.ai_notes?.length > 0 && (
+                <CustomTooltip content={"AI Notes"}>
+                  <Button
+                    onClick={() => {
+                      setShowAiNotesModal(true);
+                    }}
+                    disabled={markingForReview}
+                    className="bg-transparent h-[2.4rem] border-primary w-[3rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                  >
+                    <NotebookTabs className="dark:text-white" />
+                  </Button>
+                </CustomTooltip>
+              )}
 
               <DocumentNotes
                 data={documentNotes?.data}
