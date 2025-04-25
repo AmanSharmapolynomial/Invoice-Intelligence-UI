@@ -1026,7 +1026,7 @@ const InvoiceDetails = () => {
                 </Button>
               </CustomTooltip>
               {metaData?.ai_notes?.length > 0 && (
-                <CustomTooltip content={"AI Notes"}>
+            
                   <Button
                     onClick={() => {
                       setShowAiNotesModal(!showAiNotesModal);
@@ -1040,7 +1040,7 @@ const InvoiceDetails = () => {
                     <p className="absolute px-2 rounded-full border bg-primary  -top-5 -right-6 text-white">{metaData?.ai_notes?.length}</p>
                     </div>
                   </Button>
-                </CustomTooltip>
+              
               )}
 
               <DocumentNotes
