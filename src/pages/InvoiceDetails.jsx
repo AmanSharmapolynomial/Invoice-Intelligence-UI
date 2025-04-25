@@ -74,6 +74,7 @@ import {
   Filter,
   Info,
   Menu,
+  NotebookTabs,
   Share2,
   X
 } from "lucide-react";
@@ -102,6 +103,14 @@ import {
 } from "@/components/ui/tooltip";
 import userStore from "@/components/auth/store/userStore";
 import ResizableModal from "@/components/ui/Custom/ResizeableModal";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 
 const rejectionReasons = [
   "Duplicate invoice",
@@ -624,12 +633,55 @@ const InvoiceDetails = () => {
           })}
         </SheetContent>
       </Sheet>
-
+      <DropdownMenu>
+        {metaData?.ai_notes?.length > 0 && (
+          <DropdownMenuTrigger className="fixed   bottom-10 right-4 z-50">
+            <CustomTooltip content={"AI Notes"}>
+              {/* {metadata?.extraction_source && ( */}
+              <div className="bg-white h-12 flex items-center justify-center w-12 rounded-full z-50">
+                <NotebookTabs className="" />
+              </div>
+              {/* )} */}
+            </CustomTooltip>
+          </DropdownMenuTrigger>
+        )}
+        <DropdownMenuContent className="mr-4 max-h-96 overflow-auto relative flex flex-col gap-y-2 px-2">
+          <p className="p-2 font-semibold text-base font-poppins sticky top-0 z-50 w-full bg-white">
+            AI Notes
+          </p>
+          
+          {metaData?.ai_notes?.length > 0 &&
+            metaData?.ai_notes?.map(({ note_type, note, created_at }) => {
+              return (
+                <DropdownMenuItem
+                  key={note}
+                  className="bg-accent rounded-md z-10"
+                >
+                  <div className="w-96">
+                    <p className="font-poppins font-semibold capitalize text-sm border-b py-2">
+                      {note_type}
+                    </p>
+                    <p className="max-w-96 font-poppins font-medium text-xs mt-1 leading-5">
+                      {note}
+                    </p>
+                    <p className="max-w-96 font-poppins font-medium text-xs mt-1.5 text-end leading-5">
+                      {formatDateToReadable(created_at)}{" "}
+                      {created_at?.split(".")?.[0]?.split("T")[1]}
+                    </p>
+                  </div>
+                </DropdownMenuItem>
+              );
+            })}
+        </DropdownMenuContent>
+      </DropdownMenu>
+      {/* </div> */}
       <Layout
         className={
-          "mx-6 rounded-md  hide-scrollbar   !shadow-none flex flex-1 flex-col justify-between gap-y-4   "
+          "mx-6 rounded-md  hide-scrollbar  !relative !shadow-none flex flex-1 flex-col justify-between gap-y-4   "
         }
       >
+        {/* <div> */}
+
         <BreadCrumb
           showCustom={true}
           hideTitle={true}
@@ -825,16 +877,22 @@ const InvoiceDetails = () => {
           </div>
         )}
 
-        <div className={`${metaData?.extraction_source?"justify-between":"justify-end"} flex  gap-x-2 items-center`}>
+        <div
+          className={`${
+            metaData?.extraction_source ? "justify-between" : "justify-end"
+          } flex  gap-x-2 items-center`}
+        >
           {/* <div className="flex items-center justify-start"> */}
 
-         {metaData?.extraction_source&& <CustomTooltip content={"Extraction Source"}>
-            {/* {metadata?.extraction_source && ( */}
-            <p className="font-poppins font-medium text-sm leading-5 capitalize px-4 border border-primary rounded-md py-0.5 cursor-pointer">
-              {metaData?.extraction_source}
-            </p>
-            {/* )} */}
-          </CustomTooltip>}
+          {metaData?.extraction_source && (
+            <CustomTooltip content={"Extraction Source"}>
+              {/* {metadata?.extraction_source && ( */}
+              <p className="font-poppins font-medium text-sm leading-5 capitalize px-4 border border-primary rounded-md py-0.5 cursor-pointer">
+                {metaData?.extraction_source}
+              </p>
+              {/* )} */}
+            </CustomTooltip>
+          )}
           {/* </div> */}
           <div className="flex items-center gap-x-2">
             <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
