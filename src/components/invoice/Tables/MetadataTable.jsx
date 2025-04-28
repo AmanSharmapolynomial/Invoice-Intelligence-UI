@@ -65,7 +65,7 @@ const MetadataTable = ({
   const [updatingCategoriesAndTypes, setUpdatingCategoriesAndTypes] =
     useState(false);
   const { data: vendorsData, isLoading: loadingVendors } =
-    useGetVendorsNames(false);
+    useGetVendorsNames(true);
   const { mutate: updateVendorTypesAndCategories } =
     useUpdateVendorTypesAndCategories();
   const navigate = useNavigate();

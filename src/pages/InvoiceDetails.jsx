@@ -6,6 +6,7 @@ import tier_3 from "@/assets/image/tier_3.svg";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import { PdfViewer } from "@/components/common/PDFViewer";
+import copy from "@/assets/image/copy.svg";
 import {
   useFindDuplicateInvoices,
   useGetDocumentNotes,
@@ -353,8 +354,14 @@ const InvoiceDetails = () => {
   };
 
   const handleAccept = () => {
-    setLoadingState({ ...loadingState, accepting: true });
-    metaData["human_verified"] = true;
+  
+
+      
+if(operations?.filter((it)=>it?.type=="update_cell")?.find((it)=>it?.data?.text=="Unknown")?.data?.text){
+return toast.error("There is Unknown Category in the table")
+}
+setLoadingState({ ...loadingState, accepting: true });
+metaData["human_verified"] = true;
     updateTable(
       {
         document_uuid: metaData?.document_uuid,
@@ -587,11 +594,29 @@ const InvoiceDetails = () => {
               return (
                 <div key={note} className="bg-accent rounded-md z-10 px-2">
                   <div className="w-96">
-                    <p className="font-poppins font-semibold capitalize text-sm border-b py-2">
-                      {note_type}
+                    <p className="font-poppins font-semibold flex items-center justify-between capitalize text-sm border-b py-2">
+                      <span> {note_type} </span>
+                      <img
+                        src={copy}
+                        alt="copy icon"
+                        onClick={() => {
+                          navigator.clipboard.writeText(note_type);
+                          toast.success("Note Type copied to clipboard");
+                        }}
+                        className=" cursor-pointer h-4  z-50"
+                      />
                     </p>
-                    <p className="max-w-96 font-poppins font-medium text-xs mt-1 leading-5">
-                      {note}
+                    <p className="max-w-96 font-poppins flex items-start justify-between font-medium text-xs mt-1 leading-5">
+                     <span> {note}</span>
+                      <img
+                        src={copy}
+                        alt="copy icon"
+                        onClick={() => {
+                          navigator.clipboard.writeText(note);
+                          toast.success("Note copied to clipboard");
+                        }}
+                        className=" cursor-pointer h-4  z-50"
+                      />
                     </p>
                     <p className="max-w-96 font-poppins font-medium text-xs mt-1.5 text-end leading-5">
                       {formatDateToReadable(created_at)}{" "}
@@ -1026,21 +1051,20 @@ const InvoiceDetails = () => {
                 </Button>
               </CustomTooltip>
               {metaData?.ai_notes?.length > 0 && (
-            
-                  <Button
-                    onClick={() => {
-                      setShowAiNotesModal(!showAiNotesModal);
-                    }}
-                    disabled={markingForReview}
-                    className="bg-transparent h-[2.4rem] fixed bottom-5 left-4 border-primary w-[3rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
-                  >
-                    <div className="w-full h-full relative">
-
+                <Button
+                  onClick={() => {
+                    setShowAiNotesModal(!showAiNotesModal);
+                  }}
+                  disabled={markingForReview}
+                  className="bg-transparent h-[2.4rem] fixed bottom-5 left-4 border-primary w-[3rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                >
+                  <div className="w-full h-full relative">
                     <NotebookTabs className="dark:text-white" />
-                    <p className="absolute px-2 rounded-full border bg-primary  -top-5 -right-6 text-white">{metaData?.ai_notes?.length}</p>
-                    </div>
-                  </Button>
-              
+                    <p className="absolute px-2 rounded-full border bg-primary  -top-5 -right-6 text-white">
+                      {metaData?.ai_notes?.length}
+                    </p>
+                  </div>
+                </Button>
               )}
 
               <DocumentNotes
