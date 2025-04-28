@@ -1576,7 +1576,7 @@ const HumanVerificationTable = ({
                                       row_uuid: row?.transaction_uuid
                                     });
                                   }}
-                                  className="!w-[12rem]  font-poppins   font-normal text-sm leading-4 text-[#121212] !max-w-full  justify-center    flex items-center  capitalize  text-left"
+                                  className={`${cell?.column_uuid==categoryColumnId && cell?.text?.toLowerCase()=="unknown"&& "border border-red-500"} !w-[12rem]  font-poppins   font-normal text-sm leading-4 text-[#121212] !max-w-full  justify-center    flex items-center  capitalize  text-left`}
                                   key={i}
                                 >
                                   {editMode?.rowIndex === index &&
@@ -1584,8 +1584,9 @@ const HumanVerificationTable = ({
                                     <>
                                       {cell?.column_uuid ===
                                       categoryColumnId ? (
-                                        <div>
+                                        <div      >
                                           <CustomDropDown
+                                    
                                             Value={
                                               additionalData?.data?.category_choices?.find(
                                                 (c) => c.name == cell?.text
