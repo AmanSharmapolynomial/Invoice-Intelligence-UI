@@ -65,7 +65,7 @@ const MetadataTable = ({
   const [updatingCategoriesAndTypes, setUpdatingCategoriesAndTypes] =
     useState(false);
   const { data: vendorsData, isLoading: loadingVendors } =
-    useGetVendorsNames(true);
+    useGetVendorsNames();
   const { mutate: updateVendorTypesAndCategories } =
     useUpdateVendorTypesAndCategories();
   const navigate = useNavigate();
@@ -329,7 +329,7 @@ const MetadataTable = ({
       setBoundingBoxes([]);
     }
   };
-
+console.log(vendorsData)
   return (
     <div className="w-full -mt-3 border border-[#F0F0F0] shadow-sm p-2 rounded-md">
       <div className="grid grid-cols-3 gap-x-4">
@@ -541,7 +541,7 @@ const MetadataTable = ({
                   }}
                 />
               ) : (
-                <div className="!w-full overflow-auto    flex gap-x-4">
+                <div className="!w-full overflow-auto     flex gap-x-4">
                   <CustomDropDown
                     Value={vendor?.vendor_id}
                     placeholder={
@@ -575,7 +575,7 @@ const MetadataTable = ({
                       let formattedVendors = vendorNamesFormatter(
                         vendorsData?.vendor_names
                       );
-
+console.log(vendorsData,"formatted vendors")
                       if (
                         !formattedVendors?.find(
                           (v) => v.value == vendor?.vendor_id
