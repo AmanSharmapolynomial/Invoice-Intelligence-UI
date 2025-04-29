@@ -57,6 +57,7 @@ const NotSupportedDocuments = () => {
     searchParams.get("auto_accepted") || filters?.auto_accepted;
   let start_date = searchParams.get("start_date") || filters?.start_date;
   let end_date = searchParams.get("end_date") || filters?.end_date;
+  let extraction_source = searchParams.get("extraction_source") || "all";
   let clickbacon_status =
     searchParams.get("clickbacon_status") || filters?.clickbacon_status;
   let auto_accepted_by_vda = searchParams.get("auto_accepted_by_vda") || "all";
@@ -108,7 +109,8 @@ const NotSupportedDocuments = () => {
     review_later: false,
     supported_documents: false,
     restaurant_tier:restaurant_tier||"all",
-    rejected
+    rejected,
+    extraction_source
   };
   const { data, isLoading } = useListInvoices(payload);
   useEffect(() => {

@@ -38,6 +38,7 @@ const InvoiceFilters = () => {
   let auto_accepted_by_vda = searchParams.get("auto_accepted_by_vda") || "all";
   let assigned_to = searchParams.get("assigned_to") || "none";
   let rejected = searchParams.get("rejected") || "all";
+  let extraction_source = searchParams.get("extraction_source") || "all";
   let start_date = searchParams.get("start_date") || "";
   let end_date = searchParams.get("end_date") || "";
   const { data: users, isLoading: loadingUsers } = useGetUsersList();
@@ -85,7 +86,8 @@ const InvoiceFilters = () => {
       detected: "all",
       auto_accepted: "all",
       auto_accepted_by_vda: "",
-      rejected:'all'
+      rejected: "all",
+      extraction_source:"all"
     };
 
     setFilters(defaultFilters);
@@ -98,7 +100,8 @@ const InvoiceFilters = () => {
       restaurant: "",
       assigned_to: "",
       sort_order: "desc",
-         rejected:'all'
+      rejected: "all",
+      extraction_source:"all"
     });
 
     setRestaurantFilter("none");
@@ -172,6 +175,29 @@ const InvoiceFilters = () => {
             value={clickbacon_status}
             onSelect={(val) => updateFilter("clickbacon_status", val)}
             data={clickBACONStatusFilterOptions}
+          />
+        </div>
+        <div>
+          <CustomSelect
+            placeholder="All"
+            triggerClassName={"!w-full"}
+            label="Extraction Source"
+            value={extraction_source}
+            onSelect={(val) => updateFilter("extraction_source", val)}
+            data={[
+              {
+                label: "Method A",
+                value: "method_a"
+              },
+              {
+                label: "Method B",
+                value: "method_b"
+              },
+              {
+                label: "All",
+                value: "all"
+              },
+            ]}
           />
         </div>
         <div>
