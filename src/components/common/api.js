@@ -13,16 +13,25 @@ export const useExtractOcrText = () => {
   });
 };
 
-export const useGetVendorsNames = (archived_status = true) => {
+export const useGetVendorsNames = (archived_status) => {
   return useQuery({
     queryKey: ["vendors-names"],
     queryFn: async () => {
       try {
-        const response = await axiosInstance.get(
-          `/api/vendor/names/?archived_status=${archived_status}`
-        );
-
-        return response?.data;
+        if(archived_status){
+          const response = await axiosInstance.get(
+            `/api/vendor/names/?archived_status=${archived_status}`
+          );
+  
+          return response?.data;
+        }else{
+          const response = await axiosInstance.get(
+            `/api/vendor/names/`
+          );
+  
+          return response?.data;
+        }
+      
       } catch (error) {
         return error?.response?.data;
       }
