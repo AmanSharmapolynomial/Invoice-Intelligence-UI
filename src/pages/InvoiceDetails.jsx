@@ -531,6 +531,7 @@ metaData["human_verified"] = true;
   let vendor_id = searchParams.get("vendor") || "";
   // let document_uuid = searchParams.get("document_uuid") || "";
   let layout = searchParams.get("layout") || null;
+  let extraction_source = searchParams.get("extraction_source") || "all";
   let assigned_to = searchParams.get("assigned_to");
 
   let payload = {
@@ -554,7 +555,8 @@ metaData["human_verified"] = true;
     review_later: filters?.review_later || "false",
     from_view: from_view?.includes("not-supported")
       ? "not-supported-documents"
-      : ""
+      : "",
+      extraction_source
   };
 
   useEffect(() => {

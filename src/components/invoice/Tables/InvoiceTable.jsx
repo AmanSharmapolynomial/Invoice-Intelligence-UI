@@ -260,7 +260,7 @@ const InvoiceTable = ({
                               <Skeleton className={` min-w-10 h-5`} />
                             </div>
                             <div className=" min-h-full">
-                              <Skeleton className={` min-w-32 h-5`} />
+                              <Skeleton className={` min-w-[6.25rem] h-5`} />
                             </div>
                           </div>
                         ) : (

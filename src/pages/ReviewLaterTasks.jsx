@@ -69,6 +69,7 @@ const ReviewLaterTasks = () => {
   let invoice_number = searchParams.get("invoice_number") || "";
   let rejected = searchParams.get("rejected") || "all";
   let assigned_to = searchParams.get("assigned_to");
+  let extraction_source = searchParams.get("extraction_source") || "all";
   let document_priority = searchParams.get("document_priority") || "all";
   let restaurant_tier =
     searchParams.get("restaurant_tier") == "null" ||
@@ -108,7 +109,8 @@ const ReviewLaterTasks = () => {
     document_priority,
     review_later: true,
     restaurant_tier: restaurant_tier || "all",
-    rejected
+    rejected,
+    extraction_source
   };
   const { data, isLoading } = useListInvoices(payload);
   useEffect(() => {

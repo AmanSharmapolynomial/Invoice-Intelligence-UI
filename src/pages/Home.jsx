@@ -72,6 +72,7 @@ const Home = () => {
   let assigned_to = searchParams.get("assigned_to");
   let document_priority = searchParams.get("document_priority") || "all";
   let rejected = searchParams.get("rejected") || "all";
+  let extraction_source = searchParams.get("extraction_source") || "all";
   let restaurant_tier =
     searchParams.get("restaurant_tier") == "null" ||
     searchParams.get("restaurant_tier") == "all"
@@ -110,7 +111,8 @@ const Home = () => {
     auto_accepted_by_vda,
     review_later: "false",
     restaurant_tier: restaurant_tier || "all",
-    rejected
+    rejected,
+    extraction_source
   };
   const { data, isLoading } = useListInvoices(payload);
   useEffect(() => {
