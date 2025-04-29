@@ -41,6 +41,7 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
   let restaurant_tier=searchParams.get('restaurant_tier')||"all"
   let rejected=searchParams.get('rejected')||"all"
   let from_view = searchParams.get("from_view") || "";
+  let extraction_source = searchParams.get("extraction_source") || "all";
   let payload = {
     page: page,
     page_size: filters?.page_size,
@@ -64,7 +65,8 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
       ? "not-supported-documents"
       : "",
       restaurant_tier,
-      rejected
+      rejected,
+      extraction_source
   };
 
   const { data, isLoading, isPending, isFetched } =
