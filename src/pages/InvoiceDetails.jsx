@@ -167,6 +167,7 @@ const InvoiceDetails = () => {
     clearStore,
     tableData
   } = invoiceDetailStore();
+  console.log(metaData);
   const [isLoading, setIsLoading] = useState(true);
   const [loadingState, setLoadingState] = useState({
     saving: false,
@@ -358,16 +359,16 @@ const InvoiceDetails = () => {
     const hasUnknown = tableData?.data?.processed_table?.rows?.some((r) =>
       r.cells?.some((cell) => cell?.text === "Unknown")
     );
-    
-    if (hasUnknown) {
+
+    if (hasUnknown && metaData?.invoice_type !== "Summary Invoice") {
       return toast.error("There is Unknown Category in the table");
     }
-    
 
     if (
       operations
         ?.filter((it) => it?.type == "update_cell")
-        ?.find((it) => it?.data?.text == "Unknown")?.data?.text
+        ?.find((it) => it?.data?.text == "Unknown")?.data?.text &&
+      metaData?.invoice_type !== "Summary Invoice"
     ) {
       return toast.error("There is Unknown Category in the table");
     }
