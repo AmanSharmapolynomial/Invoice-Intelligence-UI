@@ -25,7 +25,8 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
     setHistory,
     operations,
     setMetaData,
-    setMetadataTableCopy
+    setMetadataTableCopy,
+    setTableData
   } = invoiceDetailStore();
   const { data: additionalData, isLoading: loadingAdditionalData } =
     useGetAdditionalData();
@@ -41,6 +42,7 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
   let restaurant_tier=searchParams.get('restaurant_tier')||"all"
   let rejected=searchParams.get('rejected')||"all"
   let from_view = searchParams.get("from_view") || "";
+  let extraction_source = searchParams.get("extraction_source") || "all";
   let payload = {
     page: page,
     page_size: filters?.page_size,
@@ -64,7 +66,8 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
       ? "not-supported-documents"
       : "",
       restaurant_tier,
-      rejected
+      rejected,
+      extraction_source
   };
 
   const { data, isLoading, isPending, isFetched } =
@@ -77,13 +80,15 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
 
   useEffect(() => {
     setMetadataTableCopy(data);
+
   }, [data]);
   useEffect(() => {
     setMetaData(data?.data?.[0] || data?.data);
 
     setData(data);
     setIsLoading(isLoading);
-  }, [data]);
+    setTableData(combinedTableData);
+  }, [data,combinedTableData]);
   useEffect(() => {
     const categoryColNum =
       combinedTableData?.data?.processed_table?.columns?.findIndex(
