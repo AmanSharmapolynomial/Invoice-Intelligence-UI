@@ -164,7 +164,8 @@ const InvoiceDetails = () => {
     warning_checkbox_checked,
     setWarningCheckboxChecked,
     is_unverified_branch,
-    clearStore
+    clearStore,
+    tableData
   } = invoiceDetailStore();
   const [isLoading, setIsLoading] = useState(true);
   const [loadingState, setLoadingState] = useState({
@@ -354,14 +355,24 @@ const InvoiceDetails = () => {
   };
 
   const handleAccept = () => {
-  
+    const hasUnknown = tableData?.data?.processed_table?.rows?.some((r) =>
+      r.cells?.some((cell) => cell?.text === "Unknown")
+    );
+    
+    if (hasUnknown) {
+      return toast.error("There is Unknown Category in the table");
+    }
+    
 
-      
-if(operations?.filter((it)=>it?.type=="update_cell")?.find((it)=>it?.data?.text=="Unknown")?.data?.text){
-return toast.error("There is Unknown Category in the table")
-}
-setLoadingState({ ...loadingState, accepting: true });
-metaData["human_verified"] = true;
+    if (
+      operations
+        ?.filter((it) => it?.type == "update_cell")
+        ?.find((it) => it?.data?.text == "Unknown")?.data?.text
+    ) {
+      return toast.error("There is Unknown Category in the table");
+    }
+    setLoadingState({ ...loadingState, accepting: true });
+    metaData["human_verified"] = true;
     updateTable(
       {
         document_uuid: metaData?.document_uuid,
@@ -556,7 +567,7 @@ metaData["human_verified"] = true;
     from_view: from_view?.includes("not-supported")
       ? "not-supported-documents"
       : "",
-      extraction_source
+    extraction_source
   };
 
   useEffect(() => {
@@ -609,7 +620,7 @@ metaData["human_verified"] = true;
                       />
                     </p>
                     <p className="max-w-96 font-poppins flex items-start justify-between font-medium text-xs mt-1 leading-5">
-                     <span> {note}</span>
+                      <span> {note}</span>
                       <img
                         src={copy}
                         alt="copy icon"
