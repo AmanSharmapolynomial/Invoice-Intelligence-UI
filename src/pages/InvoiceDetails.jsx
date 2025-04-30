@@ -356,8 +356,19 @@ const InvoiceDetails = () => {
   };
 
   const handleAccept = () => {
+    const selectedColumnIds = tableData?.data?.processed_table?.rows
+      ?.filter((f) => f?.selected_column)
+      ?.map(
+        ({ column_name, column_order, selected_column, ...rest }) =>
+          rest?.column_uuid
+      );
+
     const hasUnknown = tableData?.data?.processed_table?.rows?.some((r) =>
-      r.cells?.some((cell) => cell?.text === "Unknown")
+      r.cells?.some(
+        (cell) =>
+          cell?.text === "Unknown" &&
+          selectedColumnIds?.includes(cell?.column_uuid)
+      )
     );
 
     if (hasUnknown && metaData?.invoice_type !== "Summary Invoice") {
