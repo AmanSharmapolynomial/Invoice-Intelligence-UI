@@ -158,7 +158,7 @@ const VendorsTable = ({ columns, data, isLoading, vendorName }) => {
                             key={column.key}
                             className="border-r h-full font-poppins !break-word dark:text-white md:max-h-[2.75rem] md:min-h-[2.65rem] 2xl:min-h-[4rem] self-center content-center !truncate whitespace-normal px-[0.8rem] capitalize text-sm font-normal"
                           >
-                            <div className="flex gap-x-4 !break-word whitespace-normal">
+                            <div className="flex gap-x-4 !break-word whitespace-normal justify-between">
                               {column?.key === "vendor[recent_addition_date]"
                                 ? formatDateTimeToReadable(
                                     getValue(row, column?.key)
