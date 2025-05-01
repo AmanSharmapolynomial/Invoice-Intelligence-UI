@@ -24,7 +24,7 @@ import {
 import { categoryNamesFormatter, keysCapitalizer } from "@/lib/helpers";
 import { queryClient } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import { useParams } from "react-router-dom";
 
@@ -50,9 +50,29 @@ const ItemMasterDetails = () => {
     useGetAdditionalData();
 
   const textAreaRefs = useRef({}); // Store multiple refs in an object
+  const handleItemMasterLookup = () => {
+    // lookUpItemMaster();
+    // {
+    //   document_uuid,
+    //   item_code: item_code_text,
+    //   item_description: item_description_text
+    // },
+  };
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.shiftKey && e.key == "Enter") {
+        e.preventDefault();
+        handleItemMasterLookup();
+      }
+    };
 
-
+    window.addEventListener("keypress", handleKeyDown);
+    return () => {
+      window.removeEventListener("keypress", handleKeyDown);
+    };
+  }, [data]);
+console.log(data)
   return (
     <div className="w-full">
       <Sidebar />

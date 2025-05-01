@@ -313,7 +313,7 @@ const InvoiceTable = ({
                             ? restaurant?.restaurant_name
                             : restaurant?.restaurant_id
                         );
-                        navigate(
+                        window.open(
                           `/invoice-details/?page_number=${
                             (page - 1) * 10 + (index + 1)
                           }&from_view=${
@@ -324,7 +324,7 @@ const InvoiceTable = ({
                               : pathname?.includes("not-supported")
                               ? "not-supported-documents"
                               : "invoice_listing"
-                          }`
+                          }`,
                         );
                       }}
                       className={`${
@@ -442,7 +442,7 @@ const InvoiceTable = ({
                           content={`Asssigned To :- ${assignment_details?.assigned_to?.username}`}
                         >
                           <div className="w-full ">
-                            {assignment_details && (rejected || human_verified)
+                            {(assignment_details && (rejected || human_verified))||(auto_accepted)
                               ? "Completed"
                               : (assignment_details &&
                                   timeRemaining?.split("-").join("")) ||
