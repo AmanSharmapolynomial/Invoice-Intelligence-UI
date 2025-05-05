@@ -167,7 +167,7 @@ const InvoiceDetails = () => {
     clearStore,
     tableData
   } = invoiceDetailStore();
-  console.log(metaData);
+ 
   const [isLoading, setIsLoading] = useState(true);
   const [loadingState, setLoadingState] = useState({
     saving: false,

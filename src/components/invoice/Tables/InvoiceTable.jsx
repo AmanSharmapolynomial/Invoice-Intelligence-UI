@@ -313,7 +313,7 @@ const InvoiceTable = ({
                             ? restaurant?.restaurant_name
                             : restaurant?.restaurant_id
                         );
-                        window.open(
+                        navigate(
                           `/invoice-details/?page_number=${
                             (page - 1) * 10 + (index + 1)
                           }&from_view=${
@@ -327,6 +327,7 @@ const InvoiceTable = ({
                           }`,
                         );
                       }}
+                     
                       className={`${
                         index == 0 ? "!border-t" : "!border-t-0"
                       }  flex !py-0  !font-poppins  !min-h-16 !max-h-44  !text-sm w-[100%]  !text-[#1C1C1E] items-center  !border   ${
