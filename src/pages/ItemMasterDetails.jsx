@@ -72,7 +72,7 @@ const ItemMasterDetails = () => {
       window.removeEventListener("keypress", handleKeyDown);
     };
   }, [data]);
-console.log(data)
+
   return (
     <div className="w-full">
       <Sidebar />
