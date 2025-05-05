@@ -1272,7 +1272,7 @@ const HumanVerificationTable = ({
 
     queryClient.setQueryData(["combined-table", document_uuid], copyObj);
   };
-
+console.log(metaData)
   return (
     <>
       {" "}
@@ -1628,6 +1628,7 @@ const HumanVerificationTable = ({
                                           onDoubleClick={(e) => {
                                             e.preventDefault();
                                           }}
+
                                           onKeyPress={(e) => {
                                             handleKeyPress(
                                               e,
