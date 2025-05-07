@@ -257,6 +257,9 @@ const MetadataTable = ({
           queryClient.invalidateQueries({
             queryKey: ["get-similar-vendors"]
           });
+          queryClient.invalidateQueries({
+            queryKey: ["get-similar-branches"]
+          });
           setEditBranch(false);
           setNewBranch("");
         },
