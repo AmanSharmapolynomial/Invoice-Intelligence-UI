@@ -357,6 +357,7 @@ const InvoiceDetails = () => {
       );
     }
   };
+ 
 
   const handleAccept = () => {
     const selectedColumnIds = tableData?.data?.processed_table?.rows
@@ -386,7 +387,7 @@ const InvoiceDetails = () => {
     ) {
       return toast.error("There is Unknown Category in the table");
     }
-    setLoadingState({ ...loadingState, accepting: true });
+    setLoadingState({ ...loadingState, saving: true });
     metaData["human_verified"] = true;
     updateTable(
       {
@@ -1152,7 +1153,7 @@ const InvoiceDetails = () => {
                       loadingState.rejecting ||
                       loadingState.markingAsNotSupported ||
                       loadingState.markingForReview ||
-                      loadingState.reverting
+                      loadingState.reverting||loadingState.accepting||loadingState.saving
                     }
                     className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                   >
@@ -1178,7 +1179,7 @@ const InvoiceDetails = () => {
                     loadingState.rejecting ||
                     loadingState.markingAsNotSupported ||
                     loadingState.markingForReview ||
-                    loadingState.reverting
+                    loadingState.reverting||loadingState.accepting||loadingState.saving
                   }
                   className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                 >
@@ -1201,7 +1202,8 @@ const InvoiceDetails = () => {
                     loadingState.rejecting ||
                     loadingState.markingAsNotSupported ||
                     loadingState.markingForReview ||
-                    loadingState.reverting
+                    loadingState.reverting 
+                    ||loadingState.accepting||loadingState.saving
                   }
                   className="bg-transparent w-[6.5rem] dark:text-white h-[2.4rem] border-[#F15156]  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                 >
@@ -1240,7 +1242,7 @@ const InvoiceDetails = () => {
                     loadingState.rejecting ||
                     loadingState.markingAsNotSupported ||
                     loadingState.markingForReview ||
-                    loadingState.reverting
+                    loadingState.reverting||loadingState.saving
                   }
                   className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                 >
@@ -1261,7 +1263,7 @@ const InvoiceDetails = () => {
                     loadingState.rejecting ||
                     loadingState.markingAsNotSupported ||
                     loadingState.markingForReview ||
-                    loadingState.reverting
+                    loadingState.reverting||loadingState.accepting||loadingState.saving
                   }
                   onClick={() => setMarkAsNotSupportedModal(true)}
                   className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[7.25rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
@@ -1286,7 +1288,7 @@ const InvoiceDetails = () => {
                     loadingState.rejecting ||
                     loadingState.markingAsNotSupported ||
                     loadingState.markingForReview ||
-                    loadingState.reverting
+                    loadingState.reverting||loadingState.saving
                   }
                   onClick={() => handleSave()}
                   className="font-poppins h-[2.4rem] dark:text-white font-normal text-sm leading-5 border-2 border-primary text-[#ffffff]"
@@ -1960,7 +1962,7 @@ const InvoiceDetails = () => {
                 "rounded-sm font-poppins text-sm text-white font-normal"
               }
             >
-              Reprocess
+              {loadingState?.reprocessing?"Reprocessing...":"Reprocess"}
             </Button>
           </div>
         </ModalDescription>
