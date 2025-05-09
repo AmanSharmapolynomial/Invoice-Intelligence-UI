@@ -389,3 +389,24 @@ export const useRevertChanges = () => {
     }
   });
 };
+
+
+
+
+export const useReprocessDocument=()=>{
+  return useMutation({
+    mutationFn:async({document_uuid,payload})=>{
+      let response=await axiosInstance.post(`/api/invoice-processor/${document_uuid}/reprocess/`,{
+        ...payload
+      })
+      return response
+    },
+    onError: (data) => {
+      toast.error(data?.message);
+    },
+    onSuccess: (data) => {
+      toast.success(data?.message);
+      // queryClient.invalidateQueries(["document-metadata"]);
+    }
+  })
+}
