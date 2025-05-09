@@ -7,6 +7,7 @@ import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import { PdfViewer } from "@/components/common/PDFViewer";
 import copy from "@/assets/image/copy.svg";
+
 import {
   useFindDuplicateInvoices,
   useGetDocumentNotes,
@@ -14,6 +15,7 @@ import {
   useGetSimilarVendors,
   useMarkAsNotSupported,
   useMarkReviewLater,
+  useReprocessDocument,
   useRevertChanges,
   useUpdateDocumentMetadata,
   useUpdateDocumentTable
@@ -167,7 +169,7 @@ const InvoiceDetails = () => {
     clearStore,
     tableData
   } = invoiceDetailStore();
- 
+
   const [isLoading, setIsLoading] = useState(true);
   const [loadingState, setLoadingState] = useState({
     saving: false,
@@ -175,7 +177,8 @@ const InvoiceDetails = () => {
     accepting: false,
     markingForReview: false,
     markingAsNotSupported: false,
-    reverting: false
+    reverting: false,
+    reprocessing: false
   });
 
   const { data: similarVendors, isLoading: loadingSimilarVendors } =
@@ -354,6 +357,7 @@ const InvoiceDetails = () => {
       );
     }
   };
+ 
 
   const handleAccept = () => {
     const selectedColumnIds = tableData?.data?.processed_table?.rows
@@ -383,7 +387,7 @@ const InvoiceDetails = () => {
     ) {
       return toast.error("There is Unknown Category in the table");
     }
-    setLoadingState({ ...loadingState, accepting: true });
+    setLoadingState({ ...loadingState, saving: true });
     metaData["human_verified"] = true;
     updateTable(
       {
@@ -597,6 +601,12 @@ const InvoiceDetails = () => {
     data?.data?.restaurant?.tier ||
     data?.data?.[0]?.restaurant?.tier;
   const [showAiNotesModal, setShowAiNotesModal] = useState(false);
+  const [reprocessingModal, setShowReprocessingModal] = useState(false);
+  const [reExtractionMethod, setReExtractionMethod] = useState(null);
+  const { mutate: reprocessDocument } = useReprocessDocument();
+  const [reprocessedData, setReprocessedData] = useState({});
+  const [shoeReferenceLinkModal, setShowReferenceLinkModal] = useState(false);
+  let linkModalTimer;
   return (
     <div className="hide-scrollbar relative">
       {/* <div> */}{" "}
@@ -931,7 +941,12 @@ const InvoiceDetails = () => {
           {metaData?.extraction_source && (
             <CustomTooltip content={"Extraction Source"}>
               {/* {metadata?.extraction_source && ( */}
-              <p className="font-poppins font-medium text-sm leading-5 capitalize px-4 border border-primary rounded-md py-0.5 cursor-pointer">
+              <p
+                onDoubleClick={() => {
+                  setShowReprocessingModal(true);
+                }}
+                className="font-poppins font-medium text-sm leading-5 capitalize px-4 border border-primary rounded-md py-0.5 cursor-pointer"
+              >
                 {metaData?.extraction_source}
               </p>
               {/* )} */}
@@ -1133,7 +1148,13 @@ const InvoiceDetails = () => {
                         }
                       );
                     }}
-                    disabled={loadingState?.reverting}
+                    disabled={
+                      loadingState?.reverting ||
+                      loadingState.rejecting ||
+                      loadingState.markingAsNotSupported ||
+                      loadingState.markingForReview ||
+                      loadingState.reverting||loadingState.accepting||loadingState.saving
+                    }
                     className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                   >
                     {loadingState?.reverting ? "Resetting.." : "Reset Status"}
@@ -1153,7 +1174,12 @@ const InvoiceDetails = () => {
                     return;
                   }}
                   disabled={
-                    action_controls?.review_later?.disabled || markingForReview
+                    action_controls?.review_later?.disabled ||
+                    markingForReview ||
+                    loadingState.rejecting ||
+                    loadingState.markingAsNotSupported ||
+                    loadingState.markingForReview ||
+                    loadingState.reverting||loadingState.accepting||loadingState.saving
                   }
                   className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                 >
@@ -1171,7 +1197,14 @@ const InvoiceDetails = () => {
                   onClick={() => {
                     setShowRejectionModal(true);
                   }}
-                  disabled={action_controls?.reject?.disabled}
+                  disabled={
+                    action_controls?.reject?.disabled ||
+                    loadingState.rejecting ||
+                    loadingState.markingAsNotSupported ||
+                    loadingState.markingForReview ||
+                    loadingState.reverting 
+                    ||loadingState.accepting||loadingState.saving
+                  }
                   className="bg-transparent w-[6.5rem] dark:text-white h-[2.4rem] border-[#F15156]  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                 >
                   Reject
@@ -1205,7 +1238,11 @@ const InvoiceDetails = () => {
                   disabled={
                     !warning_checkbox_checked ||
                     action_controls?.accept?.disabled ||
-                    loadingState?.accepting
+                    loadingState?.accepting ||
+                    loadingState.rejecting ||
+                    loadingState.markingAsNotSupported ||
+                    loadingState.markingForReview ||
+                    loadingState.reverting||loadingState.saving
                   }
                   className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                 >
@@ -1221,7 +1258,13 @@ const InvoiceDetails = () => {
                 }
               >
                 <Button
-                  disabled={action_controls?.mark_as_not_supported?.disabled}
+                  disabled={
+                    action_controls?.mark_as_not_supported?.disabled ||
+                    loadingState.rejecting ||
+                    loadingState.markingAsNotSupported ||
+                    loadingState.markingForReview ||
+                    loadingState.reverting||loadingState.accepting||loadingState.saving
+                  }
                   onClick={() => setMarkAsNotSupportedModal(true)}
                   className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[7.25rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                 >
@@ -1241,7 +1284,11 @@ const InvoiceDetails = () => {
                     action_controls?.save?.disabled ||
                     loadingState?.saving ||
                     loadingState?.rejecting ||
-                    loadingState?.accepting
+                    loadingState?.accepting ||
+                    loadingState.rejecting ||
+                    loadingState.markingAsNotSupported ||
+                    loadingState.markingForReview ||
+                    loadingState.reverting||loadingState.saving
                   }
                   onClick={() => handleSave()}
                   className="font-poppins h-[2.4rem] dark:text-white font-normal text-sm leading-5 border-2 border-primary text-[#ffffff]"
@@ -1819,6 +1866,165 @@ const InvoiceDetails = () => {
           </div>
         )}
       </ResizableModal>
+      {/* Reprocess Modal */}
+      <Modal
+        iconCN={"top-[28px]"}
+        open={reprocessingModal}
+        setOpen={() => {
+          setShowReprocessingModal(false);
+          setReExtractionMethod(null);
+        }}
+        title={"Reprocess Document"}
+        className={"!px-0  !z-50 !min-w-[40rem] "}
+        titleClassName={
+          "text-[#000000] !font-medium  flex justify-start px-4 border-b border-b-[#E0E0E0] pb-4 pt-3 font-poppins !text-base  leading-6  pt-0.5"
+        }
+      >
+        <ModalDescription className="px-4 !z-50">
+          <div className="px-4 z-50">
+            <p className="font-poppins font-medium text-start   text-black">
+              Select Extraction Method
+            </p>
+
+            <RadioGroup
+              className="flex gap-x-4 items-center py-4"
+              value={reExtractionMethod}
+              onValueChange={(v) => {
+                setReExtractionMethod(v);
+              }}
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem
+                  value={"method_a"}
+                  id="method_a"
+                ></RadioGroupItem>
+                <Label
+                  htmlFor="method_a"
+                  className="font-poppins font-normal text-sm leading-5 text-[#000000] cursor-pointer "
+                >
+                  Method A
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem
+                  value={"method_b"}
+                  id="method_b"
+                ></RadioGroupItem>
+                <Label
+                  htmlFor="method_b"
+                  className="font-poppins font-normal text-sm leading-5 text-[#000000] cursor-pointer "
+                >
+                  Method B
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+
+          <div className="flex items-center justify-center gap-x-2  pr-2 mt-6">
+            <Button
+              onClick={() => {
+                setShowReprocessingModal(false);
+                setReExtractionMethod(null);
+              }}
+              className="rounded-sm border border-primary bg-transparent hover:bg-transparent font-poppins font-normal text-sm text-black"
+            >
+              Close
+            </Button>
+            <Button
+            disabled={loadingState?.reprocessing}
+              onClick={() => {
+                setLoadingState({ ...loadingState, reprocessing: true });
+                reprocessDocument(
+                  {
+                    document_uuid:
+                      document_uuid ||
+                      data?.data?.[0]?.document_uuid ||
+                      data?.data?.document_uuid,
+                    payload: {
+                      extraction_method: reExtractionMethod
+                    }
+                  },
+                  {
+                    onSuccess: (data) => {
+                      setLoadingState({ ...loadingState, reprocessing: false });
+                      setShowReprocessingModal(false);
+                      setShowReferenceLinkModal(true);
+                      setShowReferenceLinkModal(true);
+                      setReprocessedData(data?.data);
+                    },
+                    onError: () => {
+                      setLoadingState({ ...loadingState, reprocessing: false });
+                      setShowReprocessingModal(false);
+                    }
+                  }
+                );
+              }}
+              className={
+                "rounded-sm font-poppins text-sm text-white font-normal"
+              }
+            >
+              {loadingState?.reprocessing?"Reprocessing...":"Reprocess"}
+            </Button>
+          </div>
+        </ModalDescription>
+      </Modal>
+
+      {/* Reprocess Link Modal */}
+      <Modal
+        iconCN={"top-[28px]"}
+        open={shoeReferenceLinkModal}
+        setOpen={() => {
+          setShowReferenceLinkModal(false);
+          setReprocessedData({});
+        }}
+        title={"Reprocess Document"}
+        className={"!px-0  !z-50 !min-w-[40rem] "}
+        titleClassName={
+          "text-[#000000] !font-medium  flex justify-start px-4 border-b border-b-[#E0E0E0] pb-4 pt-3 font-poppins !text-base  leading-6  pt-0.5"
+        }
+      >
+        <ModalDescription className="px-4 !z-50">
+          <div className="px-4 z-50">
+            <p className="font-poppins font-medium text-start  capitalize  text-black">
+              Currently the document is is queued for processing and after
+              processing the document will be available. Copy the document link from below button .
+            </p>
+  
+          </div>
+
+          <div className="flex items-center justify-center gap-x-2  pr-2 mt-6">
+            <Button
+              onClick={() => {
+                setShowReferenceLinkModal(false);
+                setReprocessedData({});
+              }}
+              className="rounded-sm border border-primary bg-transparent hover:bg-transparent font-poppins font-normal text-sm text-black"
+            >
+              Close
+            </Button>
+                      
+            <Button  onClick={() => {
+                navigator.clipboard.writeText(
+                  `${
+                    window.location.origin
+                  }/invoice-details?document_uuid=${
+                    reprocessedData?.document_reference
+                  }`
+                );
+
+                toast.success("Document Link copied to clipboard");
+              }} className="flex items-center gap-x-2 bg-transparent hover:bg-transparent rounded-sm border-primary border font-poppins font-normal text-sm text-black">
+              <p>Copy</p>
+              <img
+              src={copy}
+              alt="copy icon"
+             
+              className=" right-3  top-10 cursor-pointer h-4  z-50"
+            />
+            </Button>
+          </div>
+        </ModalDescription>
+      </Modal>
     </div>
   );
 };

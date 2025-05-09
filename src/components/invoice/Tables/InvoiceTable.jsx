@@ -3,6 +3,8 @@ import no_data from "@/assets/image/no-data.svg";
 import tier_1 from "@/assets/image/tier_1.svg";
 import tier_2 from "@/assets/image/tier_2.svg";
 import tier_3 from "@/assets/image/tier_3.svg";
+import ReactDOM from 'react-dom';
+
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -126,6 +128,19 @@ const InvoiceTable = ({
     }
   }, [review_later]);
   let { pathname } = useLocation();
+  const [contextMenu, setContextMenu] = useState({
+    visible: false,
+    x: 0,
+    y: 0,
+    documentUuid: "",
+    index: null
+  });
+  useEffect(() => {
+    const handleClick = () =>
+      setContextMenu((prev) => ({ ...prev, visible: false }));
+    window.addEventListener("click", handleClick);
+    return () => window.removeEventListener("click", handleClick);
+  }, []);
 
   return (
     <div className="w-full overflow-auto  dark:bg-[#051C14] mb-1.5 dark:border-b dark:border-r dark:border-l dark:border-primary ">
@@ -141,7 +156,9 @@ const InvoiceTable = ({
               <TableHead
                 key={label}
                 className={`flex ${
-                  review_later ? "!w-[9.090909090909091%] !pl-[0.9rem]" : "!w-[10%]"
+                  review_later
+                    ? "!w-[9.090909090909091%] !pl-[0.9rem]"
+                    : "!w-[10%]"
                 } !h-full !min-h-16 !max-h-fit !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-start gap-x-1 ${
                   !review_later && styling
                 } !font-semibold text-sm !border-b-0   ${
@@ -238,6 +255,42 @@ const InvoiceTable = ({
           className="flex-1 !w-[100%] "
           style={{ height: `${height}vh` }}
         >
+          {contextMenu.visible &&
+  ReactDOM.createPortal(
+    <div
+      className="fixed z-50 bg-white shadow-lg rounded border text-sm w-48"
+      style={{ top: contextMenu.y, left: contextMenu.x }}
+      onMouseLeave={() =>
+        setContextMenu((prev) => ({ ...prev, visible: false }))
+      }
+    >
+      <div
+        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+        onClick={() => {
+          window.open(
+            `/invoice-details/?page_number=${
+              (page - 1) * 10 + ((contextMenu.index ?? 0) + 1)
+            }&from_view=${
+              pathname?.includes("review")
+                ? "review_later"
+                : pathname?.includes("my-tasks")
+                ? "my-tasks"
+                : pathname?.includes("not-supported")
+                ? "not-supported-documents"
+                : "invoice_listing"
+            }`,
+            "_blank"
+          );
+          setContextMenu((prev) => ({ ...prev, visible: false }));
+        }}
+      >
+        Open in New Tab
+      </div>
+    </div>,
+    document.body
+  )}
+
+
           {isLoading ? (
             new Array(16)?.fill(1)?.map((_, index) => {
               return (
@@ -306,6 +359,18 @@ const InvoiceTable = ({
                 return (
                   <div key={index} className="relative">
                     <TableRow
+                     onContextMenu={(e) => {
+                      e.preventDefault();
+                      console.log("Right clicked on", { document_uuid, index });
+                      setContextMenu({
+                        visible: true,
+                        x: e.pageX,
+                        y: e.pageY,
+                        documentUuid: document_uuid,
+                        index: index,
+                      });
+                    }}
+                    
                       onClick={(e) => {
                         setSelectedInvoiceVendorName(vendor?.vendor_name);
                         setSelectedInvoiceRestaurantName(
@@ -324,10 +389,9 @@ const InvoiceTable = ({
                               : pathname?.includes("not-supported")
                               ? "not-supported-documents"
                               : "invoice_listing"
-                          }`,
+                          }`
                         );
                       }}
-                     
                       className={`${
                         index == 0 ? "!border-t" : "!border-t-0"
                       }  flex !py-0  !font-poppins  !min-h-16 !max-h-44  !text-sm w-[100%]  !text-[#1C1C1E] items-center  !border   ${
@@ -430,7 +494,8 @@ const InvoiceTable = ({
 
                       <TableCell
                         className={`${
-                          review_later                            ? "!w-[9.090909090909091%] !pl-[0.9rem]"
+                          review_later
+                            ? "!w-[9.090909090909091%] !pl-[0.9rem]"
                             : "!w-[10%] pl-[1rem]"
                         } flex dark:!text-[#F6F6F6] ${
                           (rejected || human_verified) && "!text-primary"
@@ -443,7 +508,9 @@ const InvoiceTable = ({
                           content={`Asssigned To :- ${assignment_details?.assigned_to?.username}`}
                         >
                           <div className="w-full ">
-                            {(assignment_details && (rejected || human_verified))||(auto_accepted)
+                            {(assignment_details &&
+                              (rejected || human_verified)) ||
+                            auto_accepted
                               ? "Completed"
                               : (assignment_details &&
                                   timeRemaining?.split("-").join("")) ||
@@ -533,11 +600,11 @@ const InvoiceTable = ({
                               human_verified_date?.split("T")?.[0]
                             ) || "NA"}
                       </TableCell>
-                      
-                        <TableCell className="flex capitalize dark:!text-[#F6F6F6] pl-4  !min-h-16 !max-h-44 font-poppins cursor-pointer text-sm !text-left items-center justify-start border-l h-full !break-word whitespace-normal  !font-normal !text-[#1C1C1E] !w-[10%] ">
-                          {extraction_source}
-                        </TableCell>
-                      
+
+                      <TableCell className="flex capitalize dark:!text-[#F6F6F6] pl-4  !min-h-16 !max-h-44 font-poppins cursor-pointer text-sm !text-left items-center justify-start border-l h-full !break-word whitespace-normal  !font-normal !text-[#1C1C1E] !w-[10%] ">
+                        {extraction_source}
+                      </TableCell>
+
                       {review_later && (
                         <TableCell className="flex capitalize dark:!text-[#F6F6F6]  !min-h-16 !max-h-44 font-poppins cursor-pointer text-sm !text-left items-center justify-start border-l h-full !break-word whitespace-normal  !font-normal !text-[#1C1C1E] !w-[10%] ">
                           {review_later_details?.comments}
