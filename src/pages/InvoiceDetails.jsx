@@ -1931,6 +1931,7 @@ const InvoiceDetails = () => {
               Close
             </Button>
             <Button
+            disabled={loadingState?.reprocessing}
               onClick={() => {
                 setLoadingState({ ...loadingState, reprocessing: true });
                 reprocessDocument(
