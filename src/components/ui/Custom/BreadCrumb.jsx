@@ -42,7 +42,11 @@ const BreadCrumb = ({
       navigate("/vendors-duplicate-branch-findings");
     } else if (from_view == "item-master-vendors") {
       navigate("/item-master-vendors");
-    } else if (pathname == "/invoice-details/") {
+    }else if (pathname?.includes("/recent-duplicate-branch-findings")){
+       navigate("/vendors-duplicate-branch-findings");
+    }
+    
+    else if (pathname == "/invoice-details/") {
       if (from_view == "review_later") {
         const newParams = new URLSearchParams();
 

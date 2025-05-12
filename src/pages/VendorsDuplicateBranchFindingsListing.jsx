@@ -14,12 +14,14 @@ import {
 } from "@/components/ui/table";
 import { useGetVendorBranchDuplicateFindingsSummary } from "@/components/vendor/potentialDuplicates/api";
 import React from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import no_data from "@/assets/image/no-data.svg";
+import { Button } from "@/components/ui/button";
 
 const VendorsDuplicateBranchFindingsListing = () => {
   const [searchParams] = useSearchParams();
+  const navigate=useNavigate();
   let page = searchParams.get("page") || 1;
   let page_size = searchParams.get("page_size") || 10;
   const { data, isLoading } = useGetVendorBranchDuplicateFindingsSummary({
@@ -30,7 +32,6 @@ const VendorsDuplicateBranchFindingsListing = () => {
   return (
     <div className="overflow-hidden flex w-full h-full">
       <Sidebar />
-
       <div className="w-full ml-12 h-full">
         <Navbar />
         <Layout>
@@ -40,6 +41,15 @@ const VendorsDuplicateBranchFindingsListing = () => {
               { path: null, label: "Vendors with Potential Duplicate Branches" }
             ]}
           />
+         <div className="flex justify-end">
+           <Button className=" font-poppins font-normal rounded-sm text-sm"
+           onClick={()=>{
+            navigate(`/recent-duplicate-branch-findings`)
+           }}
+           >
+            Recent Duplicate Branches
+          </Button>
+         </div>
           <div className="w-full mt-4">
             <div className="rounded-md border overflow-x-auto">
               <Table className="!rounded-md !relative box-border flex flex-col min-w-full h-[74vh] md:!max-h-[72vh] 2xl:!max-h-[78vh] 3xl:!max-h-[80vh] overflow-auto">

@@ -177,7 +177,7 @@ const CustomDropDown = ({
     >
       <PopoverTrigger
         asChild
-        className={`${triggerClassName} dark:!border-[#000000] !relative !w-full`}
+        className={`${triggerClassName} dark:!border-[#000000] !relative w-full`}
       >
         <Button
           variant="outline"
