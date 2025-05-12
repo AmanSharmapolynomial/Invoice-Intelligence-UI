@@ -29,6 +29,8 @@ import VendorsWithPotentialDuplicates from "@/pages/VendorsWithPotentialDuplicat
 import CombineDuplicateVendors from "@/pages/CombineDuplicateVendors";
 import VendorsDuplicateBranchFindingsListing from "@/pages/VendorsDuplicateBranchFindingsListing";
 import CombineDuplicateBranchFindings from "@/pages/CombineDuplicateBranchFindings";
+import RecentDuplicateBranchesListing from "@/pages/RecentDuplicateBranchesListing";
+import RecentDuplicateVendorsListing from "@/pages/RecentDuplicateVendorsListing";
 
 const publicRoutes = [
   {
@@ -251,6 +253,14 @@ const protectedRoutes = [
       </Protected>
     )
   },
+   {
+    path: "/recent-duplicate-vendor-findings",
+    element: (
+      <Protected>
+        <RecentDuplicateVendorsListing/>
+      </Protected>
+    )
+  },
 
   // Duplicate Branch Findings
   {
@@ -266,6 +276,14 @@ const protectedRoutes = [
     element: (
       <Protected>
         <CombineDuplicateBranchFindings/>
+      </Protected>
+    )
+  },
+  {
+    path: "/recent-duplicate-branch-findings",
+    element: (
+      <Protected>
+        <RecentDuplicateBranchesListing/>
       </Protected>
     )
   },
