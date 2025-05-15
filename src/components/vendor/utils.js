@@ -102,10 +102,10 @@ export const getVendorItemMaster = async (payload) => {
   try {
     const apiUrl = `/api/item-master/fast-item-verification/${vendor_id}/?page=${page}&page_size=${page_size}&document_uuid=${document_uuid}`;
     const response = await axiosInstance.get(apiUrl);
-   
+
     return response;
   } catch (error) {
-   return error
+    return error;
   }
 };
 export const getVendorBranchPdfs = async (branch_id) => {
@@ -121,9 +121,12 @@ export const getVendorBranchPdfs = async (branch_id) => {
 export const getVendorsPdfs = async (payload) => {
   const { vendor_one, vendor_two } = payload;
   const apiUrl = `/api/vendor/pdf/`;
+  if(!vendor_one){
+    return
+  }
   const response = await axiosInstance.post(apiUrl, {
     fetch_mode: "vendor_id",
-    vendors: [vendor_one, vendor_two]
+    vendors: vendor_two ? [vendor_one, vendor_two] : [vendor_one]
   });
   return response;
 };

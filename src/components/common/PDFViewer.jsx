@@ -654,7 +654,7 @@ export const PdfViewer = ({
   useEffect(() => {
     setShowTextExtractionModal(false);
   }, [page]);
-
+console.log(pdfUrls)
   return (
     <>
       {loadinMetadata ? (

@@ -78,7 +78,7 @@ const VendorsWithPotentialDuplicates = () => {
             ]}
           />
           <div className="flex items-center gap-x-2 justify-end">
-            {/* <div className="flex items-center gap-x-3">
+            <div className="flex items-center gap-x-3">
               <Button
                 className=" font-poppins font-normal rounded-sm text-sm"
                 onClick={() => {
@@ -97,7 +97,7 @@ const VendorsWithPotentialDuplicates = () => {
                 }}
                 data={vendorsWithDuplicatesFormatter(vendorsList?.data)}
               />
-            </div> */}
+            </div>
           </div>
           <PotentialDuplicatesTable
             data={data?.data || []}
