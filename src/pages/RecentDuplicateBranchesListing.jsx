@@ -45,6 +45,7 @@ import { vendorNamesFormatter } from "@/lib/helpers";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { EyeClosedIcon } from "@radix-ui/react-icons";
 import { PdfViewer } from "@/components/common/PDFViewer";
+import { OLD_UI } from "@/config";
 let headers = [
   "Vendor",
   "Verified Matching Branch",
@@ -191,7 +192,16 @@ const RecentDuplicateBranchesListing = () => {
                                   item?.vendor?.vendor_name
                                 }
                               >
-                                <div className="flex items-center  justify-between truncate  w-full !capitalize gap-x-4">
+                                <div
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    window.open(
+                                      `${OLD_UI}/vendor-consolidation-v2/${item?.vendor?.vendor_id}`
+                                    );
+                                  }}
+                                  className="flex !text-primary items-center  justify-between truncate  w-full !capitalize gap-x-4"
+                                >
                                   <span>
                                     {" "}
                                     {item?.vendor?.vendor_name?.length > 30
@@ -223,15 +233,30 @@ const RecentDuplicateBranchesListing = () => {
                                   item?.verified_matching_branch?.vendor_address
                                 }
                               >
-                                <div className="flex truncate break-words !capitalize items-center gap-x-4 justify-between">
+                                <div 
+                                 onClick={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    window.open(
+                                      `${OLD_UI}/vendor-consolidation-v2/branches/${item?.vendor?.vendor_id}`
+                                    );
+                                  }}
+                                className="flex truncate break-words w-full  text-primary !capitalize items-center gap-x-4 justify-between">
+                                  <span>
+                                    {" "}
+                                    {item?.verified_matching_branch
+                                      ?.vendor_address?.length > 30
+                                      ? item?.verified_matching_branch?.vendor_address?.slice(
+                                          0,
+                                          30
+                                        ) + "..."
+                                      : item?.verified_matching_branch
+                                          ?.vendor_address}
+                                  </span>
                                   {item?.verified_matching_branch
-                                    ?.vendor_address?.length > 30
-                                    ? item?.verified_matching_branch?.vendor_address?.slice(
-                                        0,
-                                        30
-                                      ) + "..."
-                                    : item?.verified_matching_branch
-                                        ?.vendor_address}
+                                    ?.human_verified && (
+                                    <span>{<img src={approved} alt="" />}</span>
+                                  )}
                                 </div>
                               </CustomTooltip>
                             </TableCell>
@@ -250,7 +275,13 @@ const RecentDuplicateBranchesListing = () => {
                                   item?.branch?.vendor_address
                                 }
                               >
-                                <div className="flex truncate break-words !capitalize items-center gap-x-4 justify-between">
+                                <div   onClick={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    window.open(
+                                      `${OLD_UI}/vendor-consolidation-v2/branches/${item?.vendor?.vendor_id}`
+                                    );
+                                  }} className="flex truncate  text-primary break-words !capitalize items-center gap-x-4 justify-between">
                                   <span className="">
                                     {" "}
                                     {item?.branch?.vendor_address?.length > 30
@@ -349,7 +380,7 @@ const RecentDuplicateBranchesListing = () => {
                                       className="text-gray-500 h-4 w-4 "
                                       onClick={() => {
                                         setDeletionBranch({
-                                          index:index,
+                                          index: index,
                                           id: item?.id
                                         });
                                         deleteDuplicateBranch(item?.id, {
@@ -358,7 +389,9 @@ const RecentDuplicateBranchesListing = () => {
                                               id: null,
                                               index: null
                                             });
-                                            queryClient.invalidateQueries(['recent-duplicate-branch-findings'])
+                                            queryClient.invalidateQueries([
+                                              "recent-duplicate-branch-findings"
+                                            ]);
                                           },
                                           onError: () => {
                                             setDeletionBranch({

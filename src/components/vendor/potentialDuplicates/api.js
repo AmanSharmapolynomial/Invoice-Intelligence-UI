@@ -1,4 +1,5 @@
 import { axiosInstance } from "@/axios/instance";
+import { queryClient } from "@/lib/utils";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
@@ -100,7 +101,7 @@ export const useListRecentVendorDuplicates = (payload) => {
     queryFn: async () => {
       let { page, page_size, vendor } = payload;
       let response = await axiosInstance.get(
-        `/api/vendor/duplicate-finder/findings/?page=${page}&page_size=${page_size}${
+        `/api/vendor/duplicate-vendor-findings/?page=${page}&page_size=${page_size}${
           vendor ? `${`&vendor=${vendor}`}` : ""
         }`
       );
@@ -121,7 +122,24 @@ export const useDeleteDuplicateBranchFindings = () => {
       toast.success("Successfully Deleted");
     },
     onError: (data) => {
-      toast.error(data?.message);
+      toast.success("Something Went Wrong.");
+    }
+  });
+};
+export const useDeleteDuplicateVendorFindings = () => {
+  return useMutation({
+    mutationFn: async (finding_id) => {
+      let response = await axiosInstance.delete(
+        `/api/vendor/duplicate-vendor-findings/${finding_id}/`
+      );
+      return response;
+    },
+    onSuccess: (data) => {
+      toast.success("Successfully Deleted");
+      queryClient.invalidateQueries(['recent-duplicate-vendor-findings'])
+    },
+    onError: (data) => {
+      toast.error("Something Went Wrong.");
     }
   });
 };

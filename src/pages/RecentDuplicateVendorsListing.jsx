@@ -7,8 +7,11 @@ import { Button } from "@/components/ui/button";
 import approved from "@/assets/image/approved.svg";
 import BreadCrumb from "@/components/ui/Custom/BreadCrumb";
 import { Modal, ModalDescription } from "@/components/ui/Modal";
-import { useCombineVendors } from "@/components/vendor/api";
-import { useListRecentVendorDuplicates } from "@/components/vendor/potentialDuplicates/api";
+import { useCombineVendors, useGetVendorsPdfs } from "@/components/vendor/api";
+import {
+  useDeleteDuplicateVendorFindings,
+  useListRecentVendorDuplicates
+} from "@/components/vendor/potentialDuplicates/api";
 import { queryClient } from "@/lib/utils";
 import { useState } from "react";
 import {
@@ -23,14 +26,16 @@ import { Link, useSearchParams } from "react-router-dom";
 import no_data from "@/assets/image/no-data.svg";
 import { Skeleton } from "@/components/ui/skeleton";
 import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
-import { Combine, Trash2 } from "lucide-react";
+import { Combine, Eye, Trash, Trash2, X } from "lucide-react";
 import Loader from "@/components/ui/Loader";
+import { OLD_UI } from "@/config";
+import { PdfViewer } from "@/components/common/PDFViewer";
 let headers = [
   "Vendor",
   "Potential Duplicate Vendor",
   "Similarity Score",
   "Combine",
-  "Delete"
+  "Actions"
 ];
 const RecentDuplicateVendorsListing = () => {
   const [searchParams] = useSearchParams();
@@ -55,7 +60,18 @@ const RecentDuplicateVendorsListing = () => {
   });
 
   const { mutate: combineVendors } = useCombineVendors();
-
+  const { mutate: deleteDuplicateVendor, isPending } =
+    useDeleteDuplicateVendorFindings();
+  const [deletetionFinding, setDeletionFinding] = useState({
+    index: null,
+    id: null,
+    isLoading: false
+  });
+  const [currentRowIndex, setCurrenRowIndex] = useState(null);
+  const [currentVendorId, setCurrentVendorId] = useState(null);
+  const { data: pdfsData, isLoading: loadingPdfsData } = useGetVendorsPdfs({
+    vendor_one: currentVendorId
+  });
   return (
     <div className="overflow-hidden flex w-full h-full">
       <Sidebar />
@@ -72,14 +88,18 @@ const RecentDuplicateVendorsListing = () => {
             ]}
           />
 
-          <div className="w-full mt-4">
-            <div className="rounded-md border overflow-x-auto">
+          <div className={`${currentVendorId && "!flex"} w-full mt-4`}>
+            <div
+              className={`${
+                currentVendorId && "w-1/2"
+              } rounded-md border overflow-x-auto `}
+            >
               <Table className="!rounded-md !relative box-border flex flex-col min-w-full h-[74vh] md:!max-h-[72vh] 2xl:!max-h-[78vh] 3xl:!max-h-[80vh] overflow-auto">
                 <TableHeader className="w-full sticky top-0 z-10 bg-white dark:bg-primary">
                   <TableRow className="!text-white !rounded-md w-full grid grid-cols-5 md:max-h-[5.65rem] md:min-h-[3.65rem] 2xl:min-h-[4rem] self-center content-center items-center justify-center text-xs sm:text-sm">
                     {headers?.map((header) => {
                       return (
-                        <TableHead className="cursor-pointer font-poppins !px-[0.75rem] font-semibold text-black md:max-h-[5.65rem] md:min-h-[2.65rem] 2xl:min-h-[4rem] self-center content-center leading-5 text-sm border-r items-center flex gap-1">
+                        <TableHead className="cursor-pointer font-poppins !pr-[0.75rem] font-semibold text-black md:max-h-[5.65rem] md:min-h-[2.65rem] 2xl:min-h-[4rem] self-center content-center leading-5 text-sm border-r items-center flex gap-1">
                           {header}
                         </TableHead>
                       );
@@ -103,8 +123,8 @@ const RecentDuplicateVendorsListing = () => {
                           </TableRow>
                         ))}
                       </div>
-                    ) : data?.data?.findings?.length > 0 ? (
-                      data?.data?.findings?.map((item, index) => {
+                    ) : data?.data?.length > 0 ? (
+                      data?.data?.map((item, index) => {
                         return (
                           <Link
                             key={index}
@@ -128,7 +148,7 @@ const RecentDuplicateVendorsListing = () => {
                               index == 0 && "!border-t-0"
                             } grid grid-cols-5 border-b cursor-pointer md:h-[2.75rem] md:min-h-[3.65rem] 2xl:min-h-[4rem] content-center self-center w-full items-center dark:!text-white text-xs sm:text-sm `}
                           >
-                            <TableCell className="border-r h-full font-poppins !break-word dark:text-white md:h-[2.75rem] md:min-h-[2.65rem] 2xl:h-[4rem] self-center content-center  !truncate whitespace-normal px-[0.8rem] capitalize text-sm font-normal">
+                            <TableCell className="border-r h-full font-poppins !break-word dark:text-white md:h-[2.75rem] md:min-h-[2.65rem] 2xl:h-[4rem] self-center content-center  !truncate whitespace-normal px-[0.6rem] capitalize text-sm font-normal">
                               <CustomTooltip
                                 className={"!min-w-fit"}
                                 content={
@@ -136,24 +156,35 @@ const RecentDuplicateVendorsListing = () => {
                                     30 && item?.verified_vendor?.vendor_name
                                 }
                               >
-                                <div className="flex items-center  justify-between truncate  w-full !capitalize gap-x-4">
+                                <div
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    window.open(
+                                      `${OLD_UI}/vendor-consolidation-v2/${item?.verified_matching_vendor?.vendor_id}`
+                                    );
+                                  }}
+                                  className="flex text-primary items-center  justify-between truncate  w-full !capitalize gap-x-4"
+                                >
                                   <span>
                                     {" "}
-                                    {item?.verified_vendor?.vendor_name
+                                    {item?.verified_matching_vendor?.vendor_name
                                       ?.length > 30
-                                      ? item?.verified_vendor?.vendor_name?.slice(
+                                      ? item?.verified_matching_vendor?.vendor_name?.slice(
                                           0,
                                           30
                                         ) + "..."
-                                      : item?.verified_vendor?.vendor_name}
+                                      : item?.verified_matching_vendor
+                                          ?.vendor_name}
                                   </span>
-                                  {item?.verified_vendor?.human_verified && (
+                                  {item?.verified_matching_vendor
+                                    ?.human_verified && (
                                     <span>{<img src={approved} alt="" />}</span>
                                   )}
                                 </div>
                               </CustomTooltip>
                             </TableCell>
-                            <TableCell className="font-normal dark:!text-white capitalize border-r md:max-h-[2.75rem] md:min-h-[2.65rem] 2xl:min-h-[4rem]  font-poppins text-sm text-black content-center">
+                            <TableCell className="font-normal dark:!text-white capitalize border-r md:max-h-[2.75rem] md:min-h-[2.65rem] 2xl:min-h-[4rem]  font-poppins text-sm text-black content-center truncate">
                               <CustomTooltip
                                 className={"!min-w-fit"}
                                 content={
@@ -161,20 +192,26 @@ const RecentDuplicateVendorsListing = () => {
                                     30 && item?.verified_vendor?.vendor_name
                                 }
                               >
-                                <div className="flex items-center  justify-between truncate  w-full !capitalize gap-x-4">
+                                <div
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    window.open(
+                                      `${OLD_UI}/vendor-consolidation-v2/${item?.potential_duplicate_vendor?.vendor_id}`
+                                    );
+                                  }}
+                                  className="flex items-center text-primary  justify-between truncate  w-full !capitalize gap-x-4"
+                                >
                                   <span>
                                     {" "}
-                                    {item?.potential_duplicate_vendor
-                                      ?.vendor_name?.length > 30
-                                      ? item?.potential_duplicate_vendor?.vendor_name?.slice(
+                                    {item?.vendor?.vendor_name?.length > 30
+                                      ? item?.vendor?.vendor_name?.slice(
                                           0,
                                           30
                                         ) + "..."
-                                      : item?.potential_duplicate_vendor
-                                          ?.vendor_name}
+                                      : item?.vendor?.vendor_name ||"-"}
                                   </span>
-                                  {item?.potential_duplicate_vendor
-                                    ?.human_verified && (
+                                  {item?.vendor?.human_verified && (
                                     <span>{<img src={approved} alt="" />}</span>
                                   )}
                                 </div>
@@ -197,15 +234,15 @@ const RecentDuplicateVendorsListing = () => {
                                 setShowMergeConfirmationModal(true);
                                 setCurrentSelectedRow({
                                   index: index,
-                                  master_vendor: item?.verified_vendor,
-                                  vendor: item?.potential_duplicate_vendor,
+                                  master_vendor: item?.verified_matching_vendor,
+                                  vendor: item?.vendor,
                                   isLoading: false
                                 });
                               }}
                               className="font-normal border-r  md:max-h-[2.75rem] md:min-h-[2.65rem] 2xl:min-h-[4rem]  font-poppins text-sm content-center"
                             >
                               <Button
-                                disabled={currentSelectedRow?.isLoading}
+                                disabled={currentSelectedRow?.isLoading||!item?.vendor?.vendor_id}
                                 className="bg-transparent hover:bg-transparent shadow-none border-none disabled:cursor-not-allowed"
                               >
                                 {currentSelectedRow?.index == index &&
@@ -217,7 +254,84 @@ const RecentDuplicateVendorsListing = () => {
                               </Button>
                             </TableCell>
                             <TableCell className="font-normal  dark:!text-white border-r md:max-h-[2.75rem] md:min-h-[2.65rem] 2xl:min-h-[4rem]  font-poppins text-sm text-gray-500 content-center">
-                              <Trash2 className="text-gray-500" />
+                              <div className="flex items-center gap-x-1">
+                                <CustomTooltip content={"Delete Finding"}>
+                                  <Button
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      setDeletionFinding({
+                                        id: item?.id,
+                                        index: index,
+                                        isLoading: true
+                                      });
+                                      deleteDuplicateVendor(item?.id, {
+                                        onSuccess: () => {
+                                          setDeletionFinding({
+                                            id: null,
+                                            index: null,
+                                            isLoading: false
+                                          });
+                                        },
+                                        onError: () => {
+                                          setDeletionFinding({
+                                            id: null,
+                                            index: null,
+                                            isLoading: false
+                                          });
+                                        }
+                                      });
+                                    }}
+                                    disabled={currentSelectedRow?.isLoading||!item?.vendor?.vendor_id}
+                                    className="bg-transparent hover:bg-transparent shadow-none border-none disabled:cursor-not-allowed"
+                                  >
+                                    {deletetionFinding?.index == index &&
+                                    deletetionFinding?.isLoading ? (
+                                      <Loader
+                                        className={"text-gray-500 h-4 w-4"}
+                                      />
+                                    ) : (
+                                      <Trash2 className="text-gray-500 " />
+                                    )}
+                                  </Button>
+                                </CustomTooltip>
+                                <CustomTooltip
+                                  content={
+                                    currentVendorId !==
+                                      item?.vendor?.vendor_id && "View Pdfs"
+                                  }
+                                >
+                                  <Button
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      if (
+                                        currentRowIndex == index &&
+                                        currentVendorId ==
+                                          item?.vendor?.vendor_id
+                                      ) {
+                                        setCurrenRowIndex(null);
+                                        setCurrentVendorId(null);
+                                      } else {
+                                        setCurrenRowIndex(index);
+                                        setCurrentVendorId(
+                                          item?.vendor?.vendor_id
+                                        );
+                                      }
+                                    }}
+                                    disabled={currentSelectedRow?.isLoading||!item?.vendor?.vendor_id}
+                                    className="bg-transparent hover:bg-transparent shadow-none border-none disabled:cursor-not-allowed"
+                                  >
+                                    {currentRowIndex == index &&
+                                    currentVendorId ==
+                                      item?.vendor?.vendor_id ? (
+                                      <X className={"text-red-500 "} />
+                                    ) : (
+                                      <Eye className="text-gray-500 " />
+                                    )}
+                                  </Button>
+                                </CustomTooltip>
+                              </div>
                             </TableCell>
                           </Link>
                         );
@@ -236,6 +350,20 @@ const RecentDuplicateVendorsListing = () => {
                 totalPages={data?.total_pages}
               />
             </div>
+            {currentVendorId !== null && (
+              pdfsData?.data[currentVendorId]?
+              <div className="!w-1/2">
+                <PdfViewer
+                  pdfUrls={pdfsData?.data[currentVendorId]}
+                  isLoading={loadingPdfsData}
+                  height={58}
+                  multiple={true}
+                />
+              </div>:<div className="w-full flex items-center justify-center  h-full">
+                
+                <p className="font-poppins font-semibold text-sm text-black">No Pdfs Found</p>
+              </div>
+            )}
           </div>
         </Layout>
       </div>
