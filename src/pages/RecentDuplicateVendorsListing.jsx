@@ -188,8 +188,8 @@ const RecentDuplicateVendorsListing = () => {
                               <CustomTooltip
                                 className={"!min-w-fit"}
                                 content={
-                                  item?.verified_vendor?.vendor_name?.length >
-                                    30 && item?.verified_vendor?.vendor_name
+                                  item?.vendor?.vendor_name?.length >
+                                    30 && item?.vendor?.vendor_name
                                 }
                               >
                                 <div
@@ -197,7 +197,7 @@ const RecentDuplicateVendorsListing = () => {
                                     e.stopPropagation();
                                     e.preventDefault();
                                     window.open(
-                                      `${OLD_UI}/vendor-consolidation-v2/${item?.potential_duplicate_vendor?.vendor_id}`
+                                      `${OLD_UI}/vendor-consolidation-v2/${item?.vendor?.vendor_id}`
                                     );
                                   }}
                                   className="flex items-center text-primary  justify-between truncate  w-full !capitalize gap-x-4"
