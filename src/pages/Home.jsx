@@ -361,7 +361,9 @@ const Home = () => {
                     }
                     if (invoiceNumber?.length !== 0) {
                       setShowResults(true);
-                      searchInvoices(invoiceNumber, {
+
+
+                      searchInvoices(encodeURIComponent(invoiceNumber), {
                         onSuccess: (data) => {
                           setSearchedInvoices(data?.data);
                         }
