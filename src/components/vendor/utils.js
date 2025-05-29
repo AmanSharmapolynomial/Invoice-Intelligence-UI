@@ -26,14 +26,14 @@ export const createVendor = async (vendor_name) => {
     return response;
   }
 };
-export const getVendorNamesList = async (non_summary) => {
-  if (non_summary) {
+export const getVendorNamesList = async (non_summary,restaurant_id) => {
+  if (non_summary!=="all"&&non_summary) {
     const response = await axiosInstance.get(
-      "/api/vendor/names/?non_summary_vendors=true"
+    `/api/vendor/names/?non_summary_vendors=true&restaurant_id=${restaurant_id}`
     );
     return response;
   } else {
-    const response = await axiosInstance.get("/api/vendor/names/");
+    const response = await axiosInstance.get(`/api/vendor/names/?restaurant_id=${restaurant_id}`);
     return response;
   }
 };
