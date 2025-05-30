@@ -80,7 +80,7 @@ const NotSupportedDocuments = () => {
   const { data: restaurantsList, isLoading: restaurantsListLoading } =
     useListRestaurants();
   const { data: vendorNamesList, isLoading: vendorNamesLoading } =
-    useGetVendorNames();
+    useGetVendorNames("all",restaurant);
   const {
     setRestaurantFilter,
     setVendorFilter,
