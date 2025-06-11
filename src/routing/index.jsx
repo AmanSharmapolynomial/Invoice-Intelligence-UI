@@ -29,6 +29,8 @@ import VendorsWithPotentialDuplicates from "@/pages/VendorsWithPotentialDuplicat
 import CombineDuplicateVendors from "@/pages/CombineDuplicateVendors";
 import VendorsDuplicateBranchFindingsListing from "@/pages/VendorsDuplicateBranchFindingsListing";
 import CombineDuplicateBranchFindings from "@/pages/CombineDuplicateBranchFindings";
+import UnsupportedDocuments from "@/pages/UnsupportedDocuments";
+import UnsupportedDocumentDetails from "@/pages/UnsupportedDocumentDetails";
 
 const publicRoutes = [
   {
@@ -79,6 +81,22 @@ const protectedRoutes = [
     element: (
       <Protected>
         <MyTasks />
+      </Protected>
+    )
+  },
+  {
+    path: "/unsupported-documents",
+    element: (
+      <Protected>
+        <UnsupportedDocuments />
+      </Protected>
+    )
+  },
+  {
+    path: "/unsupported-documents/details",
+    element: (
+      <Protected>
+        <UnsupportedDocumentDetails />
       </Protected>
     )
   },
