@@ -13,7 +13,7 @@ import my_tasks_white from "@/assets/image/check_book_white.svg";
 import my_tasks_black from "@/assets/image/check_book_black.svg";
 import book_user_white from "@/assets/image/book_user_white.svg";
 import book_user_black from "@/assets/image/book_user_black.svg";
-import { ChevronRight, Menu } from "lucide-react";
+import { ChevronRight, ChevronDown, ChevronUp, Menu } from "lucide-react";
 
 const Sidebar = ({ className }) => {
   const { expanded, setExpanded } = useSidebarStore();
@@ -62,7 +62,6 @@ const Sidebar = ({ className }) => {
   const width = expanded ? "18rem" : "3.75rem";
 
   useEffect(() => {
-    // Ensure submenu stays open if any child matches the current path
     const matchingIndex = options.findIndex((option) =>
       option.children?.some((child) => child.path === pathname)
     );
@@ -102,6 +101,20 @@ const Sidebar = ({ className }) => {
             const isSubmenuOpen = openSubmenu === index;
             const hasChildren = option.children?.length > 0;
 
+            const handleClick = (e) => {
+              if (hasChildren) {
+                e.preventDefault();
+                if (!expanded) {
+                  setExpanded(true);
+                  setTimeout(() => handleToggle(index, true), 150);
+                } else {
+                  handleToggle(index, true);
+                }
+              } else {
+                setDefault();
+              }
+            };
+
             const content = (
               <>
                 <div className="relative flex-shrink-0 w-5 h-5">
@@ -119,7 +132,7 @@ const Sidebar = ({ className }) => {
                   />
                 </div>
                 <span
-                  className={`transition-opacity duration-300 ease-in-out ${
+                  className={`flex items-center justify-between w-full transition-opacity duration-300 ease-in-out ${
                     expanded ? "opacity-100" : "opacity-0"
                   } dark:text-white`}
                   style={{
@@ -129,20 +142,19 @@ const Sidebar = ({ className }) => {
                     marginLeft: expanded ? "0.5rem" : "0",
                   }}
                 >
-                  {option.text}
+                  <span>{option.text}</span>
+                  {hasChildren && expanded && (
+                    <span className="ml-auto">
+                      {isSubmenuOpen ? (
+                        <ChevronUp className="w-4 h-4" />
+                      ) : (
+                        <ChevronDown className="w-4 h-4" />
+                      )}
+                    </span>
+                  )}
                 </span>
               </>
             );
-
-            const handleClick = (e) => {
-              if (hasChildren) {
-                // prevent default to avoid navigation on first click
-                e.preventDefault();
-                handleToggle(index, hasChildren);
-              } else {
-                setDefault();
-              }
-            };
 
             const Wrapper = option.path ? Link : "div";
 
