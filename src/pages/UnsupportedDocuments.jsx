@@ -2,6 +2,8 @@ import userStore from "@/components/auth/store/userStore";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import Sidebar from "@/components/common/Sidebar";
+import approved from '@/assets/image/approved.svg'
+import unapproved from '@/assets/image/unapproved.svg'
 import tier_1 from "@/assets/image/tier_1.svg";
 import tier_2 from "@/assets/image/tier_2.svg";
 import tier_3 from "@/assets/image/tier_3.svg";
@@ -40,6 +42,7 @@ import useFilterStore from "@/store/filtersStore";
 import { ArrowRight, Filter } from "lucide-react";
 import React, { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
 
 const UnsupportedDocuments = () => {
   const [searchParams] = useSearchParams();
@@ -375,14 +378,18 @@ const UnsupportedDocuments = () => {
                                   "!text-[#F15156]"
                                 } dark:!text-[#F6F6F6] !pl-[0.7rem] !h-full !min-h-16 !max-h-44 font-poppins  cursor-pointer !text-left border-r capitalize  justify-start gap-x-2  !font-normal   text-sm  `}
                               >
-                                {timeRemainng?.split("-").join("") || "NA"}
+                              <CustomTooltip
+                              content={`Assigned To :- ${assignment_details?.assigned_to?.username}`}
+                              >
+                                  {timeRemainng?.split("-").join("") || "NA"}
+                              </CustomTooltip>
                               </TableCell>
                               <TableCell
                                 className={` dark:!text-[#F6F6F6] !pl-[0.7rem] !h-full  font-poppins  cursor-pointer !text-left border-r capitalize  justify-start gap-x-2  !font-normal   text-sm  `}
                               >
                                 {user_marked_as_unsupported == null
-                                  ? "No"
-                                  : "Yes"}
+                                  ? <img src={unapproved} className="h-5 w-5"/>
+                                  : <img src={approved} className="h-5 w-5"/>}
                               </TableCell>
                             </TableRow>
                           );
