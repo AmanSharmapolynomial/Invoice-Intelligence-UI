@@ -434,6 +434,7 @@ export const useUpdateDocumentStatus=()=>{
     },
     onSuccess: (data) => {
       toast.success(data?.message);
+      queryClient.invalidateQueries(['unsupported-documents'])
       // queryClient.invalidateQueries(["document-metadata"]);
     }
   })
