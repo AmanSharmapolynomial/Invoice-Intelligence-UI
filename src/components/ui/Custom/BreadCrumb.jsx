@@ -34,6 +34,10 @@ const BreadCrumb = ({
   const navigator = () => {
     if (pathname == "/home") {
       navigate("/");
+    } else if (pathname?.includes("/unsupported-documents/details/")) {
+      navigate("/unsupported-documents");
+    } else if (pathname == "/unsupported-documents") {
+      navigate("/home");
     } else if (pathname == "/item-master-vendors") {
       navigate("/");
     } else if (pathname == "/bulk-categorization") {
