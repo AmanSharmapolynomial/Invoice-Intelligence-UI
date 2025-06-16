@@ -41,7 +41,7 @@ import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import useFilterStore from "@/store/filtersStore";
 import { ArrowRight, Filter } from "lucide-react";
 import React, { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
 
 const UnsupportedDocuments = () => {
@@ -55,6 +55,8 @@ const UnsupportedDocuments = () => {
     searchParams.get("human_verification") ||
     filters?.human_verification ||
     "all";
+const {pathname}=useLocation();
+    let isAll=pathname?.includes("flagged-invoices")
   let human_verified =
     searchParams.get("human_verified") || filters?.human_verified;
   let detected =
@@ -98,7 +100,7 @@ const UnsupportedDocuments = () => {
     page,
     sort_order,
     human_verified,
-    assigned_to: userId,
+    assigned_to:!isAll? userId:"",
     document_priority,
     auto_accepted_by_vda,
     review_later: "false",
@@ -379,9 +381,9 @@ const UnsupportedDocuments = () => {
                                 } dark:!text-[#F6F6F6] !pl-[0.7rem] !h-full !min-h-16 !max-h-44 font-poppins  cursor-pointer !text-left border-r capitalize  justify-start gap-x-2  !font-normal   text-sm  `}
                               >
                               <CustomTooltip
-                              content={`Assigned To :- ${assignment_details?.assigned_to?.username}`}
+                              content={assignment_details&&`Assigned To :- ${assignment_details?.assigned_to?.username}`}
                               >
-                                  {timeRemainng?.split("-").join("") || "NA"}
+                                  {assignment_details?timeRemainng?.split("-").join("") || "NA":"NA"}
                               </CustomTooltip>
                               </TableCell>
                               <TableCell

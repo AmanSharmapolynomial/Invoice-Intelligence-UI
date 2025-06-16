@@ -31,6 +31,7 @@ import VendorsDuplicateBranchFindingsListing from "@/pages/VendorsDuplicateBranc
 import CombineDuplicateBranchFindings from "@/pages/CombineDuplicateBranchFindings";
 import UnsupportedDocuments from "@/pages/UnsupportedDocuments";
 import UnsupportedDocumentDetails from "@/pages/UnsupportedDocumentDetails";
+import AllFlaggedInvoices from "@/pages/AllFlaggedInvoices";
 
 const publicRoutes = [
   {
@@ -57,6 +58,14 @@ const protectedRoutes = [
     element: (
       <Protected>
         <Home />
+      </Protected>
+    )
+  },
+  {
+    path: "/flagged-invoices",
+    element: (
+      <Protected>
+        <AllFlaggedInvoices />
       </Protected>
     )
   },

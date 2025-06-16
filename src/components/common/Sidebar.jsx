@@ -30,6 +30,12 @@ const Sidebar = ({ className }) => {
       hoverImage: all_invoices_white,
     },
     {
+      path: "/flagged-invoices",
+      text: "All Flagged Invoices",
+      image: theme === "light" ? all_invoices_black : all_invoices_white,
+      hoverImage: all_invoices_white,
+    },
+    {
       path: "/my-tasks",
       text: "My Tasks",
       image: theme === "light" ? my_tasks_black : my_tasks_white,
@@ -101,19 +107,24 @@ const Sidebar = ({ className }) => {
             const isSubmenuOpen = openSubmenu === index;
             const hasChildren = option.children?.length > 0;
 
-            const handleClick = (e) => {
-              if (hasChildren) {
-                e.preventDefault();
-                if (!expanded) {
-                  setExpanded(true);
-                  setTimeout(() => handleToggle(index, true), 150);
-                } else {
-                  handleToggle(index, true);
-                }
-              } else {
-                setDefault();
-              }
-            };
+          const handleClick = (e) => {
+  if (hasChildren) {
+    e.preventDefault();
+    if (!expanded) {
+      setExpanded(true);
+      setTimeout(() => handleToggle(index, true), 150);
+    } else {
+      handleToggle(index, true);
+    }
+  } else {
+    if (pathname === option.path) {
+      e.preventDefault(); // Prevent navigation to the same route
+      return;
+    }
+    setDefault();
+  }
+};
+
 
             const content = (
               <>

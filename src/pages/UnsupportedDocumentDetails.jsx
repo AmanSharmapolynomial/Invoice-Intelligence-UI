@@ -60,7 +60,7 @@ const UnsupportedDocumentDetails = () => {
   let detected =
     searchParams.get("invoice_detection_status") || filters?.detected || "all";
   let rerun_status =
-    searchParams.get("rerun_status") || filters?.human_verified;
+    searchParams.get("rerun_status") || filters?.rerun_status;
   let auto_accepted =
     searchParams.get("auto_accepted") || filters?.auto_accepted;
   let start_date = searchParams.get("start_date") || filters?.start_date;
@@ -90,7 +90,7 @@ const UnsupportedDocumentDetails = () => {
     detected: detected,
     invoice_type: invoice_type,
     clickbacon_status: clickbacon_status,
-    rerun_status: rerun_status,
+    // rerun_status: rerun_status,
     restaurant: restaurant,
     start_date: start_date,
     vendor: vendor,
