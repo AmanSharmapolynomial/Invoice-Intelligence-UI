@@ -75,7 +75,7 @@ const {pathname}=useLocation();
     searchParams.get("vendor_id") || searchParams.get("vendor") || "";
   let sort_order = searchParams.get("sort_order") || "desc";
   let invoice_number = searchParams.get("invoice_number") || "";
-  let assigned_to = searchParams.get("assigned_to");
+  let assigned_to = searchParams.get("assigned_to")||(isAll?"":userId);
   let rejected = searchParams.get("rejected") || "all";
   let extraction_source = searchParams.get("extraction_source") || "all";
   let auto_accepted_by_vda = searchParams.get("auto_accepted_by_vda") || "all";
@@ -100,14 +100,14 @@ const {pathname}=useLocation();
     page,
     sort_order,
     human_verified,
-    assigned_to:!isAll? userId:"",
+    assigned_to: assigned_to,
     document_priority,
     auto_accepted_by_vda,
     review_later: "false",
     restaurant_tier: restaurant_tier || "all",
     rejected,
     extraction_source,
-    detailed_view: false
+    detailed_view: false,
   };
   const { data, isLoading } = useGetUnSupportedDocuments(payload);
   const navigate = useNavigate();

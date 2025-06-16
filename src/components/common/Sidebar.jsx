@@ -11,14 +11,18 @@ import not_supported_white from "@/assets/image/not_supported_white.svg";
 import not_supported_black from "@/assets/image/not_supported_black.svg";
 import my_tasks_white from "@/assets/image/check_book_white.svg";
 import my_tasks_black from "@/assets/image/check_book_black.svg";
+import flagged_white from '@/assets/image/flagged_white.svg'
+import flagged_black from '@/assets/image/flagged_black.svg'
 import book_user_white from "@/assets/image/book_user_white.svg";
 import book_user_black from "@/assets/image/book_user_black.svg";
 import { ChevronRight, ChevronDown, ChevronUp, Menu } from "lucide-react";
+import userStore from "../auth/store/userStore";
 
 const Sidebar = ({ className }) => {
   const { expanded, setExpanded } = useSidebarStore();
   const { theme } = useThemeStore();
   const { pathname } = useLocation();
+  const { role } = userStore();
   const { setDefault } = useFilterStore();
   const [openSubmenu, setOpenSubmenu] = useState(null);
 
@@ -27,13 +31,13 @@ const Sidebar = ({ className }) => {
       path: "/home",
       text: "All Invoices",
       image: theme === "light" ? all_invoices_black : all_invoices_white,
-      hoverImage: all_invoices_white,
+      hoverImage: all_invoices_white
     },
     {
       path: "/flagged-invoices",
       text: "All Flagged Invoices",
-      image: theme === "light" ? all_invoices_black : all_invoices_white,
-      hoverImage: all_invoices_white,
+      image: theme === "light" ? flagged_black : flagged_white,
+      hoverImage:flagged_white
     },
     {
       path: "/my-tasks",
@@ -42,27 +46,27 @@ const Sidebar = ({ className }) => {
       hoverImage: my_tasks_white,
       children: [
         { path: "/my-tasks", text: "Processed Documents" },
-        { path: "/unsupported-documents", text: "Flagged Documents" },
-      ],
+        { path: "/unsupported-documents", text: "Flagged Documents" }
+      ]
     },
     {
       path: "/review-later-tasks",
       text: "Review Later Invoices",
       image: theme === "light" ? review_later_black : review_later_white,
-      hoverImage: review_later_white,
+      hoverImage: review_later_white
     },
     {
       path: "/not-supported-documents",
       text: "Not Supported Documents",
       image: theme === "light" ? not_supported_black : not_supported_white,
-      hoverImage: not_supported_white,
+      hoverImage: not_supported_white
     },
     {
       path: null,
       text: "Vendor Consolidation",
       image: theme === "light" ? book_user_black : book_user_white,
-      hoverImage: book_user_white,
-    },
+      hoverImage: book_user_white
+    }
   ];
 
   const width = expanded ? "18rem" : "3.75rem";
@@ -100,31 +104,30 @@ const Sidebar = ({ className }) => {
         )}
 
         <div className="mt-24 space-y-2 flex flex-col">
-          {options.map((option, index) => {
+          {options?.map((option, index) => {
             const isActive =
               pathname === option.path ||
               option.children?.some((child) => child.path === pathname);
             const isSubmenuOpen = openSubmenu === index;
             const hasChildren = option.children?.length > 0;
 
-          const handleClick = (e) => {
-  if (hasChildren) {
-    e.preventDefault();
-    if (!expanded) {
-      setExpanded(true);
-      setTimeout(() => handleToggle(index, true), 150);
-    } else {
-      handleToggle(index, true);
-    }
-  } else {
-    if (pathname === option.path) {
-      e.preventDefault(); // Prevent navigation to the same route
-      return;
-    }
-    setDefault();
-  }
-};
-
+            const handleClick = (e) => {
+              if (hasChildren) {
+                e.preventDefault();
+                if (!expanded) {
+                  setExpanded(true);
+                  setTimeout(() => handleToggle(index, true), 150);
+                } else {
+                  handleToggle(index, true);
+                }
+              } else {
+                if (pathname === option.path) {
+                  e.preventDefault(); // Prevent navigation to the same route
+                  return;
+                }
+                setDefault();
+              }
+            };
 
             const content = (
               <>
@@ -150,7 +153,7 @@ const Sidebar = ({ className }) => {
                     whiteSpace: "nowrap",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
-                    marginLeft: expanded ? "0.5rem" : "0",
+                    marginLeft: expanded ? "0.5rem" : "0"
                   }}
                 >
                   <span>{option.text}</span>
@@ -170,7 +173,7 @@ const Sidebar = ({ className }) => {
             const Wrapper = option.path ? Link : "div";
 
             return (
-              <div key={index}>
+              <div key={index} className={`${role!=="admin" && option?.text=="Not Supported Documents"&&"hidden"}`}>
                 <Wrapper
                   to={option.path || "#"}
                   onClick={handleClick}

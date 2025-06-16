@@ -243,16 +243,17 @@ export function calculateTimeDifference(dueDate) {
   const now = new Date();
   const timeDiff = dueDate - now;
 
-  const hours = Math.floor(
-    (timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-  );
+  const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
 
   if (timeDiff <= 0) {
-    return `Due  ${hours}h ${minutes}m ago`;
+    return `Due ${Math.abs(days)}d ${Math.abs(hours)}h ${Math.abs(minutes)}m ago`;
   }
-  return `${hours}h ${minutes}m`;
+
+  return `${days}d ${hours}h ${minutes}m`;
 }
+
 
 export const headerNamesFormatter = (header_names) => {
   return header_names?.map(
