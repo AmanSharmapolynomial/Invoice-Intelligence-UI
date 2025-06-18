@@ -47,7 +47,7 @@ import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import useFilterStore from "@/store/filtersStore";
 import { ArrowRight, Filter, Info, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 
 const UnsupportedDocumentDetails = () => {
@@ -57,6 +57,7 @@ const UnsupportedDocumentDetails = () => {
   let page = searchParams.get("page_number") || 1;
   let page_size = searchParams.get("page_size") || 1;
   let invoice_type = searchParams.get("invoice_type") || "";
+  let is_all=searchParams.get("is_all")
   let human_verification =
     searchParams.get("human_verification") || filters?.human_verification;
   let human_verified =
@@ -110,7 +111,7 @@ const UnsupportedDocumentDetails = () => {
     extraction_source,
     detailed_view: true
   };
-  const { data, isLoading } = useGetUnSupportedDocuments(payload);
+  const { data, isLoading } = useGetUnSupportedDocuments({...payload,assigned_to:is_all?assigned_to||"":userId});
   const { mutate: updateStatus } = useUpdateDocumentStatus();
   const [markingAsFlagged, setMarkingAsFlagged] = useState(false);
   const [markingAsSupported, setMarkingAsSupported] = useState(false);
@@ -161,6 +162,7 @@ const UnsupportedDocumentDetails = () => {
   useEffect(() => {
     appendFiltersToUrl();
   }, []);
+  
   return (
     <div className="h-screen  flex w-full " id="maindiv">
       <Sidebar />

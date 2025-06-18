@@ -340,7 +340,7 @@ const {pathname}=useLocation();
                                 window.open(
                                   `/unsupported-documents/details/?page_number=${
                                     (page - 1) * 10 + (index + 1)
-                                  }`
+                                }&is_all=${isAll}`
                                 );
                               }}
                               key={index}
