@@ -4,11 +4,14 @@ import Navbar from "@/components/common/Navbar";
 import no_data from "@/assets/image/no-data.svg";
 import tier_1 from "@/assets/image/tier_1.svg";
 import tier_2 from "@/assets/image/tier_2.svg";
+import approved from "@/assets/image/approved.svg";
+import unapproved from "@/assets/image/unapproved.svg";
 import tier_3 from "@/assets/image/tier_3.svg";
 import { PdfViewer } from "@/components/common/PDFViewer";
 import Sidebar from "@/components/common/Sidebar";
 import { useListRestaurants } from "@/components/home/api";
 import {
+  useGetSupportedUnsupportedOptions,
   useGetUnSupportedDocuments,
   useUpdateDocumentStatus
 } from "@/components/invoice/api";
@@ -45,9 +48,10 @@ import useFilterStore from "@/store/filtersStore";
 import { ArrowRight, Filter, Info, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const UnsupportedDocumentDetails = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { filters, setFilters } = useFilterStore();
   let { userId } = userStore();
   let page = searchParams.get("page_number") || 1;
@@ -59,8 +63,7 @@ const UnsupportedDocumentDetails = () => {
     searchParams.get("human_verified") || filters?.human_verified;
   let detected =
     searchParams.get("invoice_detection_status") || filters?.detected || "all";
-  let rerun_status =
-    searchParams.get("rerun_status") || filters?.rerun_status;
+  let rerun_status = searchParams.get("rerun_status") || filters?.rerun_status;
   let auto_accepted =
     searchParams.get("auto_accepted") || filters?.auto_accepted;
   let start_date = searchParams.get("start_date") || filters?.start_date;
@@ -98,7 +101,7 @@ const UnsupportedDocumentDetails = () => {
     page,
     sort_order,
     human_verified,
-    assigned_to: userId,
+    assigned_to: assigned_to||userId,
     document_priority,
     auto_accepted_by_vda,
     review_later: "false",
@@ -139,7 +142,25 @@ const UnsupportedDocumentDetails = () => {
       }
     }
   }, [data, isLoading]);
+  const { data: options, isLoading: loadingUnsupportedSupportedOptions } =
+    useGetSupportedUnsupportedOptions();
+  const appendFiltersToUrl = () => {
+    const newParams = new URLSearchParams(searchParams);
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value) {
+     
+        if (key == "page" || key == "page_number" || key == "page_size") {
+          return;
+        }
+        newParams.set(key, value);
+      }
+    });
+    setSearchParams(newParams);
+  };
 
+  useEffect(() => {
+    appendFiltersToUrl();
+  }, []);
   return (
     <div className="h-screen  flex w-full " id="maindiv">
       <Sidebar />
@@ -392,9 +413,12 @@ const UnsupportedDocumentDetails = () => {
                           User Reviewed
                         </TableCell>
                         <TableCell className="capitalize font-poppins font-normal text-sm leading-5 text-black">
-                          {data?.data?.[0]?.user_marked_as_unsupported
-                            ? "Yes"
-                            : "No"}
+                          {data?.data?.[0]?.user_marked_as_unsupported ==
+                          null ? (
+                            <img src={unapproved} className="h-5 w-5" />
+                          ) : (
+                            <img src={approved} className="h-5 w-5" />
+                          )}
                         </TableCell>
                       </TableRow>
                       <TableRow className="!border">
@@ -410,82 +434,116 @@ const UnsupportedDocumentDetails = () => {
                       </TableRow>
                     </TableBody>
                   </Table>
-                  <div className="gap-x-2 flex mt-4  gap-y-4 justify-center  items-start">
-                    <div className="flex  items-center gap-x-2 justify-center">
-                      <CustomTooltip
-                        className={"!min-w-80"}
-                        content={
-                          data?.data?.[0]?.action_controls
-                            ?.mark_as_supported_or_unsupported?.disabled
-                            ? data?.data?.[0]?.action_controls
-                                ?.mark_as_supported_or_unsupported?.reason
-                            : "Mark this document as a Supported Document."
-                        }
-                      >
-                        <Button
-                          onClick={() => {
-                            setMarkingAsSupported(true);
-                            let payload = {
-                              is_unsupported_document: false,
-                              document_uuid: data?.data?.[0]?.document_uuid
-                            };
-                            updateStatus(payload, {
-                              onSuccess: () => {
-                                setMarkingAsSupported(false);
-                              },
-                              onError: () => {
-                                setMarkingAsSupported(false);
-                              }
-                            });
-                          }}
-                          disabled={
-                            data?.data?.[0]?.action_controls
-                              ?.mark_as_supported_or_unsupported?.disabled ||
-                            markingAsFlagged ||
-                            markingAsSupported
-                          }
-                          className="rounded-sm font-poppins font-normal  text-sm"
-                        >
+                  <div className="gap-x-2 mt-4  gap-y-4  w-full  items-start">
+                    <div className="flex  items-center w-full ">
+                      <div className="w-1/2 border">
+                        <p className=" font-poppins font-medium text-sm leading-4 py-2 flex justify-center items-center">
                           Supported
-                        </Button>
-                      </CustomTooltip>
-                      <CustomTooltip
-                        className={"!min-w-80"}
-                        content={
-                          data?.data?.[0]?.action_controls
-                            ?.mark_as_supported_or_unsupported?.disabled
-                            ? data?.data?.[0]?.action_controls
-                                ?.mark_as_supported_or_unsupported?.reason
-                            : "Mark this document as a Flagged Document."
-                        }
-                      >
-                        <Button
-                          onClick={() => {
-                            setMarkingAsFlagged(true);
-                            let payload = {
-                              is_unsupported_document: true,
-                              document_uuid: data?.data?.[0]?.document_uuid
-                            };
-                            updateStatus(payload, {
-                              onSuccess: () => {
-                                setMarkingAsFlagged(false);
-                              },
-                              onError: () => {
-                                setMarkingAsFlagged(false);
-                              }
-                            });
-                          }}
-                          disabled={
-                            data?.data?.[0]?.action_controls
-                              ?.mark_as_supported_or_unsupported?.disabled ||
-                            markingAsFlagged ||
-                            markingAsSupported
+                        </p>
+                      </div>
+                      <div className="w-1/2 border">
+                        <p className=" font-poppins font-medium text-sm leading-4 py-2 flex justify-center items-center">
+                          Unsupported
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start w-full ">
+                      <div className="w-1/2 grid grid-cols-3 gap-2 h mt-2  align-top items-start justify-self-start">
+                        {options?.data?.supported_document_types?.map(
+                          (type) => {
+                            return (
+                              <CustomTooltip
+                                key={type}
+                                content={
+                                  data?.data?.[0]?.action_controls
+                                    ?.mark_as_supported_or_unsupported
+                                    ?.disabled &&
+                                  data?.data?.[0]?.action_controls
+                                    ?.mark_as_supported_or_unsupported?.reason
+                                }
+                              >
+                                <Button
+                                  disabled={
+                                    markingAsSupported ||
+                                    data?.data?.[0]?.action_controls
+                                      ?.mark_as_supported_or_unsupported
+                                      ?.disabled
+                                  }
+                                  onClick={() => {
+                                    setMarkingAsSupported(true);
+                                    let payload = {
+                                      document_type: type,
+                                      document_uuid:
+                                        data?.data?.[0]?.document_uuid
+                                    };
+                                    updateStatus(payload, {
+                                      onSuccess: () => {
+                                        // toast.success(data?.message)
+                                        setMarkingAsSupported(false);
+                                      },
+                                      onError: () => {
+                                        setMarkingAsSupported(false);
+                                      }
+                                    });
+                                  }}
+                                  className="rounded-sm w-full hover:bg-transparent bg-transparent border border-primary text-black font-poppins font-medium text-xs"
+                                  // key={type}
+                                >
+                                  {type}
+                                </Button>
+                              </CustomTooltip>
+                            );
                           }
-                          className="rounded-sm font-poppins font-normal  text-sm"
-                        >
-                          Not Supported
-                        </Button>
-                      </CustomTooltip>
+                        )}
+                      </div>
+                      <div className="w-1/2 grid grid-cols-3 gap-2 px-2 mt-2">
+                        {options?.data?.unsupported_document_types?.map(
+                          (type) => {
+                            return (
+                              <CustomTooltip
+                                key={type}
+                                content={
+                                  data?.data?.[0]?.action_controls
+                                    ?.mark_as_supported_or_unsupported
+                                    ?.disabled &&
+                                  data?.data?.[0]?.action_controls
+                                    ?.mark_as_supported_or_unsupported?.reason
+                                }
+                              >
+                                <Button
+                                  disabled={
+                                    markingAsSupported ||
+                                    data?.data?.[0]?.action_controls
+                                      ?.mark_as_supported_or_unsupported
+                                      ?.disabled
+                                  }
+                                  onClick={() => {
+                                    setMarkingAsSupported(true);
+                                    let payload = {
+                                      document_type: type,
+                                      document_uuid:
+                                        data?.data?.[0]?.document_uuid
+                                    };
+                                    updateStatus(payload, {
+                                      onSuccess: () => {
+                                        // toast.success(data?.message)
+                                        setMarkingAsSupported(false);
+                                      },
+                                      onError: () => {
+                                        setMarkingAsSupported(false);
+                                      }
+                                    });
+                                  }}
+                                  className="rounded-sm w-full capitalize font-medium text-xs bg-transparent text-black hover:bg-transparent  border-[#F15156] border "
+                                  // key={type}
+                                >
+                                  {type}
+                                </Button>
+                              </CustomTooltip>
+                            );
+                          }
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

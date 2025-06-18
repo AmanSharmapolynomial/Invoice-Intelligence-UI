@@ -425,7 +425,7 @@ export const useUpdateDocumentStatus=()=>{
   return useMutation({
     mutationFn:async (payload)=>{
        let response=await axiosInstance.put(`/api/document/unsupported/${payload?.document_uuid}/update-status/`,{
-        is_unsupported_document:payload?.is_unsupported_document
+        document_type:payload?.document_type
        });
        return response;
     },
@@ -436,6 +436,17 @@ export const useUpdateDocumentStatus=()=>{
       toast.success(data?.message);
       queryClient.invalidateQueries(['unsupported-documents'])
       // queryClient.invalidateQueries(["document-metadata"]);
+    }
+  })
+}
+
+
+export const useGetSupportedUnsupportedOptions=()=>{
+  return useQuery({
+    queryKey:['unsupported-supported-options'],
+    queryFn:async()=>{
+      let response=await axiosInstance.get(`/api/document/unsupported/supported-unsupported-options/`);
+      return response;
     }
   })
 }
