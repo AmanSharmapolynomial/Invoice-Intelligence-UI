@@ -246,15 +246,15 @@ const InvoiceFilters = () => {
               onSelect={(val) => {
                 if (typeof val == "object") {
                   let assigned_to = val.map((item) => item).join(",");
-                  setFilters({ ...filters, assigned_to: assigned_to });
-                  updateParams({ assigned_to: assigned_to });
+                  setFilters({ ...filters, assigned_to: assigned_to,page:1 });
+                  updateParams({ assigned_to: assigned_to,page:1 });
                 } else {
                   if (val == "none") {
                     updateParams({ assigned_to: undefined });
-                    setFilters({ ...filters, assigned_to: undefined });
+                    setFilters({ ...filters, assigned_to: undefined,page:1 });
                   } else {
-                    updateParams({ assigned_to: val });
-                    setFilters({ ...filters, assigned_to: val });
+                    updateParams({ assigned_to: val,page:1 });
+                    setFilters({ ...filters, assigned_to: val,page:1 });
                   }
                 }
               }}
