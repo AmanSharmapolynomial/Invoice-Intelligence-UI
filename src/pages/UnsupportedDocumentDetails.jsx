@@ -464,8 +464,8 @@ const UnsupportedDocumentDetails = () => {
                       </TableRow>
                     </TableBody>
                   </Table>
-                  <div className="gap-x-2 mt-4  gap-y-4  w-full  items-start">
-                    <div className="mb-4">
+                  <div className="gap-x-2 mt-4  gap-y-4  w-full  items-start justify-center">
+                    <div className="mb-4 flex items-center justify-center">
                       <CustomTooltip
                         content={
                           data?.data?.[0]?.action_controls
@@ -497,9 +497,9 @@ const UnsupportedDocumentDetails = () => {
                               }
                             });
                           }}
-                          className="font-poppins rounded-sm font-normal text-xs"
+                          className="font-poppins rounded-sm font-normal text-sm"
                         >
-                          <CheckCheck className="h-4 w-4 " /> Prediction
+                          <CheckCheck className="h-4 w-4 " /> Accept Prediction
                         </Button>
                       </CustomTooltip>
                     </div>
