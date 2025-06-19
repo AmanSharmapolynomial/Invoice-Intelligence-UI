@@ -30,12 +30,17 @@ const BreadCrumb = ({
   const [searchParams] = useSearchParams();
   let from_view = searchParams.get("from_view");
   const { filters } = useFilterStore();
-
+  
   const navigator = () => {
     if (pathname == "/home") {
       navigate("/");
     } else if (pathname?.includes("/unsupported-documents/details/")) {
-      navigate("/unsupported-documents");
+      if(searchParams.get("is_all")){
+ navigate("/flagged-invoices");
+      }else{
+
+        navigate("/unsupported-documents");
+      }
     } else if (pathname == "/unsupported-documents") {
       navigate("/home");
     } else if (pathname == "/item-master-vendors") {
