@@ -30,10 +30,19 @@ const BreadCrumb = ({
   const [searchParams] = useSearchParams();
   let from_view = searchParams.get("from_view");
   const { filters } = useFilterStore();
-
+  
   const navigator = () => {
     if (pathname == "/home") {
       navigate("/");
+    } else if (pathname?.includes("/unsupported-documents/details/")) {
+      if(searchParams.get("is_all")){
+ navigate("/flagged-invoices");
+      }else{
+
+        navigate("/unsupported-documents");
+      }
+    } else if (pathname == "/unsupported-documents") {
+      navigate("/home");
     } else if (pathname == "/item-master-vendors") {
       navigate("/");
     } else if (pathname == "/bulk-categorization") {
@@ -42,7 +51,11 @@ const BreadCrumb = ({
       navigate("/vendors-duplicate-branch-findings");
     } else if (from_view == "item-master-vendors") {
       navigate("/item-master-vendors");
-    } else if (pathname == "/invoice-details/") {
+    }else if (pathname?.includes("/recent-duplicate-branch-findings")){
+       navigate("/vendors-duplicate-branch-findings");
+    }
+    
+    else if (pathname == "/invoice-details/") {
       if (from_view == "review_later") {
         const newParams = new URLSearchParams();
 

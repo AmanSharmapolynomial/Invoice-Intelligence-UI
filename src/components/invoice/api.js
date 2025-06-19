@@ -13,7 +13,8 @@ import {
   getVendorTypesAndCategories,
   updateVendorTypesAndCategories,
   getItemMasterSimilarItems,
-  getInvoiceMetaDataBoundingboxes
+  getInvoiceMetaDataBoundingboxes,
+  getUnsupportedDocuments
 } from "./utils";
 import { axiosInstance } from "@/axios/instance";
 import toast from "react-hot-toast";
@@ -23,6 +24,13 @@ export const useGetDocumentMetadata = (payload) => {
   return useQuery({
     queryKey: ["document-metadata", payload],
     queryFn: () => getInvoiceMetaData(payload),
+    gcTime: 0
+  });
+};
+export const useGetUnSupportedDocuments = (payload) => {
+  return useQuery({
+    queryKey: ["unsupported-documents", payload],
+    queryFn: () => getUnsupportedDocuments(payload),
     gcTime: 0
   });
 };
@@ -407,6 +415,38 @@ export const useReprocessDocument=()=>{
     onSuccess: (data) => {
       toast.success(data?.message);
       // queryClient.invalidateQueries(["document-metadata"]);
+    }
+  })
+}
+
+
+
+export const useUpdateDocumentStatus=()=>{
+  return useMutation({
+    mutationFn:async (payload)=>{
+       let response=await axiosInstance.put(`/api/document/unsupported/${payload?.document_uuid}/update-status/`,{
+        document_type:payload?.document_type
+       });
+       return response;
+    },
+  onError: (data) => {
+      toast.error(data?.message);
+    },
+    onSuccess: (data) => {
+      toast.success(data?.message);
+      queryClient.invalidateQueries(['unsupported-documents'])
+      // queryClient.invalidateQueries(["document-metadata"]);
+    }
+  })
+}
+
+
+export const useGetSupportedUnsupportedOptions=()=>{
+  return useQuery({
+    queryKey:['unsupported-supported-options'],
+    queryFn:async()=>{
+      let response=await axiosInstance.get(`/api/document/unsupported/supported-unsupported-options/`);
+      return response;
     }
   })
 }

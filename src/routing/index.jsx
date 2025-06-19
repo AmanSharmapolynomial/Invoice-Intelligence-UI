@@ -29,6 +29,11 @@ import VendorsWithPotentialDuplicates from "@/pages/VendorsWithPotentialDuplicat
 import CombineDuplicateVendors from "@/pages/CombineDuplicateVendors";
 import VendorsDuplicateBranchFindingsListing from "@/pages/VendorsDuplicateBranchFindingsListing";
 import CombineDuplicateBranchFindings from "@/pages/CombineDuplicateBranchFindings";
+import UnsupportedDocuments from "@/pages/UnsupportedDocuments";
+import UnsupportedDocumentDetails from "@/pages/UnsupportedDocumentDetails";
+import RecentDuplicateBranchesListing from "@/pages/RecentDuplicateBranchesListing";
+import RecentDuplicateVendorsListing from "@/pages/RecentDuplicateVendorsListing";
+import AllFlaggedInvoices from "@/pages/AllFlaggedInvoices";
 
 const publicRoutes = [
   {
@@ -59,6 +64,14 @@ const protectedRoutes = [
     )
   },
   {
+    path: "/flagged-invoices",
+    element: (
+      <Protected>
+        <AllFlaggedInvoices />
+      </Protected>
+    )
+  },
+  {
     path: "/review-later-tasks",
     element: (
       <Protected>
@@ -79,6 +92,22 @@ const protectedRoutes = [
     element: (
       <Protected>
         <MyTasks />
+      </Protected>
+    )
+  },
+  {
+    path: "/unsupported-documents",
+    element: (
+      <Protected>
+        <UnsupportedDocuments />
+      </Protected>
+    )
+  },
+  {
+    path: "/unsupported-documents/details",
+    element: (
+      <Protected>
+        <UnsupportedDocumentDetails />
       </Protected>
     )
   },
@@ -251,6 +280,14 @@ const protectedRoutes = [
       </Protected>
     )
   },
+   {
+    path: "/recent-duplicate-vendor-findings",
+    element: (
+      <Protected>
+        <RecentDuplicateVendorsListing/>
+      </Protected>
+    )
+  },
 
   // Duplicate Branch Findings
   {
@@ -266,6 +303,14 @@ const protectedRoutes = [
     element: (
       <Protected>
         <CombineDuplicateBranchFindings/>
+      </Protected>
+    )
+  },
+  {
+    path: "/recent-duplicate-branch-findings",
+    element: (
+      <Protected>
+        <RecentDuplicateBranchesListing/>
       </Protected>
     )
   },
