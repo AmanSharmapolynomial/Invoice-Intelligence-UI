@@ -291,7 +291,7 @@ const {pathname}=useLocation();
                     <TableHead
                       className={`  dark:text-[#F6F6F6] flex-wrap break-words !min-h-16 !max-h-fit  border-r text-[#000000] font-poppins  items-center !justify-start !pl-[0.7rem] gap-x-1  !font-semibold text-sm !w-[10%]   `}
                     >
-                      User Reviewed
+                      Human Verified
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -375,7 +375,7 @@ const {pathname}=useLocation();
                                 {formatDateTimeToReadable(date_uploaded)}
                               </TableCell>
                               <TableCell
-                                className={` ${
+                                className={` ${user_marked_as_unsupported!==null?"!text-primary":
                                   timeRemainng?.includes("ago") &&
                                   "!text-[#F15156]"
                                 } dark:!text-[#F6F6F6] !pl-[0.7rem] !h-full !min-h-16 !max-h-44 font-poppins  cursor-pointer !text-left border-r capitalize  justify-start gap-x-2  !font-normal   text-sm  `}
@@ -383,7 +383,7 @@ const {pathname}=useLocation();
                               <CustomTooltip
                               content={assignment_details&&`Assigned To :- ${assignment_details?.assigned_to?.username}`}
                               >
-                                  {assignment_details?timeRemainng?.split("-").join("") || "NA":"NA"}
+                                  {user_marked_as_unsupported!==null?"Completed":assignment_details?timeRemainng?.split("-").join("") || "NA":"NA"}
                               </CustomTooltip>
                               </TableCell>
                               <TableCell

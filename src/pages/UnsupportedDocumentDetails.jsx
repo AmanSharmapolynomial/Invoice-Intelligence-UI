@@ -432,15 +432,18 @@ const UnsupportedDocumentDetails = () => {
                         </TableCell>
                         <TableCell
                           className={`${
-                            timeRemainng?.includes("ago") && "!text-[#F15156]"
+                            data?.data?.[0]?.user_marked_as_unsupported !== null
+                              ? "!text-primary"
+                              : timeRemainng?.includes("ago") &&
+                                "!text-[#F15156]"
                           }  font-poppins capitalize font-normal text-sm leading-5 text-black`}
                         >
-                          {timeRemainng?.split("-").join("") || "NA"}
+                          {data?.data?.[0]?.user_marked_as_unsupported?"Completed":timeRemainng?.split("-").join("") || "NA"}
                         </TableCell>
                       </TableRow>
                       <TableRow className="!border">
                         <TableCell className="border-r capitalize font-poppins font-normal text-sm leading-5 text-black ">
-                          User Reviewed
+                          Human Verified
                         </TableCell>
                         <TableCell className="capitalize font-poppins font-normal text-sm leading-5 text-black">
                           {data?.data?.[0]?.user_marked_as_unsupported ==
@@ -518,7 +521,9 @@ const UnsupportedDocumentDetails = () => {
                     <div className="flex items-start w-full ">
                       <div className="w-1/2 grid grid-cols-3 gap-2 h mt-2  align-top items-start justify-self-start">
                         {options?.data?.supported_document_types
-                         ?.sort((a, b) => a?.toLowerCase().localeCompare(b?.toLowerCase()))
+                          ?.sort((a, b) =>
+                            a?.toLowerCase().localeCompare(b?.toLowerCase())
+                          )
 
                           ?.map((type) => {
                             return (
@@ -567,7 +572,9 @@ const UnsupportedDocumentDetails = () => {
                       </div>
                       <div className="w-1/2 grid grid-cols-3 gap-2 px-2 mt-2">
                         {options?.data?.unsupported_document_types
-?.sort((a, b) => a?.toLowerCase().localeCompare(b?.toLowerCase()))
+                          ?.sort((a, b) =>
+                            a?.toLowerCase().localeCompare(b?.toLowerCase())
+                          )
 
                           ?.map((type) => {
                             return (
