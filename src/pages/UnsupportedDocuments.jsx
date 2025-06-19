@@ -337,7 +337,7 @@ const {pathname}=useLocation();
                           return (
                             <TableRow
                               onClick={() => {
-                                window.open(
+                                navigate(
                                   `/unsupported-documents/details/?page_number=${
                                     (page - 1) * 10 + (index + 1)
                                 }&is_all=${isAll}`

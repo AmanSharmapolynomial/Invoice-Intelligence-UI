@@ -45,10 +45,11 @@ import {
 } from "@/lib/helpers";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import useFilterStore from "@/store/filtersStore";
-import { ArrowRight, Filter, Info, X } from "lucide-react";
+import { ArrowRight, Check, CheckCheck, Filter, Info, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const UnsupportedDocumentDetails = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -57,7 +58,7 @@ const UnsupportedDocumentDetails = () => {
   let page = searchParams.get("page_number") || 1;
   let page_size = searchParams.get("page_size") || 1;
   let invoice_type = searchParams.get("invoice_type") || "";
-  let is_all=searchParams.get("is_all")
+  let is_all = searchParams.get("is_all");
   let human_verification =
     searchParams.get("human_verification") || filters?.human_verification;
   let human_verified =
@@ -102,7 +103,7 @@ const UnsupportedDocumentDetails = () => {
     page,
     sort_order,
     human_verified,
-    assigned_to: assigned_to||userId,
+    assigned_to: assigned_to || userId,
     document_priority,
     auto_accepted_by_vda,
     review_later: "false",
@@ -111,7 +112,10 @@ const UnsupportedDocumentDetails = () => {
     extraction_source,
     detailed_view: true
   };
-  const { data, isLoading } = useGetUnSupportedDocuments({...payload,assigned_to:is_all?assigned_to||"":userId});
+  const { data, isLoading } = useGetUnSupportedDocuments({
+    ...payload,
+    assigned_to: is_all ? assigned_to || "" : userId
+  });
   const { mutate: updateStatus } = useUpdateDocumentStatus();
   const [markingAsFlagged, setMarkingAsFlagged] = useState(false);
   const [markingAsSupported, setMarkingAsSupported] = useState(false);
@@ -149,7 +153,6 @@ const UnsupportedDocumentDetails = () => {
     const newParams = new URLSearchParams(searchParams);
     Object.entries(filters).forEach(([key, value]) => {
       if (value) {
-     
         if (key == "page" || key == "page_number" || key == "page_size") {
           return;
         }
@@ -162,7 +165,7 @@ const UnsupportedDocumentDetails = () => {
   useEffect(() => {
     appendFiltersToUrl();
   }, []);
-  
+
   return (
     <div className="h-screen  flex w-full " id="maindiv">
       <Sidebar />
@@ -172,6 +175,8 @@ const UnsupportedDocumentDetails = () => {
         <Layout>
           <BreadCrumb
             // title={"Unsupported Documents"}
+            showCustom={true}
+            hideTitle={true}
             crumbs={[
               {
                 path: null,
@@ -180,31 +185,50 @@ const UnsupportedDocumentDetails = () => {
               {
                 path: null,
                 label: "Flagged Documents"
-              },
-
-              {
-                path: null,
-                label: data?.data?.length > 0 && (
-                  <div className="flex items-center gap-x-2">
-                    <p>{data?.data?.[0]?.restaurant?.restaurant_name}</p>
-                    <p>
-                      <img
-                        className="h-4 w-4"
-                        src={
-                          data?.data?.[0]?.restaurant?.tier == 1
-                            ? tier_1
-                            : data?.data?.[0]?.restaurant?.tier == 2
-                            ? tier_2
-                            : tier_3
-                        }
-                        alt=""
-                      />
-                    </p>
-                  </div>
-                )
               }
             ]}
-          />
+          >
+            {" "}
+            {isLoading ? (
+              <div className="flex items-center gap-x-2">
+                <Skeleton className={"w-44 h-10  mb-1"} />
+                <Skeleton className={"w-44 h-10  mb-1"} />
+              </div>
+            ) : (
+              <div className="flex gap-x-4 items-end">
+                <div className="flex flex-col gap-y-0">
+                  <p className="text-[#6D6D6D] font-poppins font-medium text-xs leading-4">
+                    Restaurant
+                  </p>
+                  <p className="capitalize text-[#121212] flex items-center gap-x-2 font-semibold font-poppins text-xl">
+                    <span>{data?.data?.[0]?.restaurant?.restaurant_name}</span>
+                    <img
+                      className="h-4 w-4"
+                      src={
+                        data?.data?.[0]?.restaurant?.tier == 1
+                          ? tier_1
+                          : data?.data?.[0]?.restaurant?.tier == 2
+                          ? tier_2
+                          : tier_3
+                      }
+                      alt=""
+                    />
+                  </p>
+                </div>
+                <>
+                  <p className="text-2xl">|</p>
+                  <div className="flex flex-col gap-y-0">
+                    <p className="text-[#6D6D6D] font-poppins font-medium text-xs leading-4">
+                      Document Classifier Prediction
+                    </p>
+                    <p className="capitalize text-[#121212] font-semibold font-poppins text-xl flex gap-x-2 items-center">
+                      {data?.data?.[0]?.document_classifier_prediction}{" "}
+                    </p>
+                  </div>
+                </>
+              </div>
+            )}
+          </BreadCrumb>
 
           <div className="flex justify-end gap-x-4">
             <div className="flex  items-center space-x-2 ">
@@ -384,7 +408,11 @@ const UnsupportedDocumentDetails = () => {
                           Document Classifier Prediction
                         </TableCell>
                         <TableCell className="capitalize font-poppins font-normal text-sm leading-5 text-black">
-                          {data?.data?.[0]?.document_classifier_prediction}
+                          <div className="flex items-center gap-x-4">
+                            <span>
+                              {data?.data?.[0]?.document_classifier_prediction}{" "}
+                            </span>
+                          </div>
                         </TableCell>
                       </TableRow>
                       <TableRow className="!border">
@@ -437,6 +465,44 @@ const UnsupportedDocumentDetails = () => {
                     </TableBody>
                   </Table>
                   <div className="gap-x-2 mt-4  gap-y-4  w-full  items-start">
+                    <div className="mb-4">
+                      <CustomTooltip
+                        content={
+                          data?.data?.[0]?.action_controls
+                            ?.mark_as_supported_or_unsupported?.disabled &&
+                          data?.data?.[0]?.action_controls
+                            ?.mark_as_supported_or_unsupported?.reason
+                        }
+                      >
+                        <Button
+                          disabled={
+                            markingAsSupported ||
+                            data?.data?.[0]?.action_controls
+                              ?.mark_as_supported_or_unsupported?.disabled
+                          }
+                          onClick={() => {
+                            setMarkingAsSupported(true);
+                            let payload = {
+                              document_type:
+                                data?.data?.[0]?.document_classifier_prediction,
+                              document_uuid: data?.data?.[0]?.document_uuid
+                            };
+                            updateStatus(payload, {
+                              onSuccess: () => {
+                                // toast.success(data?.message)
+                                setMarkingAsSupported(false);
+                              },
+                              onError: () => {
+                                setMarkingAsSupported(false);
+                              }
+                            });
+                          }}
+                          className="font-poppins rounded-sm font-normal text-xs"
+                        >
+                          <CheckCheck className="h-4 w-4 " /> Prediction
+                        </Button>
+                      </CustomTooltip>
+                    </div>
                     <div className="flex  items-center w-full ">
                       <div className="w-1/2 border">
                         <p className=" font-poppins font-medium text-sm leading-4 py-2 flex justify-center items-center">
@@ -488,7 +554,7 @@ const UnsupportedDocumentDetails = () => {
                                       }
                                     });
                                   }}
-                                  className="rounded-sm w-full hover:bg-transparent bg-transparent border border-primary text-black font-poppins font-medium text-xs"
+                                  className="rounded-sm    w-full  hover:bg-transparent    !capitalize bg-transparent border border-primary text-black font-poppins font-medium text-[11px]"
                                   // key={type}
                                 >
                                   {type}
@@ -536,7 +602,7 @@ const UnsupportedDocumentDetails = () => {
                                       }
                                     });
                                   }}
-                                  className="rounded-sm w-full capitalize font-medium text-xs bg-transparent text-black hover:bg-transparent  border-[#F15156] border "
+                                  className="rounded-sm w-full !capitalize font-medium text-[11px] bg-transparent text-black hover:bg-transparent  border-[#F15156] border "
                                   // key={type}
                                 >
                                   {type}
