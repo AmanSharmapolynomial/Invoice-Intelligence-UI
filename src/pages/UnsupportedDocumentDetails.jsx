@@ -517,8 +517,10 @@ const UnsupportedDocumentDetails = () => {
                     </div>
                     <div className="flex items-start w-full ">
                       <div className="w-1/2 grid grid-cols-3 gap-2 h mt-2  align-top items-start justify-self-start">
-                        {options?.data?.supported_document_types?.map(
-                          (type) => {
+                        {options?.data?.supported_document_types
+                         ?.sort((a, b) => a?.toLowerCase().localeCompare(b?.toLowerCase()))
+
+                          ?.map((type) => {
                             return (
                               <CustomTooltip
                                 key={type}
@@ -561,12 +563,13 @@ const UnsupportedDocumentDetails = () => {
                                 </Button>
                               </CustomTooltip>
                             );
-                          }
-                        )}
+                          })}
                       </div>
                       <div className="w-1/2 grid grid-cols-3 gap-2 px-2 mt-2">
-                        {options?.data?.unsupported_document_types?.map(
-                          (type) => {
+                        {options?.data?.unsupported_document_types
+?.sort((a, b) => a?.toLowerCase().localeCompare(b?.toLowerCase()))
+
+                          ?.map((type) => {
                             return (
                               <CustomTooltip
                                 key={type}
@@ -609,8 +612,7 @@ const UnsupportedDocumentDetails = () => {
                                 </Button>
                               </CustomTooltip>
                             );
-                          }
-                        )}
+                          })}
                       </div>
                     </div>
                   </div>
