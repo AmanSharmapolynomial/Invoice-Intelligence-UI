@@ -114,7 +114,7 @@ const UnsupportedDocumentDetails = () => {
   };
   const { data, isLoading } = useGetUnSupportedDocuments({
     ...payload,
-    assigned_to: is_all ? assigned_to || "" : userId
+    assigned_to: is_all=='true' ? assigned_to || "" : userId
   });
   const { mutate: updateStatus } = useUpdateDocumentStatus();
   const [markingAsFlagged, setMarkingAsFlagged] = useState(false);
