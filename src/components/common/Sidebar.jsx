@@ -35,7 +35,7 @@ const Sidebar = ({ className }) => {
     },
     {
       path: "/flagged-invoices",
-      text: "All Flagged Invoices",
+      text: "All Flagged Documents",
       image: theme === "light" ? flagged_black : flagged_white,
       hoverImage:flagged_white
     },
