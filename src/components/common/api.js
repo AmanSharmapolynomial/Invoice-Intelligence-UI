@@ -67,3 +67,22 @@ export const useGetFormatteddateFromAnyFormat = () => {
     }
   });
 };
+
+
+
+
+export const useGetSidebarCounts=(payload)=>{
+  return useQuery({
+    queryKey: ["sidebar-counts",payload],
+    queryFn: async () => {
+      try {
+        const response = await axiosInstance.get(
+          `/api/document/unverified-document-counts/?invoice_type=${payload?.invoice_type}&start_date=${payload?.start_date}&end_date=${payload?.end_date}&clickbacon_status=${payload?.clickbacon_status}&restaurant=${payload?.restaurant}&auto_accpepted=${payload?.auto_accpepted}&rerun_status=${payload?.rerun_status}&invoice_detection_status=${payload?.invoice_detection_status}&human_verified=${payload?.human_verified}&human_verification_required=${payload?.human_verification_required}&vendor=${payload?.vendor}&sort_order=${payload?.sort_order}&restaurant_tier=${payload?.restaurant_tier}&rejected=${payload?.rejected}&extraction_source=${payload?.extraction_source}`
+        );
+        return response?.data;
+      } catch (error) {
+        return error?.response?.data;
+      }
+    }
+  });
+}

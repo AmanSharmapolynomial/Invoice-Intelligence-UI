@@ -291,6 +291,11 @@ const {pathname}=useLocation();
                     <TableHead
                       className={`  dark:text-[#F6F6F6] flex-wrap break-words !min-h-16 !max-h-fit  border-r text-[#000000] font-poppins  items-center !justify-start !pl-[0.7rem] gap-x-1  !font-semibold text-sm !w-[10%]   `}
                     >
+                      Reviewed By
+                    </TableHead>
+                    <TableHead
+                      className={`  dark:text-[#F6F6F6] flex-wrap break-words !min-h-16 !max-h-fit  border-r text-[#000000] font-poppins  items-center !justify-start !pl-[0.7rem] gap-x-1  !font-semibold text-sm !w-[10%]   `}
+                    >
                       Human Verified
                     </TableHead>
                   </TableRow>
@@ -303,7 +308,7 @@ const {pathname}=useLocation();
                             className=" w-[100%] items-center gap-x-0 !text-sm  !h-16 "
                             key={index}
                           >
-                            {new Array(5)
+                            {new Array(6)
                               .fill(10 * Math.random())
                               ?.map((_, i) => {
                                 return (
@@ -327,7 +332,8 @@ const {pathname}=useLocation();
                             document_classifier_prediction,
                             user_marked_as_unsupported,
                             date_uploaded,
-                            assignment_details
+                            assignment_details,
+                            review_by
                           },
                           index
                         ) => {
@@ -385,6 +391,11 @@ const {pathname}=useLocation();
                               >
                                   {user_marked_as_unsupported!==null?"Completed":assignment_details?timeRemainng?.split("-").join("") || "NA":"NA"}
                               </CustomTooltip>
+                              </TableCell>
+                              <TableCell
+                                className={` dark:!text-[#F6F6F6] !pl-[0.7rem] !h-full  font-poppins  cursor-pointer !text-left border-r capitalize  justify-start gap-x-2  !font-normal   text-sm  `}
+                              >
+                                {review_by?.username ||"-"}
                               </TableCell>
                               <TableCell
                                 className={` dark:!text-[#F6F6F6] !pl-[0.7rem] !h-full  font-poppins  cursor-pointer !text-left border-r capitalize  justify-start gap-x-2  !font-normal   text-sm  `}
