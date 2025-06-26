@@ -45,7 +45,7 @@ const Sidebar = ({ className }) => {
       image: theme === "light" ? my_tasks_black : my_tasks_white,
       hoverImage: my_tasks_white,
       children: [
-        { path: "/my-tasks", text: "Processed Documents" },
+        { path: "/my-tasks", text: "Invoices" },
         { path: "/unsupported-documents", text: "Flagged Documents" }
       ]
     },

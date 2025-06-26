@@ -1707,7 +1707,9 @@ const InvoiceDetails = () => {
                   <Table className="mb-4  ">
                     <TableBody>
                       {similarVendors?.data?.length > 0 &&
-                        similarVendors?.data?.map((row, index) => (
+                        similarVendors?.data?.sort((a,b)=>{
+                          return b?.similarity_score - a?.similarity_score;
+                        })?.map((row, index) => (
                           <TableRow
                             className=" !border-b grid grid-cols-3 "
                             key={index}
