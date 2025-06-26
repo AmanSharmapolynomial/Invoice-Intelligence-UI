@@ -206,7 +206,13 @@ const InvoiceDetails = () => {
   const { mutate: markAsNotSupported } = useMarkAsNotSupported();
   const { selectedInvoiceVendorName, selectedInvoiceRestaurantName } =
     globalStore();
+  const [showAgentValidation,setShowAgentValidation]=useState(false);
 
+  useEffect(()=>{
+   if(metaData?.metadata_validation_status!=="unassigned"){
+    setShowAgentValidation(true);
+   }
+  },[metaData])
   const [showAcceptModal, setShowAcceptModal] = useState(false);
   const { data: duplicateInvoices } = useFindDuplicateInvoices(
     data?.data?.document_uuid || data?.data?.[0]?.document_uuid
@@ -838,6 +844,28 @@ const InvoiceDetails = () => {
                   ? " Please Save the Vendor Name before proceeding."
                   : "Please Save the Branch Address before proceeding."}
               </p>
+            </div>
+
+            <X
+              className="h-6 w-6 text-[#546E7A] absolute top-2 right-2 cursor-pointer"
+              onClick={() => {
+                setShowWarningForBranchAndVendor(false);
+              }}
+            />
+          </div>
+        )}
+        {showAgentValidation&& metaData?.agent_validation_status?.metadata_validation_status&& (
+          <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-primary/10 p-4 border border-primary bg-[#FFF3E0]">
+            <div className="flex items-center gap-x-4">
+              <Info className="h-5  w-5 text-primary" />
+              <div className="flex flex-col gap-y-1">
+                <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 capitalize pt-[0.5px] ">
+               Metadata Validation Status : {metaData?.agent_validation_status?.metadata_validation_status}
+              </p>
+              <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 capitalize pt-[0.5px] ">
+               Table Data Validation Status : {metaData?.agent_validation_status?.table_data_validation_status}
+              </p>
+              </div>
             </div>
 
             <X
