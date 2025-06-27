@@ -72,13 +72,17 @@ import persistStore from "@/store/persistStore";
 import useThemeStore from "@/store/themeStore";
 import {
   ArrowRight,
+  ChevronDown,
   ChevronRight,
+  ChevronUp,
   Copy,
   Filter,
   Info,
   Menu,
   NotebookTabs,
   Share2,
+  Table2,
+  TextSelect,
   X
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -114,7 +118,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-
+import flagged_white from "@/assets/image/flagged_white.svg";
+import flagged_black from "@/assets/image/flagged_black.svg";
+// import book_user_white from "@/assets/image/book_user_white.svg";
+// import book_user_black from "@/assets/image/book_user_black.svg";
+import { useGetSidebarCounts } from "@/components/common/api";
+import useSidebarStore from "@/store/sidebarStore";
 const rejectionReasons = [
   "Duplicate invoice",
   "Multiple invoices in one PDF",
@@ -167,7 +176,7 @@ const InvoiceDetails = () => {
     setWarningCheckboxChecked,
     is_unverified_branch,
     clearStore,
-    tableData
+    tableData,loadingMetadata
   } = invoiceDetailStore();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -460,43 +469,7 @@ const InvoiceDetails = () => {
     useGetDocumentNotes(
       data?.data?.document_uuid || data?.data?.[0]?.document_uuid
     );
-  const options = [
-    {
-      path: "/home",
-      icon: null,
-      text: "All Invoices",
-      image: theme === "light" ? all_invoices_black : all_invoices_white,
-      hoverImage: all_invoices_white
-    },
-    {
-      path: "/my-tasks",
-      icon: null,
-      text: "My Tasks",
-      image: theme === "light" ? my_tasks_black : my_tasks_white,
-      hoverImage: my_tasks_white
-    },
-    {
-      path: "/review-later-tasks",
-      icon: null,
-      text: "Review Later Invoices",
-      image: theme === "light" ? review_later_black : review_later_white,
-      hoverImage: review_later_white
-    },
-    {
-      path: "/not-supported-documents",
-      icon: null,
-      text: "Not Supported Documents",
-      image: theme === "light" ? not_supported_black : not_supported_white,
-      hoverImage: not_supported_white
-    },
-    {
-      path: null,
-      icon: null,
-      text: "Vendor Consolidation",
-      image: theme === "light" ? book_user_black : book_user_white,
-      hoverImage: book_user_white
-    }
-  ];
+ 
   const [showWarningForBranchAndVendor, setShowWarningForBranchAndVendor] =
     useState(true);
 
@@ -613,6 +586,97 @@ const InvoiceDetails = () => {
   const [reprocessedData, setReprocessedData] = useState({});
   const [shoeReferenceLinkModal, setShowReferenceLinkModal] = useState(false);
   let linkModalTimer;
+  const { data:sideBarCounts } = useGetSidebarCounts({
+    invoice_type: filters?.invoice_type,
+    start_date: filters?.start_date,
+    end_date: filters?.end_date,
+    clickbacon_status: filters?.clickbacon_status,
+    restaurant: filters?.restaurant,
+    auto_accpepted: filters?.auto_accepted,
+    rerun_status: filters?.rerun_status,
+    invoice_detection_status: filters?.invoice_detection_status,
+    human_verified: filters?.human_verified,
+    human_verification_required: filters?.human_verification,
+    vendor: filters?.vendor,
+    sort_order: filters?.sort_order,
+    restaurant_tier: filters?.restaurant_tier,
+    rejected: filters?.rejected,
+    extraction_source: filters?.extraction_source,
+  });
+    const [openSubmenu, setOpenSubmenu] = useState(null);
+  const { expanded, setExpanded } = useSidebarStore();
+  
+  const options = [
+    {
+      path: "/home",
+      text: "All Invoices",
+      image: theme === "light" ? all_invoices_black : all_invoices_white,
+      hoverImage: all_invoices_white,
+      count: sideBarCounts?.all_invoices,
+    },
+    {
+      path: "/flagged-invoices",
+      text: "All Flagged Documents",
+      image: theme === "light" ? flagged_black : flagged_white,
+      hoverImage: flagged_white,
+      count: sideBarCounts?.all_flagged_documents,
+    },
+    {
+      path: "/my-tasks",
+      text: "My Tasks",
+      image: theme === "light" ? my_tasks_black : my_tasks_white,
+      hoverImage: my_tasks_white,
+      children: [
+        {
+          path: "/my-tasks",
+          text: "Invoices",
+          count: sideBarCounts?.my_tasks?.invoices,
+        },
+        {
+          path: "/unsupported-documents",
+          text: "Flagged Documents",
+          count: sideBarCounts?.my_tasks?.flagged_documents,
+        },
+      ],
+    },
+    {
+      path: "/review-later-tasks",
+      text: "Review Later Invoices",
+      image: theme === "light" ? review_later_black : review_later_white,
+      hoverImage: review_later_white,
+      count: sideBarCounts?.review_later,
+    },
+    {
+      path: "/not-supported-documents",
+      text: "Not Supported Documents",
+      image: theme === "light" ? not_supported_black : not_supported_white,
+      hoverImage: not_supported_white,
+      count: sideBarCounts?.not_supported,
+    },
+    {
+      path: null,
+      text: "Vendor Consolidation",
+      image: theme === "light" ? book_user_black : book_user_white,
+      hoverImage: book_user_white,
+    },
+  ];
+  useEffect(() => {
+    const matchingIndex = options.findIndex((option) =>
+      option.children?.some((child) => child.path === pathname)
+    );
+    if (matchingIndex !== -1) {
+      setOpenSubmenu(matchingIndex);
+    }
+  }, [pathname]);
+
+  const handleToggle = (index, hasChildren) => {
+    if (hasChildren) {
+      setOpenSubmenu(openSubmenu === index ? null : index);
+    } else {
+      setOpenSubmenu(null);
+    }
+  };
+
   return (
     <div className="hide-scrollbar relative">
       {/* <div> */}{" "}
@@ -673,7 +737,7 @@ const InvoiceDetails = () => {
       <Sheet>
         <SheetTrigger asChild>
           <div
-            className={`bg-primary w-5 h-5 rounded-r-sm cursor-pointer  fixed  mt-1 top-16 left-0 !z-50 flex justify-center items-center 
+            className={`bg-primary w-5 h-5 rounded-r-sm cursor-pointer  fixed  mt-1  top-16 left-0 !z-50 flex justify-center items-center 
           ${false ? "opacity-0" : "opacity-100"}
           transition-opacity duration-300 ease-in-out`}
           >
@@ -684,24 +748,53 @@ const InvoiceDetails = () => {
           <SheetClose asChild>
             <Menu className="h-5 w-5 cursor-pointer absolute right-4 top-2  text-end text-[#000000] " />
           </SheetClose>
-          {options.map((option, index) => {
-            const isActive = pathname === option.path;
+         
+        <div className=" space-y-2 flex flex-col">
+          {options?.map((option, index) => {
+            const isActive =
+              pathname === option.path ||
+              option.children?.some((child) => child.path === pathname);
+            const isSubmenuOpen = openSubmenu === index;
+            const hasChildren = option.children?.length > 0;
+
+            const handleClick = (e) => {
+              if (hasChildren) {
+                e.preventDefault();
+                if (!expanded) {
+                  setExpanded(true);
+                  setTimeout(() => handleToggle(index, true), 150);
+                } else {
+                  handleToggle(index, true);
+                }
+              } else {
+                if (pathname === option.path) {
+                  e.preventDefault();
+                  return;
+                }
+                setDefault();
+              }
+            };
+
+            const Wrapper = option.path ? Link : "div";
+
             return (
-              <Link
-                to={option.path}
+              <div
                 key={index}
-                className={`group cursor-pointer overflow-hidden flex items-center px-4 gap-2 py-3 text-sm font-normal font-poppins transition-all duration-300 ease-in-out 
-                ${
-                  isActive
-                    ? "bg-primary text-white"
-                    : "text-black hover:bg-primary hover:text-white"
+                className={`${
+                  role !== "admin" &&
+                  option?.text === "Not Supported Documents" &&
+                  "hidden"
                 }`}
               >
-                {option.icon ? (
-                  <option.icon
-                    className={`w-5 h-5 ${isActive ? "text-white" : ""}`}
-                  />
-                ) : (
+                <Wrapper
+                  to={option.path || "#"}
+                  onClick={handleClick}
+                  className={`group cursor-pointer flex items-center px-4 gap-2 py-3 text-sm font-normal transition-all duration-300 ${
+                    isActive
+                      ? "bg-primary text-white"
+                      : "text-black hover:bg-primary hover:text-white"
+                  }`}
+                >
                   <div className="relative flex-shrink-0 w-5 h-5">
                     <img
                       src={option.image}
@@ -711,29 +804,62 @@ const InvoiceDetails = () => {
                     <img
                       src={option.hoverImage}
                       alt={option.text}
-                      className={`${
-                        isActive && "opacity-100"
-                      } absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity`}
+                      className={`absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity ${
+                        isActive ? "opacity-100" : ""
+                      }`}
                     />
                   </div>
-                )}
 
-                <span
-                  className={`transition-opacity duration-300 ease-in-out ${
-                    true ? "opacity-100" : "opacity-0"
-                  } dark:text-white`}
-                  style={{
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    marginLeft: true ? "0.5rem" : "0"
-                  }}
-                >
-                  {option.text}
-                </span>
-              </Link>
+                  {expanded && (
+                    <div className="flex items-center justify-between w-full ml-2 dark:text-white">
+                      <span className="truncate">{option.text}</span>
+                      <div className="flex items-center gap-2">
+                        {typeof option.count === "number" && (
+                          <span className="text-xs bg-red-500 text-white  dark:bg-white/10 dark:text-white px-2 py-1 rounded-full">
+                            {option.count}
+                          </span>
+                        )}
+                        {hasChildren && (
+                          isSubmenuOpen ? (
+                            <ChevronUp className="w-4 h-4" />
+                          ) : (
+                            <ChevronDown className="w-4 h-4" />
+                          )
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </Wrapper>
+
+                {hasChildren && isSubmenuOpen && expanded && (
+                  <div className="ml-8 space-y-1">
+                    {option.children.map((child, idx) => (
+                      <Link
+                        to={child.path}
+                        onClick={() => setDefault()}
+                        key={idx}
+                        className={`block text-sm py-3 mt-1 px-2 hover:bg-primary hover:text-white ${
+                          pathname === child.path
+                            ? "bg-primary text-white"
+                            : "text-gray-700"
+                        }`}
+                      >
+                        <div className="flex justify-between items-center">
+                          <span className="truncate">{child.text}</span>
+                          {typeof child.count === "number" && (
+                            <span className="ml-2 text-xs bg-red-500 text-white dark:bg-white/10 dark:text-white px-2 mr-2.5 py-1 rounded-full">
+                              {child.count}
+                            </span>
+                          )}
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
             );
           })}
+        </div>
         </SheetContent>
       </Sheet>
       {/* </div> */}
@@ -809,7 +935,7 @@ const InvoiceDetails = () => {
                   </>
                 )}
                 <div>
-                  <div className=" -mt-[1.78rem] -ml-3">
+                  <div className=" -mt-[1.78rem] flex  gap-x-2 !capitalize -ml-3">
                     {myData?.human_verified === true &&
                       myData?.rejected === false && (
                         <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#348355] text-[#ffffff] p-1 rounded-xl px-3">
@@ -823,10 +949,28 @@ const InvoiceDetails = () => {
                     )}
                     {myData?.human_verified === false &&
                       myData?.rejected === false && (
-                        <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#B28F10] text-[#ffffff] py-1  px-3 rounded-xl ">
+                        <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#B28F10] text-[#ffffff] py-1.5  px-3 rounded-xl ">
                           Pending{" "}
                         </span>
                       )}
+                           <CustomTooltip content={"Table Data Validation Status"}>
+                            {metaData?.agent_validation_status?.table_data_validation_status!=="unassigned" && !loadingMetadata&&(
+                       <span className="mx-2  flex items-center gap-x-1 font-poppins font-normal text-xs capitalize leading-3 bg-gray-600 text-[#ffffff] p-1.5 rounded-xl   px-3">
+                        <TextSelect className="h-3 w-3"/><span> {metaData?.agent_validation_status?.table_data_validation_status}</span>
+                         
+                        </span>
+                      )}
+                           </CustomTooltip>
+                           
+                    <CustomTooltip content={"Metadata Validation Status"}>
+                      {metaData?.agent_validation_status?.metadata_validation_status!=="unassigned" && !loadingMetadata&& (
+                        <div className="mx-2  font-poppins font-normal text-xs leading-3 flex items-center gap-x-1 !capitalize bg-yellow-500 text-[#ffffff] py-1.5  px-3 rounded-xl ">
+                       <Table2 className="w-3 h-3"/>  {metaData?.agent_validation_status?.metadata_validation_status}
+                        </div>
+                      )}
+                    </CustomTooltip>
+               
+
                   </div>
                 </div>
               </div>
@@ -854,28 +998,7 @@ const InvoiceDetails = () => {
             />
           </div>
         )}
-        {showAgentValidation&& metaData?.agent_validation_status?.metadata_validation_status&& (
-          <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-primary/10 p-4 border border-primary bg-[#FFF3E0]">
-            <div className="flex items-center gap-x-4">
-              <Info className="h-5  w-5 text-primary" />
-              <div className="flex flex-col gap-y-1">
-                <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 capitalize pt-[0.5px] ">
-               Metadata Validation Status : {metaData?.agent_validation_status?.metadata_validation_status}
-              </p>
-              <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 capitalize pt-[0.5px] ">
-               Table Data Validation Status : {metaData?.agent_validation_status?.table_data_validation_status}
-              </p>
-              </div>
-            </div>
-
-            <X
-              className="h-6 w-6 text-[#546E7A] absolute top-2 right-2 cursor-pointer"
-              onClick={() => {
-                setShowWarningForBranchAndVendor(false);
-              }}
-            />
-          </div>
-        )}
+        
         {showSimilarVendorsAndBranchesWarningModal && (
           <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
             <div className="flex items-center gap-x-2">

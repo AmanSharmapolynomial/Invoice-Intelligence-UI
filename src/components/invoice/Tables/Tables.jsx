@@ -26,7 +26,9 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
     operations,
     setMetaData,
     setMetadataTableCopy,
-    setTableData
+    setTableData,
+    loadingMetadata,
+    setLoadingMetadata
   } = invoiceDetailStore();
   const { data: additionalData, isLoading: loadingAdditionalData } =
     useGetAdditionalData();
@@ -82,7 +84,8 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
     setMetadataTableCopy(data);
 
     setMetaData(data?.data?.[0] || data?.data);
-  }, [data]);
+    setLoadingMetadata(isLoading)
+  }, [data,isLoading]);
   useEffect(() => {
 
     setData(data);

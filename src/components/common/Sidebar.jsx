@@ -200,7 +200,7 @@ const Sidebar = ({ className }) => {
                       <span className="truncate">{option.text}</span>
                       <div className="flex items-center gap-2">
                         {typeof option.count === "number" && (
-                          <span className="text-xs bg-gray-200 text-black dark:bg-white/10 dark:text-white px-2 py-0.5 rounded-full">
+                          <span className="text-xs bg-red-500 text-white dark:bg-white/10 dark:text-white px-2 py-1 rounded-full">
                             {option.count}
                           </span>
                         )}
@@ -232,7 +232,7 @@ const Sidebar = ({ className }) => {
                         <div className="flex justify-between items-center">
                           <span className="truncate">{child.text}</span>
                           {typeof child.count === "number" && (
-                            <span className="ml-2 text-xs bg-gray-200 text-black dark:bg-white/10 dark:text-white px-2 mr-2.5 py-0.5 rounded-full">
+                            <span className="ml-2 text-xs bg-red-500 text-white dark:bg-white/10 dark:text-white px-2 mr-2.5 py-0.5 rounded-full">
                               {child.count}
                             </span>
                           )}
