@@ -72,13 +72,17 @@ import persistStore from "@/store/persistStore";
 import useThemeStore from "@/store/themeStore";
 import {
   ArrowRight,
+  ChevronDown,
   ChevronRight,
+  ChevronUp,
   Copy,
   Filter,
   Info,
   Menu,
   NotebookTabs,
   Share2,
+  Table2,
+  TextSelect,
   X
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -114,7 +118,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-
+import flagged_white from "@/assets/image/flagged_white.svg";
+import flagged_black from "@/assets/image/flagged_black.svg";
+// import book_user_white from "@/assets/image/book_user_white.svg";
+// import book_user_black from "@/assets/image/book_user_black.svg";
+import { useGetSidebarCounts } from "@/components/common/api";
+import useSidebarStore from "@/store/sidebarStore";
 const rejectionReasons = [
   "Duplicate invoice",
   "Multiple invoices in one PDF",
@@ -167,7 +176,8 @@ const InvoiceDetails = () => {
     setWarningCheckboxChecked,
     is_unverified_branch,
     clearStore,
-    tableData
+    tableData,
+    loadingMetadata
   } = invoiceDetailStore();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -206,7 +216,13 @@ const InvoiceDetails = () => {
   const { mutate: markAsNotSupported } = useMarkAsNotSupported();
   const { selectedInvoiceVendorName, selectedInvoiceRestaurantName } =
     globalStore();
+  const [showAgentValidation, setShowAgentValidation] = useState(false);
 
+  useEffect(() => {
+    if (metaData?.metadata_validation_status !== "unassigned") {
+      setShowAgentValidation(true);
+    }
+  }, [metaData]);
   const [showAcceptModal, setShowAcceptModal] = useState(false);
   const { data: duplicateInvoices } = useFindDuplicateInvoices(
     data?.data?.document_uuid || data?.data?.[0]?.document_uuid
@@ -357,7 +373,6 @@ const InvoiceDetails = () => {
       );
     }
   };
- 
 
   const handleAccept = () => {
     const selectedColumnIds = tableData?.data?.processed_table?.rows
@@ -454,43 +469,7 @@ const InvoiceDetails = () => {
     useGetDocumentNotes(
       data?.data?.document_uuid || data?.data?.[0]?.document_uuid
     );
-  const options = [
-    {
-      path: "/home",
-      icon: null,
-      text: "All Invoices",
-      image: theme === "light" ? all_invoices_black : all_invoices_white,
-      hoverImage: all_invoices_white
-    },
-    {
-      path: "/my-tasks",
-      icon: null,
-      text: "My Tasks",
-      image: theme === "light" ? my_tasks_black : my_tasks_white,
-      hoverImage: my_tasks_white
-    },
-    {
-      path: "/review-later-tasks",
-      icon: null,
-      text: "Review Later Invoices",
-      image: theme === "light" ? review_later_black : review_later_white,
-      hoverImage: review_later_white
-    },
-    {
-      path: "/not-supported-documents",
-      icon: null,
-      text: "Not Supported Documents",
-      image: theme === "light" ? not_supported_black : not_supported_white,
-      hoverImage: not_supported_white
-    },
-    {
-      path: null,
-      icon: null,
-      text: "Vendor Consolidation",
-      image: theme === "light" ? book_user_black : book_user_white,
-      hoverImage: book_user_white
-    }
-  ];
+
   const [showWarningForBranchAndVendor, setShowWarningForBranchAndVendor] =
     useState(true);
 
@@ -607,6 +586,98 @@ const InvoiceDetails = () => {
   const [reprocessedData, setReprocessedData] = useState({});
   const [shoeReferenceLinkModal, setShowReferenceLinkModal] = useState(false);
   let linkModalTimer;
+  const { data: sideBarCounts } = useGetSidebarCounts({
+    invoice_type: filters?.invoice_type,
+    start_date: filters?.start_date,
+    end_date: filters?.end_date,
+    clickbacon_status: filters?.clickbacon_status,
+    restaurant: filters?.restaurant,
+    auto_accpepted: filters?.auto_accepted,
+    rerun_status: filters?.rerun_status,
+    invoice_detection_status: filters?.invoice_detection_status,
+    human_verified: filters?.human_verified,
+    human_verification_required: filters?.human_verification,
+    vendor: filters?.vendor,
+    sort_order: filters?.sort_order,
+    restaurant_tier: filters?.restaurant_tier,
+    rejected: filters?.rejected,
+    extraction_source: filters?.extraction_source
+  });
+  const [openSubmenu, setOpenSubmenu] = useState(null);
+  const { expanded, setExpanded } = useSidebarStore();
+
+  const options = [
+    {
+      path: "/home",
+      text: "All Invoices",
+      image: theme === "light" ? all_invoices_black : all_invoices_white,
+      hoverImage: all_invoices_white,
+      count: sideBarCounts?.all_invoices
+    },
+    {
+      path: "/flagged-invoices",
+      text: "All Flagged Documents",
+      image: theme === "light" ? flagged_black : flagged_white,
+      hoverImage: flagged_white,
+      count: sideBarCounts?.all_flagged_documents
+    },
+    {
+      path: "/my-tasks",
+      text: "My Tasks",
+      image: theme === "light" ? my_tasks_black : my_tasks_white,
+      hoverImage: my_tasks_white,
+      count: sideBarCounts?.my_tasks?.invoices + sideBarCounts?.my_tasks?.flagged_documents,
+      children: [
+        {
+          path: "/my-tasks",
+          text: "Invoices",
+          count: sideBarCounts?.my_tasks?.invoices
+        },
+        {
+          path: "/unsupported-documents",
+          text: "Flagged Documents",
+          count: sideBarCounts?.my_tasks?.flagged_documents
+        }
+      ]
+    },
+    {
+      path: "/review-later-tasks",
+      text: "Review Later Invoices",
+      image: theme === "light" ? review_later_black : review_later_white,
+      hoverImage: review_later_white,
+      count: sideBarCounts?.review_later
+    },
+    {
+      path: "/not-supported-documents",
+      text: "Not Supported Documents",
+      image: theme === "light" ? not_supported_black : not_supported_white,
+      hoverImage: not_supported_white,
+      count: sideBarCounts?.not_supported
+    },
+    {
+      path: null,
+      text: "Vendor Consolidation",
+      image: theme === "light" ? book_user_black : book_user_white,
+      hoverImage: book_user_white
+    }
+  ];
+  useEffect(() => {
+    const matchingIndex = options.findIndex((option) =>
+      option.children?.some((child) => child.path === pathname)
+    );
+    if (matchingIndex !== -1) {
+      setOpenSubmenu(matchingIndex);
+    }
+  }, [pathname]);
+
+  const handleToggle = (index, hasChildren) => {
+    if (hasChildren) {
+      setOpenSubmenu(openSubmenu === index ? null : index);
+    } else {
+      setOpenSubmenu(null);
+    }
+  };
+
   return (
     <div className="hide-scrollbar relative">
       {/* <div> */}{" "}
@@ -667,7 +738,10 @@ const InvoiceDetails = () => {
       <Sheet>
         <SheetTrigger asChild>
           <div
-            className={`bg-primary w-5 h-5 rounded-r-sm cursor-pointer  fixed  mt-1 top-16 left-0 !z-50 flex justify-center items-center 
+            onClick={() => {
+              setExpanded(true);
+            }}
+            className={`bg-primary w-5 h-5 rounded-r-sm cursor-pointer  fixed  mt-1  top-16 left-0 !z-50 flex justify-center items-center 
           ${false ? "opacity-0" : "opacity-100"}
           transition-opacity duration-300 ease-in-out`}
           >
@@ -678,56 +752,117 @@ const InvoiceDetails = () => {
           <SheetClose asChild>
             <Menu className="h-5 w-5 cursor-pointer absolute right-4 top-2  text-end text-[#000000] " />
           </SheetClose>
-          {options.map((option, index) => {
-            const isActive = pathname === option.path;
-            return (
-              <Link
-                to={option.path}
-                key={index}
-                className={`group cursor-pointer overflow-hidden flex items-center px-4 gap-2 py-3 text-sm font-normal font-poppins transition-all duration-300 ease-in-out 
-                ${
-                  isActive
-                    ? "bg-primary text-white"
-                    : "text-black hover:bg-primary hover:text-white"
-                }`}
-              >
-                {option.icon ? (
-                  <option.icon
-                    className={`w-5 h-5 ${isActive ? "text-white" : ""}`}
-                  />
-                ) : (
-                  <div className="relative flex-shrink-0 w-5 h-5">
-                    <img
-                      src={option.image}
-                      alt={option.text}
-                      className="absolute inset-0 w-full h-full transition-opacity duration-300"
-                    />
-                    <img
-                      src={option.hoverImage}
-                      alt={option.text}
-                      className={`${
-                        isActive && "opacity-100"
-                      } absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity`}
-                    />
-                  </div>
-                )}
 
-                <span
-                  className={`transition-opacity duration-300 ease-in-out ${
-                    true ? "opacity-100" : "opacity-0"
-                  } dark:text-white`}
-                  style={{
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    marginLeft: true ? "0.5rem" : "0"
-                  }}
+          <div className=" space-y-2 flex flex-col">
+            {options?.map((option, index) => {
+              const isActive =
+                pathname === option.path ||
+                option.children?.some((child) => child.path === pathname);
+              const isSubmenuOpen = openSubmenu === index;
+              const hasChildren = option.children?.length > 0;
+
+              const handleClick = (e) => {
+                if (hasChildren) {
+                  e.preventDefault();
+                  if (!expanded) {
+                    setExpanded(true);
+                    setTimeout(() => handleToggle(index, true), 150);
+                  } else {
+                    handleToggle(index, true);
+                  }
+                } else {
+                  if (pathname === option.path) {
+                    e.preventDefault();
+                    return;
+                  }
+                  setDefault();
+                }
+              };
+
+              const Wrapper = option.path ? Link : "div";
+
+              return (
+                <div
+                  key={index}
+                  className={`${
+                    role !== "admin" &&
+                    option?.text === "Not Supported Documents" &&
+                    "hidden"
+                  }`}
                 >
-                  {option.text}
-                </span>
-              </Link>
-            );
-          })}
+                  <Wrapper
+                    to={option.path || "#"}
+                    onClick={handleClick}
+                    className={`group cursor-pointer flex border  items-center px-4 gap-2 py-3 text-sm font-normal transition-all duration-300 ${
+                      isActive
+                        ? "bg-primary text-white"
+                        : "text-black hover:bg-primary hover:text-white"
+                    }`}
+                  >
+                    <div className="relative flex-shrink-0 w-5 h-5">
+                      <img
+                        src={option.image}
+                        alt={option.text}
+                        className="absolute inset-0 w-full h-full transition-opacity duration-300"
+                      />
+                      <img
+                        src={option.hoverImage}
+                        alt={option.text}
+                        className={`absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity ${
+                          isActive ? "opacity-100" : ""
+                        }`}
+                      />
+                    </div>
+
+                    {expanded && (
+                      <div className="flex items-center justify-between w-full ml-2 dark:text-white">
+                        <span className="truncate">{option.text}</span>
+                        <div className="flex items-center gap-2">
+                          {typeof option.count === "number" && (
+                            <span className="text-xs bg-red-500 text-white  dark:bg-white/10 dark:text-white px-2 py-1 rounded-full">
+                              {option.count}
+                            </span>
+                          )}
+                          {hasChildren &&
+                            (isSubmenuOpen ? (
+                              <ChevronUp className="w-4 h-4" />
+                            ) : (
+                              <ChevronDown className="w-4 h-4" />
+                            ))}
+                        </div>
+                      </div>
+                    )}
+                  </Wrapper>
+
+                  {hasChildren && isSubmenuOpen && expanded && (
+                    <div className="ml-8 space-y-1">
+                      {option.children.map((child, idx) => (
+                        <Link
+                          to={child.path}
+                          onClick={() => setDefault()}
+                          key={idx}
+                          className={`block text-sm py-3 mt-1 px-2 hover:bg-primary hover:text-white ${
+                            pathname === child.path
+                              ? "bg-primary text-white"
+                              : "text-gray-700"
+                          }`}
+                        >
+                          <div className="flex justify-between items-center">
+                            <span className="truncate">{child.text}</span>
+                            {typeof child.count === "number" && (
+                              <span className="ml-2 text-xs bg-red-500 text-white dark:bg-white/10 dark:text-white px-2 mr-2.5 py-1 rounded-full">
+                                {child.count}
+                              </span>
+                            )}
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </SheetContent>
       </Sheet>
       {/* </div> */}
@@ -803,7 +938,7 @@ const InvoiceDetails = () => {
                   </>
                 )}
                 <div>
-                  <div className=" -mt-[1.78rem] -ml-3">
+                  <div className=" -mt-[1.78rem] flex  gap-x-2 !capitalize -ml-3">
                     {myData?.human_verified === true &&
                       myData?.rejected === false && (
                         <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#348355] text-[#ffffff] p-1 rounded-xl px-3">
@@ -817,10 +952,12 @@ const InvoiceDetails = () => {
                     )}
                     {myData?.human_verified === false &&
                       myData?.rejected === false && (
-                        <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#B28F10] text-[#ffffff] py-1  px-3 rounded-xl ">
+                        <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#B28F10] text-[#ffffff] py-1.5  px-3 rounded-xl ">
                           Pending{" "}
                         </span>
                       )}
+                   
+
                   </div>
                 </div>
               </div>
@@ -848,6 +985,7 @@ const InvoiceDetails = () => {
             />
           </div>
         )}
+
         {showSimilarVendorsAndBranchesWarningModal && (
           <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
             <div className="flex items-center gap-x-2">
@@ -1153,7 +1291,9 @@ const InvoiceDetails = () => {
                       loadingState.rejecting ||
                       loadingState.markingAsNotSupported ||
                       loadingState.markingForReview ||
-                      loadingState.reverting||loadingState.accepting||loadingState.saving
+                      loadingState.reverting ||
+                      loadingState.accepting ||
+                      loadingState.saving
                     }
                     className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                   >
@@ -1179,7 +1319,9 @@ const InvoiceDetails = () => {
                     loadingState.rejecting ||
                     loadingState.markingAsNotSupported ||
                     loadingState.markingForReview ||
-                    loadingState.reverting||loadingState.accepting||loadingState.saving
+                    loadingState.reverting ||
+                    loadingState.accepting ||
+                    loadingState.saving
                   }
                   className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                 >
@@ -1202,8 +1344,9 @@ const InvoiceDetails = () => {
                     loadingState.rejecting ||
                     loadingState.markingAsNotSupported ||
                     loadingState.markingForReview ||
-                    loadingState.reverting 
-                    ||loadingState.accepting||loadingState.saving
+                    loadingState.reverting ||
+                    loadingState.accepting ||
+                    loadingState.saving
                   }
                   className="bg-transparent w-[6.5rem] dark:text-white h-[2.4rem] border-[#F15156]  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                 >
@@ -1242,7 +1385,8 @@ const InvoiceDetails = () => {
                     loadingState.rejecting ||
                     loadingState.markingAsNotSupported ||
                     loadingState.markingForReview ||
-                    loadingState.reverting||loadingState.saving
+                    loadingState.reverting ||
+                    loadingState.saving
                   }
                   className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                 >
@@ -1263,7 +1407,9 @@ const InvoiceDetails = () => {
                     loadingState.rejecting ||
                     loadingState.markingAsNotSupported ||
                     loadingState.markingForReview ||
-                    loadingState.reverting||loadingState.accepting||loadingState.saving
+                    loadingState.reverting ||
+                    loadingState.accepting ||
+                    loadingState.saving
                   }
                   onClick={() => setMarkAsNotSupportedModal(true)}
                   className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[7.25rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
@@ -1288,7 +1434,8 @@ const InvoiceDetails = () => {
                     loadingState.rejecting ||
                     loadingState.markingAsNotSupported ||
                     loadingState.markingForReview ||
-                    loadingState.reverting||loadingState.saving
+                    loadingState.reverting ||
+                    loadingState.saving
                   }
                   onClick={() => handleSave()}
                   className="font-poppins h-[2.4rem] dark:text-white font-normal text-sm leading-5 border-2 border-primary text-[#ffffff]"
@@ -1707,48 +1854,52 @@ const InvoiceDetails = () => {
                   <Table className="mb-4  ">
                     <TableBody>
                       {similarVendors?.data?.length > 0 &&
-                        similarVendors?.data?.map((row, index) => (
-                          <TableRow
-                            className=" !border-b grid grid-cols-3 "
-                            key={index}
-                          >
-                            <TableCell className=" border-l font-poppins border-r font-normal content-center text-black text-sm">
-                              <div className="flex items-center gap-x-2  justify-between w-full capitalize">
-                                <span className="max-w-44">
-                                  {" "}
-                                  {row?.vendor?.vendor_name}
-                                </span>
-                                <div className="flex items-center gap-x-2 !w-12">
-                                  <img src={approved} alt="" />
-                                  <Copy
-                                    className="cursor-pointer h-4 w-4"
-                                    onClick={() => {
-                                      navigator.clipboard.writeText(
-                                        row?.vendor?.vendor_name
-                                      );
-                                      toast.success("Vendor Name Copied");
-                                    }}
-                                  />
+                        similarVendors?.data
+                          ?.sort((a, b) => {
+                            return b?.similarity_score - a?.similarity_score;
+                          })
+                          ?.map((row, index) => (
+                            <TableRow
+                              className=" !border-b grid grid-cols-3 "
+                              key={index}
+                            >
+                              <TableCell className=" border-l font-poppins border-r font-normal content-center text-black text-sm">
+                                <div className="flex items-center gap-x-2  justify-between w-full capitalize">
+                                  <span className="max-w-44">
+                                    {" "}
+                                    {row?.vendor?.vendor_name}
+                                  </span>
+                                  <div className="flex items-center gap-x-2 !w-12">
+                                    <img src={approved} alt="" />
+                                    <Copy
+                                      className="cursor-pointer h-4 w-4"
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(
+                                          row?.vendor?.vendor_name
+                                        );
+                                        toast.success("Vendor Name Copied");
+                                      }}
+                                    />
+                                  </div>
                                 </div>
-                              </div>
-                            </TableCell>
-                            <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger div className=" z-50">
-                                    <span> {row?.similarity_score}%</span>
-                                  </TooltipTrigger>
-                                  <TooltipContent className="bg-white text-black border  absolute -top-[3rem] -left-[15rem] shadow-sm px-4 flex items-center  gap-x-1  min-w-[18rem]    min-h-10 ml-[16rem]">
-                                    {row?.match_reason}
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            </TableCell>
-                            <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
-                              {row?.finding_method}
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                              </TableCell>
+                              <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger div className=" z-50">
+                                      <span> {row?.similarity_score}%</span>
+                                    </TooltipTrigger>
+                                    <TooltipContent className="bg-white text-black border  absolute -top-[3rem] -left-[15rem] shadow-sm px-4 flex items-center  gap-x-1  min-w-[18rem]    min-h-10 ml-[16rem]">
+                                      {row?.match_reason}
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </TableCell>
+                              <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
+                                {row?.finding_method}
+                              </TableCell>
+                            </TableRow>
+                          ))}
                     </TableBody>
                   </Table>
                 </div>
@@ -1785,47 +1936,51 @@ const InvoiceDetails = () => {
                   <Table className="mb-4  ">
                     <TableBody>
                       {similarBranches?.data?.length > 0 &&
-                        similarBranches?.data?.map((row, index) => (
-                          <TableRow
-                            className=" !border-b grid grid-cols-3 "
-                            key={index}
-                          >
-                            <TableCell className=" border-l font-poppins border-r font-normal content-center text-black text-sm">
-                              <div className="flex items-center gap-x-2 capitalize justify-between">
-                                <span className="max-w-44">
-                                  {row?.branch?.vendor_address}
-                                </span>
-                                <div className="flex items-center gap-x-2">
-                                  <img src={approved} alt="" />
-                                  <Copy
-                                    className="cursor-pointer h-4 w-4"
-                                    onClick={() => {
-                                      navigator.clipboard.writeText(
-                                        row?.branch?.vendor_address
-                                      );
-                                      toast.success("Branch Address Copied");
-                                    }}
-                                  />
+                        similarBranches?.data
+                          ?.sort((a, b) => {
+                            return b?.similarity_score - a?.similarity_score;
+                          })
+                          ?.map((row, index) => (
+                            <TableRow
+                              className=" !border-b grid grid-cols-3 "
+                              key={index}
+                            >
+                              <TableCell className=" border-l font-poppins border-r font-normal content-center text-black text-sm">
+                                <div className="flex items-center gap-x-2 capitalize justify-between">
+                                  <span className="max-w-44">
+                                    {row?.branch?.vendor_address}
+                                  </span>
+                                  <div className="flex items-center gap-x-2">
+                                    <img src={approved} alt="" />
+                                    <Copy
+                                      className="cursor-pointer h-4 w-4"
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(
+                                          row?.branch?.vendor_address
+                                        );
+                                        toast.success("Branch Address Copied");
+                                      }}
+                                    />
+                                  </div>
                                 </div>
-                              </div>
-                            </TableCell>
-                            <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger div className=" z-50">
-                                    <span> {row?.similarity_score}%</span>
-                                  </TooltipTrigger>
-                                  <TooltipContent className="bg-white text-black border  absolute -top-[3rem] -left-[15rem] shadow-sm px-4 flex items-center  gap-x-1  min-w-[18rem]    min-h-10 ml-[16rem]">
-                                    {row?.match_reason}
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            </TableCell>
-                            <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
-                              {row?.finding_method}
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                              </TableCell>
+                              <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger div className=" z-50">
+                                      <span> {row?.similarity_score}%</span>
+                                    </TooltipTrigger>
+                                    <TooltipContent className="bg-white text-black border  absolute -top-[3rem] -left-[15rem] shadow-sm px-4 flex items-center  gap-x-1  min-w-[18rem]    min-h-10 ml-[16rem]">
+                                      {row?.match_reason}
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </TableCell>
+                              <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
+                                {row?.finding_method}
+                              </TableCell>
+                            </TableRow>
+                          ))}
                     </TableBody>
                   </Table>
                 </div>
@@ -1931,6 +2086,7 @@ const InvoiceDetails = () => {
               Close
             </Button>
             <Button
+              disabled={loadingState?.reprocessing}
               onClick={() => {
                 setLoadingState({ ...loadingState, reprocessing: true });
                 reprocessDocument(
@@ -1962,12 +2118,11 @@ const InvoiceDetails = () => {
                 "rounded-sm font-poppins text-sm text-white font-normal"
               }
             >
-              {loadingState?.reprocessing?"Reprocessing...":"Reprocess"}
+              {loadingState?.reprocessing ? "Reprocessing..." : "Reprocess"}
             </Button>
           </div>
         </ModalDescription>
       </Modal>
-
       {/* Reprocess Link Modal */}
       <Modal
         iconCN={"top-[28px]"}
@@ -1986,9 +2141,9 @@ const InvoiceDetails = () => {
           <div className="px-4 z-50">
             <p className="font-poppins font-medium text-start  capitalize  text-black">
               Currently the document is is queued for processing and after
-              processing the document will be available. Copy the document link from below button .
+              processing the document will be available. Copy the document link
+              from below button .
             </p>
-  
           </div>
 
           <div className="flex items-center justify-center gap-x-2  pr-2 mt-6">
@@ -2001,25 +2156,23 @@ const InvoiceDetails = () => {
             >
               Close
             </Button>
-                      
-            <Button  onClick={() => {
+
+            <Button
+              onClick={() => {
                 navigator.clipboard.writeText(
-                  `${
-                    window.location.origin
-                  }/invoice-details?document_uuid=${
-                    reprocessedData?.document_reference
-                  }`
+                  `${window.location.origin}/invoice-details?document_uuid=${reprocessedData?.document_reference}`
                 );
 
                 toast.success("Document Link copied to clipboard");
-              }} className="flex items-center gap-x-2 bg-transparent hover:bg-transparent rounded-sm border-primary border font-poppins font-normal text-sm text-black">
+              }}
+              className="flex items-center gap-x-2 bg-transparent hover:bg-transparent rounded-sm border-primary border font-poppins font-normal text-sm text-black"
+            >
               <p>Copy</p>
               <img
-              src={copy}
-              alt="copy icon"
-             
-              className=" right-3  top-10 cursor-pointer h-4  z-50"
-            />
+                src={copy}
+                alt="copy icon"
+                className=" right-3  top-10 cursor-pointer h-4  z-50"
+              />
             </Button>
           </div>
         </ModalDescription>

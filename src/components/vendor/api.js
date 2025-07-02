@@ -49,10 +49,10 @@ export const createVendorMutation = () => {
   });
 };
 
-export const useGetVendorNames = (non_summary) => {
+export const useGetVendorNames = (non_summary,restaurant_id) => {
   return useQuery({
-    queryKey: ["vendor-names-list"],
-    queryFn: () => getVendorNamesList(non_summary)
+    queryKey: ["vendor-names-list",restaurant_id],
+    queryFn: () => getVendorNamesList(non_summary,restaurant_id)
   });
 };
 

@@ -79,7 +79,8 @@ export const PdfViewer = ({
   setLoaded = () => {},
   loadinMetadata,
   className,
-  payload
+  payload,
+  height=62
 }) => {
   const {
     bounding_box,
@@ -653,7 +654,7 @@ export const PdfViewer = ({
   useEffect(() => {
     setShowTextExtractionModal(false);
   }, [page]);
-
+console.log(pdfUrls)
   return (
     <>
       {loadinMetadata ? (
@@ -827,7 +828,7 @@ export const PdfViewer = ({
               id="react-pdf__Wrapper"
               ref={pdfWrapperRef}
               style={{
-                height: "62vh",
+                height: `${height}vh`,
                 overflow: "auto",
                 maxWidth: "100%",
                 position: "relative"

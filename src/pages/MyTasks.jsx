@@ -83,7 +83,7 @@ const MyTasks = () => {
   const { data: restaurantsList, isLoading: restaurantsListLoading } =
     useListRestaurants();
   const { data: vendorNamesList, isLoading: vendorNamesLoading } =
-    useGetVendorNames();
+    useGetVendorNames("all",restaurant);
   const {
     setRestaurantFilter,
     setVendorFilter,
@@ -333,26 +333,27 @@ const MyTasks = () => {
                 variant="search"
                 placeholder="Search invoice"
                 value={invoiceNumber}
-                onChange={(value) => {
+               onChange={(value) => {
                   setInvoiceNumber(value);
-
-                  clearTimeout(timer);
-                  if (value?.length == 0) {
-                    setShowResults(false);
-                    return;
-                  }
-                  timer = setTimeout(() => {
-                    if (value?.length !== 0) {
+                }}
+                onKeyDown={(e) => {
+                  // alert(e.key)
+                  if (e.key == "Enter") {
+                    if (invoiceNumber?.length == 0) {
+                      setShowResults(false);
+                      return;
+                    }
+                    if (invoiceNumber?.length !== 0) {
                       setShowResults(true);
-                      searchInvoices(value, {
+
+
+                      searchInvoices(encodeURIComponent(invoiceNumber), {
                         onSuccess: (data) => {
                           setSearchedInvoices(data?.data);
                         }
                       });
-                      setInvoiceNumber("");
                     }
-                  }, 500);
-                }}
+                  }}}
                 className="min-w-72 max-w-96 border border-gray-200 relative  focus:!ring-0 focus:!outline-none remove-number-spinner"
               />
 
