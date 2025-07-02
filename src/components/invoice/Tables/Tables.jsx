@@ -18,7 +18,15 @@ import HumanVerificationTable from "./HumanVerificationTable";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LoaderIcon } from "react-hot-toast";
 import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
-import { Table2, TextSelect } from "lucide-react";
+import {
+  CheckCheck,
+  Loader,
+  Rows4,
+  SquareCheckBig,
+  Table2,
+  TextSelect,
+  X
+} from "lucide-react";
 const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [showWarningModal, setShowWarningModal] = useState(false);
@@ -183,18 +191,25 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
                     setCurrentTab(value);
                   }
                 }}
-                className={`text-center h-[3.2rem] cursor-pointer   ${styling} items-center  font-poppins font-medium text-sm leading-4 flex justify-center gap-x-2 `}
+                className={`text-center h-[3.2rem] cursor-pointer relative   ${styling} items-center  font-poppins font-medium text-sm leading-4 flex justify-center gap-x-2 `}
               >
                 {label}{" "}
                 {isLoading && currentTab !== value && (
                   <LoaderIcon className="h-4 w-4 ml-2" />
                 )}
                 {!isLoading && label === "Metadata" && (
-                  <CustomTooltip content={"Agent Metadata Validation Status"}>
+                  <CustomTooltip
+                    content={`Agent Metadata Validation Status : ${
+                      (data?.data?.[0] || data?.data)?.agent_validation_status
+                        ?.metadata_validation_status
+                    } `}
+                    className={"!min-w-80 !mb-4"}
+                  >
                     {(data?.data?.[0] || data?.data)?.agent_validation_status
                       ?.metadata_validation_status !== "unassigned" &&
                       !loadingMetadata && (
-                        <span className={`${
+                        <span
+                          className={`${
                             (data?.data?.[0] || data?.data)
                               ?.agent_validation_status
                               ?.metadata_validation_status == "rejected"
@@ -204,22 +219,46 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
                                   ?.metadata_validation_status == "approved"
                               ? "bg-primary border-white border"
                               : "bg-yellow-500"
-                          } mx-2  flex items-center gap-x-1 font-poppins font-normal text-xs capitalize leading-3  text-[#ffffff] py-1.5 rounded-xl    px-3`}>
+                          } mx-2  flex items-center gap-x-1 font-poppins absolute right-0 top-3.5 font-normal text-xs capitalize leading-3  text-[#ffffff] py-1 rounded-md   px-1`}
+                        >
                           {/* <TextSelect className="h-3 w-3" /> */}
                           <span>
                             {" "}
-                            {
-                              (data?.data?.[0] || data?.data)
+                            {(data?.data?.[0] || data?.data)
+                              ?.agent_validation_status
+                              ?.metadata_validation_status == "rejected" ? (
+                              <X className="w-4 h-4" />
+                            ) : (data?.data?.[0] || data?.data)
                                 ?.agent_validation_status
-                                ?.metadata_validation_status
-                            }
+                                ?.metadata_validation_status == "approved" ? (
+                              <CheckCheck className="w-4 h-4" />
+                            ) : (data?.data?.[0] || data?.data)
+                                ?.agent_validation_status
+                                ?.metadata_validation_status == "queued" ? (
+                              <Rows4 className="w-4 h-4" />
+                            ) : (data?.data?.[0] || data?.data)
+                                ?.agent_validation_status
+                                ?.metadata_validation_status == "processing" ? (
+                              <Loader className="w-4 h-4" />
+                            ) : (data?.data?.[0] || data?.data)
+                                ?.agent_validation_status
+                                ?.metadata_validation_status == "assigned" ? (
+                              <SquareCheckBig className="w-4 h-4" />
+                            ) : (
+                              <></>
+                            )}
                           </span>
                         </span>
                       )}
                   </CustomTooltip>
                 )}
                 {!isLoading && label == "Human Verification" && (
-                  <CustomTooltip content={"Agent Table Validation Status"}>
+                  <CustomTooltip
+                    content={`Agent Table Data Validation Status : ${
+                      (data?.data?.[0] || data?.data)?.agent_validation_status
+                        ?.table_data_validation_status
+                    } `}
+                  >
                     {(data?.data?.[0] || data?.data)?.agent_validation_status
                       ?.table_data_validation_status !== "unassigned" &&
                       !loadingMetadata && (
@@ -234,14 +273,32 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
                                   ?.table_data_validation_status == "approved"
                               ? "bg-primary border border-white"
                               : "bg-yellow-500"
-                          } mx-2  font-poppins font-normal text-xs leading-3 flex items-center gap-x-1 !capitalize  text-[#ffffff] py-1.5  px-3 rounded-xl `}
+                          } mx-2  font-poppins font-normal text-xs leading-3  absolute right-0 top-3.5 flex items-center gap-x-1 !capitalize  text-[#ffffff] py-1  px-1 rounded-md `}
                         >
                           {/* <Table2 className="w-3 h-3" />{" "} */}
-                          {
-                            (data?.data?.[0] || data?.data)
+                          {(data?.data?.[0] || data?.data)
+                            ?.agent_validation_status
+                            ?.table_data_validation_status == "rejected" ? (
+                            <X className="w-4 h-4" />
+                          ) : (data?.data?.[0] || data?.data)
                               ?.agent_validation_status
-                              ?.table_data_validation_status
-                          }
+                              ?.table_data_validation_status == "approved" ? (
+                            <CheckCheck className="w-4 h-4" />
+                          ) : (data?.data?.[0] || data?.data)
+                              ?.agent_validation_status
+                              ?.table_data_validation_status == "queued" ? (
+                            <Rows4 className="w-4 h-4" />
+                          ) : (data?.data?.[0] || data?.data)
+                              ?.agent_validation_status
+                              ?.table_data_validation_status == "processing" ? (
+                            <Loader className="w-4 h-4" />
+                          ) : (data?.data?.[0] || data?.data)
+                              ?.agent_validation_status
+                              ?.table_data_validation_status == "assigned" ? (
+                            <SquareCheckBig className="w-4 h-4" />
+                          ) : (
+                            <></>
+                          )}
                         </div>
                       )}
                   </CustomTooltip>
