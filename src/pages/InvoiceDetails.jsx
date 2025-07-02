@@ -739,7 +739,7 @@ const InvoiceDetails = () => {
         <SheetTrigger asChild>
           <div
             onClick={() => {
-              setExpanded(!expanded);
+              setExpanded(!true);
             }}
             className={`bg-primary w-5 h-5 rounded-r-sm cursor-pointer  fixed  mt-1  top-16 left-0 !z-50 flex justify-center items-center 
           ${false ? "opacity-0" : "opacity-100"}
@@ -750,7 +750,7 @@ const InvoiceDetails = () => {
         </SheetTrigger>
         <SheetContent side="left" className="px-0 !max-w-[300px] pt-8 ">
           <SheetClose asChild  onClick={() => {
-              setExpanded(!expanded);
+              setExpanded(!false);
             }}>
             <Menu className="h-5 w-5 cursor-pointer absolute right-4 top-2  text-end text-[#000000] " />
           </SheetClose>
@@ -820,10 +820,12 @@ const InvoiceDetails = () => {
                       <div className="flex items-center justify-between w-full ml-2 dark:text-white">
                         <span className="truncate">{option.text}</span>
                         <div className="flex items-center gap-2">
-                          {typeof option.count === "number" &&  option?.count!==0&&(
-                            <span className="text-xs bg-red-500 text-white  dark:bg-white/10 dark:text-white px-2 py-1 rounded-full">
+                          {typeof option.count === "number" &&(
+                           <CustomTooltip content={"Unverified Documents Count"}>
+                             <span className="text-xs bg-red-500 text-white  dark:bg-white/10 dark:text-white px-2 py-1 rounded-full">
                               {option.count}
                             </span>
+                           </CustomTooltip>
                           )}
                           {hasChildren &&
                             (isSubmenuOpen ? (
@@ -852,9 +854,12 @@ const InvoiceDetails = () => {
                           <div className="flex justify-between items-center">
                             <span className="truncate">{child.text}</span>
                             {typeof child.count === "number" && (
+                                <CustomTooltip content={"Unverified Documents Count"}>
+
                               <span className="ml-2 text-xs bg-red-500 text-white dark:bg-white/10 dark:text-white px-2 mr-2.5 py-1 rounded-full">
                                 {child.count}
                               </span>
+                                </CustomTooltip>
                             )}
                           </div>
                         </Link>
