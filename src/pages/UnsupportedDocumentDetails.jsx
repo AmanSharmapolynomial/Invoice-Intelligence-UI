@@ -465,6 +465,17 @@ const UnsupportedDocumentDetails = () => {
                           }
                         </TableCell>
                       </TableRow>
+                      <TableRow className="!border">
+                        <TableCell className="border-r font-poppins font-normal text-sm leading-5 text-black capitalize">
+                          Reviewed By
+                        </TableCell>
+                        <TableCell className="font-poppins font-normal text-sm leading-5 text-black capitalize">
+                          {
+                            data?.data?.[0]?.review_by
+                              ?.username
+                          }
+                        </TableCell>
+                      </TableRow>
                     </TableBody>
                   </Table>
                   <div className="gap-x-2 mt-4  gap-y-4  w-full  items-start justify-center">

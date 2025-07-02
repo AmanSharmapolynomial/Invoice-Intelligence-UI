@@ -15,7 +15,7 @@ import flagged_white from "@/assets/image/flagged_white.svg";
 import flagged_black from "@/assets/image/flagged_black.svg";
 import book_user_white from "@/assets/image/book_user_white.svg";
 import book_user_black from "@/assets/image/book_user_black.svg";
-import { ChevronRight, ChevronDown, ChevronUp, Menu } from "lucide-react";
+import { ChevronRight, ChevronDown, ChevronUp, Menu, Info } from "lucide-react";
 import userStore from "../auth/store/userStore";
 import { useGetSidebarCounts } from "./api";
 
@@ -24,7 +24,7 @@ const Sidebar = ({ className }) => {
   const { theme } = useThemeStore();
   const { pathname } = useLocation();
   const { role } = userStore();
-  const { setDefault ,filters} = useFilterStore();
+  const { setDefault, filters } = useFilterStore();
   const [openSubmenu, setOpenSubmenu] = useState(null);
 
   const { data, isLoading } = useGetSidebarCounts({
@@ -51,53 +51,54 @@ const Sidebar = ({ className }) => {
       text: "All Invoices",
       image: theme === "light" ? all_invoices_black : all_invoices_white,
       hoverImage: all_invoices_white,
-      count: data?.all_invoices,
+      count: data?.all_invoices
     },
     {
       path: "/flagged-invoices",
       text: "All Flagged Documents",
       image: theme === "light" ? flagged_black : flagged_white,
       hoverImage: flagged_white,
-      count: data?.all_flagged_documents,
+      count: data?.all_flagged_documents
     },
     {
       path: "/my-tasks",
       text: "My Tasks",
       image: theme === "light" ? my_tasks_black : my_tasks_white,
       hoverImage: my_tasks_white,
+      count: data?.my_tasks?.invoices + data?.my_tasks?.flagged_documents,
       children: [
         {
           path: "/my-tasks",
           text: "Invoices",
-          count: data?.my_tasks?.invoices,
+          count: data?.my_tasks?.invoices
         },
         {
           path: "/unsupported-documents",
           text: "Flagged Documents",
-          count: data?.my_tasks?.flagged_documents,
-        },
-      ],
+          count: data?.my_tasks?.flagged_documents
+        }
+      ]
     },
     {
       path: "/review-later-tasks",
       text: "Review Later Invoices",
       image: theme === "light" ? review_later_black : review_later_white,
       hoverImage: review_later_white,
-      count: data?.review_later,
+      count: data?.review_later
     },
     {
       path: "/not-supported-documents",
       text: "Not Supported Documents",
       image: theme === "light" ? not_supported_black : not_supported_white,
       hoverImage: not_supported_white,
-      count: data?.not_supported,
+      count: data?.not_supported
     },
     {
       path: null,
       text: "Vendor Consolidation",
       image: theme === "light" ? book_user_black : book_user_white,
-      hoverImage: book_user_white,
-    },
+      hoverImage: book_user_white
+    }
   ];
 
   const width = expanded ? "18rem" : "3.75rem";
@@ -174,12 +175,15 @@ const Sidebar = ({ className }) => {
                 <Wrapper
                   to={option.path || "#"}
                   onClick={handleClick}
-                  className={`group cursor-pointer flex items-center px-4 gap-2 py-3 text-sm font-normal transition-all duration-300 ${
+                  className={`group relative cursor-pointer flex items-center px-4 gap-2 py-3 text-sm font-normal transition-all duration-300 ${
                     isActive
                       ? "bg-primary text-white"
                       : "text-black hover:bg-primary hover:text-white"
                   }`}
                 >
+                  {!expanded && typeof option?.count=='number'&& (
+                   <span className="absolute right-3.5  top-1  bg-red-500 rounded-full"> <Info className="h-4 text-white w-4" /></span>
+                  )}
                   <div className="relative flex-shrink-0 w-5 h-5">
                     <img
                       src={option.image}
@@ -204,13 +208,12 @@ const Sidebar = ({ className }) => {
                             {option.count}
                           </span>
                         )}
-                        {hasChildren && (
-                          isSubmenuOpen ? (
+                        {hasChildren &&
+                          (isSubmenuOpen ? (
                             <ChevronUp className="w-4 h-4" />
                           ) : (
                             <ChevronDown className="w-4 h-4" />
-                          )
-                        )}
+                          ))}
                       </div>
                     </div>
                   )}
