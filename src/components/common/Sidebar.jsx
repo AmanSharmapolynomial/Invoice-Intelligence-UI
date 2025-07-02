@@ -181,8 +181,8 @@ const Sidebar = ({ className }) => {
                       : "text-black hover:bg-primary hover:text-white"
                   }`}
                 >
-                  {!expanded && typeof option?.count=='number'&& (
-                   <span className="absolute right-3.5  top-1  bg-red-500 rounded-full"> <Info className="h-4 text-white w-4" /></span>
+                  {!expanded && typeof option?.count=='number' && option?.count!==0&& (
+                   <span className="absolute right-3.5  top-1  border border-red-500 p-[0.125rem] rounded-full"> <div className=" bg-red-500 rounded-full h-3 w-3 " /></span>
                   )}
                   <div className="relative flex-shrink-0 w-5 h-5">
                     <img
