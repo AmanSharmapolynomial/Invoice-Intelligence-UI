@@ -182,7 +182,7 @@ const Sidebar = ({ className }) => {
                       : "text-black hover:bg-primary hover:text-white"
                   }`}
                 >
-                  {!expanded && typeof option?.count == "number" && (
+                  {!expanded && typeof option?.count == "number" && option?.count!==0&&(
                     <span className="absolute right-3.5  top-1  border border-red-500 p-[0.125rem] rounded-full">
                       {" "}
                       <div className=" bg-red-500 rounded-full h-3 w-3 " />
@@ -190,13 +190,13 @@ const Sidebar = ({ className }) => {
                   )}
                   <div className="relative flex-shrink-0 w-5 h-5">
                     <img
-                      src={option.image}
-                      alt={option.text}
+                      src={option?.image}
+                      alt={option?.text}
                       className="absolute inset-0 w-full h-full transition-opacity duration-300"
                     />
                     <img
-                      src={option.hoverImage}
-                      alt={option.text}
+                      src={option?.hoverImage}
+                      alt={option?.text}
                       className={`absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity ${
                         isActive ? "opacity-100" : ""
                       }`}
@@ -205,12 +205,12 @@ const Sidebar = ({ className }) => {
 
                   {expanded && (
                     <div className="flex items-center justify-between w-full ml-2 dark:text-white">
-                      <span className="truncate">{option.text}</span>
+                      <span className="truncate">{option?.text}</span>
                       <div className="flex items-center gap-2">
-                        {typeof option.count === "number" && (
+                        {typeof option?.count === "number" && (
                           <CustomTooltip content={"Unverified Documents Count"}>
                             <span className="text-xs bg-red-500 text-white dark:bg-white/10 dark:text-white px-2 py-1 rounded-full">
-                              {option.count}
+                              {option?.count}
                             </span>
                           </CustomTooltip>
                         )}
@@ -239,13 +239,13 @@ const Sidebar = ({ className }) => {
                         }`}
                       >
                         <div className="flex justify-between items-center">
-                          <span className="truncate">{child.text}</span>
-                          {typeof child.count === "number" && (
+                          <span className="truncate">{child?.text}</span>
+                          {typeof child?.count === "number" && (
                             <CustomTooltip
                               content={"Unverified Documents Count"}
                             >
                               <span className="ml-2 text-xs bg-red-500 text-white dark:bg-white/10 dark:text-white px-2 mr-2.5 py-0.5 rounded-full">
-                                {child.count}
+                                {child?.count}
                               </span>
                             </CustomTooltip>
                           )}
