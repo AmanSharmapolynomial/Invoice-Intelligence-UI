@@ -18,6 +18,7 @@ import book_user_black from "@/assets/image/book_user_black.svg";
 import { ChevronRight, ChevronDown, ChevronUp, Menu, Info } from "lucide-react";
 import userStore from "../auth/store/userStore";
 import { useGetSidebarCounts } from "./api";
+import CustomTooltip from "../ui/Custom/CustomTooltip";
 
 const Sidebar = ({ className }) => {
   const { expanded, setExpanded } = useSidebarStore();
@@ -128,7 +129,7 @@ const Sidebar = ({ className }) => {
       <div className="border h-full dark:border-white/10 bg-white dark:!bg-[#051C14] shadow-lg">
         {expanded && (
           <div
-            onClick={() => setExpanded()}
+            onClick={() => setExpanded(true)}
             className="cursor-pointer flex justify-end w-full"
           >
             <Menu className="cursor-pointer absolute right-2 top-5 dark:text-white" />
@@ -181,8 +182,11 @@ const Sidebar = ({ className }) => {
                       : "text-black hover:bg-primary hover:text-white"
                   }`}
                 >
-                  {!expanded && typeof option?.count=='number' && option?.count!==0&& (
-                   <span className="absolute right-3.5  top-1  border border-red-500 p-[0.125rem] rounded-full"> <div className=" bg-red-500 rounded-full h-3 w-3 " /></span>
+                  {!expanded && typeof option?.count == "number" && (
+                    <span className="absolute right-3.5  top-1  border border-red-500 p-[0.125rem] rounded-full">
+                      {" "}
+                      <div className=" bg-red-500 rounded-full h-3 w-3 " />
+                    </span>
                   )}
                   <div className="relative flex-shrink-0 w-5 h-5">
                     <img
@@ -204,9 +208,11 @@ const Sidebar = ({ className }) => {
                       <span className="truncate">{option.text}</span>
                       <div className="flex items-center gap-2">
                         {typeof option.count === "number" && (
-                          <span className="text-xs bg-red-500 text-white dark:bg-white/10 dark:text-white px-2 py-1 rounded-full">
-                            {option.count}
-                          </span>
+                          <CustomTooltip content={"Unverified Documents Count"}>
+                            <span className="text-xs bg-red-500 text-white dark:bg-white/10 dark:text-white px-2 py-1 rounded-full">
+                              {option.count}
+                            </span>
+                          </CustomTooltip>
                         )}
                         {hasChildren &&
                           (isSubmenuOpen ? (
@@ -235,9 +241,13 @@ const Sidebar = ({ className }) => {
                         <div className="flex justify-between items-center">
                           <span className="truncate">{child.text}</span>
                           {typeof child.count === "number" && (
-                            <span className="ml-2 text-xs bg-red-500 text-white dark:bg-white/10 dark:text-white px-2 mr-2.5 py-0.5 rounded-full">
-                              {child.count}
-                            </span>
+                            <CustomTooltip
+                              content={"Unverified Documents Count"}
+                            >
+                              <span className="ml-2 text-xs bg-red-500 text-white dark:bg-white/10 dark:text-white px-2 mr-2.5 py-0.5 rounded-full">
+                                {child.count}
+                              </span>
+                            </CustomTooltip>
                           )}
                         </div>
                       </Link>
