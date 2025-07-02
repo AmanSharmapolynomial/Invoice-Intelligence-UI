@@ -7,12 +7,18 @@ import { invoiceDetailsTabs } from "@/constants";
 import useFilterStore from "@/store/filtersStore";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
 import { useLocation, useSearchParams } from "react-router-dom";
-import { useGetCombinedTable, useGetDocumentMetadata, useGetDocumentMetadataBoundingBoxes } from "../api";
+import {
+  useGetCombinedTable,
+  useGetDocumentMetadata,
+  useGetDocumentMetadataBoundingBoxes
+} from "../api";
 import CombinedTable from "./CombinedTable";
 import MetadataTable from "./MetadataTable";
 import HumanVerificationTable from "./HumanVerificationTable";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LoaderIcon } from "react-hot-toast";
+import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
+import { Table2, TextSelect } from "lucide-react";
 const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [showWarningModal, setShowWarningModal] = useState(false);
@@ -41,8 +47,8 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
   let layout = searchParams.get("layout") || null;
   let assigned_to = searchParams.get("assigned_to");
   let auto_accepted_by_vda = searchParams.get("auto_accepted_by_vda") || "all";
-  let restaurant_tier=searchParams.get('restaurant_tier')||"all"
-  let rejected=searchParams.get('rejected')||"all"
+  let restaurant_tier = searchParams.get("restaurant_tier") || "all";
+  let rejected = searchParams.get("rejected") || "all";
   let from_view = searchParams.get("from_view") || "";
   let extraction_source = searchParams.get("extraction_source") || "all";
   let payload = {
@@ -67,9 +73,9 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
     from_view: from_view?.includes("not-supported")
       ? "not-supported-documents"
       : "",
-      restaurant_tier,
-      rejected,
-      extraction_source
+    restaurant_tier,
+    rejected,
+    extraction_source
   };
 
   const { data, isLoading, isPending, isFetched } =
@@ -84,14 +90,13 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
     setMetadataTableCopy(data);
 
     setMetaData(data?.data?.[0] || data?.data);
-    setLoadingMetadata(isLoading)
-  }, [data,isLoading]);
+    setLoadingMetadata(isLoading);
+  }, [data, isLoading]);
   useEffect(() => {
-
     setData(data);
     setIsLoading(isLoading);
     setTableData(combinedTableData);
-  }, [data,combinedTableData]);
+  }, [data, combinedTableData]);
   useEffect(() => {
     const categoryColNum =
       combinedTableData?.data?.processed_table?.columns?.findIndex(
@@ -178,16 +183,76 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
                     setCurrentTab(value);
                   }
                 }}
-                className={`text-center h-[3.2rem] cursor-pointer   ${styling} items-center  font-poppins font-medium text-sm leading-4 flex justify-center `}
+                className={`text-center h-[3.2rem] cursor-pointer   ${styling} items-center  font-poppins font-medium text-sm leading-4 flex justify-center gap-x-2 `}
               >
-                {label} {isLoading && currentTab!==value && <LoaderIcon className="h-4 w-4 ml-2" />}
+                {label}{" "}
+                {isLoading && currentTab !== value && (
+                  <LoaderIcon className="h-4 w-4 ml-2" />
+                )}
+                {!isLoading && label === "Metadata" && (
+                  <CustomTooltip content={"Agent Metadata Validation Status"}>
+                    {(data?.data?.[0] || data?.data)?.agent_validation_status
+                      ?.metadata_validation_status !== "unassigned" &&
+                      !loadingMetadata && (
+                        <span className={`${
+                            (data?.data?.[0] || data?.data)
+                              ?.agent_validation_status
+                              ?.metadata_validation_status == "rejected"
+                              ? "bg-red-500"
+                              : (data?.data?.[0] || data?.data)
+                                  ?.agent_validation_status
+                                  ?.metadata_validation_status == "approved"
+                              ? "bg-primary border-white border"
+                              : "bg-yellow-500"
+                          } mx-2  flex items-center gap-x-1 font-poppins font-normal text-xs capitalize leading-3  text-[#ffffff] py-1.5 rounded-xl    px-3`}>
+                          {/* <TextSelect className="h-3 w-3" /> */}
+                          <span>
+                            {" "}
+                            {
+                              (data?.data?.[0] || data?.data)
+                                ?.agent_validation_status
+                                ?.metadata_validation_status
+                            }
+                          </span>
+                        </span>
+                      )}
+                  </CustomTooltip>
+                )}
+                {!isLoading && label == "Human Verification" && (
+                  <CustomTooltip content={"Agent Table Validation Status"}>
+                    {(data?.data?.[0] || data?.data)?.agent_validation_status
+                      ?.table_data_validation_status !== "unassigned" &&
+                      !loadingMetadata && (
+                        <div
+                          className={`${
+                            (data?.data?.[0] || data?.data)
+                              ?.agent_validation_status
+                              ?.table_data_validation_status == "rejected"
+                              ? "bg-red-500"
+                              : (data?.data?.[0] || data?.data)
+                                  ?.agent_validation_status
+                                  ?.table_data_validation_status == "approved"
+                              ? "bg-primary border border-white"
+                              : "bg-yellow-500"
+                          } mx-2  font-poppins font-normal text-xs leading-3 flex items-center gap-x-1 !capitalize  text-[#ffffff] py-1.5  px-3 rounded-xl `}
+                        >
+                          {/* <Table2 className="w-3 h-3" />{" "} */}
+                          {
+                            (data?.data?.[0] || data?.data)
+                              ?.agent_validation_status
+                              ?.table_data_validation_status
+                          }
+                        </div>
+                      )}
+                  </CustomTooltip>
+                )}
               </div>
             );
           })}
       </div>
       <div className=" gap-y-8 mt-4 flex flex-col">
         {isLoading &&
-          [1, 2, 3, 4, 5, 6, 7, 8.9, 10, ,11,12].map((_, i) => {
+          [1, 2, 3, 4, 5, 6, 7, 8.9, 10, , 11, 12].map((_, i) => {
             return (
               <div
                 key={i}
