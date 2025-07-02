@@ -823,7 +823,7 @@ const InvoiceDetails = () => {
                           {typeof option.count === "number" &&(
                            <CustomTooltip content={"Unverified Documents Count"}>
                              <span className="text-xs bg-red-500 text-white  dark:bg-white/10 dark:text-white px-2 py-1 rounded-full">
-                              {option.count}
+                              {option?.count}
                             </span>
                            </CustomTooltip>
                           )}
@@ -853,11 +853,11 @@ const InvoiceDetails = () => {
                         >
                           <div className="flex justify-between items-center">
                             <span className="truncate">{child.text}</span>
-                            {typeof child.count === "number" && (
+                            {typeof child?.count === "number" && (
                                 <CustomTooltip content={"Unverified Documents Count"}>
 
                               <span className="ml-2 text-xs bg-red-500 text-white dark:bg-white/10 dark:text-white px-2 mr-2.5 py-1 rounded-full">
-                                {child.count}
+                                {child?.count}
                               </span>
                                 </CustomTooltip>
                             )}
