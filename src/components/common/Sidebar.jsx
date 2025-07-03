@@ -11,55 +11,88 @@ import not_supported_white from "@/assets/image/not_supported_white.svg";
 import not_supported_black from "@/assets/image/not_supported_black.svg";
 import my_tasks_white from "@/assets/image/check_book_white.svg";
 import my_tasks_black from "@/assets/image/check_book_black.svg";
-import flagged_white from '@/assets/image/flagged_white.svg'
-import flagged_black from '@/assets/image/flagged_black.svg'
+import flagged_white from "@/assets/image/flagged_white.svg";
+import flagged_black from "@/assets/image/flagged_black.svg";
 import book_user_white from "@/assets/image/book_user_white.svg";
 import book_user_black from "@/assets/image/book_user_black.svg";
-import { ChevronRight, ChevronDown, ChevronUp, Menu } from "lucide-react";
+import { ChevronRight, ChevronDown, ChevronUp, Menu, Info } from "lucide-react";
 import userStore from "../auth/store/userStore";
+import { useGetSidebarCounts } from "./api";
+import CustomTooltip from "../ui/Custom/CustomTooltip";
 
 const Sidebar = ({ className }) => {
   const { expanded, setExpanded } = useSidebarStore();
   const { theme } = useThemeStore();
   const { pathname } = useLocation();
   const { role } = userStore();
-  const { setDefault } = useFilterStore();
+  const { setDefault, filters } = useFilterStore();
   const [openSubmenu, setOpenSubmenu] = useState(null);
+
+  const { data, isLoading } = useGetSidebarCounts({
+    invoice_type: filters?.invoice_type,
+    start_date: filters?.start_date,
+    end_date: filters?.end_date,
+    clickbacon_status: filters?.clickbacon_status,
+    restaurant: filters?.restaurant,
+    auto_accpepted: filters?.auto_accepted,
+    rerun_status: filters?.rerun_status,
+    invoice_detection_status: filters?.invoice_detection_status,
+    human_verified: filters?.human_verified,
+    human_verification_required: filters?.human_verification,
+    vendor: filters?.vendor,
+    sort_order: filters?.sort_order,
+    restaurant_tier: filters?.restaurant_tier,
+    rejected: filters?.rejected,
+    extraction_source: filters?.extraction_source
+  });
 
   const options = [
     {
       path: "/home",
       text: "All Invoices",
       image: theme === "light" ? all_invoices_black : all_invoices_white,
-      hoverImage: all_invoices_white
+      hoverImage: all_invoices_white,
+      count: data?.all_invoices
     },
     {
       path: "/flagged-invoices",
       text: "All Flagged Documents",
       image: theme === "light" ? flagged_black : flagged_white,
-      hoverImage:flagged_white
+      hoverImage: flagged_white,
+      count: data?.all_flagged_documents
     },
     {
       path: "/my-tasks",
       text: "My Tasks",
       image: theme === "light" ? my_tasks_black : my_tasks_white,
       hoverImage: my_tasks_white,
+      count: data?.my_tasks?.invoices + data?.my_tasks?.flagged_documents,
       children: [
-        { path: "/my-tasks", text: "Processed Documents" },
-        { path: "/unsupported-documents", text: "Flagged Documents" }
+        {
+          path: "/my-tasks",
+          text: "Invoices",
+          count: data?.my_tasks?.invoices
+        },
+        {
+          path: "/unsupported-documents",
+          text: "Flagged Documents",
+          count: data?.my_tasks?.flagged_documents
+        }
       ]
     },
     {
       path: "/review-later-tasks",
       text: "Review Later Invoices",
       image: theme === "light" ? review_later_black : review_later_white,
-      hoverImage: review_later_white
+      hoverImage: review_later_white,
+      count: data?.review_later
     },
     {
       path: "/not-supported-documents",
       text: "Not Supported Documents",
       image: theme === "light" ? not_supported_black : not_supported_white,
-      hoverImage: not_supported_white
+      hoverImage: not_supported_white,
+      count: data?.not_supported
     },
     {
       path: null,
@@ -96,7 +129,7 @@ const Sidebar = ({ className }) => {
       <div className="border h-full dark:border-white/10 bg-white dark:!bg-[#051C14] shadow-lg">
         {expanded && (
           <div
-            onClick={() => setExpanded()}
+            onClick={() => setExpanded(true)}
             className="cursor-pointer flex justify-end w-full"
           >
             <Menu className="cursor-pointer absolute right-2 top-5 dark:text-white" />
@@ -122,68 +155,74 @@ const Sidebar = ({ className }) => {
                 }
               } else {
                 if (pathname === option.path) {
-                  e.preventDefault(); // Prevent navigation to the same route
+                  e.preventDefault();
                   return;
                 }
                 setDefault();
               }
             };
 
-            const content = (
-              <>
-                <div className="relative flex-shrink-0 w-5 h-5">
-                  <img
-                    src={option.image}
-                    alt={option.text}
-                    className="absolute inset-0 w-full h-full transition-opacity duration-300"
-                  />
-                  <img
-                    src={option.hoverImage}
-                    alt={option.text}
-                    className={`absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity ${
-                      isActive ? "opacity-100" : ""
-                    }`}
-                  />
-                </div>
-                <span
-                  className={`flex items-center justify-between w-full transition-opacity duration-300 ease-in-out ${
-                    expanded ? "opacity-100" : "opacity-0"
-                  } dark:text-white`}
-                  style={{
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    marginLeft: expanded ? "0.5rem" : "0"
-                  }}
-                >
-                  <span>{option.text}</span>
-                  {hasChildren && expanded && (
-                    <span className="ml-auto">
-                      {isSubmenuOpen ? (
-                        <ChevronUp className="w-4 h-4" />
-                      ) : (
-                        <ChevronDown className="w-4 h-4" />
-                      )}
-                    </span>
-                  )}
-                </span>
-              </>
-            );
-
             const Wrapper = option.path ? Link : "div";
 
             return (
-              <div key={index} className={`${role!=="admin" && option?.text=="Not Supported Documents"&&"hidden"}`}>
+              <div
+                key={index}
+                className={`${
+                  role !== "admin" &&
+                  option?.text === "Not Supported Documents" &&
+                  "hidden"
+                }`}
+              >
                 <Wrapper
                   to={option.path || "#"}
                   onClick={handleClick}
-                  className={`group cursor-pointer flex items-center px-4 gap-2 py-3 text-sm font-normal transition-all duration-300 ${
+                  className={`group relative cursor-pointer flex items-center px-4 gap-2 py-3 text-sm font-normal transition-all duration-300 ${
                     isActive
                       ? "bg-primary text-white"
                       : "text-black hover:bg-primary hover:text-white"
                   }`}
                 >
-                  {content}
+                  {!expanded && typeof option?.count == "number" && option?.count!==0&&(
+                    <span className="absolute right-3.5  top-1  border border-red-500 p-[0.125rem] rounded-full">
+                      {" "}
+                      <div className=" bg-red-500 rounded-full h-3 w-3 " />
+                    </span>
+                  )}
+                  <div className="relative flex-shrink-0 w-5 h-5">
+                    <img
+                      src={option?.image}
+                      alt={option?.text}
+                      className="absolute inset-0 w-full h-full transition-opacity duration-300"
+                    />
+                    <img
+                      src={option?.hoverImage}
+                      alt={option?.text}
+                      className={`absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity ${
+                        isActive ? "opacity-100" : ""
+                      }`}
+                    />
+                  </div>
+
+                  {expanded && (
+                    <div className="flex items-center justify-between w-full ml-2 dark:text-white">
+                      <span className="truncate">{option?.text}</span>
+                      <div className="flex items-center gap-2">
+                        {typeof option?.count === "number" && (
+                          <CustomTooltip content={"Unverified Documents Count"}>
+                            <span className="text-xs bg-red-500 text-white dark:bg-white/10 dark:text-white px-2 py-1 rounded-full">
+                              {option?.count}
+                            </span>
+                          </CustomTooltip>
+                        )}
+                        {hasChildren &&
+                          (isSubmenuOpen ? (
+                            <ChevronUp className="w-4 h-4" />
+                          ) : (
+                            <ChevronDown className="w-4 h-4" />
+                          ))}
+                      </div>
+                    </div>
+                  )}
                 </Wrapper>
 
                 {hasChildren && isSubmenuOpen && expanded && (
@@ -199,7 +238,18 @@ const Sidebar = ({ className }) => {
                             : "text-gray-700"
                         }`}
                       >
-                        {child.text}
+                        <div className="flex justify-between items-center">
+                          <span className="truncate">{child?.text}</span>
+                          {typeof child?.count === "number" && (
+                            <CustomTooltip
+                              content={"Unverified Documents Count"}
+                            >
+                              <span className="ml-2 text-xs bg-red-500 text-white dark:bg-white/10 dark:text-white px-2 mr-2.5 py-0.5 rounded-full">
+                                {child?.count}
+                              </span>
+                            </CustomTooltip>
+                          )}
+                        </div>
                       </Link>
                     ))}
                   </div>
