@@ -205,7 +205,7 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
                     } `}
                     className={"!min-w-80 !mb-4"}
                   >
-                    {(data?.data?.[0] || data?.data)?.agent_validation_status
+                    {(data?.data?.[0] || data?.data)?.agent_validation_status&&(data?.data?.[0] || data?.data)?.agent_validation_status
                       ?.metadata_validation_status !== "unassigned" &&
                       !loadingMetadata && (
                         <span
@@ -254,12 +254,13 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
                 )}
                 {!isLoading && label == "Human Verification" && (
                   <CustomTooltip
+                      className={"!min-w-80 !mb-4"}
                     content={`Agent Table Data Validation Status : ${
                       (data?.data?.[0] || data?.data)?.agent_validation_status
                         ?.table_data_validation_status
                     } `}
                   >
-                    {(data?.data?.[0] || data?.data)?.agent_validation_status
+                    {(data?.data?.[0] || data?.data)?.agent_validation_status&&(data?.data?.[0] || data?.data)?.agent_validation_status
                       ?.table_data_validation_status !== "unassigned" &&
                       !loadingMetadata && (
                         <div
