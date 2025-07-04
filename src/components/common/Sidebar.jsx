@@ -183,9 +183,12 @@ const Sidebar = ({ className }) => {
                   }`}
                 >
                   {!expanded && typeof option?.count == "number" && option?.count!==0&&(
-                    <span className="absolute right-3.5  top-1  border border-red-500 p-[0.125rem] rounded-full">
+                    <span className="absolute right-0.5  top-0.5 z-50  border border-red-500 flex items-center justify-center p-[0.125rem] rounded-full">
                       {" "}
-                      <div className=" bg-red-500 rounded-full h-3 w-3 " />
+                      <div className=" bg-red-500 rounded-full  h-6 w-6 pl-1 pt-[0.05rem] text-[10px] " >
+
+                        {option?.count >100?"99+":option?.count}
+                      </div>
                     </span>
                   )}
                   <div className="relative flex-shrink-0 w-5 h-5">
