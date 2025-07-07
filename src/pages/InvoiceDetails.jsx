@@ -76,6 +76,7 @@ import {
   ChevronDown,
   ChevronRight,
   ChevronUp,
+  Clock,
   Copy,
   Filter,
   Info,
@@ -974,19 +975,39 @@ const InvoiceDetails = () => {
                       )}
                     {myData?.human_verified === false &&
                       myData?.rejected === false && (
-                        <span className={`${calculateTimeDifference(
-                            new Date(
-                              metaData?.assignment_details?.verification_due_at
-                            ))?.includes("ago")?"text-[#F15156]":"text-black"} mx-2 bg-gray-200  font-poppins font-normal text-xs leading-3  text-[#ffffff] py-1.5  px-3 rounded-xl `}>
-                         <CustomTooltip
-                          className={"mb-2"}
-                         content={  metaData?.assignment_details?.assigned_to?.username}>
-                           {calculateTimeDifference(
-                            new Date(
-                              metaData?.assignment_details?.verification_due_at
-                            )
-                          )}
-                         </CustomTooltip>
+                        <span
+                          className={`${
+                            calculateTimeDifference(
+                              new Date(
+                                metaData?.assignment_details?.verification_due_at
+                              )
+                            )?.includes("ago")
+                              ? "!text-[#F15156]"
+                              : "!text-black"
+                          } mx-2 bg-gray-200  font-poppins font-normal text-xs leading-3  text-[#ffffff] h-6 flex items-center   px-3 rounded-xl `}
+                        >
+                          <div className="flex items-center gap-x-2">
+                            <CustomTooltip content={"Due Time"}>
+                              <Clock className="w-4 h-4" />
+                            </CustomTooltip>
+                            <div>
+                              <CustomTooltip
+                                className={"mb-2"}
+                                content={
+                                  metaData?.assignment_details?.assigned_to
+                                    ?.username &&`Assigned To :- ${metaData?.assignment_details?.assigned_to
+                                    ?.username}`
+                                }
+                              >
+                                {calculateTimeDifference(
+                                  new Date(
+                                    metaData?.assignment_details?.verification_due_at
+                                  )
+                                )}
+                              </CustomTooltip>
+                            </div>
+                          </div>
+                          {/* </CustomTooltip> */}
                         </span>
                       )}
                   </div>
