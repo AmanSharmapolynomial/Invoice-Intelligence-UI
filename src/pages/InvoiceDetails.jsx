@@ -32,6 +32,7 @@ import { Modal, ModalDescription } from "@/components/ui/Modal";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  calculateTimeDifference,
   formatDateTime,
   formatDateToReadable,
   formatRestaurantsList,
@@ -626,7 +627,9 @@ const InvoiceDetails = () => {
       text: "My Tasks",
       image: theme === "light" ? my_tasks_black : my_tasks_white,
       hoverImage: my_tasks_white,
-      count: sideBarCounts?.my_tasks?.invoices + sideBarCounts?.my_tasks?.flagged_documents,
+      count:
+        sideBarCounts?.my_tasks?.invoices +
+        sideBarCounts?.my_tasks?.flagged_documents,
       children: [
         {
           path: "/my-tasks",
@@ -749,9 +752,12 @@ const InvoiceDetails = () => {
           </div>
         </SheetTrigger>
         <SheetContent side="left" className="px-0 !max-w-[300px] pt-8 ">
-          <SheetClose asChild  onClick={() => {
+          <SheetClose
+            asChild
+            onClick={() => {
               setExpanded(!false);
-            }}>
+            }}
+          >
             <Menu className="h-5 w-5 cursor-pointer absolute right-4 top-2  text-end text-[#000000] " />
           </SheetClose>
 
@@ -820,12 +826,14 @@ const InvoiceDetails = () => {
                       <div className="flex items-center justify-between w-full ml-2 dark:text-white">
                         <span className="truncate">{option.text}</span>
                         <div className="flex items-center gap-2">
-                          {typeof option.count === "number" &&(
-                           <CustomTooltip content={"Unverified Documents Count"}>
-                             <span className="text-xs bg-red-500 text-white  dark:bg-white/10 dark:text-white px-2 py-1 rounded-full">
-                              {option?.count}
-                            </span>
-                           </CustomTooltip>
+                          {typeof option.count === "number" && (
+                            <CustomTooltip
+                              content={"Unverified Documents Count"}
+                            >
+                              <span className="text-xs bg-red-500 text-white  dark:bg-white/10 dark:text-white px-2 py-1 rounded-full">
+                                {option?.count}
+                              </span>
+                            </CustomTooltip>
                           )}
                           {hasChildren &&
                             (isSubmenuOpen ? (
@@ -854,12 +862,13 @@ const InvoiceDetails = () => {
                           <div className="flex justify-between items-center">
                             <span className="truncate">{child.text}</span>
                             {typeof child?.count === "number" && (
-                                <CustomTooltip content={"Unverified Documents Count"}>
-
-                              <span className="ml-2 text-xs bg-red-500 text-white dark:bg-white/10 dark:text-white px-2 mr-2.5 py-1 rounded-full">
-                                {child?.count}
-                              </span>
-                                </CustomTooltip>
+                              <CustomTooltip
+                                content={"Unverified Documents Count"}
+                              >
+                                <span className="ml-2 text-xs bg-red-500 text-white dark:bg-white/10 dark:text-white px-2 mr-2.5 py-1 rounded-full">
+                                  {child?.count}
+                                </span>
+                              </CustomTooltip>
                             )}
                           </div>
                         </Link>
@@ -963,8 +972,23 @@ const InvoiceDetails = () => {
                           Pending{" "}
                         </span>
                       )}
-                   
-
+                    {myData?.human_verified === false &&
+                      myData?.rejected === false && (
+                        <span className={`${calculateTimeDifference(
+                            new Date(
+                              metaData?.assignment_details?.verification_due_at
+                            ))?.includes("ago")?"text-[#F15156]":"text-black"} mx-2 bg-gray-200  font-poppins font-normal text-xs leading-3  text-[#ffffff] py-1.5  px-3 rounded-xl `}>
+                         <CustomTooltip
+                          className={"mb-2"}
+                         content={  metaData?.assignment_details?.assigned_to?.username}>
+                           {calculateTimeDifference(
+                            new Date(
+                              metaData?.assignment_details?.verification_due_at
+                            )
+                          )}
+                         </CustomTooltip>
+                        </span>
+                      )}
                   </div>
                 </div>
               </div>
