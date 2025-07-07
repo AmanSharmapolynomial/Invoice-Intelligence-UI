@@ -506,7 +506,7 @@ const InvoiceTable = ({
                       >
                         <CustomTooltip
                           className={"!min-w-[15rem]"}
-                          content={`Asssigned To :- ${assignment_details?.assigned_to?.username}`}
+                          content={`Assigned To :- ${assignment_details?.assigned_to?.username}`}
                         >
                           <div className="w-full ">
                             {(assignment_details &&
