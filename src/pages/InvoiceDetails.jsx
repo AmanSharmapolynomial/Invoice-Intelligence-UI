@@ -958,9 +958,14 @@ const InvoiceDetails = () => {
                   <div className=" -mt-[1.78rem] flex  gap-x-2 !capitalize -ml-3">
                     {myData?.human_verified === true &&
                       myData?.rejected === false && (
-                        <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#348355] text-[#ffffff] p-1 rounded-xl px-3">
-                          Accepted{" "}
-                        </span>
+                        <CustomTooltip
+                        className={"mb-1 !min-w-fit"}
+                          content={`Accepted By :- ${myData?.accepted_by?.username}`}
+                        >
+                          <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#348355] text-[#ffffff] p-1 rounded-xl px-3">
+                            Accepted{" "}
+                          </span>
+                        </CustomTooltip>
                       )}
                     {myData?.rejected === true && (
                       <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#F15156] text-[#ffffff] p-1 rounded-xl   px-3">
@@ -992,11 +997,11 @@ const InvoiceDetails = () => {
                             </CustomTooltip>
                             <div>
                               <CustomTooltip
-                                className={"mb-2"}
+                                className={"mb-2 !min-w-fit"}
                                 content={
                                   metaData?.assignment_details?.assigned_to
-                                    ?.username &&`Assigned To :- ${metaData?.assignment_details?.assigned_to
-                                    ?.username}`
+                                    ?.username &&
+                                  `Assigned To :- ${metaData?.assignment_details?.assigned_to?.username}`
                                 }
                               >
                                 {calculateTimeDifference(
