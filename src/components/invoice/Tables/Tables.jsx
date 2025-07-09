@@ -20,11 +20,14 @@ import { LoaderIcon } from "react-hot-toast";
 import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
 import {
   CheckCheck,
+  FileWarning,
+  FileWarningIcon,
   Loader,
   Rows4,
   SquareCheckBig,
   Table2,
   TextSelect,
+  TriangleAlert,
   X
 } from "lucide-react";
 const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
@@ -213,7 +216,7 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
                             (data?.data?.[0] || data?.data)
                               ?.agent_validation_status
                               ?.metadata_validation_status == "rejected"
-                              ? "bg-red-500"
+                              ? "bg-gray-200"
                               : (data?.data?.[0] || data?.data)
                                   ?.agent_validation_status
                                   ?.metadata_validation_status == "approved"
@@ -227,7 +230,7 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
                             {(data?.data?.[0] || data?.data)
                               ?.agent_validation_status
                               ?.metadata_validation_status == "rejected" ? (
-                              <X className="w-4 h-4" />
+                              <TriangleAlert className="w-4 h-4 text-yellow-600 z-50" />
                             ) : (data?.data?.[0] || data?.data)
                                 ?.agent_validation_status
                                 ?.metadata_validation_status == "approved" ? (
@@ -268,7 +271,7 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
                             (data?.data?.[0] || data?.data)
                               ?.agent_validation_status
                               ?.table_data_validation_status == "rejected"
-                              ? "bg-red-500"
+                              ? "bg-gray-200"
                               : (data?.data?.[0] || data?.data)
                                   ?.agent_validation_status
                                   ?.table_data_validation_status == "approved"
@@ -280,7 +283,7 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
                           {(data?.data?.[0] || data?.data)
                             ?.agent_validation_status
                             ?.table_data_validation_status == "rejected" ? (
-                            <X className="w-4 h-4" />
+                          <TriangleAlert className="w-4 h-4 text-yellow-600 z-50" />
                           ) : (data?.data?.[0] || data?.data)
                               ?.agent_validation_status
                               ?.table_data_validation_status == "approved" ? (

@@ -240,6 +240,7 @@ const CustomDropDown = ({
                         )}
                         onBlur={onBlur}
                         onSelect={() => {
+                          if(multiSelect) return
                           !multiSelect && handleSelect(item.value, item);
                           setSearchTerm("");
                         }}
