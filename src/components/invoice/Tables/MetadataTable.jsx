@@ -28,7 +28,7 @@ import {
 import { queryClient } from "@/lib/utils";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
 import { formatISO, isValid, parseISO } from "date-fns";
-import { X } from "lucide-react";
+import { InfoIcon, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -64,8 +64,7 @@ const MetadataTable = ({
 
   const [updatingCategoriesAndTypes, setUpdatingCategoriesAndTypes] =
     useState(false);
-  const { data: vendorsData, isLoading: loadingVendors } =
-    useGetVendorsNames();
+  const { data: vendorsData, isLoading: loadingVendors } = useGetVendorsNames();
   const { mutate: updateVendorTypesAndCategories } =
     useUpdateVendorTypesAndCategories();
   const navigate = useNavigate();
@@ -115,7 +114,8 @@ const MetadataTable = ({
     quick_book_document_type,
     document_metadata,
     human_verification_required,
-    invoice_type
+    invoice_type,
+    invoice_type_preference_from_restaurant
   } = data?.data?.[0] || data?.data;
   const {
     data: metadataBoundingBoxes,
@@ -133,7 +133,7 @@ const MetadataTable = ({
       setIsUnverifiedBranch(true);
       setCurrentDocumentUUID(document_uuid);
     }
-  }, [vendor,branch]);
+  }, [vendor, branch]);
 
   const [showToChangeCategoriesAndTypes, setShowToChangeCategoriesAndTypes] =
     useState(false);
@@ -332,7 +332,7 @@ const MetadataTable = ({
       setBoundingBoxes([]);
     }
   };
-console.log(vendorsData)
+  console.log(vendorsData);
   return (
     <div className="w-full -mt-3 border border-[#F0F0F0] shadow-sm p-2 rounded-md">
       <div className="grid grid-cols-3 gap-x-4">
@@ -376,9 +376,17 @@ console.log(vendorsData)
             />
           </div>
         </Template>
-        <Template title="Invoice Type">
+        <Template title="Invoice Type" className={"relative"}>
+         <div className="absolute left-24 top-0 cursor-pointer z-50">
+           <CustomTooltip className={"!min-w-fit"} content={invoice_type_preference_from_restaurant&&`Restaurant Preference : - ${invoice_type_preference_from_restaurant}`}>
+            <InfoIcon className=" w-5 h-5 text-yellow-500 cursor-pointer z-50" />
+          </CustomTooltip>
+         </div>
           <CustomDropDown
             showSearch={false}
+            showWarning={true}
+            warning={"Restaurant Preference"}
+            warningOption={invoice_type}
             className={`!min-w-[300px] ${
               !invoice_type ? "!border-[#F97074]" : ""
             }`}
@@ -578,7 +586,7 @@ console.log(vendorsData)
                       let formattedVendors = vendorNamesFormatter(
                         vendorsData?.vendor_names
                       );
-console.log(vendorsData,"formatted vendors")
+                      console.log(vendorsData, "formatted vendors");
                       if (
                         !formattedVendors?.find(
                           (v) => v.value == vendor?.vendor_id
@@ -840,7 +848,7 @@ console.log(vendorsData,"formatted vendors")
       </div>
       <div className="grid grid-cols-2 gap-x-4 mt-4">
         <Template title="Credit Card Name">
-        <div
+          <div
             onMouseEnter={() => {
               handleHighlighting("credit_card_name");
             }}
@@ -848,39 +856,39 @@ console.log(vendorsData,"formatted vendors")
               handleRestBoundingBoxes("credit_card_name");
             }}
           >
-          <CustomInput
-            value={document_metadata?.credit_card_name}
-            className={`${
-              !document_metadata?.credit_card_name ? "!border-[#F97074]" : ""
-            }`}
-            onChange={(v) => {
-              if (branchChanged || vendorChanged) {
-                if (branchChanged) {
-                  toast.error(
-                    "Please Update the Vendor Address before proceeding for other changes.",
-                    {
-                      icon: "⚠️"
-                    }
-                  );
-                  return;
+            <CustomInput
+              value={document_metadata?.credit_card_name}
+              className={`${
+                !document_metadata?.credit_card_name ? "!border-[#F97074]" : ""
+              }`}
+              onChange={(v) => {
+                if (branchChanged || vendorChanged) {
+                  if (branchChanged) {
+                    toast.error(
+                      "Please Update the Vendor Address before proceeding for other changes.",
+                      {
+                        icon: "⚠️"
+                      }
+                    );
+                    return;
+                  } else {
+                    toast.error(
+                      "Please Update the Vendor Name before proceeding for other changes.",
+                      {
+                        icon: "⚠️"
+                      }
+                    );
+                    return;
+                  }
                 } else {
-                  toast.error(
-                    "Please Update the Vendor Name before proceeding for other changes.",
-                    {
-                      icon: "⚠️"
-                    }
-                  );
-                  return;
+                  setCachedData("credit_card_name", v);
                 }
-              } else {
-                setCachedData("credit_card_name", v);
-              }
-            }}
-          />
+              }}
+            />
           </div>
         </Template>
         <Template title="Credit Card Number">
-        <div
+          <div
             onMouseEnter={() => {
               handleHighlighting("credit_card_number");
             }}
@@ -888,35 +896,37 @@ console.log(vendorsData,"formatted vendors")
               handleRestBoundingBoxes("credit_card_number");
             }}
           >
-          <CustomInput
-            value={document_metadata?.credit_card_number}
-            className={`${
-              !document_metadata?.credit_card_number ? "!border-[#F97074]" : ""
-            }`}
-            onChange={(v) => {
-              if (branchChanged || vendorChanged) {
-                if (branchChanged) {
-                  toast.error(
-                    "Please Update the Vendor Address before proceeding for other changes.",
-                    {
-                      icon: "⚠️"
-                    }
-                  );
-                  return;
+            <CustomInput
+              value={document_metadata?.credit_card_number}
+              className={`${
+                !document_metadata?.credit_card_number
+                  ? "!border-[#F97074]"
+                  : ""
+              }`}
+              onChange={(v) => {
+                if (branchChanged || vendorChanged) {
+                  if (branchChanged) {
+                    toast.error(
+                      "Please Update the Vendor Address before proceeding for other changes.",
+                      {
+                        icon: "⚠️"
+                      }
+                    );
+                    return;
+                  } else {
+                    toast.error(
+                      "Please Update the Vendor Name before proceeding for other changes.",
+                      {
+                        icon: "⚠️"
+                      }
+                    );
+                    return;
+                  }
                 } else {
-                  toast.error(
-                    "Please Update the Vendor Name before proceeding for other changes.",
-                    {
-                      icon: "⚠️"
-                    }
-                  );
-                  return;
+                  setCachedData("credit_card_number", v);
                 }
-              } else {
-                setCachedData("credit_card_number", v);
-              }
-            }}
-          />
+              }}
+            />
           </div>
         </Template>
       </div>
