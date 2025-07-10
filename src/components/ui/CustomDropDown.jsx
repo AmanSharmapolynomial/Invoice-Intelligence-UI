@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/popover";
 import { getValueFromLabel } from "@/lib/helpers";
 import { cn } from "@/lib/utils";
-import { Archive, Check, ChevronDown, Link2 } from "lucide-react";
+import { Archive, Check, ChevronDown, InfoIcon, Link2 } from "lucide-react";
 import approved from "@/assets/image/approved.svg";
 import { Link } from "react-router-dom";
 import { Checkbox } from "./checkbox";
@@ -47,7 +47,10 @@ const CustomDropDown = ({
   multiSelect = false,
   vendor_id,
   branch_id,
-  commandGroupClassName
+  commandGroupClassName,
+  showWarning,
+  warning,
+  warningOption
 }) => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(Value || "");
@@ -235,12 +238,12 @@ const CustomDropDown = ({
                     <div style={style} key={item.value}>
                       <CommandItem
                         className={cn(
-                          "text-left border mb-1.5 break-word  truncate whitespace-break-spaces !max-h-[3rem] overflow-hidden !pl-0 border-[#E0E0E0]   !bg-gray-200/70 !ml-0 ",
+                          "text-left border mb-1.5  break-word  truncate whitespace-break-spaces !max-h-[3rem] overflow-hidden !pl-0 border-[#E0E0E0] !gap-x-0  !bg-gray-200/70 !ml-0 ",
                           multiSelect && "!pl-2"
                         )}
                         onBlur={onBlur}
                         onSelect={() => {
-                          if(multiSelect) return
+                          if (multiSelect) return;
                           !multiSelect && handleSelect(item.value, item);
                           setSearchTerm("");
                         }}
@@ -248,12 +251,12 @@ const CustomDropDown = ({
                         {!multiSelect && (
                           <Check
                             className={cn(
-                              "mr-2 h-4 w-4 dark:text-[#FFFFFF] ml-4",
+                              "mr-2 h-4 w-4 dark:text-[#FFFFFF] ml-4 ",
                               value === item.value ? "opacity-100" : "opacity-0"
                             )}
                           />
                         )}
-                        <div className="flex justify-between w-full items-center !pl-0 font-poppins text-xs font-normal dark:!text-[#FFFFFF] gap-x-4 break-word truncate whitespace-normal">
+                        <div className="flex justify-between w-full  items-center !pl-0 font-poppins text-xs font-normal dark:!text-[#FFFFFF] gap-x-0 break-word truncate whitespace-normal">
                           <div className="flex gap-x-1 items-center ">
                             <span>
                               {item?.archived_status ? (
@@ -274,7 +277,19 @@ const CustomDropDown = ({
                                 )}{" "}
                             </span>
                           </div>
+
                           <div className="flex items-center gap-x-2 mr-0.5">
+                            {showWarning && warningOption == item?.value && (
+                              // <CustomTooltip
+                              //   className={"!z-50 "}
+                              //   top={8}
+                              //   left={0}
+                              //   content={warning}
+                              // >
+                                // <InfoIcon className="text-yellow-500 h-4 w-4" />
+                                <p className="!text-[8px]">Restaurant's Preference </p>
+                              // </CustomTooltip>
+                            )}
                             {item?.human_verified && (
                               <img
                                 src={approved}
