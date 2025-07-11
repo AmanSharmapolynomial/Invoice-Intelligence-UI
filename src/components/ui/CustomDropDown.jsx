@@ -280,15 +280,9 @@ const CustomDropDown = ({
 
                           <div className="flex items-center gap-x-2 mr-0.5">
                             {showWarning && warningOption == item?.value && (
-                              // <CustomTooltip
-                              //   className={"!z-50 "}
-                              //   top={8}
-                              //   left={0}
-                              //   content={warning}
-                              // >
-                                // <InfoIcon className="text-yellow-500 h-4 w-4" />
-                                <p className="!text-[8px]">Restaurant's Preference </p>
-                              // </CustomTooltip>
+                              
+                                <p className="!text-[8px] px-1.5 font-medium font-poppins bg-gray-300 rounded-md">Restaurant Preference </p>
+                            
                             )}
                             {item?.human_verified && (
                               <img
