@@ -382,7 +382,7 @@ const MetadataTable = ({
             <div className="absolute right-0 cursor-pointer z-50">
               {/* <CustomTooltip className={"!min-w-fit"} content={invoice_type_preference_from_restaurant&&`Restaurant Preference : - ${invoice_type_preference_from_restaurant}`}> */}
 
-              <div className="text-[10px]  absolute -top-6 bg-gray-200 text-black font-medium !min-w-[14rem] p-2 right-5  h-6 flex items-center rounded-md border !z-50">
+              <div className="text-[10px]  absolute -top-6 bg-gray-200 text-black font-medium !min-w-[16rem] p-2 right-5  h-6 flex items-center rounded-md border !z-50">
                 {invoice_type_preference_from_restaurant &&
                   `Restaurant Preference : - ${invoice_type_preference_from_restaurant}`}
                   <X className="absolute right-1  h-3.5 w-3.5" onClick={()=>{
@@ -400,7 +400,7 @@ const MetadataTable = ({
             showSearch={false}
             showWarning={invoice_type_preference_from_restaurant && true}
             warning={"Restaurant Preference"}
-            warningOption={invoice_type}
+            warningOption={invoice_type_preference_from_restaurant}
             className={`!min-w-[300px] ${
               !invoice_type ? "!border-[#F97074]" : ""
             }`}
