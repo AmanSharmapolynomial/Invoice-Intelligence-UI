@@ -333,6 +333,7 @@ const MetadataTable = ({
     }
   };
   console.log(vendorsData);
+  const [showPreference, setShowPreference] = useState(true);
   return (
     <div className="w-full -mt-3 border border-[#F0F0F0] shadow-sm p-2 rounded-md">
       <div className="grid grid-cols-3 gap-x-4">
@@ -377,14 +378,27 @@ const MetadataTable = ({
           </div>
         </Template>
         <Template title="Invoice Type" className={"relative"}>
-         <div className="absolute left-24 top-0 cursor-pointer z-50">
-           <CustomTooltip className={"!min-w-fit"} content={invoice_type_preference_from_restaurant&&`Restaurant Preference : - ${invoice_type_preference_from_restaurant}`}>
-            <InfoIcon className=" w-5 h-5 text-yellow-500 cursor-pointer z-50" />
-          </CustomTooltip>
-         </div>
+          {invoice_type_preference_from_restaurant &&  showPreference&&(
+            <div className="absolute right-0 cursor-pointer z-50">
+              {/* <CustomTooltip className={"!min-w-fit"} content={invoice_type_preference_from_restaurant&&`Restaurant Preference : - ${invoice_type_preference_from_restaurant}`}> */}
+
+              <div className="text-[10px]  absolute -top-6 bg-gray-200 text-black font-medium !min-w-[14rem] p-2 right-5  h-6 flex items-center rounded-md border !z-50">
+                {invoice_type_preference_from_restaurant &&
+                  `Restaurant Preference : - ${invoice_type_preference_from_restaurant}`}
+                  <X className="absolute right-1  h-3.5 w-3.5" onClick={()=>{
+                    setShowPreference(false)
+                  }}/>
+              </div>
+              
+              {/* </CustomTooltip> */}
+            </div>
+          )}
+         {invoice_type_preference_from_restaurant&& <InfoIcon className=" w-4 h-4 text-yellow-500  absolute  right-1 cursor-pointer z-50"  onClick={()=>{
+                setShowPreference(true)
+              }}/>}
           <CustomDropDown
             showSearch={false}
-            showWarning={true}
+            showWarning={invoice_type_preference_from_restaurant && true}
             warning={"Restaurant Preference"}
             warningOption={invoice_type}
             className={`!min-w-[300px] ${
