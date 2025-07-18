@@ -182,12 +182,12 @@ const Sidebar = ({ className }) => {
                       : "text-black hover:bg-primary hover:text-white"
                   }`}
                 >
-                  {!expanded && typeof option?.count == "number" && option?.count!==0&&(
+                  {!expanded && typeof option?.count == "number" && option?.count!==0&& !isLoading&&(
                     <span className="absolute right-0.5  top-0.5 z-50  text-[10px] text-white bg-red-500 flex items-center justify-center w-7 pb-0.5 rounded-full">
                       {" "}
                       {/* <div className=" bg-red-500 rounded-full  h-6 w-6 pl-1 pt-[0.05rem] text-[10px] " > */}
 
-                        {option?.count >100?"99+":option?.count}
+                        {option?.count && option?.count >100?"99+":option?.count }
                       {/* </div> */}
                     </span>
                   )}

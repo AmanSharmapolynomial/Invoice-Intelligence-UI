@@ -968,9 +968,15 @@ const InvoiceDetails = () => {
                         </CustomTooltip>
                       )}
                     {myData?.rejected === true && (
+                       <CustomTooltip
+                        className={"mb-1 !min-w-fit"}
+                          content={`Rejected By :- ${myData?.rejected_by?.username}`}
+                        >
+
                       <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#F15156] text-[#ffffff] p-1 rounded-xl   px-3">
                         Rejected{" "}
                       </span>
+                        </CustomTooltip>
                     )}
                     {myData?.human_verified === false &&
                       myData?.rejected === false && (
