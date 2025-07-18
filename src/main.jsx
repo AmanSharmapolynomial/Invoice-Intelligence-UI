@@ -16,7 +16,7 @@ Sentry.init({
   sendDefaultPii: true,
   integrations: [Sentry.browserTracingIntegration()],
   tracesSampleRate: 1.0,
-  tracePropagationTargets: ["localhost", /^https:\/\/yourserver\.io\/api/],
+  // tracePropagationTargets: ["localhost", /^https:\/\/yourserver\.io\/api/],
 });
 
 // Theme setup
