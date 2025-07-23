@@ -502,7 +502,7 @@ const InvoiceDetails = () => {
     )?.find((item) => item.value == restaurant)?.value;
     const vendValue = vendorNamesFormatter(
       vendorNamesList?.data && vendorNamesList?.data?.vendor_names
-    )?.find((item) => item.value == vendor)?.value;
+    )?.find((item) => item?.value == vendor)?.value;
 
     setRestaurantFilter(resValue);
     setVendorFilter(vendValue);

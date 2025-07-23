@@ -755,7 +755,7 @@ const MetadataTable = ({
 
                       if (
                         !formattedVendorAddresses?.find(
-                          (v) => v.value == branch?.branch_id
+                          (v) => v?.value == branch?.branch_id
                         )
                       ) {
                         if (branch) {
