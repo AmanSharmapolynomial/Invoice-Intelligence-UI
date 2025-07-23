@@ -1169,7 +1169,7 @@ const InvoiceDetails = () => {
                 searchPlaceholder="Search Restaurant"
                 onChange={(val) => {
                   if (typeof val == "object") {
-                    let restaurant = val.map((item) => item).join(",");
+                    let restaurant = val?.map((item) => item)?.join(",");
                     setFilters({ ...filters, restaurant: restaurant });
                     updateParams({ restaurant: restaurant });
                   } else {
@@ -1194,7 +1194,7 @@ const InvoiceDetails = () => {
                 multiSelect={true}
                 onChange={(val) => {
                   if (typeof val == "object") {
-                    let vendor = val.map((item) => item).join(",");
+                    let vendor = val?.map((item) => item)?.join(",");
                     updateParams({ vendor: vendor });
                     setFilters({ ...filters, vendor: vendor });
                   } else {
@@ -1581,7 +1581,7 @@ const InvoiceDetails = () => {
                 rows={6}
                 value={reviewLaterComments}
                 onChange={(e) => {
-                  setReviewLaterComments(e.target.value);
+                  setReviewLaterComments(e?.target?.value);
                 }}
                 className="p-2.5 dark:text-white  focus:!outline-none focus:!ring-0 "
               />
@@ -1746,7 +1746,7 @@ const InvoiceDetails = () => {
                 rows={4}
                 value={rejectionReason}
                 onChange={(e) => {
-                  setRejectionReason(e.target.value);
+                  setRejectionReason(e?.target?.value);
                 }}
                 className="p-2.5  focus:!outline-none focus:!ring-0 "
               />

@@ -286,7 +286,7 @@ const HumanVerificationTable = ({
       setMetaData({
         ...metaData,
         ["document_metadata"]: {
-          ...metaData.document_metadata,
+          ...metaData?.document_metadata,
           added_fees: [0]
         }
       });
@@ -295,7 +295,7 @@ const HumanVerificationTable = ({
       setMetaData({
         ...metaData,
         ["document_metadata"]: {
-          ...metaData.document_metadata,
+          ...metaData?.document_metadata,
           added_taxes: [0]
         }
       });
@@ -304,7 +304,7 @@ const HumanVerificationTable = ({
       setMetaData({
         ...metaData,
         ["document_metadata"]: {
-          ...metaData.document_metadata,
+          ...metaData?.document_metadata,
           added_discounts: [0]
         }
       });
@@ -428,7 +428,7 @@ const HumanVerificationTable = ({
         );
 
         const updatedRows = [
-          ...lastTableData.data.processed_table.rows,
+          ...lastTableData?.data?.processed_table?.rows,
           restoredRow
         ];
         let copyData = JSON.parse(JSON.stringify(data));
@@ -538,14 +538,14 @@ const HumanVerificationTable = ({
     const updatedRows = data?.data?.processed_table?.rows?.map((row) => ({
       ...row,
       cells: [
-        ...row.cells,
+        ...row?.cells,
         {
           column_uuid: newColumn.column_uuid,
           text: "", // Initialize with an empty text
           actual_text: null,
           confidence: null,
           page_index: 0,
-          row_uuid: row.transaction_uuid,
+          row_uuid: row?.transaction_uuid,
           cell_uuid: uuidv4(), // Unique identifier for the new cell
           selected_column: newColumn.selected_column
         }
@@ -557,7 +557,7 @@ const HumanVerificationTable = ({
       data: {
         ...data.data,
         processed_table: {
-          ...data.data.processed_table,
+          ...data?.data?.processed_table,
           rows: updatedRows,
           columns: updatedColumns
         }
@@ -691,7 +691,7 @@ const HumanVerificationTable = ({
           selectedColumnIds?.includes(c?.column_uuid)
         );
         let row = {
-          ...copyObj.data.processed_table.rows[rowIndex],
+          ...copyObj?.data?.processed_table?.rows?.[rowIndex],
           cells: cells
         };
 
@@ -1128,7 +1128,7 @@ const HumanVerificationTable = ({
       return {
         ...prevFields,
         document_metadata: {
-          ...prevFields.document_metadata,
+          ...prevFields?.document_metadata,
           added_discounts: newData["document_metadata"]["added_discounts"]
         }
       };
@@ -1143,7 +1143,7 @@ const HumanVerificationTable = ({
       return {
         ...prevFields,
         document_metadata: {
-          ...prevFields.document_metadata,
+          ...prevFields?.document_metadata,
           added_taxes: newData["document_metadata"]["added_taxes"]
         }
       };
@@ -1158,7 +1158,7 @@ const HumanVerificationTable = ({
       return {
         ...prevFields,
         document_metadata: {
-          ...prevFields.document_metadata,
+          ...prevFields?.document_metadata,
           added_fees: newData["document_metadata"]["added_fees"]
         }
       };
@@ -1203,7 +1203,7 @@ const HumanVerificationTable = ({
       updatedOperations[existingIndex] = {
         ...updatedOperations[existingIndex],
         data: {
-          ...updatedOperations[existingIndex]?.data,
+          ...updatedOperations?.[existingIndex]?.data,
           column_name
         }
       };
@@ -1602,7 +1602,7 @@ console.log(metaData)
                                                 index,
                                                 i,
                                                 additionalData?.data?.category_choices?.find(
-                                                  (c) => c.category_id == v
+                                                  (c) => c?.category_id == v
                                                 )?.name,
                                                 row
                                               );
@@ -1648,7 +1648,7 @@ console.log(metaData)
                                               row,
                                               false
                                             );
-                                            setCellValue(e.target.value);
+                                            setCellValue(e?.target?.value);
                                           }}
                                         />
                                       )}
@@ -1867,7 +1867,7 @@ console.log(metaData)
                           return {
                             ...prevFields,
                             document_metadata: {
-                              ...prevFields.document_metadata,
+                              ...prevFields?.document_metadata,
                               added_taxes:
                                 newData["document_metadata"]["added_taxes"]
                             }
@@ -1914,7 +1914,7 @@ console.log(metaData)
                           return {
                             ...prevFields,
                             document_metadata: {
-                              ...prevFields.document_metadata,
+                              ...prevFields?.document_metadata,
                               added_fees:
                                 newData["document_metadata"]["added_fees"]
                             }
@@ -1964,7 +1964,7 @@ console.log(metaData)
                             return {
                               ...prevFields,
                               document_metadata: {
-                                ...prevFields.document_metadata,
+                                ...prevFields?.document_metadata,
                                 added_discounts:
                                   newData["document_metadata"][
                                     "added_discounts"
@@ -2041,7 +2041,7 @@ console.log(metaData)
                   return {
                     ...prevFields,
                     document_metadata: {
-                      ...prevFields.document_metadata,
+                      ...prevFields?.document_metadata,
                       invoice_extracted_total: v
                     }
                   };
@@ -2129,7 +2129,7 @@ console.log(metaData)
                   return {
                     ...prevFields,
                     document_metadata: {
-                      ...prevFields.document_metadata,
+                      ...prevFields?.document_metadata,
                       invoice_extracted_total: v
                     }
                   };

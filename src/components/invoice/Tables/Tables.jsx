@@ -30,7 +30,7 @@ import {
   TriangleAlert,
   X
 } from "lucide-react";
-const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
+const Tables = ({ setData, setIsLoading=()=>{}, currentTab, setCurrentTab=()=>{} }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [showWarningModal, setShowWarningModal] = useState(false);
   const {
