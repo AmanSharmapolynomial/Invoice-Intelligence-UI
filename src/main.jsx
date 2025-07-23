@@ -13,7 +13,7 @@ import ErrorBoundary from "./components/common/ErrorBoundaries.jsx";
 // Initialize Sentry before rendering
 Sentry.init({
   dsn: "https://bc3120adb6c43cadd8982712658c11a6@o4509682681905152.ingest.us.sentry.io/4509688521228288",
-  sendDefaultPii: true,
+  sendDefaultPii: false,
   integrations: [Sentry.browserTracingIntegration()],
   tracesSampleRate: 1.0,
   tracePropagationTargets: [/^https:\/\/invoice-intelligence-ui-prod\.vercel\.app/],
