@@ -48,13 +48,13 @@ const TablePagination = ({
   };
   const handleNavigateStart = () => {
     updateParams({ [`${Key}`]: 1 });
-    setPageIndex(newPage);
-    setFilters({...filters,page:newPage})
+    setPageIndex(1);
+    setFilters({...filters,page:1})
   };
   const handleNavigateEnd = () => {
     updateParams({ [`${Key}`]: totalPages });
-    setPageIndex(newPage);
-    setFilters({...filters,page:newPage})
+    setPageIndex(totalPages);
+    setFilters({...filters,page:totalPages})
   };
   useEffect(() => {
     setPageIndex(currentPage);
@@ -123,7 +123,7 @@ const TablePagination = ({
               updateParams({ [`${Key}`]: newPageIndex });
               setPageIndex(newPageIndex);
             }}
-            className=" !shadow-none !text-sm font-medium remove-number-spinner text-[#000000] border-none focus:!border-[#FFFFFF] focus:!outline-none focus:!ring-[#FFFFFF] bg-[#FFFFFF]  flex justify-center items-center  w-[3rem]   h-[1.25rem] "
+            className=" !shadow-none !text-sm font-medium remove-number-spinner text-[#000000] border-none focus:!border-[#FFFFFF] focus:!outline-none focus:!ring-[#FFFFFF] bg-[#FFFFFF]  flex justify-center items-center  min-w-[3rem] !w-fit !max-w-[4rem]   h-[1.25rem] "
           />
           <img src={slash} alt="" className="h-4 w-6" />
 

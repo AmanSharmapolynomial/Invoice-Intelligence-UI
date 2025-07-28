@@ -197,7 +197,7 @@ const CombinedTable = ({
   const handleUndo = () => {
     if (history.length > 0) {
       // Retrieve the last state from the history
-      const lastState = history[history.length - 1];
+      const lastState = history[history?.length - 1];
 
       // Update the query data with the last state
       const copyObj = JSON.parse(JSON.stringify(data));

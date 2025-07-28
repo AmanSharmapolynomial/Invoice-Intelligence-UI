@@ -1,14 +1,25 @@
-import { QueryClientProvider } from "@tanstack/react-query";
+import * as Sentry from "@sentry/react";
 import { createRoot } from "react-dom/client";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider } from "react-router-dom";
+
 import App from "@/App";
 import "@/index.css";
+
 import { queryClient } from "./lib/utils.js";
 import { router } from "./routing/index.jsx";
 import ErrorBoundary from "./components/common/ErrorBoundaries.jsx";
-const root = document.getElementById("root");
 
-// Initialize the theme globally from localStorage
+// Initialize Sentry before rendering
+Sentry.init({
+  dsn: "https://bc3120adb6c43cadd8982712658c11a6@o4509682681905152.ingest.us.sentry.io/4509688521228288",
+  sendDefaultPii: false,
+  integrations: [Sentry.browserTracingIntegration()],
+  tracesSampleRate: 1.0,
+  tracePropagationTargets: [/^https:\/\/invoice-intelligence-ui-prod\.vercel\.app/],
+});
+
+// Theme setup
 const storedTheme = localStorage.getItem("theme") || "light";
 if (storedTheme === "dark") {
   document.documentElement.classList.add("dark");
@@ -16,13 +27,16 @@ if (storedTheme === "dark") {
   document.documentElement.classList.remove("dark");
 }
 
+// Render app
+const root = document.getElementById("root");
 createRoot(root).render(
-  
-  <QueryClientProvider client={queryClient}>
-    <RouterProvider router={router}>
-    <ErrorBoundary>
-      <App />
-  </ErrorBoundary>
-    </RouterProvider>
-  </QueryClientProvider>
+  <Sentry.ErrorBoundary fallback={<p>An error has occurred.</p>}>
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router}>
+        <ErrorBoundary>
+          <App />
+        </ErrorBoundary>
+      </RouterProvider>
+    </QueryClientProvider>
+  </Sentry.ErrorBoundary>
 );
