@@ -65,7 +65,12 @@ import {
   SheetTitle,
   SheetTrigger
 } from "@/components/ui/sheet";
-import { useGetVendorNames, useGetVendorNotes, useGetVendorsPdfs } from "@/components/vendor/api";
+import {
+  useGetVendorBranchPdfs,
+  useGetVendorNames,
+  useGetVendorNotes,
+  useGetVendorsPdfs
+} from "@/components/vendor/api";
 import DocumentNotes from "@/components/vendor/notes/DocumentNotes";
 import VendorNotes from "@/components/vendor/notes/VendorNotes";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
@@ -73,11 +78,13 @@ import persistStore from "@/store/persistStore";
 import useThemeStore from "@/store/themeStore";
 import {
   ArrowRight,
+  BookIcon,
   ChevronDown,
   ChevronRight,
   ChevronUp,
   Clock,
   Copy,
+  FileText,
   Filter,
   Info,
   Menu,
@@ -573,6 +580,10 @@ const InvoiceDetails = () => {
     setShowSimilarVendorsAndBranchesWarningModal(false);
     setShowAcceptModal(false);
     clearStore();
+    setShowSimilarBranchPdfs(false);
+    setShowSimilarVendorPdfs(false);
+    setSelectedSimilarBranch(null);
+    setSelectedSimilarVendor(null)
   }, [page_number]);
 
   const { mutate: revertChanges } = useRevertChanges();
@@ -681,32 +692,75 @@ const InvoiceDetails = () => {
       setOpenSubmenu(null);
     }
   };
-  const [showSimilarVendorPdfs,setShowSimilarVendorPdfs]=useState(false);
- const [selectedSimilarVendor,setSelectedSimilarVendor]=useState(null);
-  const {data:vendorPdfs,isLoading:loadingVendorPdfs}=useGetVendorsPdfs({vendor_one:selectedSimilarVendor?.vendor_id})
-  
+  const [showSimilarVendorPdfs, setShowSimilarVendorPdfs] = useState(false);
+  const [showSimilarBranchPdfs, setShowSimilarBranchPdfs] = useState(false);
+  const [selectedSimilarVendor, setSelectedSimilarVendor] = useState(null);
+  const [selectedSimilarBranch, setSelectedSimilarBranch] = useState(null);
+  const { data: vendorPdfs, isLoading: loadingVendorPdfs } = useGetVendorsPdfs({
+    vendor_one: selectedSimilarVendor?.vendor_id
+  });
+    const { data: branchPdfs, isLoading: loadingBranchPdfs } =
+      useGetVendorBranchPdfs(selectedSimilarBranch?.branch_id);
+console.log(branchPdfs)
   return (
     <div className="hide-scrollbar relative">
       {/* <div> */}{" "}
       <ResizableModal
         title={"Vendor Pdfs"}
-        y={50}
+        y={150}
         x={500}
         width={700}
         isOpen={showSimilarVendorPdfs}
         onClose={() => {
-          setShowSimilarVendorPdfs(false);
-          setSelectedSimilarVendor(null)
+                 setShowSimilarBranchPdfs(false);
+          setSelectedSimilarBranch(null);
+          setSelectedSimilarVendor(null);
+          setShowSimilarVendorPdfs(false)
         }}
       >
         <span className="font-poppins font-semibold p-2 capitalize text-base">
           {selectedSimilarVendor?.vendor_name} Pdfs
         </span>
-        <PdfViewer pdfUrls={loadingVendorPdfs?[]:vendorPdfs?.data?Object?.values(vendorPdfs?.data)?.[0]:[]} className={"!w-[40vw]"} />
+        <PdfViewer
+          pdfUrls={
+            loadingVendorPdfs
+              ? []
+              : vendorPdfs?.data
+              ? Object?.values(vendorPdfs?.data)?.[0]
+              : []
+          }
+          multiple={true}
+
+          className={"!w-[40vw] !max-h-[50rem]"}
+        />
       </ResizableModal>
-
-
-
+      <ResizableModal
+        title={"Vendor Branches"}
+        y={150}
+        x={500}
+        width={700}
+        // className={"!h-[80vh]"}
+        isOpen={showSimilarBranchPdfs}
+        onClose={() => {
+          setShowSimilarBranchPdfs(false);
+          setSelectedSimilarBranch(null);
+          setSelectedSimilarVendor(null);
+          setShowSimilarVendorPdfs(false)
+        }}
+      >
+        <span className="font-poppins font-semibold p-2 capitalize text-base">
+          {selectedSimilarBranch?.vendor_address} Pdfs
+        </span>
+        <PdfViewer
+          pdfUrls={
+            loadingVendorNotes
+              ? []
+              : branchPdfs?.data
+          }
+          multiple={true}
+          className={"!w-[40vw] !max-h-[50rem]"}
+        />
+      </ResizableModal>
       <ResizableModal
         title={"AI Notes"}
         y={50}
@@ -981,7 +1035,7 @@ const InvoiceDetails = () => {
                     {myData?.human_verified === true &&
                       myData?.rejected === false && (
                         <CustomTooltip
-                        className={"mb-1 !min-w-fit"}
+                          className={"mb-1 !min-w-fit"}
                           content={`Accepted By :- ${myData?.accepted_by?.username}`}
                         >
                           <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#348355] text-[#ffffff] p-1 rounded-xl px-3">
@@ -990,15 +1044,14 @@ const InvoiceDetails = () => {
                         </CustomTooltip>
                       )}
                     {myData?.rejected === true && (
-                       <CustomTooltip
+                      <CustomTooltip
                         className={"mb-1 !min-w-fit"}
-                          content={`Rejected By :- ${myData?.rejected_by?.username}`}
-                        >
-
-                      <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#F15156] text-[#ffffff] p-1 rounded-xl   px-3">
-                        Rejected{" "}
-                      </span>
-                        </CustomTooltip>
+                        content={`Rejected By :- ${myData?.rejected_by?.username}`}
+                      >
+                        <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#F15156] text-[#ffffff] p-1 rounded-xl   px-3">
+                          Rejected{" "}
+                        </span>
+                      </CustomTooltip>
                     )}
                     {myData?.human_verified === false &&
                       myData?.rejected === false && (
@@ -1892,7 +1945,7 @@ const InvoiceDetails = () => {
         isOpen={showAcceptModal}
         onClose={() => setShowAcceptModal()}
         title={"Information"}
-        className={"!rounded-2xl  max-w-[50rem] "}
+        className={"!rounded-2xl  !w-[55rem] "}
       >
         {similarVendors?.data?.length > 0 &&
         similarBranches?.data?.length > 0 ? (
@@ -1922,15 +1975,18 @@ const InvoiceDetails = () => {
               <>
                 <div className="sticky top-0 bg-white z-50">
                   <Table className="!sticky !top-0">
-                    <TableRow className="grid grid-cols-3 items-center content-center ">
-                      <TableHead className="border-r  border-t border-l font-poppins text-sm font-semibold content-center text-black leading-5">
+                    <TableRow className="w-[100%] items-center content-center ">
+                      <TableHead className="border-r w-[30%]  border-t border-l font-poppins text-sm font-semibold content-center text-black leading-5">
                         Vendor Name
                       </TableHead>
-                      <TableHead className="border-r border-t  font-poppins text-sm font-semibold text-black leading-5 content-center">
+                      <TableHead className="border-r w-[20%] border-t  font-poppins text-sm font-semibold text-black leading-5 content-center">
                         Similarity{" "}
                       </TableHead>
-                      <TableHead className=" font-poppins text-sm border-t border-r font-semibold text-black leading-5 content-center">
+                      <TableHead className=" font-poppins w-[30%] text-sm border-t border-r font-semibold text-black leading-5 content-center">
                         Finding Method
+                      </TableHead>
+                      <TableHead className=" font-poppins text-sm w-[20%] border-t border-r font-semibold text-black leading-5 content-center">
+                        View
                       </TableHead>
                     </TableRow>
                   </Table>
@@ -1945,15 +2001,24 @@ const InvoiceDetails = () => {
                           })
                           ?.map((row, index) => (
                             <TableRow
-                              className=" !border-b grid grid-cols-3 "
+                              className=" !border-b w-[100%] flex items-center "
                               key={index}
                             >
-                              <TableCell className=" border-l font-poppins border-r font-normal content-center text-black text-sm">
+                              <TableCell className="w-[30%] border-l font-poppins border-r font-normal content-center text-black text-sm">
                                 <div className="flex items-center gap-x-2  justify-between w-full capitalize">
-                                  <span className="max-w-44 underline cursor-pointer text-primary" onClick={()=>{
-                                    setSelectedSimilarVendor(row?.vendor);
-                                    setShowSimilarVendorPdfs(true);
-                                  }}>
+                                  <span
+                                    className="max-w-44 underline cursor-pointer text-primary"
+                                    onClick={() => {
+                                      window.open(
+                                        `${
+                                          import.meta.env
+                                            .VITE_APP_OLD_UI_STAGING_UI
+                                        }/vendor-consolidation-v2/${
+                                          row?.vendor?.vendor_id
+                                        }`
+                                      );
+                                    }}
+                                  >
                                     {" "}
                                     {row?.vendor?.vendor_name}
                                   </span>
@@ -1971,7 +2036,7 @@ const InvoiceDetails = () => {
                                   </div>
                                 </div>
                               </TableCell>
-                              <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
+                              <TableCell className="w-[20%] border-r content-center font-poppins font-normal text-black text-sm">
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger div className=" z-50">
@@ -1983,8 +2048,19 @@ const InvoiceDetails = () => {
                                   </Tooltip>
                                 </TooltipProvider>
                               </TableCell>
-                              <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
+                              <TableCell className="w-[30%] border-r content-center font-poppins font-normal text-black text-sm">
                                 {row?.finding_method}
+                              </TableCell>
+                              <TableCell className="w-[20%] border-r content-center font-poppins font-normal text-black text-sm">
+                                {
+                                  <FileText
+                                    onClick={() => {
+                                      setSelectedSimilarVendor(row?.vendor);
+                                      setShowSimilarVendorPdfs(true);
+                                    }}
+                                    className="w-4 h-4  cursor-pointer"
+                                  />
+                                }
                               </TableCell>
                             </TableRow>
                           ))}
@@ -2007,15 +2083,18 @@ const InvoiceDetails = () => {
               <>
                 <div className="sticky top-0 bg-white z-50">
                   <Table className="!sticky !top-0">
-                    <TableRow className="grid grid-cols-3 items-center content-center ">
-                      <TableHead className="border-r  border-t border-l font-poppins text-sm font-semibold content-center text-black leading-5">
+                    <TableRow className="flex w-[100%] items-center content-center ">
+                      <TableHead className="border-r  w-[30%] border-t border-l font-poppins text-sm font-semibold content-center text-black leading-5">
                         Branch Name
                       </TableHead>
-                      <TableHead className="border-r border-t  font-poppins text-sm font-semibold text-black leading-5 content-center">
+                      <TableHead className="border-r w-[20%] border-t  font-poppins text-sm font-semibold text-black leading-5 content-center">
                         Similarity{" "}
                       </TableHead>
-                      <TableHead className=" font-poppins text-sm border-t border-r font-semibold text-black leading-5 content-center">
+                      <TableHead className=" font-poppins w-[30%] text-sm border-t border-r font-semibold text-black leading-5 content-center">
                         Finding Method
+                      </TableHead>
+                      <TableHead className=" font-poppins w-[20%] text-sm border-t border-r font-semibold text-black leading-5 content-center">
+                        View
                       </TableHead>
                     </TableRow>
                   </Table>
@@ -2030,12 +2109,19 @@ const InvoiceDetails = () => {
                           })
                           ?.map((row, index) => (
                             <TableRow
-                              className=" !border-b grid grid-cols-3 "
+                              className=" !border-b flex items-center w-[100%]"
                               key={index}
                             >
-                              <TableCell className=" border-l font-poppins border-r font-normal content-center text-black text-sm">
+                              <TableCell className="w-[30%] border-l font-poppins border-r font-normal content-center text-black text-sm">
                                 <div className="flex items-center gap-x-2 capitalize justify-between">
-                                  <span className="max-w-44">
+                                  <span className="max-w-44 underline text-primary cursor-pointer" 
+                                  onClick={()=>{
+                                    window.open(`${
+                                          import.meta.env
+                                            .VITE_APP_OLD_UI_STAGING_UI
+                                        }/vendor-v2/${row?.vendor?.vendor_id}/branch/${row?.branch?.branch_id}`)
+                                  }}
+                                  >
                                     {row?.branch?.vendor_address}
                                   </span>
                                   <div className="flex items-center gap-x-2">
@@ -2052,7 +2138,7 @@ const InvoiceDetails = () => {
                                   </div>
                                 </div>
                               </TableCell>
-                              <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
+                              <TableCell className="w-[20%] border-r content-center font-poppins font-normal text-black text-sm">
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger div className=" z-50">
@@ -2064,8 +2150,18 @@ const InvoiceDetails = () => {
                                   </Tooltip>
                                 </TooltipProvider>
                               </TableCell>
-                              <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
+                              <TableCell className="w-[30%] border-r content-center font-poppins font-normal text-black text-sm">
                                 {row?.finding_method}
+                              </TableCell>
+                              <TableCell className="w-[20%] border-r content-center font-poppins font-normal text-black text-sm">
+                                <FileText className="w-4 h-4 cursor-pointer" 
+                                onClick={()=>{
+                                setSelectedSimilarBranch(row?.branch);
+                                setShowSimilarBranchPdfs(true);
+                                setShowSimilarVendorPdfs(false);
+                                setSelectedSimilarVendor(null)
+                                }}
+                                />
                               </TableCell>
                             </TableRow>
                           ))}
