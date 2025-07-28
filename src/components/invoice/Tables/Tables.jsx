@@ -136,7 +136,7 @@ const Tables = ({ setData, setIsLoading=()=>{}, currentTab, setCurrentTab=()=>{}
       return;
     }
 
-    const categorySumArray = Object.entries(categorySum).map(
+    const categorySumArray = Object?.entries(categorySum)?.map(
       ([category, sum]) => ({ category, sum })
     );
 
