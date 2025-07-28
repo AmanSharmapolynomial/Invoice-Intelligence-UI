@@ -34,16 +34,16 @@ const CombinedTable = ({
       if (history.length === 0) return;
 
       const { tableData: lastTableData, operations: lastOperations } =
-        history.pop();
-      const lastOperation = lastOperations[lastOperations.length - 1];
+        history?.pop();
+      const lastOperation = lastOperations?.[lastOperations?.length - 1];
       if (lastOperation?.type === "delete_row") {
-        const deletedRowUuid = lastOperation.data.transaction_uuid;
-        const restoredRow = lastTableData.data.processed_table.rows.find(
-          (row) => row.transaction_uuid === deletedRowUuid
+        const deletedRowUuid = lastOperation?.data?.transaction_uuid;
+        const restoredRow = lastTableData?.data?.processed_table?.rows?.find(
+          (row) => row?.transaction_uuid === deletedRowUuid
         );
 
         const updatedRows = [
-          ...lastTableData.data.processed_table.rows,
+          ...lastTableData?.data?.processed_table?.rows,
           restoredRow
         ];
         let copyData = JSON.parse(JSON.stringify(data));
@@ -67,14 +67,14 @@ const CombinedTable = ({
 
       // Create a mapping from column_uuid to column_order
       const columnOrderMap = columns?.reduce((acc, column) => {
-        acc[column.column_uuid] = column.column_order;
+        acc[column.column_uuid] = column?.column_order;
         return acc;
       }, {});
 
       // Sort cells in each row based on column_order
       copyObj?.data?.processed_table?.rows?.forEach((row) => {
         row?.cells?.sort((a, b) => {
-          return columnOrderMap[a.column_uuid] - columnOrderMap[b.column_uuid];
+          return columnOrderMap?.[a?.column_uuid] - columnOrderMap?.[b?.column_uuid];
         });
       });
 
@@ -144,7 +144,7 @@ const CombinedTable = ({
       updatedOperations[existingIndex] = {
         ...updatedOperations[existingIndex],
         data: {
-          ...updatedOperations[existingIndex]?.data,
+          ...updatedOperations?.[existingIndex]?.data,
           column_name
         }
       };
@@ -171,11 +171,11 @@ const CombinedTable = ({
     ]);
 
     // Remove the column from the columns array
-    columns = columns.filter((column) => column.column_uuid !== column_uuid);
+    columns = columns?.filter((column) => column?.column_uuid !== column_uuid);
 
     // Remove the corresponding cell from each row
     rows.forEach((row) => {
-      row.cells = row.cells.filter((cell) => cell.column_uuid !== column_uuid);
+      row.cells = row?.cells?.filter((cell) => cell?.column_uuid !== column_uuid);
     });
 
     copyObj.data.processed_table.columns = columns;
@@ -197,12 +197,12 @@ const CombinedTable = ({
   const handleUndo = () => {
     if (history.length > 0) {
       // Retrieve the last state from the history
-      const lastState = history[history?.length - 1];
+      const lastState = history?.[history?.length - 1];
 
       // Update the query data with the last state
       const copyObj = JSON.parse(JSON.stringify(data));
-      copyObj.data.processed_table.columns = lastState.columns;
-      copyObj.data.processed_table.rows = lastState.rows;
+      copyObj.data.processed_table.columns = lastState?.columns;
+      copyObj.data.processed_table.rows = lastState?.rows;
 
       queryClient.setQueryData(["combined-table", document_uuid], copyObj);
 

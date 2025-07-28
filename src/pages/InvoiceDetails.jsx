@@ -245,7 +245,7 @@ const InvoiceDetails = () => {
   }, []);
 
   const handleSave = () => {
-    if (Object.keys(updatedFields)?.length == 0 && operations?.length == 0) {
+    if (Object?.keys(updatedFields)?.length == 0 && operations?.length == 0) {
       return toast("No Fields Updated..", {
         icon: "⚠️"
       });
@@ -499,7 +499,7 @@ const InvoiceDetails = () => {
   useEffect(() => {
     const resValue = formatRestaurantsList(
       restaurantsList && restaurantsList?.data
-    )?.find((item) => item.value == restaurant)?.value;
+    )?.find((item) => item?.value == restaurant)?.value;
     const vendValue = vendorNamesFormatter(
       vendorNamesList?.data && vendorNamesList?.data?.vendor_names
     )?.find((item) => item?.value == vendor)?.value;
@@ -730,7 +730,7 @@ const InvoiceDetails = () => {
                     </p>
                     <p className="max-w-96 font-poppins font-medium text-xs mt-1.5 text-end leading-5">
                       {formatDateToReadable(created_at)}{" "}
-                      {created_at?.split(".")?.[0]?.split("T")[1]}
+                      {created_at?.split(".")?.[0]?.split("T")?.[1]}
                     </p>
                   </div>
                 </div>
@@ -765,10 +765,10 @@ const InvoiceDetails = () => {
           <div className=" space-y-2 flex flex-col">
             {options?.map((option, index) => {
               const isActive =
-                pathname === option.path ||
-                option.children?.some((child) => child.path === pathname);
+                pathname === option?.path ||
+                option.children?.some((child) => child?.path === pathname);
               const isSubmenuOpen = openSubmenu === index;
-              const hasChildren = option.children?.length > 0;
+              const hasChildren = option?.children?.length > 0;
 
               const handleClick = (e) => {
                 if (hasChildren) {
@@ -780,7 +780,7 @@ const InvoiceDetails = () => {
                     handleToggle(index, true);
                   }
                 } else {
-                  if (pathname === option.path) {
+                  if (pathname === option?.path) {
                     e.preventDefault();
                     return;
                   }
@@ -788,7 +788,7 @@ const InvoiceDetails = () => {
                 }
               };
 
-              const Wrapper = option.path ? Link : "div";
+              const Wrapper = option?.path ? Link : "div";
 
               return (
                 <div
@@ -810,13 +810,13 @@ const InvoiceDetails = () => {
                   >
                     <div className="relative flex-shrink-0 w-5 h-5">
                       <img
-                        src={option.image}
-                        alt={option.text}
+                        src={option?.image}
+                        alt={option?.text}
                         className="absolute inset-0 w-full h-full transition-opacity duration-300"
                       />
                       <img
-                        src={option.hoverImage}
-                        alt={option.text}
+                        src={option?.hoverImage}
+                        alt={option?.text}
                         className={`absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity ${
                           isActive ? "opacity-100" : ""
                         }`}
@@ -825,7 +825,7 @@ const InvoiceDetails = () => {
 
                     {expanded && (
                       <div className="flex items-center justify-between w-full ml-2 dark:text-white">
-                        <span className="truncate">{option.text}</span>
+                        <span className="truncate">{option?.text}</span>
                         <div className="flex items-center gap-2">
                           {typeof option.count === "number" && (
                             <CustomTooltip
@@ -851,17 +851,17 @@ const InvoiceDetails = () => {
                     <div className="ml-8 space-y-1">
                       {option.children.map((child, idx) => (
                         <Link
-                          to={child.path}
+                          to={child?.path}
                           onClick={() => setDefault()}
                           key={idx}
                           className={`block text-sm py-3 mt-1 px-2 hover:bg-primary hover:text-white ${
-                            pathname === child.path
+                            pathname === child?.path
                               ? "bg-primary text-white"
                               : "text-gray-700"
                           }`}
                         >
                           <div className="flex justify-between items-center">
-                            <span className="truncate">{child.text}</span>
+                            <span className="truncate">{child?.text}</span>
                             {typeof child?.count === "number" && (
                               <CustomTooltip
                                 content={"Unverified Documents Count"}
@@ -1351,12 +1351,12 @@ const InvoiceDetails = () => {
                     }}
                     disabled={
                       loadingState?.reverting ||
-                      loadingState.rejecting ||
-                      loadingState.markingAsNotSupported ||
-                      loadingState.markingForReview ||
-                      loadingState.reverting ||
-                      loadingState.accepting ||
-                      loadingState.saving
+                      loadingState?.rejecting ||
+                      loadingState?.markingAsNotSupported ||
+                      loadingState?.markingForReview ||
+                      loadingState?.reverting ||
+                      loadingState?.accepting ||
+                      loadingState?.saving
                     }
                     className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                   >
@@ -1379,12 +1379,12 @@ const InvoiceDetails = () => {
                   disabled={
                     action_controls?.review_later?.disabled ||
                     markingForReview ||
-                    loadingState.rejecting ||
-                    loadingState.markingAsNotSupported ||
-                    loadingState.markingForReview ||
-                    loadingState.reverting ||
-                    loadingState.accepting ||
-                    loadingState.saving
+                    loadingState?.rejecting ||
+                    loadingState?.markingAsNotSupported ||
+                    loadingState?.markingForReview ||
+                    loadingState?.reverting ||
+                    loadingState?.accepting ||
+                    loadingState?.saving
                   }
                   className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                 >
@@ -1404,12 +1404,12 @@ const InvoiceDetails = () => {
                   }}
                   disabled={
                     action_controls?.reject?.disabled ||
-                    loadingState.rejecting ||
-                    loadingState.markingAsNotSupported ||
-                    loadingState.markingForReview ||
-                    loadingState.reverting ||
-                    loadingState.accepting ||
-                    loadingState.saving
+                    loadingState?.rejecting ||
+                    loadingState?.markingAsNotSupported ||
+                    loadingState?.markingForReview ||
+                    loadingState?.reverting ||
+                    loadingState?.accepting ||
+                    loadingState?.saving
                   }
                   className="bg-transparent w-[6.5rem] dark:text-white h-[2.4rem] border-[#F15156]  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                 >
@@ -1445,11 +1445,11 @@ const InvoiceDetails = () => {
                     !warning_checkbox_checked ||
                     action_controls?.accept?.disabled ||
                     loadingState?.accepting ||
-                    loadingState.rejecting ||
-                    loadingState.markingAsNotSupported ||
-                    loadingState.markingForReview ||
-                    loadingState.reverting ||
-                    loadingState.saving
+                    loadingState?.rejecting ||
+                    loadingState?.markingAsNotSupported ||
+                    loadingState?.markingForReview ||
+                    loadingState?.reverting ||
+                    loadingState?.saving
                   }
                   className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                 >
@@ -1467,12 +1467,12 @@ const InvoiceDetails = () => {
                 <Button
                   disabled={
                     action_controls?.mark_as_not_supported?.disabled ||
-                    loadingState.rejecting ||
-                    loadingState.markingAsNotSupported ||
-                    loadingState.markingForReview ||
-                    loadingState.reverting ||
-                    loadingState.accepting ||
-                    loadingState.saving
+                    loadingState?.rejecting ||
+                    loadingState?.markingAsNotSupported ||
+                    loadingState?.markingForReview ||
+                    loadingState?.reverting ||
+                    loadingState?.accepting ||
+                    loadingState?.saving
                   }
                   onClick={() => setMarkAsNotSupportedModal(true)}
                   className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[7.25rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
@@ -1494,11 +1494,11 @@ const InvoiceDetails = () => {
                     loadingState?.saving ||
                     loadingState?.rejecting ||
                     loadingState?.accepting ||
-                    loadingState.rejecting ||
-                    loadingState.markingAsNotSupported ||
-                    loadingState.markingForReview ||
-                    loadingState.reverting ||
-                    loadingState.saving
+                    loadingState?.rejecting ||
+                    loadingState?.markingAsNotSupported ||
+                    loadingState?.markingForReview ||
+                    loadingState?.reverting ||
+                    loadingState?.saving
                   }
                   onClick={() => handleSave()}
                   className="font-poppins h-[2.4rem] dark:text-white font-normal text-sm leading-5 border-2 border-primary text-[#ffffff]"
@@ -1842,7 +1842,7 @@ const InvoiceDetails = () => {
                       <Link
                         target="_blank"
                         onClick={() => setShowDuplicateInvoicesModal(false)}
-                        to={`/invoice-details?document_uuid=${d.document_uuid}`}
+                        to={`/invoice-details?document_uuid=${d?.document_uuid}`}
                         className="font-poppins !font-normal    pl-1 underline underline-offset-4 !text-center text-xs text-[#348355] leading-4"
                       >
                         View

@@ -142,7 +142,7 @@ const MetadataTable = ({
     useState(null);
   const setCachedData = (key, value, setFields = true) => {
     // Normalize the data structure
-    let normalizedData = Array.isArray(data?.data) ? data?.data : [data?.data];
+    let normalizedData = Array?.isArray(data?.data) ? data?.data : [data?.data];
     let updated = false;
     let isDocumentMetadata = false;
 
@@ -160,9 +160,9 @@ const MetadataTable = ({
     });
 
     // Update the original `data` object based on the normalization
-    let updatedData = Array.isArray(data?.data)
+    let updatedData = Array?.isArray(data?.data)
       ? { ...data, data: normalizedData }
-      : { ...data, data: normalizedData[0] };
+      : { ...data, data: normalizedData?.[0] };
 
     // Set the updated query data
     queryClient.setQueryData(["document-metadata", payload], updatedData);
@@ -449,8 +449,8 @@ const MetadataTable = ({
                 }`}
                 date={
                   document_metadata?.invoice_date &&
-                  isValid(parseISO(document_metadata.invoice_date))
-                    ? parseISO(document_metadata.invoice_date) // Parse ISO string
+                  isValid(parseISO(document_metadata?.invoice_date))
+                    ? parseISO(document_metadata?.invoice_date) // Parse ISO string
                     : null
                 }
                 onChange={(date) => {
@@ -603,7 +603,7 @@ const MetadataTable = ({
                       console.log(vendorsData, "formatted vendors");
                       if (
                         !formattedVendors?.find(
-                          (v) => v.value == vendor?.vendor_id
+                          (v) => v?.value == vendor?.vendor_id
                         )
                       ) {
                         formattedVendors = [
@@ -627,7 +627,7 @@ const MetadataTable = ({
                         const searchResults = referenceString
                           ? fuse
                               ?.search(referenceString)
-                              ?.map((result) => result.item)
+                              ?.map((result) => result?.item)
                           : formattedVendors;
 
                         // If you want all vendors returned, merge missing items:
