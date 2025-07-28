@@ -65,7 +65,7 @@ import {
   SheetTitle,
   SheetTrigger
 } from "@/components/ui/sheet";
-import { useGetVendorNames, useGetVendorNotes } from "@/components/vendor/api";
+import { useGetVendorNames, useGetVendorNotes, useGetVendorsPdfs } from "@/components/vendor/api";
 import DocumentNotes from "@/components/vendor/notes/DocumentNotes";
 import VendorNotes from "@/components/vendor/notes/VendorNotes";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
@@ -681,10 +681,32 @@ const InvoiceDetails = () => {
       setOpenSubmenu(null);
     }
   };
-
+  const [showSimilarVendorPdfs,setShowSimilarVendorPdfs]=useState(false);
+ const [selectedSimilarVendor,setSelectedSimilarVendor]=useState(null);
+  const {data:vendorPdfs,isLoading:loadingVendorPdfs}=useGetVendorsPdfs({vendor_one:selectedSimilarVendor?.vendor_id})
+  
   return (
     <div className="hide-scrollbar relative">
       {/* <div> */}{" "}
+      <ResizableModal
+        title={"Vendor Pdfs"}
+        y={50}
+        x={500}
+        width={700}
+        isOpen={showSimilarVendorPdfs}
+        onClose={() => {
+          setShowSimilarVendorPdfs(false);
+          setSelectedSimilarVendor(null)
+        }}
+      >
+        <span className="font-poppins font-semibold p-2 capitalize text-base">
+          {selectedSimilarVendor?.vendor_name} Pdfs
+        </span>
+        <PdfViewer pdfUrls={loadingVendorPdfs?[]:vendorPdfs?.data?Object?.values(vendorPdfs?.data)?.[0]:[]} className={"!w-[40vw]"} />
+      </ResizableModal>
+
+
+
       <ResizableModal
         title={"AI Notes"}
         y={50}
@@ -1928,7 +1950,10 @@ const InvoiceDetails = () => {
                             >
                               <TableCell className=" border-l font-poppins border-r font-normal content-center text-black text-sm">
                                 <div className="flex items-center gap-x-2  justify-between w-full capitalize">
-                                  <span className="max-w-44">
+                                  <span className="max-w-44 underline cursor-pointer text-primary" onClick={()=>{
+                                    setSelectedSimilarVendor(row?.vendor);
+                                    setShowSimilarVendorPdfs(true);
+                                  }}>
                                     {" "}
                                     {row?.vendor?.vendor_name}
                                   </span>
