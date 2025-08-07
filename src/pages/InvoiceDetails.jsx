@@ -1,12 +1,12 @@
 import approved from "@/assets/image/approved.svg";
-import warning from "@/assets/image/warning.svg";
+import copy from "@/assets/image/copy.svg";
 import tier_1 from "@/assets/image/tier_1.svg";
 import tier_2 from "@/assets/image/tier_2.svg";
 import tier_3 from "@/assets/image/tier_3.svg";
+import warning from "@/assets/image/warning.svg";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import { PdfViewer } from "@/components/common/PDFViewer";
-import copy from "@/assets/image/copy.svg";
 
 import {
   useFindDuplicateInvoices,
@@ -43,19 +43,23 @@ import useFilterStore from "@/store/filtersStore";
 import globalStore from "@/store/globalStore";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
 
-import review_later_white from "@/assets/image/review_later_white.svg";
-import review_later_black from "@/assets/image/review_later_black.svg";
 import all_invoices_black from "@/assets/image/all_invoices_black.svg";
 import all_invoices_white from "@/assets/image/all_invoices_white.svg";
-import not_supported_white from "@/assets/image/not_supported_white.svg";
-import not_supported_black from "@/assets/image/not_supported_black.svg";
-import my_tasks_white from "@/assets/image/check_book_white.svg";
-import my_tasks_black from "@/assets/image/check_book_black.svg";
-import book_user_white from "@/assets/image/book_user_white.svg";
 import book_user_black from "@/assets/image/book_user_black.svg";
+import book_user_white from "@/assets/image/book_user_white.svg";
+import my_tasks_black from "@/assets/image/check_book_black.svg";
+import my_tasks_white from "@/assets/image/check_book_white.svg";
+import flagged_black from "@/assets/image/flagged_black.svg";
+import flagged_white from "@/assets/image/flagged_white.svg";
+import not_supported_black from "@/assets/image/not_supported_black.svg";
+import not_supported_white from "@/assets/image/not_supported_white.svg";
+import review_later_black from "@/assets/image/review_later_black.svg";
+import review_later_white from "@/assets/image/review_later_white.svg";
+import userStore from "@/components/auth/store/userStore";
 import { useListRestaurants } from "@/components/home/api";
 import InvoiceFilters from "@/components/invoice/InvoiceFilters";
 import { useInvoiceStore } from "@/components/invoice/store";
+import ResizableModal from "@/components/ui/Custom/ResizeableModal";
 import CustomDropDown from "@/components/ui/CustomDropDown";
 import {
   Sheet,
@@ -65,6 +69,20 @@ import {
   SheetTitle,
   SheetTrigger
 } from "@/components/ui/sheet";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow
+} from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from "@/components/ui/tooltip";
 import { useGetVendorNames, useGetVendorNotes } from "@/components/vendor/api";
 import DocumentNotes from "@/components/vendor/notes/DocumentNotes";
 import VendorNotes from "@/components/vendor/notes/VendorNotes";
@@ -83,8 +101,6 @@ import {
   Menu,
   NotebookTabs,
   Share2,
-  Table2,
-  TextSelect,
   X
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -95,33 +111,6 @@ import {
   useNavigate,
   useSearchParams
 } from "react-router-dom";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow
-} from "@/components/ui/table";
-import CustomToolTip from "@/components/ui/CustomToolTip";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from "@/components/ui/tooltip";
-import userStore from "@/components/auth/store/userStore";
-import ResizableModal from "@/components/ui/Custom/ResizeableModal";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
-import flagged_white from "@/assets/image/flagged_white.svg";
-import flagged_black from "@/assets/image/flagged_black.svg";
 // import book_user_white from "@/assets/image/book_user_white.svg";
 // import book_user_black from "@/assets/image/book_user_black.svg";
 import { useGetSidebarCounts } from "@/components/common/api";

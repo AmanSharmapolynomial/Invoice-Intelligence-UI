@@ -95,8 +95,8 @@ const Sidebar = ({ className }) => {
       count: data?.not_supported
     },
     {
-      path: null,
-      text: "Vendor Consolidation",
+      path: '/multi-invoice-documents',
+      text: "Multi Invoice Documents",
       image: theme === "light" ? book_user_black : book_user_white,
       hoverImage: book_user_white
     }
