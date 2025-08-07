@@ -20,6 +20,11 @@ import tier_2 from "@/assets/image/tier_2.svg";
 import tier_3 from "@/assets/image/tier_3.svg";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { PdfViewer } from "@/components/common/PDFViewer";
+import { Accordion, AccordionTrigger } from "@/components/ui/accordion";
+import CustomAccordion from "@/components/ui/Custom/CustomAccordion";
+import { Button } from "@/components/ui/button";
+import { Plus, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
 const MultiInvoiceDocumentsDetails = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -172,8 +177,7 @@ const MultiInvoiceDocumentsDetails = () => {
             {isLoading ? (
               <div className="flex items-center gap-x-2">
                 <Skeleton className={"w-44 h-10  mb-1"} />
-                <Skeleton className={"w-44 h-10  mb-1"} />
-                ss
+                {/* <Skeleton className={"w-44 h-10  mb-1"} /> */}
               </div>
             ) : (
               <>
@@ -205,10 +209,8 @@ const MultiInvoiceDocumentsDetails = () => {
               </>
             )}
           </BreadCrumb>
-          <div className="mt-4">
-
-          </div>
-          <div className="w-full flex  mt-4">
+          <div className="mt-4"></div>
+          <div className="w-full flex  pt-4 border-t">
             <div className="w-1/2 flex flex-col gap-y-4 2xl:px-16 md:px-8">
               <PdfViewer
                 payload={payload}
@@ -231,12 +233,150 @@ const MultiInvoiceDocumentsDetails = () => {
             )} */}
             </div>
             <div className="w-1/2">
-              {/* <Tables
-              setData={setData}
-              setIsLoading={setIsLoading}
-              currentTab={currentTab}
-              setCurrentTab={setCurrentTab}
-            /> */}
+              {/* -------------------------------------------------------------------Closed Groups--------------------------------------------- */}
+              <div>
+                <p className="font-poppins font-semibold text-sm text-black mb-3">
+                  Closed Groups
+                </p>
+                <div className="flex flex-col gap-y-1">
+                  {myData?.closed_groups?.map((group) => {
+                    return (
+                      <div className="my-1">
+                        <CustomAccordion
+                          className={
+                            "!rounded-sm !shadow-none border !text-sm   w-full "
+                          }
+                          triggerClassName="!text-sm"
+                          // triggerButtons={<>}
+
+                          title={`${group?.vendor_name} | ${group?.invoice_number}`}
+                        >
+                          <div className="flex justify-end w-full px-2 my-2">
+                            <Button className="rounded-sm h-7 w-7">
+                              <Plus className="h-5 w-5" />
+                            </Button>
+                          </div>
+                          <div className="w-full flex justify-center items-center">
+                            {group?.page_indices?.map((index) => {
+                              return (
+                                <div className="w-10 h-10 relative">
+                                  <Button
+                                    value={index}
+                                    className="w-10 h-10 flex items-center justify-center focus:outline-none outline-none active:!ring-0 ring-0 focus:!ring-0 active:!outline-none bg-gray-50 text-black"
+                                  >
+                                    {index}
+                                  </Button>
+                                  <div className="h-4 w-4 rounded-full bg-red-500 absolute -top-1 flex items-center justify-center -right-1.5">
+                                    <X className=" h-3 w-3 cursor-pointer text-white" />
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </CustomAccordion>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* -------------------------------------------------------------------Open Groups--------------------------------------------- */}
+              {myData?.open_groups?.length > 0 && (
+                <div className="border-t pt-4 mt-4">
+                  <p className="font-poppins font-semibold text-sm text-black mb-3">
+                    Open Groups
+                  </p>
+                  <div className="flex flex-col gap-y-1">
+                    {myData?.open_groups?.map((group) => {
+                      return (
+                        <div className="my-1">
+                          <CustomAccordion
+                            className={
+                              "!rounded-sm !shadow-none border !text-sm   w-full "
+                            }
+                            triggerClassName="!text-sm"
+                            // triggerButtons={<>}
+
+                            title={`${group?.vendor_name} | ${group?.invoice_number}`}
+                          >
+                            <div className="flex justify-end w-full px-2 my-2">
+                              <Button className="rounded-sm h-7 w-7">
+                                <Plus className="h-5 w-5" />
+                              </Button>
+                            </div>
+                            <div className="w-full flex justify-center items-center">
+                              {group?.page_indices?.map((index) => {
+                                return (
+                                  <div className="w-10 h-10 relative">
+                                    <Button
+                                      value={index}
+                                      className="w-10 h-10 flex items-center justify-center focus:outline-none outline-none active:!ring-0 ring-0 focus:!ring-0 active:!outline-none bg-gray-50 text-black"
+                                    >
+                                      {index}
+                                    </Button>
+                                    <div className="h-4 w-4 rounded-full bg-red-500 absolute -top-1 flex items-center justify-center -right-1.5">
+                                      <X className=" h-3 w-3 cursor-pointer text-white" />
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </CustomAccordion>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* -------------------------------------------------------------------Incomplete Groups--------------------------------------------- */}
+              {myData?.incomplete_groups?.length > 0 && (
+                <div className="border-t pt-4 mt-4">
+                  <p className="font-poppins font-semibold text-sm text-black mb-3">
+                    Incomplete Groups
+                  </p>
+                  <div className="flex flex-col gap-y-1">
+                    {myData?.open_groups?.map((group) => {
+                      return (
+                        <div className="my-1">
+                          <CustomAccordion
+                            className={
+                              "!rounded-sm !shadow-none border !text-sm   w-full "
+                            }
+                            triggerClassName="!text-sm"
+                            // triggerButtons={<>}
+
+                            title={`${group?.vendor_name} | ${group?.invoice_number}`}
+                          >
+                            <div className="flex justify-end w-full px-2 my-2">
+                              <Button className="rounded-sm h-7 w-7">
+                                <Plus className="h-5 w-5" />
+                              </Button>
+                            </div>
+                            <div className="w-full flex justify-center items-center">
+                              {group?.page_indices?.map((index) => {
+                                return (
+                                  <div className="w-10 h-10 relative">
+                                    <Button
+                                      value={index}
+                                      className="w-10 h-10 flex items-center justify-center focus:outline-none outline-none active:!ring-0 ring-0 focus:!ring-0 active:!outline-none bg-gray-50 text-black"
+                                    >
+                                      {index}
+                                    </Button>
+                                    <div className="h-4 w-4 rounded-full bg-red-500 absolute -top-1 flex items-center justify-center -right-1.5">
+                                      <X className=" h-3 w-3 cursor-pointer text-white" />
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </CustomAccordion>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </Layout>

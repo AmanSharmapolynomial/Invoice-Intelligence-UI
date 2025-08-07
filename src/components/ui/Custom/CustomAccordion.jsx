@@ -12,7 +12,8 @@ const CustomAccordion = ({
   children,
   triggerButtons,
   contentClassName,
-  className
+  className,
+  triggerClassName
 }) => {
   const [isOpen, setIsOpen] = useState(true); // Set to true for default open
 
@@ -23,7 +24,7 @@ const CustomAccordion = ({
   return (
     <Accordion
       type="single"
-      collapsible
+      // collapsible
       defaultValue={isOpen ? "item-1" : ""}
       value={isOpen ? "item-1" : ""}
       className={`${className} rounded-xl`}
@@ -34,7 +35,7 @@ const CustomAccordion = ({
           onClick={handleToggle}
           className={`${
             isOpen ? "border-b !border-b-[#F1F1F1]" : ""
-          } no-underline hover:no-underline px-4`}
+          } no-underline hover:no-underline px-4  ${triggerClassName}`}
         >
           <div className="flex justify-between w-full items-center">
             <div className="flex gap-x-4 items-center">
@@ -45,7 +46,7 @@ const CustomAccordion = ({
               >
                 <img src={chevron} alt="Toggle" className="h-3 -mt-0.5" />
               </span>
-              <span className="text-[#222222] !font-poppins !font-semibold text-lg">
+              <span className="text-[#222222] !font-poppins !font-semibold text-sm">
                 {title}
               </span>
             </div>
