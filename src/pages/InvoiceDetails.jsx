@@ -34,6 +34,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   calculateTimeDifference,
   formatDateTime,
+  formatDateTimeToReadable,
   formatDateToReadable,
   formatRestaurantsList,
   vendorNamesFormatter
@@ -165,6 +166,7 @@ const InvoiceDetails = () => {
     useState(false);
   const [showDuplicateInvoicesWarning, setShowDuplicateInvoicesWarning] =
     useState(false);
+    const [showReReviewRequestedWarning,setShowReReviewRequestedWarning]=useState(false)
   let document_uuid =
     searchParams.get("document_uuid") || searchParams.get("document");
   const {
@@ -529,6 +531,10 @@ const InvoiceDetails = () => {
   let vendor =
     searchParams.get("vendor_id") || searchParams.get("vendor") || "";
   useEffect(() => {
+
+    if(data?.data?.re_review_requested){
+      setShowReReviewRequestedWarning(true)
+    }
     if (data?.data?.rejected || data?.data?.[0]?.rejected) {
       setShowAlreadySyncedModal(true);
       return;
@@ -701,7 +707,7 @@ const InvoiceDetails = () => {
   });
     const { data: branchPdfs, isLoading: loadingBranchPdfs } =
       useGetVendorBranchPdfs(selectedSimilarBranch?.branch_id);
-console.log(branchPdfs)
+console.log(branchPdfs)const [showDocumentNotes,setShowDocumentNotes]=useState(false);
   return (
     <div className="hide-scrollbar relative">
       {/* <div> */}{" "}
@@ -1054,11 +1060,18 @@ console.log(branchPdfs)
                       </CustomTooltip>
                     )}
                     {myData?.human_verified === false &&
-                      myData?.rejected === false && (
+                      myData?.rejected === false && !myData?.re_review_requested&& (
                         <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#B28F10] text-[#ffffff] py-1.5  px-3 rounded-xl ">
                           Pending{" "}
                         </span>
                       )}
+                   <CustomTooltip content={myData?.re_review_requested && `Re-review requested at ${formatDateTimeToReadable(myData?.re_review_requested_date)} `} className={"!min-w-fit !normal-case"}>
+                     {myData?.re_review_requested === true && (
+                        <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-orange-700 text-[#ffffff] py-1  px-3 rounded-xl ">
+                          Re-review Requested
+                        </span>
+                      )}
+                   </CustomTooltip>
                     {myData?.human_verified === false &&
                       myData?.rejected === false && (
                         <span
@@ -1102,6 +1115,26 @@ console.log(branchPdfs)
             </>
           )}
         </BreadCrumb>
+           {showReReviewRequestedWarning && (
+          <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
+            <div className="flex items-center gap-x-2">
+              <Info className="h-5 w-5 text-[#FF9800]" />
+              <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
+                This Document has been requested for a Review. <span className="underline underline-offset-2 px-0.5 text-primary cursor-pointer" onClick={()=>{
+                  setShowDocumentNotes(true);
+                }}>Click here</span> to check the Document Notes.
+                
+              </p>
+            </div>
+
+            <X
+              className="h-6 w-6 text-[#546E7A] absolute top-2 right-2 cursor-pointer"
+              onClick={() => {
+                setShowReReviewRequestedWarning(false);
+              }}
+            />
+          </div>
+        )}
         {(branchChanged || vendorChanged) && showWarningForBranchAndVendor && (
           <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
             <div className="flex items-center gap-x-2">
@@ -1385,6 +1418,8 @@ console.log(branchPdfs)
 
               <DocumentNotes
                 data={documentNotes?.data}
+                open={showDocumentNotes}
+                setOpen={setShowDocumentNotes}
                 document_uuid={
                   data?.data?.document_uuid || data?.data?.[0]?.document_uuid
                 }
