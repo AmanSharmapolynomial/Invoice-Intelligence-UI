@@ -1045,9 +1045,9 @@ const [showDocumentNotes,setShowDocumentNotes]=useState(false);
             <div className="flex items-center gap-x-2">
               <Info className="h-5 w-5 text-[#FF9800]" />
               <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
-                This Document has been requested for a Review. <span className="underline underline-offset-2 px-0.5 text-primary cursor-pointer" onClick={()=>{
+                This Document has been requested for a Re-review. <span className="underline underline-offset-2 px-0.5 text-primary cursor-pointer" onClick={()=>{
                   setShowDocumentNotes(true);
-                }}>Click here</span> to check the Document Notes.
+                }}>Click here</span> to check the reason.
                 
               </p>
             </div>
