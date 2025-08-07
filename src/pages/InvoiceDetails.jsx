@@ -525,7 +525,7 @@ const InvoiceDetails = () => {
     searchParams.get("vendor_id") || searchParams.get("vendor") || "";
   useEffect(() => {
 
-    if(data?.data?.re_review_requested){
+    if(data?.data?.re_review_requested|| data?.data?.[0]?.re_review_requested){
       setShowReReviewRequestedWarning(true)
     }
     if (data?.data?.rejected || data?.data?.[0]?.rejected) {
