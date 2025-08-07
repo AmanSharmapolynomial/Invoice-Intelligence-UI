@@ -585,6 +585,7 @@ const InvoiceDetails = () => {
     setWarningCheckboxChecked(false);
     setShowSimilarVendorsAndBranchesWarningModal(false);
     setShowAcceptModal(false);
+    setShowReReviewRequestedWarning(false)
     clearStore();
     setShowSimilarBranchPdfs(false);
     setShowSimilarVendorPdfs(false);
