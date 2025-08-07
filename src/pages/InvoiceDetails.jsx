@@ -578,6 +578,7 @@ const InvoiceDetails = () => {
     setWarningCheckboxChecked(false);
     setShowSimilarVendorsAndBranchesWarningModal(false);
     setShowAcceptModal(false);
+    setShowReReviewRequestedWarning(false)
     clearStore();
   }, [page_number]);
 
