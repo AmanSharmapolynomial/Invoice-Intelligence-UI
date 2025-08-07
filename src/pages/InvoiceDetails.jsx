@@ -707,7 +707,8 @@ const InvoiceDetails = () => {
   });
     const { data: branchPdfs, isLoading: loadingBranchPdfs } =
       useGetVendorBranchPdfs(selectedSimilarBranch?.branch_id);
-console.log(branchPdfs)const [showDocumentNotes,setShowDocumentNotes]=useState(false);
+console.log(branchPdfs);
+const [showDocumentNotes,setShowDocumentNotes]=useState(false);
   return (
     <div className="hide-scrollbar relative">
       {/* <div> */}{" "}
