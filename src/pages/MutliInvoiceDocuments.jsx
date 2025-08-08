@@ -192,11 +192,11 @@ const MutliInvoiceDocuments = () => {
         <Navbar />
         <Layout>
           <BreadCrumb
-            title={"Multi Invoice Documents"}
+            title={"Multiple Invoice Documents"}
             crumbs={[
               {
                 path: null,
-                label: "Multi Invoice Documents"
+                label: "Multiple Invoice Documents"
               }
             ]}
           />
