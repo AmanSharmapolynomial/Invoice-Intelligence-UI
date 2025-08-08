@@ -13,6 +13,9 @@ import { useInvoiceStore } from "@/components/invoice/store";
 import { Button } from "@/components/ui/button";
 import BreadCrumb from "@/components/ui/Custom/BreadCrumb";
 import CustomInput from "@/components/ui/Custom/CustomInput";
+import tier_1 from "@/assets/image/tier_1.svg";
+import tier_2 from "@/assets/image/tier_2.svg";
+import tier_3 from "@/assets/image/tier_3.svg";
 import CustomDropDown from "@/components/ui/CustomDropDown";
 import {
   Sheet,
@@ -176,6 +179,11 @@ const MutliInvoiceDocuments = () => {
   let timer;
   console.log(data);
 
+  useEffect(() => {
+    if (assigned_to) {
+      setFilters({ ...filters, assigned_to: assigned_to });
+    }
+  }, [assigned_to]);
   return (
     <div className="!h-screen  flex w-full " id="maindiv">
       <Sidebar />
@@ -430,8 +438,20 @@ const MutliInvoiceDocuments = () => {
                         );
                       }}
                     >
-                      <TableCell className="w-[16.66%] border-b border-l flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm">
-                        {item?.restaurant?.restaurant_name}
+                      <TableCell className="w-[16.66%] border-b border-l capitalize flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm">
+                        {item?.restaurant?.restaurant_name}{" "}
+                        <img
+                          className="h-4 w-4 ml-2"
+                          src={
+                            item?.restaurant?.tier == 1
+                              ? tier_1
+                              : item?.restaurant?.tier == 2
+                              ? tier_2
+                              : tier_3
+                          }
+                          alt=""
+
+                        />
                       </TableCell>
                       <TableCell className="w-[16.66%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm">
                         {formatDateTimeToReadable(item?.date_uploaded)}
