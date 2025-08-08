@@ -13,7 +13,12 @@ import { useInvoiceStore } from "@/components/invoice/store";
 import BreadCrumb from "@/components/ui/Custom/BreadCrumb";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetVendorNames } from "@/components/vendor/api";
-import { formatRestaurantsList, vendorNamesFormatter } from "@/lib/helpers";
+import {
+  calculateTimeDifference,
+  formatDateTimeToReadable,
+  formatRestaurantsList,
+  vendorNamesFormatter
+} from "@/lib/helpers";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import useFilterStore from "@/store/filtersStore";
 import persistStore from "@/store/persistStore";
@@ -26,12 +31,30 @@ import { PdfViewer } from "@/components/common/PDFViewer";
 import { Accordion, AccordionTrigger } from "@/components/ui/accordion";
 import CustomAccordion from "@/components/ui/Custom/CustomAccordion";
 import { Button } from "@/components/ui/button";
-import { Check, Plus, Share2, X } from "lucide-react";
+import {
+  ArrowRight,
+  Check,
+  Clock,
+  Filter,
+  Plus,
+  Share2,
+  X
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { queryClient } from "@/lib/utils";
 import toast from "react-hot-toast";
 import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
 import InvoicePagination from "@/components/invoice/InvoicePagination";
+import Loader from "@/components/ui/Loader";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger
+} from "@/components/ui/sheet";
+import InvoiceFilters from "@/components/invoice/InvoiceFilters";
 
 const InvoiceGroupAccordion = ({
   group,
@@ -39,7 +62,10 @@ const InvoiceGroupAccordion = ({
   payload,
   data,
   pagesCount,
-  resetTrigger
+  resetTrigger,
+  checkedIndices,
+  setCheckedIndices,
+  setCurrentPageIndex
 }) => {
   const [newIndex, setNewIndex] = useState("");
   const [addingIndex, setAddingIndex] = useState(false);
@@ -153,22 +179,41 @@ const InvoiceGroupAccordion = ({
       <CustomAccordion
         className="!rounded-sm !shadow-none border !text-sm w-full"
         triggerClassName="!text-sm"
-        
-        title={f_key=="open_groups"?`${group?.type}`:`${group?.vendor_name} | ${group?.invoice_number}`}
+        title={
+          f_key == "open_groups"
+            ? `${group?.type}`
+            : `${group?.vendor_name} | ${group?.invoice_number}`
+        }
       >
-        <div className="flex justify-end w-full px-2 my-2">
+        <div className="flex items-center  gap-x-4 justify-end w-full px-2 my-2">
           <Button
             className="rounded-sm h-7 w-7"
             onClick={() => setAddingIndex(true)}
           >
             <Plus className="h-5 w-5" />
           </Button>
+          <Checkbox
+            className="h-5 w-5"
+            checked={checkedIndices.includes(group?.invoice_number)}
+            onCheckedChange={(isChecked) => {
+              if (isChecked) {
+                setCheckedIndices((prev) => [...prev, group?.invoice_number]);
+              } else {
+                setCheckedIndices((prev) =>
+                  prev?.filter((id) => id !== group?.invoice_number)
+                );
+              }
+            }}
+          />
         </div>
 
         <div className="w-full flex justify-center items-center gap-2 flex-wrap">
           {groupIndices?.map((index, i) => (
             <div className="w-10 h-10 relative" key={i}>
-              <Button className="w-10 h-10 flex items-center hover:bg-transparent justify-center bg-gray-50 text-black">
+              <Button
+                onClick={() => setCurrentPageIndex(index)}
+                className="w-10 h-10 flex items-center hover:bg-transparent justify-center bg-gray-50 text-black"
+              >
                 {index}
               </Button>
               <div
@@ -181,19 +226,28 @@ const InvoiceGroupAccordion = ({
           ))}
 
           {addingIndex && (
-            <div className="w-10 h-10 relative">
+            <div className="w-20 h-10 relative">
               <input
                 type="number"
-                className="w-10 h-10 text-center text-sm border border-gray-300 rounded"
+                className="w-20 h-10 text-center text-sm border border-gray-300 rounded"
                 value={newIndex}
                 onChange={(e) => setNewIndex(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleAddIndex()}
               />
               <div
-                className="h-4 w-4 rounded-full bg-green-500 absolute -top-1 -right-1.5 flex items-center justify-center cursor-pointer"
+                className="h-4 w-4 rounded-full bg-green-500 absolute -top-1.5 right-3 flex items-center justify-center cursor-pointer"
                 onClick={handleAddIndex}
               >
                 <Check className="h-3 w-3 text-white" />
+              </div>
+              <div
+                className="h-4 w-4 rounded-full bg-red-500 absolute -top-1.5 -right-1.5 flex items-center justify-center cursor-pointer"
+                onClick={() => {
+                  setAddingIndex(false);
+                  setNewIndex("");
+                }}
+              >
+                <X className="h-3 w-3 text-white" />
               </div>
             </div>
           )}
@@ -204,7 +258,7 @@ const InvoiceGroupAccordion = ({
 };
 
 const MultiInvoiceDocumentsDetails = () => {
-  const [searchParams,setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { filters, setFilters, setDefault } = useFilterStore();
   const [invoiceNumber, setInvoiceNumber] = useState("");
@@ -271,7 +325,7 @@ const MultiInvoiceDocumentsDetails = () => {
     restaurant: restaurant,
     start_date: start_date,
     vendor: vendor,
-    page_size:1,
+    page_size: 1,
     page,
     sort_order,
     human_verified,
@@ -350,12 +404,12 @@ const MultiInvoiceDocumentsDetails = () => {
   let myData = data?.data?.[0];
   const [totalInvoicePages, setTotalInvoicePages] = useState(null);
   const [resetTrigger, setResetTrigger] = useState(0);
-const appendFiltersToUrl = () => {
+  const appendFiltersToUrl = () => {
     const newParams = new URLSearchParams(searchParams);
     Object.entries(filters).forEach(([key, value]) => {
       if (value) {
-        if(key=="start_date"||key=="end_date"){
-          return
+        if (key == "start_date" || key == "end_date") {
+          return;
         }
         newParams.set(key, value);
       }
@@ -366,6 +420,51 @@ const appendFiltersToUrl = () => {
   useEffect(() => {
     appendFiltersToUrl();
   }, []);
+  const [checkedIndices, setCheckedIndices] = useState([]);
+  const getAllGroupIds = () => {
+    const allGroups = [
+      ...(myData?.closed_groups || []),
+      ...(myData?.open_groups || []),
+      ...(myData?.incomplete_groups || [])
+    ];
+    return allGroups?.map((g) => g?.invoice_number);
+  };
+
+  const areAllGroupsChecked = () => {
+    const allIds = getAllGroupIds();
+    return (
+      allIds?.length > 0 && allIds?.every((id) => checkedIndices?.includes(id))
+    );
+  };
+
+  console.log(areAllGroupsChecked());
+  const [currentPageIndex, setCurrentPageIndex] = useState(null);
+const [allIndices, setAllIndices] = useState([]);
+
+useEffect(() => {
+  if (data && allIndices?.length === 0) { // only set once
+    const indices = [
+      ...(data?.data?.[0]?.closed_groups || []),
+      ...(data?.data?.[0]?.complete_groups || []),
+      ...(data?.data?.[0]?.incomplete_groups || [])
+    ].flatMap(it => it?.page_indices);
+
+    setAllIndices(indices);
+  }
+}, [data, allIndices.length]);
+
+let indices= [
+      ...(data?.data?.[0]?.closed_groups || []),
+      ...(data?.data?.[0]?.complete_groups || []),
+      ...(data?.data?.[0]?.incomplete_groups || [])
+    ].flatMap(it => it?.page_indices)
+    const added = indices?.filter(x => !allIndices.includes(x));
+const removed = allIndices?.filter(x => !indices.includes(x));
+const difference = [
+  ...added,
+  ...removed
+];
+
   return (
     <div className="!h-screen  flex w-full " id="maindiv">
       <Sidebar />
@@ -415,12 +514,124 @@ const appendFiltersToUrl = () => {
                       </div>
                     </>
                   )}
+                  <CustomTooltip
+                    className={"!min-w-fit capitalize"}
+                    content={`Assigned to ${myData?.assignment_details?.assigned_to?.username
+                      ?.split("_")
+                      ?.join(" ")} at ${formatDateTimeToReadable(
+                      myData?.assignment_details?.assigned_at
+                    )}`}
+                  >
+                    <p
+                      className={`mx-2  font-poppins font-normal capitalize text-xs leading-3 ${
+                        myData?.status == "verified"
+                          ? "bg-primary"
+                          : myData?.status == "failed"
+                          ? "bg-red-500"
+                          : myData?.status == "split and merged"
+                          ? "bg-primary"
+                          : "bg-[#B28F10]"
+                      }  text-[#ffffff] py-1.5  px-3 rounded-xl  cursor-pointer`}
+                    >
+                      {myData?.status}
+                    </p>
+                  </CustomTooltip>
+                  <span
+                    className={`${
+                      calculateTimeDifference(
+                        new Date(
+                          myData?.assignment_details?.verification_due_at
+                        )
+                      )?.includes("ago")
+                        ? "!text-[#F15156]"
+                        : "!text-black"
+                    } mx-2 bg-gray-200  font-poppins font-normal -mb-0.5 text-xs leading-3 py-1.5    text-[#ffffff]  flex items-center   px-4 rounded-full  `}
+                  >
+                    <div className="flex items-center gap-x-2 ">
+                      {/* <CustomTooltip content={"Due Time"}> */}
+                      <Clock className="w-4 h-4" />
+                      {/* </CustomTooltip> */}
+                      <div>
+                        <CustomTooltip
+                          className={"mb-2 !min-w-fit capitalize"}
+                          content={`Due Time`}
+                        >
+                          {calculateTimeDifference(
+                            new Date(
+                              myData?.assignment_details?.verification_due_at
+                            )
+                          )}
+                        </CustomTooltip>
+                      </div>
+                    </div>
+                    {/* </CustomTooltip> */}
+                  </span>
                 </div>
               </>
             )}
           </BreadCrumb>
           <div className="mt-4 flex justify-end w-full gap-x-4 mb-3">
             {" "}
+            <Sheet
+              className="!overflow-auto "
+              open={open}
+              onOpenChange={() => setOpen(!open)}
+            >
+              <SheetTrigger>
+                {" "}
+                <Button
+                  className={`bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000] ${
+                    open ||
+                    filters?.human_verified !== "all" ||
+                    filters?.human_verification !== "all" ||
+                    filters?.invoice_type !== "" ||
+                    filters?.start_date !== "" ||
+                    filters?.end_date !== "" ||
+                    filters?.clickbacon_status !== "" ||
+                    filters?.auto_accepted !== ""
+                      ? "!bg-primary !text-white"
+                      : "!bg-white"
+                  }   `}
+                >
+                  <Filter
+                    className={`${
+                      open ||
+                      filters?.human_verified !== "all" ||
+                      filters?.human_verification !== "all" ||
+                      filters?.invoice_type !== "" ||
+                      filters?.start_date !== "" ||
+                      filters?.end_date !== "" ||
+                      filters?.clickbacon_status !== "" ||
+                      filters?.auto_accepted !== ""
+                        ? "!text-white"
+                        : ""
+                    } h-5  text-black/40 dark:text-white/50`}
+                  />
+                </Button>
+              </SheetTrigger>
+              <SheetContent className="min-w-fit !max-w-[20rem] !overflow-auto">
+                <SheetHeader>
+                  <SheetTitle>
+                    <div
+                      id="invoice-filters"
+                      className="flex justify-between items-center"
+                    >
+                      <p>Filters</p>
+                      <div
+                        className="flex items-center gap-x-2 cursor-pointer"
+                        onClick={() => setOpen(!open)}
+                      >
+                        <p className="text-sm font-poppins font-normal text-[#000000]">
+                          Collapse
+                        </p>
+                        <ArrowRight className="h-4 w-4 text-[#000000]" />
+                      </div>
+                    </div>
+                  </SheetTitle>
+                </SheetHeader>
+                <InvoiceFilters />
+              </SheetContent>
+            </Sheet>
             <CustomTooltip content={"Click To Copy The Link."}>
               <Button
                 onClick={() => {
@@ -435,7 +646,14 @@ const appendFiltersToUrl = () => {
                 <Share2 className="dark:text-white" />
               </Button>
             </CustomTooltip>
-            <CustomTooltip>
+            <CustomTooltip
+              className={"!min-w-fit"}
+              content={
+                !areAllGroupsChecked()
+                  ? "Check all the checkboxes in all groups to reject the document."
+                  : ""
+              }
+            >
               <Button
                 onClick={() => {
                   rejectDocument(data?.data?.[0]?.document_uuid, {
@@ -444,12 +662,20 @@ const appendFiltersToUrl = () => {
                     }
                   });
                 }}
+                disabled={!areAllGroupsChecked()}
                 className="bg-transparent w-[6.5rem] dark:text-white h-[2.4rem] border-[#F15156]  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
               >
                 {rejecting && !errorRejecting ? "Rejecting..." : "Reject"}
               </Button>
             </CustomTooltip>
-            <CustomTooltip className={"!max-w-72"}>
+            <CustomTooltip
+              className={"!min-w-fit"}
+              content={
+                !areAllGroupsChecked()
+                  ? "Check all the checkboxes in all groups to approve the document."
+                  : ""
+              }
+            >
               <Button
                 onClick={() => {
                   approveDocument(data?.data?.[0]?.document_uuid, {
@@ -458,12 +684,21 @@ const appendFiltersToUrl = () => {
                     }
                   });
                 }}
+                disabled={!areAllGroupsChecked()}
                 className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
               >
                 {approving && !errorApproving ? "Approving..." : "Approve"}
               </Button>
             </CustomTooltip>
-            <CustomTooltip>
+            <CustomTooltip
+              className={"!min-w-fit"}
+              content={
+                !areAllGroupsChecked()
+                  ? "Check all the checkboxes in all groups to save the document."
+                  : ""
+              }
+              disabled={!areAllGroupsChecked()}
+            >
               <Button
                 onClick={() => {
                   updateDocument(
@@ -482,15 +717,18 @@ const appendFiltersToUrl = () => {
                     }
                   );
                 }}
+                disabled={!areAllGroupsChecked()}
                 className="font-poppins h-[2.4rem] dark:text-white font-normal text-sm w-[6.5rem] leading-5 border-2 border-primary text-[#ffffff]"
               >
                 {updating && !errorUpdating ? "Saving..." : "Save"}
               </Button>
             </CustomTooltip>
           </div>
-          <div className="w-full flex  pt-4 border-t">
+          <div className="w-full flex  pt-4 ">
             <div className="w-1/2 flex flex-col gap-y-4 2xl:px-16 md:px-8">
               <PdfViewer
+                className={"w-[45rem]"}
+                setCurentPage={setCurrentPageIndex}
                 payload={payload}
                 setTotalPages={setTotalInvoicePages}
                 loadinMetadata={isLoading}
@@ -502,6 +740,7 @@ const appendFiltersToUrl = () => {
                   }
                 ]}
                 multiple={false}
+                currentPage={currentPageIndex}
               />
               {
                 <InvoicePagination
@@ -514,69 +753,113 @@ const appendFiltersToUrl = () => {
             <div className="w-1/2">
               {isLoading ? (
                 <Skeleton className={"max-w-[50rem]  h-[38.25rem] mt-8"} />
+              ) : myData?.status == "in progress" ? (
+                <div className="w-full h-full flex items-center justify-center">
+                  <div className="flex items-center gap-x-4">
+                    <Loader />
+                    <span className="font-poppins font-medium text-sm text-black">
+                      Extracting multiple invoice data from the document.
+                    </span>
+                  </div>
+                </div>
               ) : (
                 <>
-                  {/* -------------------------------------------------------------------Closed Groups--------------------------------------------- */}
-                  {myData?.closed_groups?.length>0&&<div>
-                    <p className="font-poppins font-semibold text-sm text-black mb-3">
-                      Closed Groups
+                  <div className="flex items-center gap-x-2 mb-4">
+                    <p className="font-poppins font-medium text-sm text-black">
+                      Page Indices :
                     </p>
-                    <div className="flex flex-col gap-y-1">
-                      {myData?.closed_groups?.map((group, groupIdx) => (
-                        <InvoiceGroupAccordion
-                          key={groupIdx}
-                          data={data}
-                          group={group}
-                          payload={payload}
-                          f_key={"closed_groups"}
-                          pagesCount={totalInvoicePages}
-                          resetTrigger={resetTrigger}
-                        />
-                      ))}
+                    <div className="flex items-center gap-x-2">
+                      {allIndices?.map((i) => {
+                        return (
+                          <span className={`${(difference?.includes(i))&&"text-red-500"} text-sm font-poppins font-medium`}>
+                            {i}
+                          </span>
+                        );
+                      })}
                     </div>
-                  </div>}
-
-                  {/* -------------------------------------------------------------------Open Groups--------------------------------------------- */}
-                  {myData?.open_groups?.length > 0 && (
-                    <div className="border-t pt-4 mt-4">
-                      <p className="font-poppins font-semibold text-sm text-black mb-3">
-                        Open Groups
-                      </p>
-                      <div className="flex flex-col gap-y-1">
-                        {myData?.open_groups?.map((group, groupIdx) => (
-                          <InvoiceGroupAccordion
-                            key={groupIdx}
-                            data={data}
-                            group={group}
-                            payload={payload}
-                            f_key={"open_groups"}
-                            pagesCount={totalInvoicePages}
-                            resetTrigger={resetTrigger}
-                          />
-                        ))}
-                      </div>
+                  </div>
+                  {/* -------------------------------------------------------------------Closed Groups--------------------------------------------- */}
+                  {myData?.closed_groups?.length > 0 && (
+                    <div>
+                      <CustomAccordion
+                        title="Close Groups"
+                        className="!rounded-sm  !shadow-none border !text-sm w-full"
+                        triggerClassName="!text-sm"
+                        contentClassName={"px-4 py-3"}
+                      >
+                        <div className="flex flex-col gap-y-1  max-h-[22.5rem]  overflow-auto">
+                          {myData?.closed_groups?.map((group, groupIdx) => (
+                            <InvoiceGroupAccordion
+                              key={groupIdx}
+                              data={data}
+                              group={group}
+                              payload={payload}
+                              f_key={"closed_groups"}
+                              pagesCount={totalInvoicePages}
+                              resetTrigger={resetTrigger}
+                              checkedIndices={checkedIndices}
+                              setCheckedIndices={setCheckedIndices}
+                              setCurrentPageIndex={setCurrentPageIndex}
+                            />
+                          ))}
+                        </div>
+                      </CustomAccordion>
                     </div>
                   )}
-
                   {/* -------------------------------------------------------------------Incomplete Groups--------------------------------------------- */}
                   {myData?.incomplete_groups?.length > 0 && (
-                    <div className="border-t pt-4 mt-4">
-                      <p className="font-poppins font-semibold text-sm text-black mb-3">
-                        Incomplete Groups
-                      </p>
-                      <div className="flex flex-col gap-y-1">
-                        {myData?.incomplete_groups?.map((group, groupIdx) => (
-                          <InvoiceGroupAccordion
-                            key={groupIdx}
-                            data={data}
-                            group={group}
-                            payload={payload}
-                            f_key={"incomplete_groups"}
-                            pagesCount={totalInvoicePages}
-                            resetTrigger={resetTrigger}
-                          />
-                        ))}
-                      </div>
+                    <div className=" pt-4 ">
+                      <CustomAccordion
+                        title="Incomplete Groups"
+                        className="!rounded-sm  !shadow-none border !text-sm w-full"
+                        triggerClassName="!text-sm"
+                        contentClassName={"px-4 py-3"}
+                      >
+                        <div className="flex flex-col gap-y-1  max-h-[22.5rem]  overflow-auto">
+                          {myData?.incomplete_groups?.map((group, groupIdx) => (
+                            <InvoiceGroupAccordion
+                              key={groupIdx}
+                              data={data}
+                              group={group}
+                              payload={payload}
+                              f_key={"incomplete_groups"}
+                              pagesCount={totalInvoicePages}
+                              resetTrigger={resetTrigger}
+                              checkedIndices={checkedIndices}
+                              setCheckedIndices={setCheckedIndices}
+                              setCurrentPageIndex={setCurrentPageIndex}
+                            />
+                          ))}
+                        </div>
+                      </CustomAccordion>
+                    </div>
+                  )}
+                  {/* -------------------------------------------------------------------Open Groups--------------------------------------------- */}
+                  {myData?.open_groups?.length > 0 && (
+                    <div className=" pt-4 ">
+                      <CustomAccordion
+                        title="Open Groups"
+                        className="!rounded-sm  !shadow-none border !text-sm w-full"
+                        triggerClassName="!text-sm"
+                        contentClassName={"px-4 py-3"}
+                      >
+                        <div className="flex flex-col gap-y-1  max-h-[22.5rem]  overflow-auto">
+                          {myData?.open_groups?.map((group, groupIdx) => (
+                            <InvoiceGroupAccordion
+                              key={groupIdx}
+                              data={data}
+                              group={group}
+                              payload={payload}
+                              f_key={"open_groups"}
+                              pagesCount={totalInvoicePages}
+                              resetTrigger={resetTrigger}
+                              checkedIndices={checkedIndices}
+                              setCheckedIndices={setCheckedIndices}
+                              setCurrentPageIndex={setCurrentPageIndex}
+                            />
+                          ))}
+                        </div>
+                      </CustomAccordion>
                     </div>
                   )}
                 </>

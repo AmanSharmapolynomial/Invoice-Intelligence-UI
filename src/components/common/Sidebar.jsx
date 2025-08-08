@@ -27,7 +27,7 @@ const Sidebar = ({ className }) => {
   const { expanded, setExpanded } = useSidebarStore();
   const { theme } = useThemeStore();
   const { pathname } = useLocation();
-  const { role } = userStore();
+  const { role ,userId} = userStore();
   const { setDefault, filters } = useFilterStore();
   const [openSubmenu, setOpenSubmenu] = useState(null);
 
@@ -65,6 +65,12 @@ const Sidebar = ({ className }) => {
       count: data?.all_flagged_documents
     },
     {
+      path: "/multi-invoice-documents",
+      text: "Multiple Invoice Documents",
+      image: theme === "light" ? multi_invoice_black : multi_invoice_white,
+      hoverImage: multi_invoice_white
+    },
+    {
       path: "/my-tasks",
       text: "My Tasks",
       image: theme === "light" ? my_tasks_black : my_tasks_white,
@@ -80,6 +86,12 @@ const Sidebar = ({ className }) => {
           path: "/unsupported-documents",
           text: "Flagged Documents",
           count: data?.my_tasks?.flagged_documents
+        },
+        {
+          path: `/multi-invoice-documents?assigned_to=${userId}`,
+          text: "Multiple Invoice Documents",
+          image: theme === "light" ? multi_invoice_black : multi_invoice_white,
+          hoverImage: multi_invoice_white
         }
       ]
     },
@@ -96,12 +108,6 @@ const Sidebar = ({ className }) => {
       image: theme === "light" ? not_supported_black : not_supported_white,
       hoverImage: not_supported_white,
       count: data?.not_supported
-    },
-    {
-      path: '/multi-invoice-documents',
-      text: "Multi Invoice Documents",
-      image: theme === "light" ? multi_invoice_black : multi_invoice_white,
-      hoverImage: multi_invoice_white
     }
   ];
 
@@ -185,15 +191,19 @@ const Sidebar = ({ className }) => {
                       : "text-black hover:bg-primary hover:text-white"
                   }`}
                 >
-                  {!expanded && typeof option?.count == "number" && option?.count!==0&& !isLoading&&(
-                    <span className="absolute right-0.5  top-0.5 z-50  text-[10px] text-white bg-red-500 flex items-center justify-center w-7 pb-0.5 rounded-full">
-                      {" "}
-                      {/* <div className=" bg-red-500 rounded-full  h-6 w-6 pl-1 pt-[0.05rem] text-[10px] " > */}
-
-                        {option?.count && option?.count >100?"99+":option?.count }
-                      {/* </div> */}
-                    </span>
-                  )}
+                  {!expanded &&
+                    typeof option?.count == "number" &&
+                    option?.count !== 0 &&
+                    !isLoading && (
+                      <span className="absolute right-0.5  top-0.5 z-50  text-[10px] text-white bg-red-500 flex items-center justify-center w-7 pb-0.5 rounded-full">
+                        {" "}
+                        {/* <div className=" bg-red-500 rounded-full  h-6 w-6 pl-1 pt-[0.05rem] text-[10px] " > */}
+                        {option?.count && option?.count > 100
+                          ? "99+"
+                          : option?.count}
+                        {/* </div> */}
+                      </span>
+                    )}
                   <div className="relative flex-shrink-0 w-5 h-5">
                     <img
                       src={option?.image}
