@@ -171,8 +171,10 @@ export const PdfViewer = ({
     setLoaded(true);
   };
   useEffect(() => {
-    console.log("called");
-    setPageNum(Number(currentPage||0) );
+    if(currentPage){
+
+      setPageNum(Number(currentPage||0) );
+    }
   }, [setCurentPage,currentPage]);
   useEffect(() => {
     if (bounding_box && bounding_box.page_index !== undefined) {

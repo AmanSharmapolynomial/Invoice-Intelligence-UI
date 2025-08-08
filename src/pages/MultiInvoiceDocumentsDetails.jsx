@@ -465,6 +465,12 @@ const difference = [
   ...removed
 ];
 
+useEffect(()=>{
+  setAllIndices([]);
+  setCurrentPageIndex(null)
+
+},[page])
+
   return (
     <div className="!h-screen  flex w-full " id="maindiv">
       <Sidebar />
@@ -651,7 +657,7 @@ const difference = [
               content={
                 !areAllGroupsChecked()
                   ? "Check all the checkboxes in all groups to reject the document."
-                  : ""
+               : difference?.length!==0?"Some Page Indices are missing.":""
               }
             >
               <Button
@@ -662,7 +668,7 @@ const difference = [
                     }
                   });
                 }}
-                disabled={!areAllGroupsChecked()}
+                disabled={!areAllGroupsChecked()||difference?.length!==0}
                 className="bg-transparent w-[6.5rem] dark:text-white h-[2.4rem] border-[#F15156]  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
               >
                 {rejecting && !errorRejecting ? "Rejecting..." : "Reject"}
@@ -673,7 +679,7 @@ const difference = [
               content={
                 !areAllGroupsChecked()
                   ? "Check all the checkboxes in all groups to approve the document."
-                  : ""
+                  : difference?.length!==0?"Some Page Indices are missing.":""
               }
             >
               <Button
@@ -684,7 +690,7 @@ const difference = [
                     }
                   });
                 }}
-                disabled={!areAllGroupsChecked()}
+                disabled={!areAllGroupsChecked()||difference?.length!==0}
                 className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
               >
                 {approving && !errorApproving ? "Approving..." : "Approve"}
@@ -695,9 +701,9 @@ const difference = [
               content={
                 !areAllGroupsChecked()
                   ? "Check all the checkboxes in all groups to save the document."
-                  : ""
+                  : difference?.length!==0?"Some Page Indices are missing.":""
               }
-              disabled={!areAllGroupsChecked()}
+          
             >
               <Button
                 onClick={() => {
@@ -717,7 +723,7 @@ const difference = [
                     }
                   );
                 }}
-                disabled={!areAllGroupsChecked()}
+              disabled={!areAllGroupsChecked()||difference?.length!==0}
                 className="font-poppins h-[2.4rem] dark:text-white font-normal text-sm w-[6.5rem] leading-5 border-2 border-primary text-[#ffffff]"
               >
                 {updating && !errorUpdating ? "Saving..." : "Save"}
