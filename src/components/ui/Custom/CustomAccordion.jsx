@@ -46,7 +46,7 @@ const CustomAccordion = ({
               >
                 <img src={chevron} alt="Toggle" className="h-3 -mt-0.5" />
               </span>
-              <span className="text-[#222222] !font-poppins !font-semibold text-sm">
+              <span className="text-[#222222] !font-poppins capitalize !font-semibold text-sm">
                 {title}
               </span>
             </div>

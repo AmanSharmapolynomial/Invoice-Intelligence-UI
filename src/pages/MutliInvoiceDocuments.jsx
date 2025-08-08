@@ -38,13 +38,14 @@ import {
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import useFilterStore from "@/store/filtersStore";
 import persistStore from "@/store/persistStore";
-import { ArrowRight, Filter } from "lucide-react";
+import { ArrowDown, ArrowRight, ArrowUp, Filter } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import approved from "@/assets/image/approved.svg";
 import unapproved from "@/assets/image/unapproved.svg";
 import { Skeleton } from "@/components/ui/skeleton";
 import no_data from "@/assets/image/no-data.svg";
+import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
 const MutliInvoiceDocuments = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -124,7 +125,7 @@ const MutliInvoiceDocuments = () => {
     restaurant_tier: restaurant_tier || "all",
     rejected,
     extraction_source,
-    detailed_view:false
+    detailed_view: false
   };
   const { data, isLoading } = useListMultiInvoiceDocuments(payload);
   useEffect(() => {
@@ -173,7 +174,7 @@ const MutliInvoiceDocuments = () => {
       calculateDivHeightInVh("pagination") +
       9.5);
   let timer;
-  console.log(data)
+  console.log(data);
 
   return (
     <div className="!h-screen  flex w-full " id="maindiv">
@@ -306,8 +307,6 @@ const MutliInvoiceDocuments = () => {
                   </SheetContent>
                 </Sheet>
               </div>
-
-          
             </div>
           </div>
 
@@ -324,7 +323,39 @@ const MutliInvoiceDocuments = () => {
                   Restaurant
                 </TableHead>
                 <TableHead className="w-[16.66%] flex !h-full !min-h-16 !max-h-fit !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1">
-                  Date Uploaded
+                  <span>Date Uploaded</span>
+                  <div>
+                    {
+                    <>
+                      {sort_order == "desc" && (
+                        <CustomTooltip
+                          content={"Click To Sort In Ascending Order."}
+                        >
+                          <ArrowUp
+                            className="h-4 cursor-pointer"
+                            onClick={() => {
+                              updateParams({ sort_order: "asc" });
+                              setFilters({ ...filters, sort_order: "asc" });
+                            }}
+                          />
+                        </CustomTooltip>
+                      )}
+                      {sort_order == "asc" && (
+                        <CustomTooltip
+                          content={"Click To Sort In Descending Order."}
+                        >
+                          <ArrowDown
+                            className="h-4 cursor-pointer"
+                            onClick={() => {
+                              updateParams({ sort_order: "desc" });
+                              setFilters({ ...filters, sort_order: "desc" });
+                            }}
+                          />
+                        </CustomTooltip>
+                      )}
+                    </>
+                  }
+                  </div>
                 </TableHead>
                 <TableHead className="w-[16.66%] flex !h-full !min-h-16 !max-h-fit !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1">
                   Verified
@@ -384,13 +415,18 @@ const MutliInvoiceDocuments = () => {
                   />
                 </div>
               ) : (
-                data?.data?.map((item) => {
+                data?.data?.map((item, index) => {
                   return (
                     <TableRow
+                      key={index}
                       className="flex  text-base   !sticky top-0 !h-16 bg-white cursor-pointer"
                       onClick={() => {
                         navigate(
-                          `/multi-invoice-documents/${item?.document_uuid}?detailed_view=true`
+                          `/multi-invoice-documents/${
+                            item?.document_uuid
+                          }?detailed_view=true&page_number=${
+                            (page - 1) * 10 + (index + 1)
+                          }`
                         );
                       }}
                     >

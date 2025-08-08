@@ -80,7 +80,8 @@ export const PdfViewer = ({
   loadinMetadata,
   className,
   payload,
-  height=62
+  height=62,
+  setTotalPages=(v)=>{}
 }) => {
   const {
     bounding_box,
@@ -143,6 +144,7 @@ export const PdfViewer = ({
   };
   const onDocumentLoadSuccess = ({ numPages }) => {
     setNumPages(numPages);
+    setTotalPages(numPages);
     setLoaded(true);
     setPageNum(1);
     setIsLoading(false);

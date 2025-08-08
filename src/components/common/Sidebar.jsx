@@ -15,6 +15,9 @@ import flagged_white from "@/assets/image/flagged_white.svg";
 import flagged_black from "@/assets/image/flagged_black.svg";
 import book_user_white from "@/assets/image/book_user_white.svg";
 import book_user_black from "@/assets/image/book_user_black.svg";
+
+import multi_invoice_black from "@/assets/image/multi_invoice_black.svg";
+import multi_invoice_white from "@/assets/image/multi_invoice_white.svg";
 import { ChevronRight, ChevronDown, ChevronUp, Menu, Info } from "lucide-react";
 import userStore from "../auth/store/userStore";
 import { useGetSidebarCounts } from "./api";
@@ -97,8 +100,8 @@ const Sidebar = ({ className }) => {
     {
       path: '/multi-invoice-documents',
       text: "Multi Invoice Documents",
-      image: theme === "light" ? book_user_black : book_user_white,
-      hoverImage: book_user_white
+      image: theme === "light" ? multi_invoice_black : multi_invoice_white,
+      hoverImage: multi_invoice_white
     }
   ];
 
