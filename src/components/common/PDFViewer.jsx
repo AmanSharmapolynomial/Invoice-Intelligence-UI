@@ -80,8 +80,10 @@ export const PdfViewer = ({
   loadinMetadata,
   className,
   payload,
-  height=62,
-  setTotalPages=(v)=>{}
+  height = 62,
+  setTotalPages = (v) => {},
+  setCurentPage = (v) => {},
+  currentPage
 }) => {
   const {
     bounding_box,
@@ -112,6 +114,7 @@ export const PdfViewer = ({
   const { pathname } = useLocation();
 
   const [pageNum, setPageNum] = useState(1);
+
   const [numPages, setNumPages] = useState(null);
   const [pdfScale, setPdfScale] = useState(1.0);
   const [rotation, setRotation] = useState(0);
@@ -167,7 +170,10 @@ export const PdfViewer = ({
     });
     setLoaded(true);
   };
-
+  useEffect(() => {
+    console.log("called");
+    setPageNum(Number(currentPage||0) );
+  }, [setCurentPage,currentPage]);
   useEffect(() => {
     if (bounding_box && bounding_box.page_index !== undefined) {
       const targetPageIndex = bounding_box.page_index;
@@ -656,7 +662,7 @@ export const PdfViewer = ({
   useEffect(() => {
     setShowTextExtractionModal(false);
   }, [page]);
-console.log(pdfUrls)
+  console.log(pdfUrls);
   return (
     <>
       {loadinMetadata ? (
