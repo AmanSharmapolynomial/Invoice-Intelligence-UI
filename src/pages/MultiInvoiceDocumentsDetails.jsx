@@ -479,13 +479,13 @@ useEffect(()=>{
         <Navbar />
         <Layout>
           <BreadCrumb
-            title={"Multi Invoice Document Details"}
+            title={"Multiple Invoice Document Details"}
             hideTitle={true}
             showCustom={true}
             crumbs={[
               {
                 path: null,
-                label: "Multi Invoice Document Details"
+                label: "Multiple Invoice Document Details"
               }
             ]}
           >
@@ -775,7 +775,7 @@ useEffect(()=>{
                       Page Indices :
                     </p>
                     <div className="flex items-center gap-x-2">
-                      {allIndices?.map((i) => {
+                      {allIndices?.sort((a,b)=>a-b)?.map((i) => {
                         return (
                           <span className={`${(difference?.includes(i))&&"text-red-500"} text-sm font-poppins font-medium`}>
                             {i}
