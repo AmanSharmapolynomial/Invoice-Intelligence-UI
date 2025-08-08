@@ -326,35 +326,35 @@ const MutliInvoiceDocuments = () => {
                   <span>Date Uploaded</span>
                   <div>
                     {
-                    <>
-                      {sort_order == "desc" && (
-                        <CustomTooltip
-                          content={"Click To Sort In Ascending Order."}
-                        >
-                          <ArrowUp
-                            className="h-4 cursor-pointer"
-                            onClick={() => {
-                              updateParams({ sort_order: "asc" });
-                              setFilters({ ...filters, sort_order: "asc" });
-                            }}
-                          />
-                        </CustomTooltip>
-                      )}
-                      {sort_order == "asc" && (
-                        <CustomTooltip
-                          content={"Click To Sort In Descending Order."}
-                        >
-                          <ArrowDown
-                            className="h-4 cursor-pointer"
-                            onClick={() => {
-                              updateParams({ sort_order: "desc" });
-                              setFilters({ ...filters, sort_order: "desc" });
-                            }}
-                          />
-                        </CustomTooltip>
-                      )}
-                    </>
-                  }
+                      <>
+                        {sort_order == "desc" && (
+                          <CustomTooltip
+                            content={"Click To Sort In Ascending Order."}
+                          >
+                            <ArrowUp
+                              className="h-4 cursor-pointer"
+                              onClick={() => {
+                                updateParams({ sort_order: "asc" });
+                                setFilters({ ...filters, sort_order: "asc" });
+                              }}
+                            />
+                          </CustomTooltip>
+                        )}
+                        {sort_order == "asc" && (
+                          <CustomTooltip
+                            content={"Click To Sort In Descending Order."}
+                          >
+                            <ArrowDown
+                              className="h-4 cursor-pointer"
+                              onClick={() => {
+                                updateParams({ sort_order: "desc" });
+                                setFilters({ ...filters, sort_order: "desc" });
+                              }}
+                            />
+                          </CustomTooltip>
+                        )}
+                      </>
+                    }
                   </div>
                 </TableHead>
                 <TableHead className="w-[16.66%] flex !h-full !min-h-16 !max-h-fit !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1">
@@ -443,8 +443,8 @@ const MutliInvoiceDocuments = () => {
                           <img src={unapproved} alt="" className="h-5 w-5" />
                         )}
                       </TableCell>
-                      <TableCell className="w-[16.66%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm">
-                        {item?.verified_by || "NA"}
+                      <TableCell className="w-[16.66%] border-b capitalize flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm">
+                        {item?.verified_by?.username || "NA"}
                       </TableCell>
                       <TableCell className="w-[16.66%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm">
                         {formatDateTimeToReadable(item?.verified_at) || "-"}
