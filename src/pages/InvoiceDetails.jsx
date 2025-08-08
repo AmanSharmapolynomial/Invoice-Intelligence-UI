@@ -1,12 +1,12 @@
 import approved from "@/assets/image/approved.svg";
-import warning from "@/assets/image/warning.svg";
+import copy from "@/assets/image/copy.svg";
 import tier_1 from "@/assets/image/tier_1.svg";
 import tier_2 from "@/assets/image/tier_2.svg";
 import tier_3 from "@/assets/image/tier_3.svg";
+import warning from "@/assets/image/warning.svg";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import { PdfViewer } from "@/components/common/PDFViewer";
-import copy from "@/assets/image/copy.svg";
 
 import {
   useFindDuplicateInvoices,
@@ -44,19 +44,23 @@ import useFilterStore from "@/store/filtersStore";
 import globalStore from "@/store/globalStore";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
 
-import review_later_white from "@/assets/image/review_later_white.svg";
-import review_later_black from "@/assets/image/review_later_black.svg";
 import all_invoices_black from "@/assets/image/all_invoices_black.svg";
 import all_invoices_white from "@/assets/image/all_invoices_white.svg";
-import not_supported_white from "@/assets/image/not_supported_white.svg";
-import not_supported_black from "@/assets/image/not_supported_black.svg";
-import my_tasks_white from "@/assets/image/check_book_white.svg";
-import my_tasks_black from "@/assets/image/check_book_black.svg";
-import book_user_white from "@/assets/image/book_user_white.svg";
 import book_user_black from "@/assets/image/book_user_black.svg";
+import book_user_white from "@/assets/image/book_user_white.svg";
+import my_tasks_black from "@/assets/image/check_book_black.svg";
+import my_tasks_white from "@/assets/image/check_book_white.svg";
+import flagged_black from "@/assets/image/flagged_black.svg";
+import flagged_white from "@/assets/image/flagged_white.svg";
+import not_supported_black from "@/assets/image/not_supported_black.svg";
+import not_supported_white from "@/assets/image/not_supported_white.svg";
+import review_later_black from "@/assets/image/review_later_black.svg";
+import review_later_white from "@/assets/image/review_later_white.svg";
+import userStore from "@/components/auth/store/userStore";
 import { useListRestaurants } from "@/components/home/api";
 import InvoiceFilters from "@/components/invoice/InvoiceFilters";
 import { useInvoiceStore } from "@/components/invoice/store";
+import ResizableModal from "@/components/ui/Custom/ResizeableModal";
 import CustomDropDown from "@/components/ui/CustomDropDown";
 import {
   Sheet,
@@ -66,6 +70,20 @@ import {
   SheetTitle,
   SheetTrigger
 } from "@/components/ui/sheet";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow
+} from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from "@/components/ui/tooltip";
 import {
   useGetVendorBranchPdfs,
   useGetVendorNames,
@@ -91,8 +109,6 @@ import {
   Menu,
   NotebookTabs,
   Share2,
-  Table2,
-  TextSelect,
   X
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -103,33 +119,6 @@ import {
   useNavigate,
   useSearchParams
 } from "react-router-dom";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow
-} from "@/components/ui/table";
-import CustomToolTip from "@/components/ui/CustomToolTip";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from "@/components/ui/tooltip";
-import userStore from "@/components/auth/store/userStore";
-import ResizableModal from "@/components/ui/Custom/ResizeableModal";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
-import flagged_white from "@/assets/image/flagged_white.svg";
-import flagged_black from "@/assets/image/flagged_black.svg";
 // import book_user_white from "@/assets/image/book_user_white.svg";
 // import book_user_black from "@/assets/image/book_user_black.svg";
 import { useGetSidebarCounts } from "@/components/common/api";
@@ -166,7 +155,8 @@ const InvoiceDetails = () => {
     useState(false);
   const [showDuplicateInvoicesWarning, setShowDuplicateInvoicesWarning] =
     useState(false);
-    const [showReReviewRequestedWarning,setShowReReviewRequestedWarning]=useState(false)
+  const [showReReviewRequestedWarning, setShowReReviewRequestedWarning] =
+    useState(false);
   let document_uuid =
     searchParams.get("document_uuid") || searchParams.get("document");
   const {
@@ -531,9 +521,11 @@ const InvoiceDetails = () => {
   let vendor =
     searchParams.get("vendor_id") || searchParams.get("vendor") || "";
   useEffect(() => {
-
-    if(data?.data?.re_review_requested|| data?.data?.[0]?.re_review_requested){
-      setShowReReviewRequestedWarning(true)
+    if (
+      data?.data?.re_review_requested ||
+      data?.data?.[0]?.re_review_requested
+    ) {
+      setShowReReviewRequestedWarning(true);
     }
     if (data?.data?.rejected || data?.data?.[0]?.rejected) {
       setShowAlreadySyncedModal(true);
@@ -585,12 +577,12 @@ const InvoiceDetails = () => {
     setWarningCheckboxChecked(false);
     setShowSimilarVendorsAndBranchesWarningModal(false);
     setShowAcceptModal(false);
-    setShowReReviewRequestedWarning(false)
+    setShowReReviewRequestedWarning(false);
     clearStore();
     setShowSimilarBranchPdfs(false);
     setShowSimilarVendorPdfs(false);
     setSelectedSimilarBranch(null);
-    setSelectedSimilarVendor(null)
+    setSelectedSimilarVendor(null);
   }, [page_number]);
 
   const { mutate: revertChanges } = useRevertChanges();
@@ -706,10 +698,10 @@ const InvoiceDetails = () => {
   const { data: vendorPdfs, isLoading: loadingVendorPdfs } = useGetVendorsPdfs({
     vendor_one: selectedSimilarVendor?.vendor_id
   });
-    const { data: branchPdfs, isLoading: loadingBranchPdfs } =
-      useGetVendorBranchPdfs(selectedSimilarBranch?.branch_id);
-console.log(branchPdfs);
-const [showDocumentNotes,setShowDocumentNotes]=useState(false);
+  const { data: branchPdfs, isLoading: loadingBranchPdfs } =
+    useGetVendorBranchPdfs(selectedSimilarBranch?.branch_id);
+  console.log(branchPdfs);
+  const [showDocumentNotes, setShowDocumentNotes] = useState(false);
   return (
     <div className="hide-scrollbar relative">
       {/* <div> */}{" "}
@@ -720,10 +712,10 @@ const [showDocumentNotes,setShowDocumentNotes]=useState(false);
         width={700}
         isOpen={showSimilarVendorPdfs}
         onClose={() => {
-                 setShowSimilarBranchPdfs(false);
+          setShowSimilarBranchPdfs(false);
           setSelectedSimilarBranch(null);
           setSelectedSimilarVendor(null);
-          setShowSimilarVendorPdfs(false)
+          setShowSimilarVendorPdfs(false);
         }}
       >
         <span className="font-poppins font-semibold p-2 capitalize text-base">
@@ -738,7 +730,6 @@ const [showDocumentNotes,setShowDocumentNotes]=useState(false);
               : []
           }
           multiple={true}
-
           className={"!w-[40vw] !max-h-[50rem]"}
         />
       </ResizableModal>
@@ -753,18 +744,14 @@ const [showDocumentNotes,setShowDocumentNotes]=useState(false);
           setShowSimilarBranchPdfs(false);
           setSelectedSimilarBranch(null);
           setSelectedSimilarVendor(null);
-          setShowSimilarVendorPdfs(false)
+          setShowSimilarVendorPdfs(false);
         }}
       >
         <span className="font-poppins font-semibold p-2 capitalize text-base">
           {selectedSimilarBranch?.vendor_address} Pdfs
         </span>
         <PdfViewer
-          pdfUrls={
-            loadingVendorNotes
-              ? []
-              : branchPdfs?.data
-          }
+          pdfUrls={loadingVendorNotes ? [] : branchPdfs?.data}
           multiple={true}
           className={"!w-[40vw] !max-h-[50rem]"}
         />
@@ -1062,18 +1049,27 @@ const [showDocumentNotes,setShowDocumentNotes]=useState(false);
                       </CustomTooltip>
                     )}
                     {myData?.human_verified === false &&
-                      myData?.rejected === false && !myData?.re_review_requested&& (
+                      myData?.rejected === false &&
+                      !myData?.re_review_requested && (
                         <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#B28F10] text-[#ffffff] py-1.5  px-3 rounded-xl ">
                           Pending{" "}
                         </span>
                       )}
-                   <CustomTooltip content={myData?.re_review_requested && `Re-review requested at ${formatDateTimeToReadable(myData?.re_review_requested_date)} `} className={"!min-w-fit !normal-case"}>
-                     {myData?.re_review_requested === true && (
+                    <CustomTooltip
+                      content={
+                        myData?.re_review_requested &&
+                        `Re-review requested at ${formatDateTimeToReadable(
+                          myData?.re_review_requested_date
+                        )} `
+                      }
+                      className={"!min-w-fit !normal-case"}
+                    >
+                      {myData?.re_review_requested === true && (
                         <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-orange-700 text-[#ffffff] py-1  px-3 rounded-xl ">
                           Re-review Requested
                         </span>
                       )}
-                   </CustomTooltip>
+                    </CustomTooltip>
                     {myData?.human_verified === false &&
                       myData?.rejected === false && (
                         <span
@@ -1117,15 +1113,21 @@ const [showDocumentNotes,setShowDocumentNotes]=useState(false);
             </>
           )}
         </BreadCrumb>
-           {showReReviewRequestedWarning && (
+        {showReReviewRequestedWarning && (
           <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
             <div className="flex items-center gap-x-2">
               <Info className="h-5 w-5 text-[#FF9800]" />
               <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
-                This Document has been requested for a Re-review. <span className="underline underline-offset-2 px-0.5 text-primary cursor-pointer" onClick={()=>{
-                  setShowDocumentNotes(true);
-                }}>Click here</span> to check the reason.
-                
+                This Document has been requested for a Re-review.{" "}
+                <span
+                  className="underline underline-offset-2 px-0.5 text-primary cursor-pointer"
+                  onClick={() => {
+                    setShowDocumentNotes(true);
+                  }}
+                >
+                  Click here
+                </span>{" "}
+                to check the reason.
               </p>
             </div>
 
@@ -2151,13 +2153,18 @@ const [showDocumentNotes,setShowDocumentNotes]=useState(false);
                             >
                               <TableCell className="w-[30%] border-l font-poppins border-r font-normal content-center text-black text-sm">
                                 <div className="flex items-center gap-x-2 capitalize justify-between">
-                                  <span className="max-w-44 underline text-primary cursor-pointer" 
-                                  onClick={()=>{
-                                    window.open(`${
+                                  <span
+                                    className="max-w-44 underline text-primary cursor-pointer"
+                                    onClick={() => {
+                                      window.open(
+                                        `${
                                           import.meta.env
                                             .VITE_APP_OLD_UI_STAGING_UI
-                                        }/vendor-v2/${row?.vendor?.vendor_id}/branch/${row?.branch?.branch_id}`)
-                                  }}
+                                        }/vendor-v2/${
+                                          row?.vendor?.vendor_id
+                                        }/branch/${row?.branch?.branch_id}`
+                                      );
+                                    }}
                                   >
                                     {row?.branch?.vendor_address}
                                   </span>
@@ -2191,13 +2198,14 @@ const [showDocumentNotes,setShowDocumentNotes]=useState(false);
                                 {row?.finding_method}
                               </TableCell>
                               <TableCell className="w-[20%] border-r content-center font-poppins font-normal text-black text-sm">
-                                <FileText className="w-4 h-4 cursor-pointer" 
-                                onClick={()=>{
-                                setSelectedSimilarBranch(row?.branch);
-                                setShowSimilarBranchPdfs(true);
-                                setShowSimilarVendorPdfs(false);
-                                setSelectedSimilarVendor(null)
-                                }}
+                                <FileText
+                                  className="w-4 h-4 cursor-pointer"
+                                  onClick={() => {
+                                    setSelectedSimilarBranch(row?.branch);
+                                    setShowSimilarBranchPdfs(true);
+                                    setShowSimilarVendorPdfs(false);
+                                    setSelectedSimilarVendor(null);
+                                  }}
                                 />
                               </TableCell>
                             </TableRow>
