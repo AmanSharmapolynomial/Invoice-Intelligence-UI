@@ -90,7 +90,7 @@ const MutliInvoiceDocuments = () => {
   let document_priority = searchParams.get("document_priority") || "all";
   let restaurant_tier =
     searchParams.get("restaurant_tier") == "null" ||
-    searchParams.get("restaurant_tier") == "all"
+      searchParams.get("restaurant_tier") == "all"
       ? null
       : searchParams.get("restaurant_tier");
 
@@ -266,22 +266,7 @@ const MutliInvoiceDocuments = () => {
                   <SheetTrigger>
                     {" "}
                     <Button
-                      className={`bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000] ${
-                        open ||
-                        filters?.human_verified !== "all" ||
-                        filters?.human_verification !== "all" ||
-                        filters?.invoice_type !== "" ||
-                        filters?.start_date !== "" ||
-                        filters?.end_date !== "" ||
-                        filters?.clickbacon_status !== "" ||
-                        filters?.auto_accepted !== ""
-                          ? "!bg-primary !text-white"
-                          : "!bg-white"
-                      }   `}
-                    >
-                      <Filter
-                        className={`${
-                          open ||
+                      className={`bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000] ${open ||
                           filters?.human_verified !== "all" ||
                           filters?.human_verification !== "all" ||
                           filters?.invoice_type !== "" ||
@@ -289,9 +274,22 @@ const MutliInvoiceDocuments = () => {
                           filters?.end_date !== "" ||
                           filters?.clickbacon_status !== "" ||
                           filters?.auto_accepted !== ""
+                          ? "!bg-primary !text-white"
+                          : "!bg-white"
+                        }   `}
+                    >
+                      <Filter
+                        className={`${open ||
+                            filters?.human_verified !== "all" ||
+                            filters?.human_verification !== "all" ||
+                            filters?.invoice_type !== "" ||
+                            filters?.start_date !== "" ||
+                            filters?.end_date !== "" ||
+                            filters?.clickbacon_status !== "" ||
+                            filters?.auto_accepted !== ""
                             ? "!text-white"
                             : ""
-                        } h-5  text-black/40 dark:text-white/50`}
+                          } h-5  text-black/40 dark:text-white/50`}
                       />
                     </Button>
                   </SheetTrigger>
@@ -321,14 +319,13 @@ const MutliInvoiceDocuments = () => {
 
           {/* Listing Table */}
           <Table
-            className={`flex flex-col  show-scrollbar custom-scrollbar box-border  scrollbar max-h-[${
-              final - 1
-            }vh]  `}
+            className={`flex flex-col  show-scrollbar custom-scrollbar box-border  scrollbar max-h-[${final - 1
+              }vh]  `}
             style={{ height: `${final}vh` }}
           >
-            <TableHeader className="sticky top-0 !bg-white dark:!bg-transparent !border-b !h-16 ">
-              <TableRow className="flex  text-base  !sticky top-0 !h-16   border  bg-white !z-50">
-                <TableHead className="w-[14.28%]  flex !min-h-16   !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1">
+            <TableHeader className="sticky top-0 !bg-white dark:!bg-transparent !border-b !h-16 !z-40 ">
+              <TableRow className="flex  text-base  !sticky top-0 !h-16   border  bg-white !z-50 ">
+                <TableHead className="w-[14.28%]  flex !min-h-16   !pt-0 dark:text-[#F6F6F6]  !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1">
                   Restaurant
                 </TableHead>
                 <TableHead className="w-[14.28%] flex !h-full !min-h-16 !max-h-fit !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1">
@@ -437,10 +434,8 @@ const MutliInvoiceDocuments = () => {
                       className="flex  text-base   !sticky top-0 !h-16 bg-white cursor-pointer"
                       onClick={() => {
                         navigate(
-                          `/multi-invoice-documents/${
-                            item?.document_uuid
-                          }?detailed_view=true&page_number=${
-                            (page - 1) * 10 + (index + 1)
+                          `/multi-invoice-documents/${item?.document_uuid
+                          }?detailed_view=true&page_number=${(page - 1) * 10 + (index + 1)
                           }`
                         );
                       }}
@@ -453,8 +448,8 @@ const MutliInvoiceDocuments = () => {
                             item?.restaurant?.tier == 1
                               ? tier_1
                               : item?.restaurant?.tier == 2
-                              ? tier_2
-                              : tier_3
+                                ? tier_2
+                                : tier_3
                           }
                           alt=""
                         />
@@ -463,15 +458,14 @@ const MutliInvoiceDocuments = () => {
                         {formatDateTimeToReadable(item?.date_uploaded)}
                       </TableCell>
                       <TableCell
-                        className={`${
-                          calculateTimeDifference(
-                            new Date(
-                              item?.assignment_details?.verification_due_at
-                            )
-                          )?.includes("ago") && "!text-red-500"
-                        } w-[14.28%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm`}
+                        className={`${calculateTimeDifference(
+                          new Date(
+                            item?.assignment_details?.verification_due_at
+                          )
+                        )?.includes("ago") && "!text-red-500"
+                          } w-[14.28%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm ${item?.status == "split and merged" ? "!text-primary" : ""} `}
                       >
-                        {calculateTimeDifference(
+                        {item?.status == "split and merged" ? "Completed" : calculateTimeDifference(
                           new Date(
                             item?.assignment_details?.verification_due_at
                           )
@@ -490,7 +484,7 @@ const MutliInvoiceDocuments = () => {
                       <TableCell className="w-[14.28%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm">
                         {formatDateTimeToReadable(item?.verified_at) || "-"}
                       </TableCell>
-                      <TableCell className="w-[14.28%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center capitalize gap-x-1 font-normal text-sm">
+                      <TableCell className={`${item?.status == "split and merged" ? "!text-primary" : item?.status == "in progress" ? "!text-[#B28F10]" : item?.status == "waiting for verification" ? "!text-[#B28F10]" : item?.status=="failed"?"!text-red-500": item?.status=="verified"?"!text-primary": ""}  w-[14.28%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center capitalize gap-x-1 font-normal text-sm`}>
                         {item?.status}
                       </TableCell>
                     </TableRow>

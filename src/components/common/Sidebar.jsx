@@ -46,8 +46,10 @@ const Sidebar = ({ className }) => {
     sort_order: filters?.sort_order,
     restaurant_tier: filters?.restaurant_tier,
     rejected: filters?.rejected,
-    extraction_source: filters?.extraction_source
+    extraction_source: filters?.extraction_source,
+    assigned_to: userId
   });
+
 
   const options = [
     {
@@ -66,16 +68,17 @@ const Sidebar = ({ className }) => {
     },
     {
       path: "/multi-invoice-documents",
-      text: "Multiple Invoice Documents",
+      text: "All Multiple Invoice Documents",
       image: theme === "light" ? multi_invoice_black : multi_invoice_white,
-      hoverImage: multi_invoice_white
+      hoverImage: multi_invoice_white,
+      count: data?.all_multiple_invoice_documents
     },
     {
       path: "/my-tasks",
       text: "My Tasks",
       image: theme === "light" ? my_tasks_black : my_tasks_white,
       hoverImage: my_tasks_white,
-      count: data?.my_tasks?.invoices + data?.my_tasks?.flagged_documents,
+      count: data?.my_tasks?.invoices + data?.my_tasks?.flagged_documents +data?.my_tasks?.multiple_invoice_documents,
       children: [
         {
           path: "/my-tasks",
@@ -83,15 +86,16 @@ const Sidebar = ({ className }) => {
           count: data?.my_tasks?.invoices
         },
         {
-          path: "/unsupported-documents",
+          path: `/unsupported-documents`,
           text: "Flagged Documents",
           count: data?.my_tasks?.flagged_documents
         },
         {
-          path: `/multi-invoice-documents?assigned_to=${userId}`,
+          path: `/multi-invoice-documents`,
           text: "Multiple Invoice Documents",
           image: theme === "light" ? multi_invoice_black : multi_invoice_white,
-          hoverImage: multi_invoice_white
+          hoverImage: multi_invoice_white,
+          count: data?.my_tasks?.multiple_invoice_documents
         }
       ]
     },
@@ -132,7 +136,7 @@ const Sidebar = ({ className }) => {
 
   return (
     <div
-      className={`fixed top-0 left-0 h-screen overflow-y-auto transition-all z-50 duration-300 ease-in-out`}
+      className={`fixed top-0 left-0 h-screen overflow-y-auto transition-all !z-50 duration-300 ease-in-out`}
       style={{ width }}
     >
       <div className="border h-full dark:border-white/10 bg-white dark:!bg-[#051C14] shadow-lg">
@@ -224,7 +228,7 @@ const Sidebar = ({ className }) => {
                       <span className="truncate">{option?.text}</span>
                       <div className="flex items-center gap-2">
                         {typeof option?.count === "number" && (
-                          <CustomTooltip content={"Unverified Documents Count"}>
+                          <CustomTooltip content={`${option?.text} Count`}>
                             <span className="text-xs bg-red-500 text-white dark:bg-white/10 dark:text-white px-2 py-1 rounded-full">
                               {option?.count}
                             </span>

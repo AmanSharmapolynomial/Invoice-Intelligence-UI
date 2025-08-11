@@ -36,8 +36,12 @@ import {
   Check,
   Clock,
   Filter,
+  Pencil,
   Plus,
+  Save,
   Share2,
+  Trash,
+  Trash2,
   X
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -55,6 +59,7 @@ import {
   SheetTrigger
 } from "@/components/ui/sheet";
 import InvoiceFilters from "@/components/invoice/InvoiceFilters";
+import { Modal, ModalDescription } from "@/components/ui/Modal";
 
 const InvoiceGroupAccordion = ({
   group,
@@ -113,7 +118,7 @@ const InvoiceGroupAccordion = ({
 
     const allGroups = [
       ...(data?.data?.[0]?.["closed_groups"] || []),
-      ...(data?.data?.[0]?.["complete_groups"] || []),
+      ...(data?.data?.[0]?.["open_groups"] || []),
       ...(data?.data?.[0]?.["incomplete_groups"] || [])
     ].flat();
 
@@ -121,7 +126,7 @@ const InvoiceGroupAccordion = ({
     const usedIndicesInCompany = allGroups?.flatMap(
       (g) => g.page_indices || []
     );
-    console.log(usedIndicesInCompany);
+
     if (usedIndicesInCompany.includes(indexNum)) {
       toast.error("This page index is already used.");
       return;
@@ -164,8 +169,8 @@ const InvoiceGroupAccordion = ({
     let myData = copyData?.data?.[0];
     myData?.[f_key]?.forEach((g) => {
       if (
-        g?.invoice_number === group?.invoice_number &&
-        g?.vendor_name === group?.vendor_name
+       ( g?.invoice_number === group?.invoice_number &&
+        g?.vendor_name === group?.vendor_name)||g?.type==group?.type
       ) {
         g.page_indices = updatedIndices;
       }
@@ -174,83 +179,255 @@ const InvoiceGroupAccordion = ({
     queryClient.setQueryData(["multi-invoice-documents", payload], copyData);
   };
 
+
+  const handleDeleteGroup = () => {
+    let copyData = JSON.parse(
+      JSON.stringify(data)
+    );
+    if (!copyData) return;
+    let myData = copyData?.data?.[0];
+    if (f_key == "open_groups") {
+      myData[f_key] = myData?.[f_key]?.filter(
+        (g) => g?.type !== group?.type
+      );
+    } else {
+
+      myData[f_key] = myData?.[f_key]?.filter(
+        (g) => g?.invoice_number !== group?.invoice_number
+      );
+    }
+    queryClient.setQueryData(["multi-invoice-documents", payload], copyData);
+    setCheckedIndices((prev) =>
+      prev?.filter((id) => id !== group?.invoice_number)
+    );
+  }
+
+  const [editing, setEditing] = useState(false);
+  console.log(checkedIndices)
   return (
     <div className="my-1">
       <CustomAccordion
         className="!rounded-sm !shadow-none border !text-sm w-full"
         triggerClassName="!text-sm"
-        title={
-          f_key == "open_groups"
-            ? `${group?.type}`
-            : `${group?.vendor_name} | ${group?.invoice_number}`
-        }
-      >
-        <div className="flex items-center  gap-x-4 justify-end w-full px-2 my-2">
-          <Button
-            className="rounded-sm h-7 w-7"
-            onClick={() => setAddingIndex(true)}
-          >
-            <Plus className="h-5 w-5" />
-          </Button>
-          <Checkbox
-            className="h-5 w-5"
-            checked={checkedIndices.includes(group?.invoice_number)}
-            onCheckedChange={(isChecked) => {
-              if (isChecked) {
-                setCheckedIndices((prev) => [...prev, group?.invoice_number]);
-              } else {
-                setCheckedIndices((prev) =>
-                  prev?.filter((id) => id !== group?.invoice_number)
-                );
-              }
+        triggerButtons={<div className="flex items-center gap-x-2">
+
+          <Button className="bg-red-500 hover:bg-red-500 w-7 h-7 rounded-sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDeleteGroup();
             }}
-          />
-        </div>
+          >
+            <Trash2 className="w-5 h-5" />
+          </Button>
 
-        <div className="w-full flex justify-center items-center gap-2 flex-wrap">
-          {groupIndices?.map((index, i) => (
-            <div className="w-10 h-10 relative" key={i}>
+          {!editing ? (
+
+            <Button
+
+              className="bg-primary hover:bg-primary w-7 h-7 rounded-sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                setEditing(true);
+              }}
+            >
+              <Pencil />
+            </Button>
+          )
+            : (
               <Button
-                onClick={() => setCurrentPageIndex(index)}
-                className="w-10 h-10 flex items-center hover:bg-transparent justify-center bg-gray-50 text-black"
-              >
-                {index}
-              </Button>
-              <div
-                onClick={() => handleRemoveIndex(index)}
-                className="h-4 w-4 rounded-full bg-red-500 absolute -top-1 flex items-center justify-center -right-1.5 cursor-pointer"
-              >
-                <X className="h-3 w-3 text-white" />
-              </div>
-            </div>
-          ))}
 
-          {addingIndex && (
-            <div className="w-20 h-10 relative">
-              <input
-                type="number"
-                className="w-20 h-10 text-center text-sm border border-gray-300 rounded"
-                value={newIndex}
-                onChange={(e) => setNewIndex(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleAddIndex()}
-              />
-              <div
-                className="h-4 w-4 rounded-full bg-green-500 absolute -top-1.5 right-3 flex items-center justify-center cursor-pointer"
-                onClick={handleAddIndex}
-              >
-                <Check className="h-3 w-3 text-white" />
-              </div>
-              <div
-                className="h-4 w-4 rounded-full bg-red-500 absolute -top-1.5 -right-1.5 flex items-center justify-center cursor-pointer"
-                onClick={() => {
-                  setAddingIndex(false);
-                  setNewIndex("");
+                className="bg-primary hover:bg-primary w-7 h-7 rounded-sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEditing(false);
                 }}
               >
-                <X className="h-3 w-3 text-white" />
+                <Save />
+              </Button>
+            )
+          }
+        </div>}
+        title={
+          f_key == "open_groups"
+            ? `${group?.type || ""}`
+            : `${group?.vendor_name} ${group?.vendor_name && group?.invoice_number && "|"} ${group?.invoice_number}`
+        }
+      >
+
+        {/*  Vendor Name and Invoice NUmber We have to give input fields for saving and editing  */}
+        {editing && <div className="flex items-start ml-2 mt-2 gap-y-2 flex-col gap-x-2">
+          {f_key !== "open_groups" && <div className="flex items-center gap-x-2 ml-4 w-[420px] justify-between">
+            <p className="font-poppins font-medium text-sm">Vendor Name</p>
+            <Input
+              className="w-72"
+              value={group?.vendor_name || ""}
+              onChange={(e) => {
+                let copyData = JSON.parse(
+                  JSON.stringify(queryClient.getQueryData(["multi-invoice-documents", payload]))
+                );
+                if (!copyData) return;
+                let myData = copyData?.data?.[0];
+                myData?.[f_key]?.forEach((g) => {
+                  if (
+                    g?.invoice_number === group?.invoice_number &&
+                    g?.vendor_name === group?.vendor_name
+                  ) {
+                    g.vendor_name = e.target.value;
+                  }
+                });
+                queryClient.setQueryData(["multi-invoice-documents", payload], copyData);
+                setCheckedIndices((prev) =>
+                  prev?.map((id) =>
+                    id === group?.invoice_number ? e.target.value : id
+
+                  )
+                );
+              }}
+              placeholder="Vendor Name"
+            />
+          </div>}
+          {f_key !== "open_groups" && <div className="flex items-center gap-x-2 ml-4 w-[420px] justify-between">
+            <p className="font-poppins font-medium text-sm">Invoice Number</p>
+            <Input
+              className="w-72"
+              value={group?.invoice_number || ""}
+              onChange={(e) => {
+                let copyData = JSON.parse(
+                  JSON.stringify(queryClient.getQueryData(["multi-invoice-documents", payload]))
+                );
+                if (!copyData) return;
+                let myData = copyData?.data?.[0];
+                myData?.[f_key]?.forEach((g) => {
+                  if (
+                    g?.invoice_number === group?.invoice_number &&
+                    g?.vendor_name === group?.vendor_name
+                  ) {
+                    g.invoice_number = e.target.value;
+                  }
+                });
+                queryClient.setQueryData(["multi-invoice-documents", payload], copyData);
+                setCheckedIndices((prev) =>
+                  prev?.map((id) =>
+                    id === group?.invoice_number ? e.target.value : id
+                  )
+                );
+              }}
+
+              placeholder="Invoice Number"
+            />
+          </div>}
+
+          {
+            f_key === "open_groups" && (
+              <div className="flex items-center gap-x-2 ml-4 w-[420px] justify-between">
+                <p className="font-poppins font-medium text-sm">Type</p>
+                <Input
+                  className="w-72"
+                  value={group?.type || ""}
+                  onChange={(e) => {
+                    let copyData = JSON.parse(
+                      JSON.stringify(queryClient.getQueryData(["multi-invoice-documents", payload]))
+                    );
+                    if (!copyData) return;
+                    let myData = copyData?.data?.[0];
+                    myData[f_key] = myData?.[f_key]?.map((g) => {
+                      if (
+                        g?.invoice_number === group?.invoice_number &&
+                        g?.type === group?.type
+                      ) {
+                        return { ...g, type: e.target.value };
+                      }
+                      return g;
+                    });
+                    queryClient.setQueryData(["multi-invoice-documents", payload], copyData);
+                  }}
+                  placeholder="Type"
+                />
               </div>
-            </div>
-          )}
+            )
+          }
+        </div>}
+        <div className="flex items-center  gap-x-2 w-full px-2 mt-4">
+          <div className="!w-[90%] flex justify-center items-center gap-2 flex-wrap">
+            {groupIndices?.map((index, i) => (
+              <div className="w-10 h-10 relative" key={i}>
+                <Button
+                  onClick={() => setCurrentPageIndex(index)}
+                  className="w-10 h-10 flex items-center hover:bg-transparent justify-center bg-gray-50 text-black"
+                >
+                  {index}
+                </Button>
+                <div
+                  onClick={() => handleRemoveIndex(index)}
+                  className="h-4 w-4 rounded-full bg-red-500 absolute -top-1 flex items-center justify-center -right-1.5 cursor-pointer"
+                >
+                  <X className="h-3 w-3 text-white" />
+                </div>
+              </div>
+            ))}
+
+            {addingIndex && (
+              <div className="w-20 h-10 relative">
+                <input
+                  type="number"
+                  className="w-20 h-10 text-center text-sm border border-gray-300 rounded"
+                  value={newIndex}
+                  onChange={(e) => setNewIndex(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleAddIndex()}
+                />
+                <div
+                  className="h-4 w-4 rounded-full bg-green-500 absolute -top-1.5 right-3 flex items-center justify-center cursor-pointer"
+                  onClick={handleAddIndex}
+                >
+                  <Check className="h-3 w-3 text-white" />
+                </div>
+                <div
+                  className="h-4 w-4 rounded-full bg-red-500 absolute -top-1.5 -right-1.5 flex items-center justify-center cursor-pointer"
+                  onClick={() => {
+                    setAddingIndex(false);
+                    setNewIndex("");
+                  }}
+                >
+                  <X className="h-3 w-3 text-white" />
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="!flex items-center !w-[10%]  gap-x-4 justify-end  px-2 my-2">
+            <Button
+              className="rounded-sm h-7 w-7"
+              onClick={() => setAddingIndex(true)}
+            >
+              <Plus className="h-5 w-5" />
+            </Button>
+            <Checkbox
+              className="h-5 w-5"
+              checked={checkedIndices.includes(f_key == "open_groups" ? group?.type : group?.invoice_number)}
+              onCheckedChange={(isChecked) => {
+                if (isChecked) {
+                  if (f_key === "open_groups") {
+                    setCheckedIndices((prev) => [...prev, group?.type]);
+                  } else {
+
+                    setCheckedIndices((prev) => [...prev, group?.invoice_number]);
+                  }
+                } else {
+                  if (f_key === "open_groups") {
+                    setCheckedIndices((prev) =>
+                      prev?.filter((id) => id !== group?.type)
+                    );
+                  } else {
+
+                    setCheckedIndices((prev) =>
+                      prev?.filter((id) => id !== group?.invoice_number)
+                    )
+                  }
+                }
+              }}
+            />
+          </div>
+
+
         </div>
       </CustomAccordion>
     </div>
@@ -298,7 +475,7 @@ const MultiInvoiceDocumentsDetails = () => {
   let document_priority = searchParams.get("document_priority") || "all";
   let restaurant_tier =
     searchParams.get("restaurant_tier") == "null" ||
-    searchParams.get("restaurant_tier") == "all"
+      searchParams.get("restaurant_tier") == "all"
       ? null
       : searchParams.get("restaurant_tier");
 
@@ -427,7 +604,7 @@ const MultiInvoiceDocumentsDetails = () => {
       ...(myData?.open_groups || []),
       ...(myData?.incomplete_groups || [])
     ];
-    return allGroups?.map((g) => g?.invoice_number);
+    return allGroups?.map((g) => g?.invoice_number ||g?.type);
   };
 
   const areAllGroupsChecked = () => {
@@ -437,40 +614,79 @@ const MultiInvoiceDocumentsDetails = () => {
     );
   };
 
-  console.log(areAllGroupsChecked());
   const [currentPageIndex, setCurrentPageIndex] = useState(null);
-const [allIndices, setAllIndices] = useState([]);
+  const [allIndices, setAllIndices] = useState([]);
 
-useEffect(() => {
-  if (data && allIndices?.length === 0) { // only set once
-    const indices = [
+  useEffect(() => {
+    if (data && allIndices?.length === 0) { // only set once
+      const indices = [
+        ...(data?.data?.[0]?.closed_groups || []),
+        ...(data?.data?.[0]?.open_groups || []),
+        ...(data?.data?.[0]?.incomplete_groups || [])
+      ].flatMap(it => it?.page_indices);
+     console.log(indices,"indices")
+      setAllIndices(indices);
+    }
+  }, [data, allIndices.length]);
+
+  let indices = [
+    ...(data?.data?.[0]?.closed_groups || []),
+    ...(data?.data?.[0]?.open_groups || []),
+    ...(data?.data?.[0]?.incomplete_groups || [])
+  ].flatMap(it => it?.page_indices)
+  const added = indices?.filter(x => !allIndices.includes(x));
+  const removed = allIndices?.filter(x => !indices.includes(x));
+  const difference = [
+    ...added,
+    ...removed
+  ];
+
+  useEffect(() => {
+    setAllIndices([]);
+    setCurrentPageIndex(null)
+
+  }, [page])
+
+  let all_have_indices = useMemo(() => {
+    return [
       ...(data?.data?.[0]?.closed_groups || []),
-      ...(data?.data?.[0]?.complete_groups || []),
+      ...(data?.data?.[0]?.open_groups || []),
       ...(data?.data?.[0]?.incomplete_groups || [])
-    ].flatMap(it => it?.page_indices);
+    ]?.map(it => it?.page_indices)?.every((it) => it?.length > 0);
+  }, [data]);
 
-    setAllIndices(indices);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [showApproveModal, setShowApproveModal] = useState(false);
+
+  const handleAddGroup = (group_type) => {
+    let copyData = JSON.parse(JSON.stringify(data));
+    if (!copyData) return;
+    let myData = copyData?.data?.[0];
+    let newGroup = {};
+    if (group_type !== "open_groups") {
+      newGroup = {
+        invoice_number: invoiceNumber,
+        vendor_name: vendor,
+        page_indices: [],
+      };
+      myData[group_type] = [
+        ...myData[group_type],
+        newGroup
+      ];
+
+    } else {
+      newGroup = {
+        page_indices: [],
+        type: ""
+      };
+      myData[group_type] = [
+        ...myData[group_type],
+        newGroup
+      ];
+    }
+    queryClient.setQueryData(["multi-invoice-documents", payload], copyData);
   }
-}, [data, allIndices.length]);
-
-let indices= [
-      ...(data?.data?.[0]?.closed_groups || []),
-      ...(data?.data?.[0]?.complete_groups || []),
-      ...(data?.data?.[0]?.incomplete_groups || [])
-    ].flatMap(it => it?.page_indices)
-    const added = indices?.filter(x => !allIndices.includes(x));
-const removed = allIndices?.filter(x => !indices.includes(x));
-const difference = [
-  ...added,
-  ...removed
-];
-
-useEffect(()=>{
-  setAllIndices([]);
-  setCurrentPageIndex(null)
-
-},[page])
-
+  console.log(allIndices)
   return (
     <div className="!h-screen  flex w-full " id="maindiv">
       <Sidebar />
@@ -511,8 +727,8 @@ useEffect(()=>{
                               myData?.tier == 1
                                 ? tier_1
                                 : myData?.tier == 2
-                                ? tier_2
-                                : tier_3
+                                  ? tier_2
+                                  : tier_3
                             }
                             alt=""
                           />
@@ -525,33 +741,31 @@ useEffect(()=>{
                     content={`Assigned to ${myData?.assignment_details?.assigned_to?.username
                       ?.split("_")
                       ?.join(" ")} at ${formatDateTimeToReadable(
-                      myData?.assignment_details?.assigned_at
-                    )}`}
+                        myData?.assignment_details?.assigned_at
+                      )}`}
                   >
                     <p
-                      className={`mx-2  font-poppins font-normal capitalize text-xs leading-3 ${
-                        myData?.status == "verified"
-                          ? "bg-primary"
-                          : myData?.status == "failed"
+                      className={`mx-2  font-poppins font-normal capitalize text-xs leading-3 ${myData?.status == "verified"
+                        ? "bg-primary"
+                        : myData?.status == "failed"
                           ? "bg-red-500"
                           : myData?.status == "split and merged"
-                          ? "bg-primary"
-                          : "bg-[#B28F10]"
-                      }  text-[#ffffff] py-1.5  px-3 rounded-xl  cursor-pointer`}
+                            ? "bg-primary"
+                            : "bg-[#B28F10]"
+                        }  text-[#ffffff] py-1.5  px-3 rounded-xl  cursor-pointer`}
                     >
                       {myData?.status}
                     </p>
                   </CustomTooltip>
-                  <span
-                    className={`${
-                      calculateTimeDifference(
-                        new Date(
-                          myData?.assignment_details?.verification_due_at
-                        )
-                      )?.includes("ago")
-                        ? "!text-[#F15156]"
-                        : "!text-black"
-                    } mx-2 bg-gray-200  font-poppins font-normal -mb-0.5 text-xs leading-3 py-1.5    text-[#ffffff]  flex items-center   px-4 rounded-full  `}
+                  {myData?.status !== "split and merged" && <span
+                    className={`${calculateTimeDifference(
+                      new Date(
+                        myData?.assignment_details?.verification_due_at
+                      )
+                    )?.includes("ago")
+                      ? "!text-[#F15156]"
+                      : "!text-black"
+                      } mx-2 bg-gray-200  font-poppins font-normal -mb-0.5 text-xs leading-3 py-1.5    text-[#ffffff]  flex items-center   px-4 rounded-full  `}
                   >
                     <div className="flex items-center gap-x-2 ">
                       {/* <CustomTooltip content={"Due Time"}> */}
@@ -571,7 +785,7 @@ useEffect(()=>{
                       </div>
                     </div>
                     {/* </CustomTooltip> */}
-                  </span>
+                  </span>}
                 </div>
               </>
             )}
@@ -586,8 +800,7 @@ useEffect(()=>{
               <SheetTrigger>
                 {" "}
                 <Button
-                  className={`bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000] ${
-                    open ||
+                  className={`bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000] ${open ||
                     filters?.human_verified !== "all" ||
                     filters?.human_verification !== "all" ||
                     filters?.invoice_type !== "" ||
@@ -595,13 +808,12 @@ useEffect(()=>{
                     filters?.end_date !== "" ||
                     filters?.clickbacon_status !== "" ||
                     filters?.auto_accepted !== ""
-                      ? "!bg-primary !text-white"
-                      : "!bg-white"
-                  }   `}
+                    ? "!bg-primary !text-white"
+                    : "!bg-white"
+                    }   `}
                 >
                   <Filter
-                    className={`${
-                      open ||
+                    className={`${open ||
                       filters?.human_verified !== "all" ||
                       filters?.human_verification !== "all" ||
                       filters?.invoice_type !== "" ||
@@ -609,9 +821,9 @@ useEffect(()=>{
                       filters?.end_date !== "" ||
                       filters?.clickbacon_status !== "" ||
                       filters?.auto_accepted !== ""
-                        ? "!text-white"
-                        : ""
-                    } h-5  text-black/40 dark:text-white/50`}
+                      ? "!text-white"
+                      : ""
+                      } h-5  text-black/40 dark:text-white/50`}
                   />
                 </Button>
               </SheetTrigger>
@@ -657,21 +869,18 @@ useEffect(()=>{
               content={
                 !areAllGroupsChecked()
                   ? "Check all the checkboxes in all groups to reject the document."
-               : difference?.length!==0?"Some Page Indices are missing.":""
+                  : difference?.length !== 0 ? "Some Page Indices are missing." : !all_have_indices ? "Some groups are without page indices." : ""
               }
             >
               <Button
                 onClick={() => {
-                  rejectDocument(data?.data?.[0]?.document_uuid, {
-                    onSuccess: () => {
-                      setResetTrigger((prev) => prev + 1);
-                    }
-                  });
+                  setShowRejectModal(true);
+
                 }}
-                disabled={!areAllGroupsChecked()||difference?.length!==0}
-                className="bg-transparent w-[6.5rem] dark:text-white h-[2.4rem] border-[#F15156]  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                disabled={!areAllGroupsChecked() || difference?.length !== 0 || !all_have_indices}
+                className="bg-transparent min-w-[6.5rem] max-w-fit dark:text-white h-[2.4rem] border-[#F15156]  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
               >
-                {rejecting && !errorRejecting ? "Rejecting..." : "Reject"}
+                {rejecting && !errorRejecting ? "Rejecting..." : "Mark as Single Invoice"}
               </Button>
             </CustomTooltip>
             <CustomTooltip
@@ -679,18 +888,16 @@ useEffect(()=>{
               content={
                 !areAllGroupsChecked()
                   ? "Check all the checkboxes in all groups to approve the document."
-                  : difference?.length!==0?"Some Page Indices are missing.":""
+                  : difference?.length !== 0 ? "Some Page Indices are missing." : !all_have_indices ? "Some groups are without page indices." : ""
               }
             >
               <Button
                 onClick={() => {
-                  approveDocument(data?.data?.[0]?.document_uuid, {
-                    onSuccess: () => {
-                      setResetTrigger((prev) => prev + 1);
-                    }
-                  });
+
+                  setShowApproveModal(true);
+
                 }}
-                disabled={!areAllGroupsChecked()||difference?.length!==0}
+                disabled={!areAllGroupsChecked() || difference?.length !== 0 || !all_have_indices}
                 className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
               >
                 {approving && !errorApproving ? "Approving..." : "Approve"}
@@ -701,9 +908,9 @@ useEffect(()=>{
               content={
                 !areAllGroupsChecked()
                   ? "Check all the checkboxes in all groups to save the document."
-                  : difference?.length!==0?"Some Page Indices are missing.":""
+                  : difference?.length !== 0 ? "Some Page Indices are missing." : !all_have_indices ? "Some groups are without page indices." : ""
               }
-          
+
             >
               <Button
                 onClick={() => {
@@ -723,7 +930,7 @@ useEffect(()=>{
                     }
                   );
                 }}
-              disabled={!areAllGroupsChecked()||difference?.length!==0}
+                disabled={!areAllGroupsChecked() || difference?.length !== 0 || !all_have_indices}
                 className="font-poppins h-[2.4rem] dark:text-white font-normal text-sm w-[6.5rem] leading-5 border-2 border-primary text-[#ffffff]"
               >
                 {updating && !errorUpdating ? "Saving..." : "Save"}
@@ -752,7 +959,7 @@ useEffect(()=>{
                 <InvoicePagination
                   totalPages={data?.total_pages}
                   currentTab={""}
-                  setCurrentTab={() => {}}
+                  setCurrentTab={() => { }}
                 />
               }
             </div>
@@ -775,9 +982,9 @@ useEffect(()=>{
                       Page Indices :
                     </p>
                     <div className="flex items-center gap-x-2">
-                      {allIndices?.sort((a,b)=>a-b)?.map((i) => {
+                      {allIndices?.sort((a, b) => a - b)?.map((i) => {
                         return (
-                          <span className={`${(difference?.includes(i))&&"text-red-500"} text-sm font-poppins font-medium`}>
+                          <span className={`${(difference?.includes(i)) && "text-red-500"} text-sm font-poppins font-medium`}>
                             {i}
                           </span>
                         );
@@ -785,95 +992,196 @@ useEffect(()=>{
                     </div>
                   </div>
                   {/* -------------------------------------------------------------------Closed Groups--------------------------------------------- */}
-                  {myData?.closed_groups?.length > 0 && (
-                    <div>
-                      <CustomAccordion
-                        title="Close Groups"
-                        className="!rounded-sm  !shadow-none border !text-sm w-full"
-                        triggerClassName="!text-sm"
-                        contentClassName={"px-4 py-3"}
+
+                  <div>
+                    <CustomAccordion
+                      title={`Closed Groups (${myData?.closed_groups?.length})`}
+                      className="!rounded-sm  !shadow-none border !text-sm w-full"
+                      triggerClassName="!text-sm"
+                      contentClassName={"px-4 py-3"}
+                      triggerButtons={<> <Button
+                        className="rouned-sm h-7 w-7"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddGroup("closed_groups");
+                        }}
                       >
-                        <div className="flex flex-col gap-y-1  max-h-[22.5rem]  overflow-auto">
-                          {myData?.closed_groups?.map((group, groupIdx) => (
-                            <InvoiceGroupAccordion
-                              key={groupIdx}
-                              data={data}
-                              group={group}
-                              payload={payload}
-                              f_key={"closed_groups"}
-                              pagesCount={totalInvoicePages}
-                              resetTrigger={resetTrigger}
-                              checkedIndices={checkedIndices}
-                              setCheckedIndices={setCheckedIndices}
-                              setCurrentPageIndex={setCurrentPageIndex}
-                            />
-                          ))}
-                        </div>
-                      </CustomAccordion>
-                    </div>
-                  )}
+                        <Plus className="h-5 w-5" />
+                      </Button>
+
+                      </>}
+                    >
+                      <div className="flex flex-col gap-y-1  max-h-[22.5rem]  overflow-auto">
+                        {myData?.closed_groups?.map((group, groupIdx) => (
+                          <InvoiceGroupAccordion
+                            key={groupIdx}
+                            data={data}
+                            group={group}
+                            payload={payload}
+                            f_key={"closed_groups"}
+                            pagesCount={totalInvoicePages}
+                            resetTrigger={resetTrigger}
+                            checkedIndices={checkedIndices}
+                            setCheckedIndices={setCheckedIndices}
+                            setCurrentPageIndex={setCurrentPageIndex}
+                          />
+                        ))}
+                      </div>
+                    </CustomAccordion>
+                  </div>
+
                   {/* -------------------------------------------------------------------Incomplete Groups--------------------------------------------- */}
-                  {myData?.incomplete_groups?.length > 0 && (
-                    <div className=" pt-4 ">
-                      <CustomAccordion
-                        title="Incomplete Groups"
-                        className="!rounded-sm  !shadow-none border !text-sm w-full"
-                        triggerClassName="!text-sm"
-                        contentClassName={"px-4 py-3"}
+
+                  <div className=" pt-4 ">
+                    <CustomAccordion
+                      title={`Incomplete Groups (${myData?.incomplete_groups?.length})`}
+                      className="!rounded-sm  !shadow-none border !text-sm w-full"
+                      triggerClassName="!text-sm"
+                      contentClassName={"px-4 py-3"}
+                      triggerButtons={<> <Button
+                        className="rouned-sm h-7 w-7"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddGroup("incomplete_groups");
+                        }}
                       >
-                        <div className="flex flex-col gap-y-1  max-h-[22.5rem]  overflow-auto">
-                          {myData?.incomplete_groups?.map((group, groupIdx) => (
-                            <InvoiceGroupAccordion
-                              key={groupIdx}
-                              data={data}
-                              group={group}
-                              payload={payload}
-                              f_key={"incomplete_groups"}
-                              pagesCount={totalInvoicePages}
-                              resetTrigger={resetTrigger}
-                              checkedIndices={checkedIndices}
-                              setCheckedIndices={setCheckedIndices}
-                              setCurrentPageIndex={setCurrentPageIndex}
-                            />
-                          ))}
-                        </div>
-                      </CustomAccordion>
-                    </div>
-                  )}
+                        <Plus className="h-5 w-5" />
+                      </Button>
+
+                      </>}
+                    >
+                      <div className="flex flex-col gap-y-1  max-h-[22.5rem]  overflow-auto">
+                        {myData?.incomplete_groups?.map((group, groupIdx) => (
+                          <InvoiceGroupAccordion
+                            key={groupIdx}
+                            data={data}
+                            group={group}
+                            payload={payload}
+                            f_key={"incomplete_groups"}
+                            pagesCount={totalInvoicePages}
+                            resetTrigger={resetTrigger}
+                            checkedIndices={checkedIndices}
+                            setCheckedIndices={setCheckedIndices}
+                            setCurrentPageIndex={setCurrentPageIndex}
+                          />
+                        ))}
+                      </div>
+                    </CustomAccordion>
+                  </div>
+
                   {/* -------------------------------------------------------------------Open Groups--------------------------------------------- */}
-                  {myData?.open_groups?.length > 0 && (
-                    <div className=" pt-4 ">
-                      <CustomAccordion
-                        title="Open Groups"
-                        className="!rounded-sm  !shadow-none border !text-sm w-full"
-                        triggerClassName="!text-sm"
-                        contentClassName={"px-4 py-3"}
+
+                  <div className=" pt-4 ">
+                    <CustomAccordion
+                      title={`Open Groups (${myData?.open_groups?.length})`}
+                      className="!rounded-sm  !shadow-none border !text-sm w-full"
+                      triggerClassName="!text-sm"
+                      triggerButtons={<> <Button
+                        className="rouned-sm h-7 w-7"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddGroup("open_groups");
+                        }}
                       >
-                        <div className="flex flex-col gap-y-1  max-h-[22.5rem]  overflow-auto">
-                          {myData?.open_groups?.map((group, groupIdx) => (
-                            <InvoiceGroupAccordion
-                              key={groupIdx}
-                              data={data}
-                              group={group}
-                              payload={payload}
-                              f_key={"open_groups"}
-                              pagesCount={totalInvoicePages}
-                              resetTrigger={resetTrigger}
-                              checkedIndices={checkedIndices}
-                              setCheckedIndices={setCheckedIndices}
-                              setCurrentPageIndex={setCurrentPageIndex}
-                            />
-                          ))}
-                        </div>
-                      </CustomAccordion>
-                    </div>
-                  )}
+                        <Plus className="h-5 w-5" />
+                      </Button>
+                      </>}
+
+                      contentClassName={"px-4 py-3"}
+                    >
+                      <div className="flex flex-col gap-y-1  max-h-[22.5rem]  overflow-auto">
+                        {myData?.open_groups?.map((group, groupIdx) => (
+                          <InvoiceGroupAccordion
+                            key={groupIdx}
+                            data={data}
+                            group={group}
+                            payload={payload}
+                            f_key={"open_groups"}
+                            pagesCount={totalInvoicePages}
+                            resetTrigger={resetTrigger}
+                            checkedIndices={checkedIndices}
+                            setCheckedIndices={setCheckedIndices}
+                            setCurrentPageIndex={setCurrentPageIndex}
+                          />
+                        ))}
+                      </div>
+                    </CustomAccordion>
+                  </div>
+
                 </>
               )}
             </div>
           </div>
         </Layout>
       </div>
+
+      <Modal
+        open={showRejectModal}
+        setOpen={setShowRejectModal}
+        title={"Mark As Not Multiple Invoice Document"}
+        titleClassName={"font-poppins font-semibold text-lg text-black"}
+      >
+
+        <ModalDescription className="font-poppins font-medium text-black text-sm ">
+          <p className="font-poppins font-medium text-black/70 text-sm">This document will be marked as a single invoice. Its data will be extracted accordingly and it will be moved to the Invoice section.</p>
+        </ModalDescription>
+        <div className="flex items-center justify-end gap-x-4 mt-4">
+          <Button
+            onClick={() => setShowRejectModal(false)}
+            className="bg-transparent hover:bg-transparent border-2 border-[#D9D9D9] text-[#000000] font-poppins font-normal text-sm h-[2.4rem] w-[6.5rem]"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={() => {
+              rejectDocument(data?.data?.[0]?.document_uuid, {
+                onSuccess: () => {
+                  queryClient.invalidateQueries(["multi-invoice-documents", payload]);
+                  setShowRejectModal(false);
+                }
+              });
+            }}
+            disabled={!areAllGroupsChecked() || difference?.length !== 0 || !all_have_indices}
+            className="bg-red-500 text-white font-poppins hover:bg-red-500 font-normal text-sm h-[2.4rem] min-w-[6.5rem] max-w-fit"
+          >
+            {rejecting && !errorRejecting ? "Marking..." : "Mark As Single Invoice"}
+          </Button>
+        </div>
+
+      </Modal>
+      <Modal
+        open={showApproveModal}
+        setOpen={setShowApproveModal}
+        title={"Approve Document"}
+        titleClassName={"font-poppins font-semibold text-lg text-black"}
+      >
+        <ModalDescription className="font-poppins font-medium text-black text-sm ">
+          <p className="font-poppins font-medium text-black/70 text-sm">This action is permanent. The document will be split and merged according to the provided data, and you won’t be able to undo it.</p>
+        </ModalDescription>
+        <div className="flex items-center justify-end gap-x-4 mt-4">
+          <Button
+            onClick={() => setShowApproveModal(false)}
+            className="bg-transparent hover:bg-transparent border-2 border-[#D9D9D9] text-[#000000] font-poppins font-normal text-sm h-[2.4rem] w-[6.5rem]"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={() => {
+              approveDocument(data?.data?.[0]?.document_uuid, {
+                onSuccess: () => {
+                    queryClient.invalidateQueries(["multi-invoice-documents", payload]);
+                  setShowApproveModal(false);
+                }
+              });
+            }}
+            disabled={!areAllGroupsChecked() || difference?.length !== 0 || !all_have_indices}
+            className="bg-primary text-white font-poppins hover:bg-primary font-normal text-sm h-[2.4rem] w-[6.5rem]"
+          >
+            {approving && !errorApproving ? "Approving..." : "Approve"}
+          </Button>
+        </div>
+
+      </Modal>
     </div>
   );
 };

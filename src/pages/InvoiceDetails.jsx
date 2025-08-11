@@ -123,6 +123,8 @@ import {
 // import book_user_black from "@/assets/image/book_user_black.svg";
 import { useGetSidebarCounts } from "@/components/common/api";
 import useSidebarStore from "@/store/sidebarStore";
+import multi_invoice_black from "@/assets/image/multi_invoice_black.svg";
+import multi_invoice_white from "@/assets/image/multi_invoice_white.svg";
 const rejectionReasons = [
   "Duplicate invoice",
   "Multiple invoices in one PDF",
@@ -600,12 +602,12 @@ const InvoiceDetails = () => {
   let linkModalTimer;
   const { data: sideBarCounts } = useGetSidebarCounts({
     invoice_type: filters?.invoice_type,
-    start_date: filters?.start_date,
-    end_date: filters?.end_date,
+    // start_date: filters?.start_date,
+    // end_date: filters?.end_date,
     clickbacon_status: filters?.clickbacon_status,
     restaurant: filters?.restaurant,
     auto_accpepted: filters?.auto_accepted,
-    rerun_status: filters?.rerun_status,
+    rerun_status: filters?.rerun_status||"",
     invoice_detection_status: filters?.invoice_detection_status,
     human_verified: filters?.human_verified,
     human_verification_required: filters?.human_verification,
@@ -613,11 +615,12 @@ const InvoiceDetails = () => {
     sort_order: filters?.sort_order,
     restaurant_tier: filters?.restaurant_tier,
     rejected: filters?.rejected,
-    extraction_source: filters?.extraction_source
+    extraction_source: filters?.extraction_source,
+    assigned_to: filters?.assigned_to||userId
   });
   const [openSubmenu, setOpenSubmenu] = useState(null);
   const { expanded, setExpanded } = useSidebarStore();
-
+  const {userId}=userStore();
   const options = [
     {
       path: "/home",
@@ -633,6 +636,13 @@ const InvoiceDetails = () => {
       hoverImage: flagged_white,
       count: sideBarCounts?.all_flagged_documents
     },
+     {
+          path: `/multi-invoice-documents?assigned_to=${userId}`,
+          text: "All Multiple Invoice Documents",
+          image: theme === "light" ? multi_invoice_black : multi_invoice_white,
+          hoverImage: multi_invoice_white,
+          count: sideBarCounts?.all_multiple_invoice_documents
+        },
     {
       path: "/my-tasks",
       text: "My Tasks",
@@ -640,7 +650,7 @@ const InvoiceDetails = () => {
       hoverImage: my_tasks_white,
       count:
         sideBarCounts?.my_tasks?.invoices +
-        sideBarCounts?.my_tasks?.flagged_documents,
+        sideBarCounts?.my_tasks?.flagged_documents +sideBarCounts?.my_tasks?.multiple_invoice_documents,
       children: [
         {
           path: "/my-tasks",
@@ -651,7 +661,15 @@ const InvoiceDetails = () => {
           path: "/unsupported-documents",
           text: "Flagged Documents",
           count: sideBarCounts?.my_tasks?.flagged_documents
-        }
+        },
+             {
+               path: `/multi-invoice-documents?assigned_to=${userId}`,
+               text: "Multiple Invoice Documents",
+               image: theme === "light" ? multi_invoice_black : multi_invoice_white,
+               hoverImage: multi_invoice_white,
+               count: sideBarCounts?.my_tasks?.multiple_invoice_documents
+             }
+        
       ]
     },
     {
@@ -900,7 +918,7 @@ const InvoiceDetails = () => {
                         <div className="flex items-center gap-2">
                           {typeof option.count === "number" && (
                             <CustomTooltip
-                              content={"Unverified Documents Count"}
+                              content={`${option?.text} Count`}
                             >
                               <span className="text-xs bg-red-500 text-white  dark:bg-white/10 dark:text-white px-2 py-1 rounded-full">
                                 {option?.count}
