@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/table";
 import { useGetVendorNames } from "@/components/vendor/api";
 import {
+  calculateTimeDifference,
   formatDateTimeToReadable,
   formatRestaurantsList,
   vendorNamesFormatter
@@ -89,7 +90,7 @@ const MutliInvoiceDocuments = () => {
   let document_priority = searchParams.get("document_priority") || "all";
   let restaurant_tier =
     searchParams.get("restaurant_tier") == "null" ||
-    searchParams.get("restaurant_tier") == "all"
+      searchParams.get("restaurant_tier") == "all"
       ? null
       : searchParams.get("restaurant_tier");
 
@@ -265,22 +266,7 @@ const MutliInvoiceDocuments = () => {
                   <SheetTrigger>
                     {" "}
                     <Button
-                      className={`bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000] ${
-                        open ||
-                        filters?.human_verified !== "all" ||
-                        filters?.human_verification !== "all" ||
-                        filters?.invoice_type !== "" ||
-                        filters?.start_date !== "" ||
-                        filters?.end_date !== "" ||
-                        filters?.clickbacon_status !== "" ||
-                        filters?.auto_accepted !== ""
-                          ? "!bg-primary !text-white"
-                          : "!bg-white"
-                      }   `}
-                    >
-                      <Filter
-                        className={`${
-                          open ||
+                      className={`bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000] ${open ||
                           filters?.human_verified !== "all" ||
                           filters?.human_verification !== "all" ||
                           filters?.invoice_type !== "" ||
@@ -288,9 +274,22 @@ const MutliInvoiceDocuments = () => {
                           filters?.end_date !== "" ||
                           filters?.clickbacon_status !== "" ||
                           filters?.auto_accepted !== ""
+                          ? "!bg-primary !text-white"
+                          : "!bg-white"
+                        }   `}
+                    >
+                      <Filter
+                        className={`${open ||
+                            filters?.human_verified !== "all" ||
+                            filters?.human_verification !== "all" ||
+                            filters?.invoice_type !== "" ||
+                            filters?.start_date !== "" ||
+                            filters?.end_date !== "" ||
+                            filters?.clickbacon_status !== "" ||
+                            filters?.auto_accepted !== ""
                             ? "!text-white"
                             : ""
-                        } h-5  text-black/40 dark:text-white/50`}
+                          } h-5  text-black/40 dark:text-white/50`}
                       />
                     </Button>
                   </SheetTrigger>
@@ -320,18 +319,17 @@ const MutliInvoiceDocuments = () => {
 
           {/* Listing Table */}
           <Table
-            className={`flex flex-col  show-scrollbar custom-scrollbar box-border  scrollbar max-h-[${
-              final - 1
-            }vh]  `}
+            className={`flex flex-col  show-scrollbar custom-scrollbar box-border  scrollbar max-h-[${final - 1
+              }vh]  `}
             style={{ height: `${final}vh` }}
           >
-            <TableHeader className="sticky top-0 !bg-white dark:!bg-transparent !border-b !h-16 ">
-              <TableRow className="flex  text-base  !sticky top-0 !h-16   border  bg-white !z-50">
-                <TableHead className="w-[16.66%]  flex !min-h-16   !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1">
+            <TableHeader className="sticky top-0 !bg-white dark:!bg-transparent !border-b !h-16 !z-40 ">
+              <TableRow className="flex  text-base  !sticky top-0 !h-16   border  bg-white !z-50 ">
+                <TableHead className="w-[14.28%]  flex !min-h-16   !pt-0 dark:text-[#F6F6F6]  !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1">
                   Restaurant
                 </TableHead>
-                <TableHead className="w-[16.66%] flex !h-full !min-h-16 !max-h-fit !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1">
-                  <span>Date Uploaded</span>
+                <TableHead className="w-[14.28%] flex !h-full !min-h-16 !max-h-fit !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1">
+                  <span>Load Date</span>
                   <div>
                     {
                       <>
@@ -365,16 +363,19 @@ const MutliInvoiceDocuments = () => {
                     }
                   </div>
                 </TableHead>
-                <TableHead className="w-[16.66%] flex !h-full !min-h-16 !max-h-fit !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1">
+                <TableHead className="w-[14.28%] flex !h-full !min-h-16 !max-h-fit !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1">
+                  Due Time
+                </TableHead>
+                <TableHead className="w-[14.28%] flex !h-full !min-h-16 !max-h-fit !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1">
                   Verified
                 </TableHead>
-                <TableHead className="w-[16.66%] flex !h-full !min-h-16 !max-h-fit !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1">
+                <TableHead className="w-[14.28%] flex !h-full !min-h-16 !max-h-fit !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1">
                   Verified By
                 </TableHead>
-                <TableHead className="w-[16.66%] flex !h-full !min-h-16 !max-h-fit !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1">
+                <TableHead className="w-[14.28%] flex !h-full !min-h-16 !max-h-fit !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1">
                   Verified At
                 </TableHead>
-                <TableHead className="w-[16.66%] flex !h-full !min-h-16 !max-h-fit !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1">
+                <TableHead className="w-[14.28%] flex !h-full !min-h-16 !max-h-fit !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1">
                   Status
                 </TableHead>
               </TableRow>
@@ -392,22 +393,25 @@ const MutliInvoiceDocuments = () => {
                         className="flex  text-base   !sticky top-0 !h-16 bg-white "
                         key={it}
                       >
-                        <TableCell className="w-[16.66%] border-b border-l flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm">
+                        <TableCell className="w-[14.28%] border-b border-l flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm">
                           <Skeleton className={"w-full h-6"} />
                         </TableCell>
-                        <TableCell className="w-[16.66%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm">
+                        <TableCell className="w-[14.28%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm">
                           <Skeleton className={"w-full h-6"} />
                         </TableCell>
-                        <TableCell className="w-[16.66%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm">
+                        <TableCell className="w-[14.28%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm">
                           <Skeleton className={"w-full h-6"} />
                         </TableCell>
-                        <TableCell className="w-[16.66%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm">
+                        <TableCell className="w-[14.28%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm">
                           <Skeleton className={"w-full h-6"} />
                         </TableCell>
-                        <TableCell className="w-[16.66%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm">
+                        <TableCell className="w-[14.28%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm">
                           <Skeleton className={"w-full h-6"} />
                         </TableCell>
-                        <TableCell className="w-[16.66%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center capitalize gap-x-1 font-normal text-sm">
+                        <TableCell className="w-[14.28%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center capitalize gap-x-1 font-normal text-sm">
+                          <Skeleton className={"w-full h-6"} />
+                        </TableCell>
+                        <TableCell className="w-[14.28%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center capitalize gap-x-1 font-normal text-sm">
                           <Skeleton className={"w-full h-6"} />
                         </TableCell>
                       </TableRow>
@@ -430,15 +434,13 @@ const MutliInvoiceDocuments = () => {
                       className="flex  text-base   !sticky top-0 !h-16 bg-white cursor-pointer"
                       onClick={() => {
                         navigate(
-                          `/multi-invoice-documents/${
-                            item?.document_uuid
-                          }?detailed_view=true&page_number=${
-                            (page - 1) * 10 + (index + 1)
+                          `/multi-invoice-documents/${item?.document_uuid
+                          }?detailed_view=true&page_number=${(page - 1) * 10 + (index + 1)
                           }`
                         );
                       }}
                     >
-                      <TableCell className="w-[16.66%] border-b border-l capitalize flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm">
+                      <TableCell className="w-[14.28%] border-b border-l capitalize flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm">
                         {item?.restaurant?.restaurant_name}{" "}
                         <img
                           className="h-4 w-4 ml-2"
@@ -446,30 +448,43 @@ const MutliInvoiceDocuments = () => {
                             item?.restaurant?.tier == 1
                               ? tier_1
                               : item?.restaurant?.tier == 2
-                              ? tier_2
-                              : tier_3
+                                ? tier_2
+                                : tier_3
                           }
                           alt=""
-
                         />
                       </TableCell>
-                      <TableCell className="w-[16.66%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm">
+                      <TableCell className="w-[14.28%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm">
                         {formatDateTimeToReadable(item?.date_uploaded)}
                       </TableCell>
-                      <TableCell className="w-[16.66%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm">
+                      <TableCell
+                        className={`${calculateTimeDifference(
+                          new Date(
+                            item?.assignment_details?.verification_due_at
+                          )
+                        )?.includes("ago") && "!text-red-500"
+                          } w-[14.28%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm ${item?.status == "split and merged" ? "!text-primary" : ""} `}
+                      >
+                        {item?.status == "split and merged" ? "Completed" : calculateTimeDifference(
+                          new Date(
+                            item?.assignment_details?.verification_due_at
+                          )
+                        )}
+                      </TableCell>
+                      <TableCell className="w-[14.28%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm">
                         {item?.verified ? (
                           <img src={approved} alt="" className="h-5 w-5" />
                         ) : (
                           <img src={unapproved} alt="" className="h-5 w-5" />
                         )}
                       </TableCell>
-                      <TableCell className="w-[16.66%] border-b capitalize flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm">
+                      <TableCell className="w-[14.28%] border-b capitalize flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm">
                         {item?.verified_by?.username || "NA"}
                       </TableCell>
-                      <TableCell className="w-[16.66%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm">
+                      <TableCell className="w-[14.28%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm">
                         {formatDateTimeToReadable(item?.verified_at) || "-"}
                       </TableCell>
-                      <TableCell className="w-[16.66%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center capitalize gap-x-1 font-normal text-sm">
+                      <TableCell className={`${item?.status == "split and merged" ? "!text-primary" : item?.status == "in progress" ? "!text-[#B28F10]" : item?.status == "waiting for verification" ? "!text-[#B28F10]" : item?.status=="failed"?"!text-red-500": item?.status=="verified"?"!text-primary": ""}  w-[14.28%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center capitalize gap-x-1 font-normal text-sm`}>
                         {item?.status}
                       </TableCell>
                     </TableRow>
