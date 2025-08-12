@@ -600,6 +600,7 @@ const InvoiceDetails = () => {
   const [reprocessedData, setReprocessedData] = useState({});
   const [shoeReferenceLinkModal, setShowReferenceLinkModal] = useState(false);
   let linkModalTimer;
+  const {userId}=userStore();
   const { data: sideBarCounts } = useGetSidebarCounts({
     invoice_type: filters?.invoice_type,
     // start_date: filters?.start_date,
@@ -620,7 +621,6 @@ const InvoiceDetails = () => {
   });
   const [openSubmenu, setOpenSubmenu] = useState(null);
   const { expanded, setExpanded } = useSidebarStore();
-  const {userId}=userStore();
   const options = [
     {
       path: "/home",
