@@ -35,8 +35,13 @@ const BreadCrumb = ({
     if (pathname == "/home") {
       navigate("/");
     }
-    if(pathname?.includes("/multi-invoice-documents/")){
-      navigate("/multi-invoice-documents")
+    if (pathname?.includes("/multi-invoice-documents/")) {
+      if (searchParams.get("assigned_to")) {
+        navigate("/multi-invoice-documents?assigned_to=" + searchParams.get("assigned_to"));
+      } else {
+
+        navigate("/all-multi-invoice-documents")
+      }
     }
     else if (pathname?.includes("/unsupported-documents/details/")) {
       if (searchParams.get("is_all")) {
@@ -129,10 +134,9 @@ const BreadCrumb = ({
                   <BreadcrumbLink asChild>
                     <Link
                       to={path}
-                      className={`${
-                        index == crumbs?.length - 1 &&
+                      className={`${index == crumbs?.length - 1 &&
                         "!text-[#1E7944] dark:!text-[#1E7944]"
-                      } text-[#000000] !font-poppins !font-normal capitalize text-xs dark:!text-[#FFFFFF]`}
+                        } text-[#000000] !font-poppins !font-normal capitalize text-xs dark:!text-[#FFFFFF]`}
                     >
                       {label}
                     </Link>

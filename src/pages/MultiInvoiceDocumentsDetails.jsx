@@ -98,6 +98,15 @@ const InvoiceGroupAccordion = ({
     const indexNum = parseInt(newIndex);
 
     // Basic validation with toasts
+    console.log("Adding index:", indexNum, pagesCount, "for group:", group);
+    if (indexNum
+      > pagesCount
+    ) {
+      toast.error(`Page Index must be between 1 and ${pagesCount}.`);
+      // setNewIndex("");
+      // setAddingIndex(false);
+      return;
+    }
     if (isNaN(indexNum)) {
       toast.error("Please enter a valid number.");
       // setNewIndex("");
@@ -143,7 +152,7 @@ const InvoiceGroupAccordion = ({
     // ✅ Update React Query cache
     let copyData = JSON.parse(
       JSON.stringify(
-        queryClient.getQueryData(["multi-invoice-documents", payload])
+        data
       )
     );
     if (!copyData) return;
@@ -151,8 +160,7 @@ const InvoiceGroupAccordion = ({
     let myData = copyData?.data?.[0];
     myData?.[f_key]?.forEach((g) => {
       if (
-        g?.invoice_number === group?.invoice_number &&
-        g?.vendor_name === group?.vendor_name
+        g?.id === group?.id
       ) {
         g.page_indices = updatedIndices;
       }
@@ -171,7 +179,7 @@ const InvoiceGroupAccordion = ({
 
     let myData = copyData?.data?.[0];
     myData?.[f_key]?.forEach((g) => {
-      if 
+      if
         (g?.id === group?.id) {
         g.page_indices = updatedIndices;
       }
@@ -271,8 +279,7 @@ const InvoiceGroupAccordion = ({
                 let myData = copyData?.data?.[0];
                 myData?.[f_key]?.forEach((g) => {
                   if (
-                    g?.invoice_number === group?.invoice_number &&
-                    g?.vendor_name === group?.vendor_name
+                    g?.id === group?.id
                   ) {
                     g.vendor_name = e.target.value;
                   }
@@ -301,8 +308,7 @@ const InvoiceGroupAccordion = ({
                 let myData = copyData?.data?.[0];
                 myData?.[f_key]?.forEach((g) => {
                   if (
-                    g?.invoice_number === group?.invoice_number &&
-                    g?.vendor_name === group?.vendor_name
+                    g?.id === group?.id
                   ) {
                     g.invoice_number = e.target.value;
                   }
@@ -323,7 +329,7 @@ const InvoiceGroupAccordion = ({
             f_key === "open_groups" && (
               <div className="flex items-center gap-x-2 ml-4 w-[420px] justify-between">
                 <p className="font-poppins font-medium text-sm">Type</p>
-                <CustomDropDown value={group?.type || ""} data={[{ label: "Nose", value: "noise" }, {
+                <CustomDropDown Value={group?.type} data={[{ label: "Nose", value: "noise" }, {
                   label: "Incomplete", value: "incomplete"
                 }, {
                   label: "Multiple Invoice", value: "multiple_invoice"
@@ -342,8 +348,7 @@ const InvoiceGroupAccordion = ({
                     let myData = copyData?.data?.[0];
                     myData[f_key] = myData?.[f_key]?.map((g) => {
                       if (
-                        g?.invoice_number === group?.invoice_number &&
-                        g?.type === group?.type
+                        g?.id === group?.id
                       ) {
                         return { ...g, type: v };
                       }
@@ -526,7 +531,7 @@ const MultiInvoiceDocumentsDetails = () => {
     extraction_source,
     detailed_view
   };
-  const { data, isLoading,refetch } = useListMultiInvoiceDocuments(payload);
+  const { data, isLoading, refetch } = useListMultiInvoiceDocuments(payload);
   const {
     mutate: rejectDocument,
     isPending: rejecting,
@@ -634,7 +639,7 @@ const MultiInvoiceDocumentsDetails = () => {
         ...(data?.data?.[0]?.open_groups || []),
         ...(data?.data?.[0]?.incomplete_groups || [])
       ].flatMap(it => it?.page_indices);
-    
+
       setAllIndices(indices);
     }
   }, [data, allIndices.length]);
@@ -1049,7 +1054,7 @@ const MultiInvoiceDocumentsDetails = () => {
                             group={group}
                             payload={payload}
                             f_key={"closed_groups"}
-                            pagesCount={allIndices}
+                            pagesCount={totalInvoicePages}
                             resetTrigger={resetTrigger}
                             checkedIndices={checkedIndices}
                             setCheckedIndices={setCheckedIndices}
@@ -1088,7 +1093,7 @@ const MultiInvoiceDocumentsDetails = () => {
                             group={group}
                             payload={payload}
                             f_key={"incomplete_groups"}
-                            pagesCount={allIndices}
+                            pagesCount={totalInvoicePages}
                             resetTrigger={resetTrigger}
                             checkedIndices={checkedIndices}
                             setCheckedIndices={setCheckedIndices}
@@ -1127,7 +1132,7 @@ const MultiInvoiceDocumentsDetails = () => {
                             group={group}
                             payload={payload}
                             f_key={"open_groups"}
-                            pagesCount={allIndices}
+                            pagesCount={totalInvoicePages}
                             resetTrigger={resetTrigger}
                             checkedIndices={checkedIndices}
                             setCheckedIndices={setCheckedIndices}
