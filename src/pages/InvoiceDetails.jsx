@@ -79,10 +79,12 @@ import {
   ChevronUp,
   Clock,
   Copy,
+  FileX,
   Filter,
   Info,
   Menu,
   NotebookTabs,
+  Save,
   Share2,
   Table2,
   TextSelect,
@@ -1499,6 +1501,7 @@ const [showDocumentNotes,setShowDocumentNotes]=useState(false);
                     ? action_controls?.mark_as_not_supported?.reason
                     : "Click To Mark This Document As Not Supported."
                 }
+                className={"!min-w-fit"}
               >
                 <Button
                   disabled={
@@ -1511,9 +1514,9 @@ const [showDocumentNotes,setShowDocumentNotes]=useState(false);
                     loadingState?.saving
                   }
                   onClick={() => setMarkAsNotSupportedModal(true)}
-                  className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[7.25rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                  className="bg-transparent h-[2.4rem] dark:text-white border-primary !p-0 !w-[2.4rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                 >
-                  Not Supported
+                  <FileX className="!w-[1.1rem] !h-[1.2rem] text-primary "/>
                 </Button>
               </CustomTooltip>
 
@@ -1537,9 +1540,9 @@ const [showDocumentNotes,setShowDocumentNotes]=useState(false);
                     loadingState?.saving
                   }
                   onClick={() => handleSave()}
-                  className="font-poppins h-[2.4rem] dark:text-white font-normal text-sm leading-5 border-2 border-primary text-[#ffffff]"
+                  className="font-poppins h-[2.4rem] dark:text-white font-normal !p-0 w-[2.4rem] rounded-md text-sm leading-5 border-2 border-primary text-[#ffffff]"
                 >
-                  {loadingState?.saving ? "Saving..." : "Save"}
+                  {loadingState?.saving ? "Saving..." : <Save className="h-5 w-5" />}
                 </Button>
               </CustomTooltip>
             </div>
