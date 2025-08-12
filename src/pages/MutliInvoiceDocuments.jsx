@@ -50,6 +50,7 @@ import unapproved from "@/assets/image/unapproved.svg";
 import { Skeleton } from "@/components/ui/skeleton";
 import no_data from "@/assets/image/no-data.svg";
 import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
+import userStore from "@/components/auth/store/userStore";
 const MutliInvoiceDocuments = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -106,7 +107,7 @@ const MutliInvoiceDocuments = () => {
     restaurantFilterValue,
     setVendorNames
   } = useInvoiceStore();
-  const payload = {
+  let payload = {
     auto_accepted: auto_accepted,
     end_date: end_date,
     human_verification: human_verification,
@@ -131,6 +132,14 @@ const MutliInvoiceDocuments = () => {
     extraction_source,
     detailed_view: false
   };
+const {userId}=userStore()
+  useEffect(()=>{
+  if (!location?.pathname?.includes("/all")){
+  updateParams({
+    assigned_to: userId,
+  })
+  }
+  },[location?.pathname])
   const { data, isLoading } = useListMultiInvoiceDocuments(payload);
   useEffect(() => {
     const resValue = formatRestaurantsList(
@@ -465,11 +474,16 @@ const MutliInvoiceDocuments = () => {
                         )?.includes("ago") && "!text-red-500"
                           } w-[14.28%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm ${item?.status == "split and merged" ? "!text-primary" : ""} `}
                       >
-                        {item?.status == "split and merged" ? "Completed" : calculateTimeDifference(
+                      <CustomTooltip
+                      className={"capitalize !min-w-fit"}
+                      content={`Assigned to :- ${item?.assignment_details?.assigned_to?.username?.split("_")?.join(" ")}`}
+                      >
+                          {item?.status == "split and merged" ? "Completed" : calculateTimeDifference(
                           new Date(
                             item?.assignment_details?.verification_due_at
                           )
                         )}
+                      </CustomTooltip>
                       </TableCell>
                       <TableCell className="w-[14.28%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm">
                         {item?.verified ? (

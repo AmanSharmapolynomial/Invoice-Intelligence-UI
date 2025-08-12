@@ -114,6 +114,14 @@ const protectedRoutes = [
     )
   },
   {
+    path: "/all-multi-invoice-documents",
+    element: (
+      <Protected>
+        <MutliInvoiceDocuments/>
+      </Protected>
+    )
+  },
+  {
     path: "/multi-invoice-documents",
     element: (
       <Protected>

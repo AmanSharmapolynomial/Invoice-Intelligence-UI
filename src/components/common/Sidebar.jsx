@@ -32,14 +32,14 @@ const Sidebar = ({ className }) => {
   const [openSubmenu, setOpenSubmenu] = useState(null);
 
   const { data, isLoading } = useGetSidebarCounts({
-    invoice_type: filters?.invoice_type,
+    invoice_type: filters?.invoice_type||"all",
     start_date: filters?.start_date,
     end_date: filters?.end_date,
-    clickbacon_status: filters?.clickbacon_status,
+    clickbacon_status: filters?.clickbacon_status||"all",
     restaurant: filters?.restaurant,
-    auto_accpepted: filters?.auto_accepted,
-    rerun_status: filters?.rerun_status,
-    invoice_detection_status: filters?.invoice_detection_status,
+    auto_accpepted: filters?.auto_accepted||"all",
+    rerun_status: filters?.rerun_status||"all",
+    // invoice_detection_status: filters?.invoice_detection_status,
     human_verified: filters?.human_verified,
     human_verification_required: filters?.human_verification,
     vendor: filters?.vendor,
@@ -47,7 +47,8 @@ const Sidebar = ({ className }) => {
     restaurant_tier: filters?.restaurant_tier,
     rejected: filters?.rejected,
     extraction_source: filters?.extraction_source,
-    assigned_to: userId
+    assigned_to: userId,
+    auto_accepted_by_vda: filters?.auto_accepted_by_vda,
   });
 
 
@@ -67,7 +68,7 @@ const Sidebar = ({ className }) => {
       count: data?.all_flagged_documents
     },
     {
-      path: "/multi-invoice-documents",
+      path: "/all-multi-invoice-documents",
       text: "All Multiple Invoice Documents",
       image: theme === "light" ? multi_invoice_black : multi_invoice_white,
       hoverImage: multi_invoice_white,
@@ -142,7 +143,7 @@ const Sidebar = ({ className }) => {
       <div className="border h-full dark:border-white/10 bg-white dark:!bg-[#051C14] shadow-lg">
         {expanded && (
           <div
-            onClick={() => setExpanded(true)}
+            onClick={() => setExpanded()}
             className="cursor-pointer flex justify-end w-full"
           >
             <Menu className="cursor-pointer absolute right-2 top-5 dark:text-white" />
@@ -161,7 +162,7 @@ const Sidebar = ({ className }) => {
               if (hasChildren) {
                 e.preventDefault();
                 if (!expanded) {
-                  setExpanded(true);
+                  setExpanded();
                   setTimeout(() => handleToggle(index, true), 150);
                 } else {
                   handleToggle(index, true);
