@@ -329,9 +329,8 @@ const InvoiceGroupAccordion = ({
             f_key === "open_groups" && (
               <div className="flex items-center gap-x-2 ml-4 w-[420px] justify-between">
                 <p className="font-poppins font-medium text-sm">Type</p>
-                <CustomDropDown Value={group?.type} data={[{ label: "Nose", value: "noise" }, {
-                  label: "Incomplete", value: "incomplete"
-                }, {
+                <CustomDropDown Value={group?.type} data={
+                  [{ label: "Noise", value: "noise" }, {
                   label: "Multiple Invoice", value: "multiple_invoice"
                 }, {
                   label: "Unidentified", value: "unidentified"
@@ -1169,6 +1168,8 @@ const MultiInvoiceDocumentsDetails = () => {
           </Button>
           <Button
             onClick={() => {
+              // First Save 
+              
               rejectDocument(data?.data?.[0]?.document_uuid, {
                 onSuccess: () => {
                   queryClient.invalidateQueries(["multi-invoice-documents", payload]);
@@ -1202,12 +1203,27 @@ const MultiInvoiceDocumentsDetails = () => {
           </Button>
           <Button
             onClick={() => {
-              approveDocument(data?.data?.[0]?.document_uuid, {
+               updateDocument(
+                {
+                  document_uuid: data?.data?.[0]?.document_uuid,
+                  data: {
+                    closed_groups: data?.data?.[0]?.closed_groups,
+                    incomplete_groups: data?.data?.[0]?.incomplete_groups,
+                    open_groups: data?.data?.[0]?.open_groups
+                  }
+                },
+                {
+                  onSuccess: () => {
+                     approveDocument(data?.data?.[0]?.document_uuid, {
                 onSuccess: () => {
                   queryClient.invalidateQueries(["multi-invoice-documents", payload]);
                   setShowApproveModal(false);
                 }
               });
+                  }
+                }
+              );
+             
             }}
             disabled={!areAllGroupsChecked() || difference?.length !== 0 || !all_have_indices}
             className="bg-primary text-white font-poppins hover:bg-primary font-normal text-sm h-[2.4rem] w-[6.5rem]"
