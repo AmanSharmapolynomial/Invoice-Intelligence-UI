@@ -229,7 +229,7 @@ const Sidebar = ({ className }) => {
                       <span className="truncate">{option?.text}</span>
                       <div className="flex items-center gap-2">
                         {typeof option?.count === "number" && (
-                          <CustomTooltip content={`${option?.text} Count`}>
+                          <CustomTooltip content={`Unverified Documents Count`} className={"!min-w-fit"}>
                             <span className="text-xs bg-red-500 text-white dark:bg-white/10 dark:text-white px-2 py-1 rounded-full">
                               {option?.count}
                             </span>

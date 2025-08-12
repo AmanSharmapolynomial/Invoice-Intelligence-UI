@@ -472,13 +472,13 @@ const {userId}=userStore()
                             item?.assignment_details?.verification_due_at
                           )
                         )?.includes("ago") && "!text-red-500"
-                          } w-[14.28%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm ${item?.status == "split and merged" ? "!text-primary" : ""} `}
+                          } w-[14.28%] border-b flex !min-h-16    !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-center gap-x-1 font-normal text-sm ${item?.status == "split and merged"||item?.status=="verified" ? "!text-primary" : ""} `}
                       >
                       <CustomTooltip
                       className={"capitalize !min-w-fit"}
                       content={`Assigned to :- ${item?.assignment_details?.assigned_to?.username?.split("_")?.join(" ")}`}
                       >
-                          {item?.status == "split and merged" ? "Completed" : calculateTimeDifference(
+                          {item?.status == "split and merged" || item?.status=="verified" ? "Completed" : calculateTimeDifference(
                           new Date(
                             item?.assignment_details?.verification_due_at
                           )
