@@ -106,7 +106,7 @@ const MyTasks = () => {
     page,
     sort_order,
     human_verified,
-    assigned_to: userId,
+    assigned_to: assigned_to||userId,
     document_priority,
     auto_accepted_by_vda,
     review_later: "false",

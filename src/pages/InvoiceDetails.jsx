@@ -600,11 +600,11 @@ const InvoiceDetails = () => {
   const [reprocessedData, setReprocessedData] = useState({});
   const [shoeReferenceLinkModal, setShowReferenceLinkModal] = useState(false);
   let linkModalTimer;
-  const {userId}=userStore();
+    const {userId}=userStore();
   const { data: sideBarCounts } = useGetSidebarCounts({
     invoice_type: filters?.invoice_type,
-    // start_date: filters?.start_date,
-    // end_date: filters?.end_date,
+    start_date: filters?.start_date,
+    end_date: filters?.end_date,
     clickbacon_status: filters?.clickbacon_status,
     restaurant: filters?.restaurant,
     auto_accpepted: filters?.auto_accepted,
@@ -637,7 +637,7 @@ const InvoiceDetails = () => {
       count: sideBarCounts?.all_flagged_documents
     },
      {
-          path: `/multi-invoice-documents?assigned_to=${userId}`,
+          path: `/all-multi-invoice-documents`,
           text: "All Multiple Invoice Documents",
           image: theme === "light" ? multi_invoice_black : multi_invoice_white,
           hoverImage: multi_invoice_white,
@@ -663,7 +663,7 @@ const InvoiceDetails = () => {
           count: sideBarCounts?.my_tasks?.flagged_documents
         },
              {
-               path: `/multi-invoice-documents?assigned_to=${userId}`,
+               path: `/multi-invoice-documents`,
                text: "Multiple Invoice Documents",
                image: theme === "light" ? multi_invoice_black : multi_invoice_white,
                hoverImage: multi_invoice_white,
@@ -686,12 +686,7 @@ const InvoiceDetails = () => {
       hoverImage: not_supported_white,
       count: sideBarCounts?.not_supported
     },
-    {
-      path: null,
-      text: "Vendor Consolidation",
-      image: theme === "light" ? book_user_black : book_user_white,
-      hoverImage: book_user_white
-    }
+   
   ];
   useEffect(() => {
     const matchingIndex = options.findIndex((option) =>
@@ -720,6 +715,8 @@ const InvoiceDetails = () => {
     useGetVendorBranchPdfs(selectedSimilarBranch?.branch_id);
   console.log(branchPdfs);
   const [showDocumentNotes, setShowDocumentNotes] = useState(false);
+  console.log(expanded)
+
   return (
     <div className="hide-scrollbar relative">
       {/* <div> */}{" "}
@@ -832,7 +829,7 @@ const InvoiceDetails = () => {
         <SheetTrigger asChild>
           <div
             onClick={() => {
-              setExpanded(!true);
+              setExpanded();
             }}
             className={`bg-primary w-5 h-5 rounded-r-sm cursor-pointer  fixed  mt-1  top-16 left-0 !z-50 flex justify-center items-center 
           ${false ? "opacity-0" : "opacity-100"}
@@ -845,7 +842,7 @@ const InvoiceDetails = () => {
           <SheetClose
             asChild
             onClick={() => {
-              setExpanded(!false);
+              setExpanded();
             }}
           >
             <Menu className="h-5 w-5 cursor-pointer absolute right-4 top-2  text-end text-[#000000] " />
@@ -863,7 +860,7 @@ const InvoiceDetails = () => {
                 if (hasChildren) {
                   e.preventDefault();
                   if (!expanded) {
-                    setExpanded(true);
+                    setExpanded();
                     setTimeout(() => handleToggle(index, true), 150);
                   } else {
                     handleToggle(index, true);
@@ -918,7 +915,7 @@ const InvoiceDetails = () => {
                         <div className="flex items-center gap-2">
                           {typeof option.count === "number" && (
                             <CustomTooltip
-                              content={`${option?.text} Count`}
+                              content={`Unverified Documents Count`}
                             >
                               <span className="text-xs bg-red-500 text-white  dark:bg-white/10 dark:text-white px-2 py-1 rounded-full">
                                 {option?.count}

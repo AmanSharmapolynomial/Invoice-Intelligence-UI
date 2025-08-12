@@ -40,7 +40,10 @@ export const useSearchInvoice = () => {
 export const useListMultiInvoiceDocuments = (payload) => {
   return useQuery({
     queryKey: ["multi-invoice-documents", payload],
-    queryFn: () => listMultiInvoiceDocument(payload)
+    queryFn: () => listMultiInvoiceDocument(payload),
+    // refetchOnWindowFocus: true,
+    staleTime:0,
+    cacheTime: 0,
   });
 };
 

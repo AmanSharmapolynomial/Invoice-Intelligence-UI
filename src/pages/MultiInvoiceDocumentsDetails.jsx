@@ -60,6 +60,8 @@ import {
 } from "@/components/ui/sheet";
 import InvoiceFilters from "@/components/invoice/InvoiceFilters";
 import { Modal, ModalDescription } from "@/components/ui/Modal";
+import CustomDropDown from "@/components/ui/CustomDropDown";
+import { v4 as uuidv4 } from "uuid";
 
 const InvoiceGroupAccordion = ({
   group,
@@ -74,10 +76,11 @@ const InvoiceGroupAccordion = ({
 }) => {
   const [newIndex, setNewIndex] = useState("");
   const [addingIndex, setAddingIndex] = useState(false);
-  const [groupIndices, setGroupIndices] = useState(group.page_indices || []);
+  const [groupIndices, setGroupIndices] = useState(group?.page_indices || []);
   useEffect(() => {
     setAddingIndex(false);
     setNewIndex("");
+    setGroupIndices(group?.page_indices || []);
   }, [resetTrigger]);
 
   const invoiceToCompanyMap = useMemo(() => {
@@ -168,10 +171,8 @@ const InvoiceGroupAccordion = ({
 
     let myData = copyData?.data?.[0];
     myData?.[f_key]?.forEach((g) => {
-      if (
-       ( g?.invoice_number === group?.invoice_number &&
-        g?.vendor_name === group?.vendor_name)||g?.type==group?.type
-      ) {
+      if 
+        (g?.id === group?.id) {
         g.page_indices = updatedIndices;
       }
     });
@@ -188,17 +189,17 @@ const InvoiceGroupAccordion = ({
     let myData = copyData?.data?.[0];
     if (f_key == "open_groups") {
       myData[f_key] = myData?.[f_key]?.filter(
-        (g) => g?.type !== group?.type
+        (g) => g?.id !== group?.id
       );
     } else {
 
       myData[f_key] = myData?.[f_key]?.filter(
-        (g) => g?.invoice_number !== group?.invoice_number
+        (g) => g?.id !== group?.id
       );
     }
     queryClient.setQueryData(["multi-invoice-documents", payload], copyData);
     setCheckedIndices((prev) =>
-      prev?.filter((id) => id !== group?.invoice_number)
+      prev?.filter((id) => id !== group?.id)
     );
   }
 
@@ -240,6 +241,7 @@ const InvoiceGroupAccordion = ({
                 onClick={(e) => {
                   e.stopPropagation();
                   setEditing(false);
+
                 }}
               >
                 <Save />
@@ -249,7 +251,7 @@ const InvoiceGroupAccordion = ({
         </div>}
         title={
           f_key == "open_groups"
-            ? `${group?.type || ""}`
+            ? `${group?.type?.split("_")?.join(" ") || ""}`
             : `${group?.vendor_name} ${group?.vendor_name && group?.invoice_number && "|"} ${group?.invoice_number}`
         }
       >
@@ -278,7 +280,7 @@ const InvoiceGroupAccordion = ({
                 queryClient.setQueryData(["multi-invoice-documents", payload], copyData);
                 setCheckedIndices((prev) =>
                   prev?.map((id) =>
-                    id === group?.invoice_number ? e.target.value : id
+                    id === group?.id
 
                   )
                 );
@@ -321,10 +323,18 @@ const InvoiceGroupAccordion = ({
             f_key === "open_groups" && (
               <div className="flex items-center gap-x-2 ml-4 w-[420px] justify-between">
                 <p className="font-poppins font-medium text-sm">Type</p>
-                <Input
-                  className="w-72"
-                  value={group?.type || ""}
-                  onChange={(e) => {
+                <CustomDropDown value={group?.type || ""} data={[{ label: "Nose", value: "noise" }, {
+                  label: "Incomplete", value: "incomplete"
+                }, {
+                  label: "Multiple Invoice", value: "multiple_invoice"
+                }, {
+                  label: "Unidentified", value: "unidentified"
+                }
+
+                ]}
+
+                  onChange={(v) => {
+
                     let copyData = JSON.parse(
                       JSON.stringify(queryClient.getQueryData(["multi-invoice-documents", payload]))
                     );
@@ -335,14 +345,14 @@ const InvoiceGroupAccordion = ({
                         g?.invoice_number === group?.invoice_number &&
                         g?.type === group?.type
                       ) {
-                        return { ...g, type: e.target.value };
+                        return { ...g, type: v };
                       }
                       return g;
                     });
                     queryClient.setQueryData(["multi-invoice-documents", payload], copyData);
                   }}
-                  placeholder="Type"
                 />
+
               </div>
             )
           }
@@ -402,24 +412,24 @@ const InvoiceGroupAccordion = ({
             </Button>
             <Checkbox
               className="h-5 w-5"
-              checked={checkedIndices.includes(f_key == "open_groups" ? group?.type : group?.invoice_number)}
+              checked={checkedIndices.includes(group?.id)}
               onCheckedChange={(isChecked) => {
                 if (isChecked) {
                   if (f_key === "open_groups") {
-                    setCheckedIndices((prev) => [...prev, group?.type]);
+                    setCheckedIndices((prev) => [...prev, group?.id]);
                   } else {
 
-                    setCheckedIndices((prev) => [...prev, group?.invoice_number]);
+                    setCheckedIndices((prev) => [...prev, group?.id]);
                   }
                 } else {
                   if (f_key === "open_groups") {
                     setCheckedIndices((prev) =>
-                      prev?.filter((id) => id !== group?.type)
+                      prev?.filter((id) => id !== group?.id)
                     );
                   } else {
 
                     setCheckedIndices((prev) =>
-                      prev?.filter((id) => id !== group?.invoice_number)
+                      prev?.filter((id) => id !== group?.id)
                     )
                   }
                 }
@@ -516,7 +526,7 @@ const MultiInvoiceDocumentsDetails = () => {
     extraction_source,
     detailed_view
   };
-  const { data, isLoading } = useListMultiInvoiceDocuments(payload);
+  const { data, isLoading,refetch } = useListMultiInvoiceDocuments(payload);
   const {
     mutate: rejectDocument,
     isPending: rejecting,
@@ -604,7 +614,7 @@ const MultiInvoiceDocumentsDetails = () => {
       ...(myData?.open_groups || []),
       ...(myData?.incomplete_groups || [])
     ];
-    return allGroups?.map((g) => g?.invoice_number ||g?.type);
+    return allGroups?.map((g) => g?.id);
   };
 
   const areAllGroupsChecked = () => {
@@ -624,7 +634,7 @@ const MultiInvoiceDocumentsDetails = () => {
         ...(data?.data?.[0]?.open_groups || []),
         ...(data?.data?.[0]?.incomplete_groups || [])
       ].flatMap(it => it?.page_indices);
-     console.log(indices,"indices")
+    
       setAllIndices(indices);
     }
   }, [data, allIndices.length]);
@@ -641,11 +651,6 @@ const MultiInvoiceDocumentsDetails = () => {
     ...removed
   ];
 
-  useEffect(() => {
-    setAllIndices([]);
-    setCurrentPageIndex(null)
-
-  }, [page])
 
   let all_have_indices = useMemo(() => {
     return [
@@ -665,9 +670,10 @@ const MultiInvoiceDocumentsDetails = () => {
     let newGroup = {};
     if (group_type !== "open_groups") {
       newGroup = {
-        invoice_number: invoiceNumber,
-        vendor_name: vendor,
+        invoice_number: "",
+        vendor_name: "",
         page_indices: [],
+        id: uuidv4(),
       };
       myData[group_type] = [
         ...myData[group_type],
@@ -677,16 +683,42 @@ const MultiInvoiceDocumentsDetails = () => {
     } else {
       newGroup = {
         page_indices: [],
-        type: ""
+        type: "",
+        id: uuidv4(),
       };
       myData[group_type] = [
         ...myData[group_type],
-        newGroup
+        newGroup,
+
       ];
     }
     queryClient.setQueryData(["multi-invoice-documents", payload], copyData);
   }
-  console.log(allIndices)
+  // Add id in all the groups
+  useEffect(() => {
+    if (data && data?.data?.[0]) {
+      let copyData = JSON.parse(JSON.stringify(data));
+      if (!copyData) return;
+      let myData = copyData?.data?.[0];
+      [...myData?.closed_groups, ...myData?.open_groups, ...myData?.incomplete_groups].forEach((group) => {
+        if (!group.id) {
+          group.id = uuidv4();
+        }
+      });
+      console.log("Updated data with IDs:", copyData);
+      queryClient.setQueryData(["multi-invoice-documents", payload], copyData);
+      setResetTrigger(prev => prev + 1); // Trigger reset to re-render
+
+    }
+  }, [data]);
+  let action_controls = data?.data?.[0]?.action_controls
+
+  useEffect(() => {
+    setAllIndices([]);
+    setCurrentPageIndex(null);
+
+  }, [page])
+
   return (
     <div className="!h-screen  flex w-full " id="maindiv">
       <Sidebar />
@@ -867,9 +899,9 @@ const MultiInvoiceDocumentsDetails = () => {
             <CustomTooltip
               className={"!min-w-fit"}
               content={
-                !areAllGroupsChecked()
-                  ? "Check all the checkboxes in all groups to reject the document."
-                  : difference?.length !== 0 ? "Some Page Indices are missing." : !all_have_indices ? "Some groups are without page indices." : ""
+                action_controls?.reject?.disabled ? action_controls?.reject?.reason : difference?.length !== 0 ? "Some Page Indices are missing." : !all_have_indices ? "Some groups are without page indices." : !areAllGroupsChecked()
+                  ? "Check all the checkboxes in all groups to reject the document." : ""
+
               }
             >
               <Button
@@ -877,7 +909,7 @@ const MultiInvoiceDocumentsDetails = () => {
                   setShowRejectModal(true);
 
                 }}
-                disabled={!areAllGroupsChecked() || difference?.length !== 0 || !all_have_indices}
+                disabled={action_controls?.reject?.disabled || !areAllGroupsChecked() || difference?.length !== 0 || !all_have_indices}
                 className="bg-transparent min-w-[6.5rem] max-w-fit dark:text-white h-[2.4rem] border-[#F15156]  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
               >
                 {rejecting && !errorRejecting ? "Rejecting..." : "Mark as Single Invoice"}
@@ -886,9 +918,8 @@ const MultiInvoiceDocumentsDetails = () => {
             <CustomTooltip
               className={"!min-w-fit"}
               content={
-                !areAllGroupsChecked()
-                  ? "Check all the checkboxes in all groups to approve the document."
-                  : difference?.length !== 0 ? "Some Page Indices are missing." : !all_have_indices ? "Some groups are without page indices." : ""
+                action_controls?.approve?.disabled ? action_controls?.approve?.reason : difference?.length !== 0 ? "Some Page Indices are missing." : !all_have_indices ? "Some groups are without page indices." : !areAllGroupsChecked()
+                  ? "Check all the checkboxes in all groups to reject the document." : ""
               }
             >
               <Button
@@ -897,7 +928,7 @@ const MultiInvoiceDocumentsDetails = () => {
                   setShowApproveModal(true);
 
                 }}
-                disabled={!areAllGroupsChecked() || difference?.length !== 0 || !all_have_indices}
+                disabled={action_controls?.approve?.disabled || !areAllGroupsChecked() || difference?.length !== 0 || !all_have_indices}
                 className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
               >
                 {approving && !errorApproving ? "Approving..." : "Approve"}
@@ -906,9 +937,8 @@ const MultiInvoiceDocumentsDetails = () => {
             <CustomTooltip
               className={"!min-w-fit"}
               content={
-                !areAllGroupsChecked()
-                  ? "Check all the checkboxes in all groups to save the document."
-                  : difference?.length !== 0 ? "Some Page Indices are missing." : !all_have_indices ? "Some groups are without page indices." : ""
+                action_controls?.save?.disabled ? action_controls?.save?.reason : difference?.length !== 0 ? "Some Page Indices are missing." : !all_have_indices ? "Some groups are without page indices." : !areAllGroupsChecked()
+                  ? "Check all the checkboxes in all groups to reject the document." : ""
               }
 
             >
@@ -930,7 +960,7 @@ const MultiInvoiceDocumentsDetails = () => {
                     }
                   );
                 }}
-                disabled={!areAllGroupsChecked() || difference?.length !== 0 || !all_have_indices}
+                disabled={action_controls?.save?.disabled || !areAllGroupsChecked() || difference?.length !== 0 || !all_have_indices}
                 className="font-poppins h-[2.4rem] dark:text-white font-normal text-sm w-[6.5rem] leading-5 border-2 border-primary text-[#ffffff]"
               >
                 {updating && !errorUpdating ? "Saving..." : "Save"}
@@ -1019,7 +1049,7 @@ const MultiInvoiceDocumentsDetails = () => {
                             group={group}
                             payload={payload}
                             f_key={"closed_groups"}
-                            pagesCount={totalInvoicePages}
+                            pagesCount={allIndices}
                             resetTrigger={resetTrigger}
                             checkedIndices={checkedIndices}
                             setCheckedIndices={setCheckedIndices}
@@ -1058,7 +1088,7 @@ const MultiInvoiceDocumentsDetails = () => {
                             group={group}
                             payload={payload}
                             f_key={"incomplete_groups"}
-                            pagesCount={totalInvoicePages}
+                            pagesCount={allIndices}
                             resetTrigger={resetTrigger}
                             checkedIndices={checkedIndices}
                             setCheckedIndices={setCheckedIndices}
@@ -1097,7 +1127,7 @@ const MultiInvoiceDocumentsDetails = () => {
                             group={group}
                             payload={payload}
                             f_key={"open_groups"}
-                            pagesCount={totalInvoicePages}
+                            pagesCount={allIndices}
                             resetTrigger={resetTrigger}
                             checkedIndices={checkedIndices}
                             setCheckedIndices={setCheckedIndices}
@@ -1169,7 +1199,7 @@ const MultiInvoiceDocumentsDetails = () => {
             onClick={() => {
               approveDocument(data?.data?.[0]?.document_uuid, {
                 onSuccess: () => {
-                    queryClient.invalidateQueries(["multi-invoice-documents", payload]);
+                  queryClient.invalidateQueries(["multi-invoice-documents", payload]);
                   setShowApproveModal(false);
                 }
               });
