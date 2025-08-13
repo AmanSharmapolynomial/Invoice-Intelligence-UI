@@ -98,7 +98,6 @@ const InvoiceGroupAccordion = ({
     const indexNum = parseInt(newIndex);
 
     // Basic validation with toasts
-    console.log("Adding index:", indexNum, pagesCount, "for group:", group);
     if (indexNum
       > pagesCount
     ) {
@@ -134,7 +133,6 @@ const InvoiceGroupAccordion = ({
       ...(data?.data?.[0]?.["incomplete_groups"] || [])
     ].flat();
 
-    console.log(allGroups);
     const usedIndicesInCompany = allGroups?.flatMap(
       (g) => g.page_indices || []
     );
@@ -212,7 +210,7 @@ const InvoiceGroupAccordion = ({
   }
 
   const [editing, setEditing] = useState(false);
-  console.log(checkedIndices)
+  
   return (
     <div className="my-1">
       <CustomAccordion
@@ -678,6 +676,7 @@ const MultiInvoiceDocumentsDetails = () => {
         vendor_name: "",
         page_indices: [],
         id: uuidv4(),
+        group_type
       };
       myData[group_type] = [
         ...myData[group_type],
@@ -689,6 +688,7 @@ const MultiInvoiceDocumentsDetails = () => {
         page_indices: [],
         type: "",
         id: uuidv4(),
+         group_type
       };
       myData[group_type] = [
         ...myData[group_type],
@@ -704,12 +704,25 @@ const MultiInvoiceDocumentsDetails = () => {
       let copyData = JSON.parse(JSON.stringify(data));
       if (!copyData) return;
       let myData = copyData?.data?.[0];
-      [...myData?.closed_groups, ...myData?.open_groups, ...myData?.incomplete_groups].forEach((group) => {
+      myData?.closed_groups?.forEach((group) => {
         if (!group.id) {
           group.id = uuidv4();
+          group.group_type="closed_groups"
         }
       });
-      console.log("Updated data with IDs:", copyData);
+      myData?.open_groups?.forEach((group) => {
+        if (!group.id) {
+          group.id = uuidv4();
+          group.group_type="open_groups"
+        }
+      });
+      myData?.incomplete_groups?.forEach((group) => {
+        if (!group.id) {
+          group.id = uuidv4();
+          group.group_type="incomplete_groups"
+        }
+      });
+
       queryClient.setQueryData(["multi-invoice-documents", payload], copyData);
       setResetTrigger(prev => prev + 1); // Trigger reset to re-render
 
@@ -729,17 +742,19 @@ const checkAllHaveCorrectData = () => {
     ...(data?.data?.[0]?.open_groups || []),
     ...(data?.data?.[0]?.incomplete_groups || [])
   ];
-
+  console.log(all_groups)
+ 
   return all_groups?.every(group => {
     if (group?.group_type === "open_groups") {
       // For open groups, check for "type"
       return Boolean(group?.type);
     } else {
       // For closed/incomplete, check invoice_number & vendor
-      return Boolean(group?.invoice_number && group?.vendor);
+      return Boolean(group?.invoice_number && group?.vendor_name);
     }
   });
 };
+
 
   return (
     <div className="!h-screen  flex w-full " id="maindiv">
