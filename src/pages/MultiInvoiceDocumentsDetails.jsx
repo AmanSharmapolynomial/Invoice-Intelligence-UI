@@ -331,12 +331,12 @@ const InvoiceGroupAccordion = ({
                 <p className="font-poppins font-medium text-sm">Type</p>
                 <CustomDropDown Value={group?.type} data={
                   [{ label: "Noise", value: "noise" }, {
-                  label: "Multiple Invoice", value: "multiple_invoice"
-                }, {
-                  label: "Unidentified", value: "unidentified"
-                }
+                    label: "Multiple Invoice", value: "multiple_invoice"
+                  }, {
+                    label: "Unidentified", value: "unidentified"
+                  }
 
-                ]}
+                  ]}
 
                   onChange={(v) => {
 
@@ -722,6 +722,24 @@ const MultiInvoiceDocumentsDetails = () => {
     setCurrentPageIndex(null);
 
   }, [page])
+const checkAllHaveCorrectData = () => {
+  // Merge all groups into one array
+  const all_groups = [
+    ...(data?.data?.[0]?.closed_groups || []),
+    ...(data?.data?.[0]?.open_groups || []),
+    ...(data?.data?.[0]?.incomplete_groups || [])
+  ];
+
+  return all_groups?.every(group => {
+    if (group?.group_type === "open_groups") {
+      // For open groups, check for "type"
+      return Boolean(group?.type);
+    } else {
+      // For closed/incomplete, check invoice_number & vendor
+      return Boolean(group?.invoice_number && group?.vendor);
+    }
+  });
+};
 
   return (
     <div className="!h-screen  flex w-full " id="maindiv">
@@ -923,7 +941,7 @@ const MultiInvoiceDocumentsDetails = () => {
               className={"!min-w-fit"}
               content={
                 action_controls?.approve?.disabled ? action_controls?.approve?.reason : difference?.length !== 0 ? "Some Page Indices are missing." : !all_have_indices ? "Some groups are without page indices." : !areAllGroupsChecked()
-                  ? "Check all the checkboxes in all groups to reject the document." : ""
+                  ? "Check all the checkboxes in all groups to reject the document." :!checkAllHaveCorrectData() ?"Vendor Name or Invoice Number or Type is missing in some groups.": ""
               }
             >
               <Button
@@ -932,7 +950,7 @@ const MultiInvoiceDocumentsDetails = () => {
                   setShowApproveModal(true);
 
                 }}
-                disabled={action_controls?.approve?.disabled || !areAllGroupsChecked() || difference?.length !== 0 || !all_have_indices}
+                disabled={action_controls?.approve?.disabled ||!checkAllHaveCorrectData()|| !areAllGroupsChecked() || difference?.length !== 0 || !all_have_indices}
                 className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
               >
                 {approving && !errorApproving ? "Approving..." : "Approve"}
@@ -942,7 +960,7 @@ const MultiInvoiceDocumentsDetails = () => {
               className={"!min-w-fit"}
               content={
                 action_controls?.save?.disabled ? action_controls?.save?.reason : difference?.length !== 0 ? "Some Page Indices are missing." : !all_have_indices ? "Some groups are without page indices." : !areAllGroupsChecked()
-                  ? "Check all the checkboxes in all groups to reject the document." : ""
+                  ? "Check all the checkboxes in all groups to reject the document." :!checkAllHaveCorrectData() ?"Vendor Name or Invoice Number or Type is missing in some groups.": ""
               }
 
             >
@@ -964,7 +982,7 @@ const MultiInvoiceDocumentsDetails = () => {
                     }
                   );
                 }}
-                disabled={action_controls?.save?.disabled || !areAllGroupsChecked() || difference?.length !== 0 || !all_have_indices}
+                disabled={action_controls?.save?.disabled||!checkAllHaveCorrectData() || !areAllGroupsChecked() || difference?.length !== 0 || !all_have_indices}
                 className="font-poppins h-[2.4rem] dark:text-white font-normal text-sm w-[6.5rem] leading-5 border-2 border-primary text-[#ffffff]"
               >
                 {updating && !errorUpdating ? "Saving..." : "Save"}
@@ -1169,7 +1187,7 @@ const MultiInvoiceDocumentsDetails = () => {
           <Button
             onClick={() => {
               // First Save 
-              
+
               rejectDocument(data?.data?.[0]?.document_uuid, {
                 onSuccess: () => {
                   queryClient.invalidateQueries(["multi-invoice-documents", payload]);
@@ -1203,7 +1221,7 @@ const MultiInvoiceDocumentsDetails = () => {
           </Button>
           <Button
             onClick={() => {
-               updateDocument(
+              updateDocument(
                 {
                   document_uuid: data?.data?.[0]?.document_uuid,
                   data: {
@@ -1214,16 +1232,16 @@ const MultiInvoiceDocumentsDetails = () => {
                 },
                 {
                   onSuccess: () => {
-                     approveDocument(data?.data?.[0]?.document_uuid, {
-                onSuccess: () => {
-                  queryClient.invalidateQueries(["multi-invoice-documents", payload]);
-                  setShowApproveModal(false);
-                }
-              });
+                    approveDocument(data?.data?.[0]?.document_uuid, {
+                      onSuccess: () => {
+                        queryClient.invalidateQueries(["multi-invoice-documents", payload]);
+                        setShowApproveModal(false);
+                      }
+                    });
                   }
                 }
               );
-             
+
             }}
             disabled={!areAllGroupsChecked() || difference?.length !== 0 || !all_have_indices}
             className="bg-primary text-white font-poppins hover:bg-primary font-normal text-sm h-[2.4rem] w-[6.5rem]"
