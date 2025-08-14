@@ -62,7 +62,8 @@ import InvoiceFilters from "@/components/invoice/InvoiceFilters";
 import { Modal, ModalDescription } from "@/components/ui/Modal";
 import CustomDropDown from "@/components/ui/CustomDropDown";
 import { v4 as uuidv4 } from "uuid";
-
+import { useMarkAsNotSupported } from "@/components/invoice/api";
+import warning from "@/assets/image/warning.svg";
 const InvoiceGroupAccordion = ({
   group,
   f_key,
@@ -210,7 +211,7 @@ const InvoiceGroupAccordion = ({
   }
 
   const [editing, setEditing] = useState(false);
-  
+
   return (
     <div className="my-1">
       <CustomAccordion
@@ -688,7 +689,7 @@ const MultiInvoiceDocumentsDetails = () => {
         page_indices: [],
         type: "",
         id: uuidv4(),
-         group_type
+        group_type
       };
       myData[group_type] = [
         ...myData[group_type],
@@ -707,19 +708,19 @@ const MultiInvoiceDocumentsDetails = () => {
       myData?.closed_groups?.forEach((group) => {
         if (!group.id) {
           group.id = uuidv4();
-          group.group_type="closed_groups"
+          group.group_type = "closed_groups"
         }
       });
       myData?.open_groups?.forEach((group) => {
         if (!group.id) {
           group.id = uuidv4();
-          group.group_type="open_groups"
+          group.group_type = "open_groups"
         }
       });
       myData?.incomplete_groups?.forEach((group) => {
         if (!group.id) {
           group.id = uuidv4();
-          group.group_type="incomplete_groups"
+          group.group_type = "incomplete_groups"
         }
       });
 
@@ -735,27 +736,28 @@ const MultiInvoiceDocumentsDetails = () => {
     setCurrentPageIndex(null);
 
   }, [page])
-const checkAllHaveCorrectData = () => {
-  // Merge all groups into one array
-  const all_groups = [
-    ...(data?.data?.[0]?.closed_groups || []),
-    ...(data?.data?.[0]?.open_groups || []),
-    ...(data?.data?.[0]?.incomplete_groups || [])
-  ];
-  console.log(all_groups)
- 
-  return all_groups?.every(group => {
-    if (group?.group_type === "open_groups") {
-      // For open groups, check for "type"
-      return Boolean(group?.type);
-    } else {
-      // For closed/incomplete, check invoice_number & vendor
-      return Boolean(group?.invoice_number && group?.vendor_name);
-    }
-  });
-};
+  const checkAllHaveCorrectData = () => {
+    // Merge all groups into one array
+    const all_groups = [
+      ...(data?.data?.[0]?.closed_groups || []),
+      ...(data?.data?.[0]?.open_groups || []),
+      ...(data?.data?.[0]?.incomplete_groups || [])
+    ];
+    console.log(all_groups)
 
+    return all_groups?.every(group => {
+      if (group?.group_type === "open_groups") {
+        // For open groups, check for "type"
+        return Boolean(group?.type);
+      } else {
+        // For closed/incomplete, check invoice_number & vendor
+        return Boolean(group?.invoice_number && group?.vendor_name);
+      }
+    });
+  };
 
+  const { mutate: markAsNotSupported, isPending, isError } = useMarkAsNotSupported()
+  const [markAsNotSupportedModal, setMarkAsNotSupportedModal] = useState(false);
   return (
     <div className="!h-screen  flex w-full " id="maindiv">
       <Sidebar />
@@ -933,6 +935,15 @@ const checkAllHaveCorrectData = () => {
                 <Share2 className="dark:text-white" />
               </Button>
             </CustomTooltip>
+           <CustomTooltip className={"!min-w-fit"} content={"Click to Mark this document as Not Supported."}>
+             <Button
+
+              onClick={() => setMarkAsNotSupportedModal(true)}
+              className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[7.25rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+            >
+              Not Supported
+            </Button>
+           </CustomTooltip>
             <CustomTooltip
               className={"!min-w-fit"}
               content={
@@ -956,7 +967,7 @@ const checkAllHaveCorrectData = () => {
               className={"!min-w-fit"}
               content={
                 action_controls?.approve?.disabled ? action_controls?.approve?.reason : difference?.length !== 0 ? "Some Page Indices are missing." : !all_have_indices ? "Some groups are without page indices." : !areAllGroupsChecked()
-                  ? "Check all the checkboxes in all groups to reject the document." :!checkAllHaveCorrectData() ?"Vendor Name or Invoice Number or Type is missing in some groups.": ""
+                  ? "Check all the checkboxes in all groups to reject the document." : !checkAllHaveCorrectData() ? "Vendor Name or Invoice Number or Type is missing in some groups." : ""
               }
             >
               <Button
@@ -965,7 +976,7 @@ const checkAllHaveCorrectData = () => {
                   setShowApproveModal(true);
 
                 }}
-                disabled={action_controls?.approve?.disabled ||!checkAllHaveCorrectData()|| !areAllGroupsChecked() || difference?.length !== 0 || !all_have_indices}
+                disabled={action_controls?.approve?.disabled || !checkAllHaveCorrectData() || !areAllGroupsChecked() || difference?.length !== 0 || !all_have_indices}
                 className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
               >
                 {approving && !errorApproving ? "Approving..." : "Approve"}
@@ -975,7 +986,7 @@ const checkAllHaveCorrectData = () => {
               className={"!min-w-fit"}
               content={
                 action_controls?.save?.disabled ? action_controls?.save?.reason : difference?.length !== 0 ? "Some Page Indices are missing." : !all_have_indices ? "Some groups are without page indices." : !areAllGroupsChecked()
-                  ? "Check all the checkboxes in all groups to reject the document." :!checkAllHaveCorrectData() ?"Vendor Name or Invoice Number or Type is missing in some groups.": ""
+                  ? "Check all the checkboxes in all groups to reject the document." : !checkAllHaveCorrectData() ? "Vendor Name or Invoice Number or Type is missing in some groups." : ""
               }
 
             >
@@ -997,7 +1008,7 @@ const checkAllHaveCorrectData = () => {
                     }
                   );
                 }}
-                disabled={action_controls?.save?.disabled||!checkAllHaveCorrectData() || !areAllGroupsChecked() || difference?.length !== 0 || !all_have_indices}
+                disabled={action_controls?.save?.disabled || !checkAllHaveCorrectData() || !areAllGroupsChecked() || difference?.length !== 0 || !all_have_indices}
                 className="font-poppins h-[2.4rem] dark:text-white font-normal text-sm w-[6.5rem] leading-5 border-2 border-primary text-[#ffffff]"
               >
                 {updating && !errorUpdating ? "Saving..." : "Save"}
@@ -1265,6 +1276,50 @@ const checkAllHaveCorrectData = () => {
           </Button>
         </div>
 
+      </Modal>
+      <Modal
+        open={markAsNotSupportedModal}
+        showXicon={true}
+        className={"max-w-[25rem] !rounded-xl"}
+        setOpen={setMarkAsNotSupportedModal}
+      >
+        <ModalDescription>
+          <div className="w-full flex  flex-col justify-center h-full items-center  ">
+            <img src={warning} alt="" className="h-16 w-16 mb-2 mt-4" />
+            <p className="font-poppins font-semibold text-base leading-6  text-[#000000]">
+              Warning
+            </p>
+            <p className="px-8 !text-center mt-2 text-[#666667] font-poppins font-normal  text-sm leading-4">
+              Are you sure to mark this document as Not Supported ?
+            </p>
+            <div className="flex items-center gap-x-4 mb-4 mt-8">
+              <Button
+                onClick={() => setMarkAsNotSupportedModal(false)}
+                className="rounded-sm !w-[4.5rem] !font-poppins bg-transparent border border-primary shadow-none text-[#000000] font-normal text-xs hover:bg-transparent"
+              >
+                No
+              </Button>
+              <Button
+                onClick={() => {
+                  markAsNotSupported(
+                    data?.data?.document_uuid ||
+                    data?.data?.[0]?.document_uuid,
+                    {
+                      onSuccess: () => {
+                        setMarkAsNotSupportedModal(false);
+                        queryClient.invalidateQueries('multi-invoice-documents')
+                      }
+                    }
+                  );
+                }}
+                disabled={isPending && !isError}
+                className="rounded-sm !w-[4.5rem] !font-poppins text-xs font-normal"
+              >
+                {isPending && !isError ? "Marking..." : "Yes"}
+              </Button>
+            </div>
+          </div>
+        </ModalDescription>
       </Modal>
     </div>
   );

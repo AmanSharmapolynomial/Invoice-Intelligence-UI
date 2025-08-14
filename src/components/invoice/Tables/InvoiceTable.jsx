@@ -438,7 +438,7 @@ const InvoiceTable = ({
                         } text-sm `}
                       >
                         <div className="flex items-center justify-between w-full gap-x-4">
-                          <span>
+                          <span className="max-w-20 break-words whitespace-normal">
                             {" "}
                             {restaurant?.restaurant_name !== null
                               ? restaurant?.restaurant_name
