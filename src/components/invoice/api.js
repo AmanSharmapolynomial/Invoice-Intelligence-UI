@@ -450,3 +450,31 @@ export const useGetSupportedUnsupportedOptions=()=>{
     }
   })
 }
+
+
+
+export const useMarkAsMultiInvoice = () => {
+  return useMutation({
+    mutationFn: async (document_uuid) => {
+      const response = await axiosInstance.post(
+        `/api/document/${document_uuid}/mark-as-multiple-invoice-document/`
+      );
+      return response;
+    },
+    onSuccess: (data) => {
+      toast.success(
+        `${data?.message} ${
+          data?.data?.updated_fields?.length > 0
+            ? `Updated Fields:-${data?.data?.updated_fields?.join(" , ")}`
+            : ``
+        }`,
+        {
+          autoClose: 2000
+        }
+      );
+    },
+    onError: (data) => {
+      toast.error(data?.message);
+    }
+  });
+};
