@@ -13,6 +13,7 @@ import {
   useGetDocumentNotes,
   useGetSimilarBranches,
   useGetSimilarVendors,
+  useMarkAsMultiInvoice,
   useMarkAsNotSupported,
   useMarkReviewLater,
   useReprocessDocument,
@@ -46,8 +47,6 @@ import { invoiceDetailStore } from "@/store/invoiceDetailStore";
 
 import all_invoices_black from "@/assets/image/all_invoices_black.svg";
 import all_invoices_white from "@/assets/image/all_invoices_white.svg";
-import book_user_black from "@/assets/image/book_user_black.svg";
-import book_user_white from "@/assets/image/book_user_white.svg";
 import my_tasks_black from "@/assets/image/check_book_black.svg";
 import my_tasks_white from "@/assets/image/check_book_white.svg";
 import flagged_black from "@/assets/image/flagged_black.svg";
@@ -97,17 +96,20 @@ import persistStore from "@/store/persistStore";
 import useThemeStore from "@/store/themeStore";
 import {
   ArrowRight,
-  BookIcon,
   ChevronDown,
   ChevronRight,
   ChevronUp,
   Clock,
   Copy,
   FileText,
+  FileX,
   Filter,
+  Flag,
   Info,
   Menu,
   NotebookTabs,
+  RefreshCcwDot,
+  Save,
   Share2,
   X
 } from "lucide-react";
@@ -121,10 +123,10 @@ import {
 } from "react-router-dom";
 // import book_user_white from "@/assets/image/book_user_white.svg";
 // import book_user_black from "@/assets/image/book_user_black.svg";
-import { useGetSidebarCounts } from "@/components/common/api";
-import useSidebarStore from "@/store/sidebarStore";
 import multi_invoice_black from "@/assets/image/multi_invoice_black.svg";
 import multi_invoice_white from "@/assets/image/multi_invoice_white.svg";
+import { useGetSidebarCounts } from "@/components/common/api";
+import useSidebarStore from "@/store/sidebarStore";
 const rejectionReasons = [
   "Duplicate invoice",
   "Multiple invoices in one PDF",
@@ -191,7 +193,8 @@ const InvoiceDetails = () => {
     markingForReview: false,
     markingAsNotSupported: false,
     reverting: false,
-    reprocessing: false
+    reprocessing: false,
+    mutliInvoceMarking:false
   });
 
   const { data: similarVendors, isLoading: loadingSimilarVendors } =
@@ -217,6 +220,7 @@ const InvoiceDetails = () => {
     useMarkReviewLater();
   const { mutate: saveDocumentTable } = useUpdateDocumentTable();
   const { mutate: markAsNotSupported } = useMarkAsNotSupported();
+  const { mutate: markAsMutlipleInvoice } = useMarkAsMultiInvoice();
   const { selectedInvoiceVendorName, selectedInvoiceRestaurantName } =
     globalStore();
   const [showAgentValidation, setShowAgentValidation] = useState(false);
@@ -717,6 +721,7 @@ const InvoiceDetails = () => {
   const [showDocumentNotes, setShowDocumentNotes] = useState(false);
   console.log(expanded)
 
+const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
   return (
     <div className="hide-scrollbar relative">
       {/* <div> */}{" "}
@@ -1455,7 +1460,7 @@ const InvoiceDetails = () => {
               />
               {(role?.toLowerCase() == "admin" ||
                 role?.toLowerCase() == "manager") && (
-                <CustomTooltip content={"Click To reset the invoice status ."}>
+                <CustomTooltip content={"Click To reset the invoice status ."} className={"!min-w-fit"}>
                   <Button
                     onClick={() => {
                       setLoadingState((prev) => ({ ...prev, reverting: true }));
@@ -1487,9 +1492,9 @@ const InvoiceDetails = () => {
                       loadingState?.accepting ||
                       loadingState?.saving
                     }
-                    className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                    className="bg-transparent h-[2.4rem] dark:text-white border-primary  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                   >
-                    {loadingState?.reverting ? "Resetting.." : "Reset Status"}
+                    {loadingState?.reverting ? "Resetting.." : <RefreshCcwDot/>}
                   </Button>
                 </CustomTooltip>
               )}
@@ -1515,9 +1520,35 @@ const InvoiceDetails = () => {
                     loadingState?.accepting ||
                     loadingState?.saving
                   }
-                  className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                  className="bg-transparent h-[2.4rem] dark:text-white border-primary  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                 >
-                  Review Later
+                  <Flag/>
+                </Button>
+              </CustomTooltip>
+               <CustomTooltip
+               className={"!min-w-fit"}
+                content={
+                 "Click To Mark this Document as Multiple Invoice Document."
+                }
+              >
+                <Button
+                  onClick={() => {
+                    setShowMultipleInvoiceModal(true);
+                    return;
+                  }}
+                  disabled={
+                    action_controls?.review_later?.disabled ||
+                    markingForReview ||
+                    loadingState?.rejecting ||
+                    loadingState?.markingAsNotSupported ||
+                    loadingState?.markingForReview ||
+                    loadingState?.reverting ||
+                    loadingState?.accepting ||
+                    loadingState?.saving||loadingState?.mutliInvoceMarking
+                  }
+                  className="bg-transparent h-[2.4rem] dark:text-white border-primary  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                >
+                  Multiple Invoice 
                 </Button>
               </CustomTooltip>
               <CustomTooltip
@@ -1592,6 +1623,7 @@ const InvoiceDetails = () => {
                     ? action_controls?.mark_as_not_supported?.reason
                     : "Click To Mark This Document As Not Supported."
                 }
+                className={"!min-w-fit"}
               >
                 <Button
                   disabled={
@@ -1604,9 +1636,9 @@ const InvoiceDetails = () => {
                     loadingState?.saving
                   }
                   onClick={() => setMarkAsNotSupportedModal(true)}
-                  className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[7.25rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                  className="bg-transparent h-[2.4rem] dark:text-white border-primary !p-0 !w-[2.4rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                 >
-                  Not Supported
+                  <FileX className="!w-[1.1rem] !h-[1.2rem] text-black "/>
                 </Button>
               </CustomTooltip>
 
@@ -1630,9 +1662,9 @@ const InvoiceDetails = () => {
                     loadingState?.saving
                   }
                   onClick={() => handleSave()}
-                  className="font-poppins h-[2.4rem] dark:text-white font-normal text-sm leading-5 border-2 border-primary text-[#ffffff]"
+                  className="font-poppins h-[2.4rem] dark:text-white font-normal !p-0 w-[2.4rem] rounded-md text-sm leading-5 border-2 border-primary text-[#ffffff]"
                 >
-                  {loadingState?.saving ? "Saving..." : "Save"}
+                  {loadingState?.saving ? "Saving..." : <Save className="h-5 w-5" />}
                 </Button>
               </CustomTooltip>
             </div>
@@ -1822,6 +1854,64 @@ const InvoiceDetails = () => {
                   className="rounded-sm !w-[4.5rem] !font-poppins text-xs font-normal"
                 >
                   {loadingState?.markingAsNotSupported ? "Marking..." : "Yes"}
+                </Button>
+              </div>
+            </div>
+          </ModalDescription>
+        </Modal>
+        {/* Multiple invoice Modal */}
+        <Modal
+          open={showMultipleInvoiceModal}
+          showXicon={true}
+          className={"max-w-[25rem] !rounded-xl"}
+          setOpen={setShowMultipleInvoiceModal}
+        >
+          <ModalDescription>
+            <div className="w-full flex  flex-col justify-center h-full items-center  ">
+              <img src={warning} alt="" className="h-16 w-16 mb-2 mt-4" />
+              <p className="font-poppins font-semibold text-base leading-6  text-[#000000]">
+                Warning
+              </p>
+              <p className="px-8 !text-center mt-2 text-[#666667] font-poppins font-normal  text-sm leading-4">
+                Are you sure to mark this document as Multiple Invoice Document ?
+              </p>
+              <div className="flex items-center gap-x-4 mb-4 mt-8">
+                <Button
+                  onClick={() => setShowMultipleInvoiceModal(false)}
+                  className="rounded-sm !w-[4.5rem] !font-poppins bg-transparent border border-primary shadow-none text-[#000000] font-normal text-xs hover:bg-transparent"
+                >
+                  No
+                </Button>
+                <Button
+                  onClick={() => {
+                    setLoadingState({
+                      ...loadingState,
+                      mutliInvoceMarking: true
+                    });
+                    markAsNotSupported(
+                      data?.data?.document_uuid ||
+                        data?.data?.[0]?.document_uuid,
+                      {
+                        onSuccess: () => {
+                          setLoadingState({
+                            ...loadingState,
+                            mutliInvoceMarking: false
+                          });
+                          window.location.reload();
+                        },
+                        onError: () => {
+                          setLoadingState({
+                            ...loadingState,
+                            mutliInvoceMarking: false
+                          });
+                        }
+                      }
+                    );
+                  }}
+                  disabled={loadingState?.mutliInvoceMarking}
+                  className="rounded-sm !w-[4.5rem] !font-poppins text-xs font-normal"
+                >
+                  {loadingState?.mutliInvoceMarking ? "Marking..." : "Yes"}
                 </Button>
               </div>
             </div>
