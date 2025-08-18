@@ -101,6 +101,7 @@ import {
   ChevronUp,
   Clock,
   Copy,
+  Files,
   FileText,
   FileX,
   Filter,
@@ -110,6 +111,7 @@ import {
   NotebookTabs,
   RefreshCcwDot,
   Save,
+  ScanEye,
   Share2,
   X
 } from "lucide-react";
@@ -194,7 +196,7 @@ const InvoiceDetails = () => {
     markingAsNotSupported: false,
     reverting: false,
     reprocessing: false,
-    mutliInvoceMarking:false
+    mutliInvoceMarking: false
   });
 
   const { data: similarVendors, isLoading: loadingSimilarVendors } =
@@ -604,7 +606,7 @@ const InvoiceDetails = () => {
   const [reprocessedData, setReprocessedData] = useState({});
   const [shoeReferenceLinkModal, setShowReferenceLinkModal] = useState(false);
   let linkModalTimer;
-    const {userId}=userStore();
+  const { userId } = userStore();
   const { data: sideBarCounts } = useGetSidebarCounts({
     invoice_type: filters?.invoice_type,
     start_date: filters?.start_date,
@@ -612,7 +614,7 @@ const InvoiceDetails = () => {
     clickbacon_status: filters?.clickbacon_status,
     restaurant: filters?.restaurant,
     auto_accpepted: filters?.auto_accepted,
-    rerun_status: filters?.rerun_status||"",
+    rerun_status: filters?.rerun_status || "",
     invoice_detection_status: filters?.invoice_detection_status,
     human_verified: filters?.human_verified,
     human_verification_required: filters?.human_verification,
@@ -621,7 +623,7 @@ const InvoiceDetails = () => {
     restaurant_tier: filters?.restaurant_tier,
     rejected: filters?.rejected,
     extraction_source: filters?.extraction_source,
-    assigned_to: filters?.assigned_to||userId
+    assigned_to: filters?.assigned_to || userId
   });
   const [openSubmenu, setOpenSubmenu] = useState(null);
   const { expanded, setExpanded } = useSidebarStore();
@@ -640,13 +642,13 @@ const InvoiceDetails = () => {
       hoverImage: flagged_white,
       count: sideBarCounts?.all_flagged_documents
     },
-     {
-          path: `/all-multi-invoice-documents`,
-          text: "All Multiple Invoice Documents",
-          image: theme === "light" ? multi_invoice_black : multi_invoice_white,
-          hoverImage: multi_invoice_white,
-          count: sideBarCounts?.all_multiple_invoice_documents
-        },
+    {
+      path: `/all-multi-invoice-documents`,
+      text: "All Multiple Invoice Documents",
+      image: theme === "light" ? multi_invoice_black : multi_invoice_white,
+      hoverImage: multi_invoice_white,
+      count: sideBarCounts?.all_multiple_invoice_documents
+    },
     {
       path: "/my-tasks",
       text: "My Tasks",
@@ -654,7 +656,7 @@ const InvoiceDetails = () => {
       hoverImage: my_tasks_white,
       count:
         sideBarCounts?.my_tasks?.invoices +
-        sideBarCounts?.my_tasks?.flagged_documents +sideBarCounts?.my_tasks?.multiple_invoice_documents,
+        sideBarCounts?.my_tasks?.flagged_documents + sideBarCounts?.my_tasks?.multiple_invoice_documents,
       children: [
         {
           path: "/my-tasks",
@@ -666,14 +668,14 @@ const InvoiceDetails = () => {
           text: "Flagged Documents",
           count: sideBarCounts?.my_tasks?.flagged_documents
         },
-             {
-               path: `/multi-invoice-documents`,
-               text: "Multiple Invoice Documents",
-               image: theme === "light" ? multi_invoice_black : multi_invoice_white,
-               hoverImage: multi_invoice_white,
-               count: sideBarCounts?.my_tasks?.multiple_invoice_documents
-             }
-        
+        {
+          path: `/multi-invoice-documents`,
+          text: "Multiple Invoice Documents",
+          image: theme === "light" ? multi_invoice_black : multi_invoice_white,
+          hoverImage: multi_invoice_white,
+          count: sideBarCounts?.my_tasks?.multiple_invoice_documents
+        }
+
       ]
     },
     {
@@ -690,7 +692,7 @@ const InvoiceDetails = () => {
       hoverImage: not_supported_white,
       count: sideBarCounts?.not_supported
     },
-   
+
   ];
   useEffect(() => {
     const matchingIndex = options.findIndex((option) =>
@@ -721,7 +723,8 @@ const InvoiceDetails = () => {
   const [showDocumentNotes, setShowDocumentNotes] = useState(false);
   console.log(expanded)
 
-const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
+  const [showMultipleInvoiceModal, setShowMultipleInvoiceModal] = useState(false);
+  const [showResetStatusModal, setShowResetStatusModal] = useState(false);
   return (
     <div className="hide-scrollbar relative">
       {/* <div> */}{" "}
@@ -746,8 +749,8 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
             loadingVendorPdfs
               ? []
               : vendorPdfs?.data
-              ? Object?.values(vendorPdfs?.data)?.[0]
-              : []
+                ? Object?.values(vendorPdfs?.data)?.[0]
+                : []
           }
           multiple={true}
           className={"!w-[40vw] !max-h-[50rem]"}
@@ -884,20 +887,18 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
               return (
                 <div
                   key={index}
-                  className={`${
-                    role !== "admin" &&
+                  className={`${role !== "admin" &&
                     option?.text === "Not Supported Documents" &&
                     "hidden"
-                  }`}
+                    }`}
                 >
                   <Wrapper
                     to={option.path || "#"}
                     onClick={handleClick}
-                    className={`group cursor-pointer flex  items-center px-4 gap-2 py-3 text-sm font-normal transition-all duration-300 ${
-                      isActive
-                        ? "bg-primary text-white"
-                        : "text-black hover:bg-primary hover:text-white"
-                    }`}
+                    className={`group cursor-pointer flex  items-center px-4 gap-2 py-3 text-sm font-normal transition-all duration-300 ${isActive
+                      ? "bg-primary text-white"
+                      : "text-black hover:bg-primary hover:text-white"
+                      }`}
                   >
                     <div className="relative flex-shrink-0 w-5 h-5">
                       <img
@@ -908,9 +909,8 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                       <img
                         src={option?.hoverImage}
                         alt={option?.text}
-                        className={`absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity ${
-                          isActive ? "opacity-100" : ""
-                        }`}
+                        className={`absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity ${isActive ? "opacity-100" : ""
+                          }`}
                       />
                     </div>
 
@@ -945,11 +945,10 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                           to={child?.path}
                           onClick={() => setDefault()}
                           key={idx}
-                          className={`block text-sm py-3 mt-1 px-2 hover:bg-primary hover:text-white ${
-                            pathname === child?.path
-                              ? "bg-primary text-white"
-                              : "text-gray-700"
-                          }`}
+                          className={`block text-sm py-3 mt-1 px-2 hover:bg-primary hover:text-white ${pathname === child?.path
+                            ? "bg-primary text-white"
+                            : "text-gray-700"
+                            }`}
                         >
                           <div className="flex justify-between items-center">
                             <span className="truncate">{child?.text}</span>
@@ -1016,8 +1015,8 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                             rest_tier == 1
                               ? tier_1
                               : rest_tier == 2
-                              ? tier_2
-                              : tier_3
+                                ? tier_2
+                                : tier_3
                           }
                           alt=""
                         />
@@ -1093,15 +1092,14 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                     {myData?.human_verified === false &&
                       myData?.rejected === false && (
                         <span
-                          className={`${
-                            calculateTimeDifference(
-                              new Date(
-                                metaData?.assignment_details?.verification_due_at
-                              )
-                            )?.includes("ago")
-                              ? "!text-[#F15156]"
-                              : "!text-black"
-                          } mx-2 bg-gray-200  font-poppins font-normal text-xs leading-3  text-[#ffffff] h-6 flex items-center   px-3 rounded-xl `}
+                          className={`${calculateTimeDifference(
+                            new Date(
+                              metaData?.assignment_details?.verification_due_at
+                            )
+                          )?.includes("ago")
+                            ? "!text-[#F15156]"
+                            : "!text-black"
+                            } mx-2 bg-gray-200  font-poppins font-normal text-xs leading-3  text-[#ffffff] h-6 flex items-center   px-3 rounded-xl `}
                         >
                           <div className="flex items-center gap-x-2">
                             <CustomTooltip content={"Due Time"}>
@@ -1167,8 +1165,8 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                 {vendorChanged && branchChanged
                   ? "Please Save the Vendor Name and Branch Address before proceeding."
                   : vendorChanged
-                  ? " Please Save the Vendor Name before proceeding."
-                  : "Please Save the Branch Address before proceeding."}
+                    ? " Please Save the Vendor Name before proceeding."
+                    : "Please Save the Branch Address before proceeding."}
               </p>
             </div>
 
@@ -1187,16 +1185,14 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
               <Info className="h-5 w-5 text-[#FF9800]" />
               <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
                 {similarBranches?.data?.length > 0 &&
-                similarVendors?.data?.length > 0
+                  similarVendors?.data?.length > 0
                   ? `Found ${similarVendors?.data?.length} Vendors and ${similarBranches?.data?.length} Branches.`
                   : similarVendors?.data?.length > 0
-                  ? `Found ${similarVendors?.data?.length} Similar ${
-                      similarVendors?.data?.length > 1 ? "Vendors." : "Vendor."
+                    ? `Found ${similarVendors?.data?.length} Similar ${similarVendors?.data?.length > 1 ? "Vendors." : "Vendor."
                     }`
-                  : `Found ${similarBranches?.data?.length} Similar ${
-                      similarBranches?.data?.length > 1
-                        ? "Branches."
-                        : "Branch."
+                    : `Found ${similarBranches?.data?.length} Similar ${similarBranches?.data?.length > 1
+                      ? "Branches."
+                      : "Branch."
                     }`}
               </p>
               <p
@@ -1224,12 +1220,12 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                   "Rejection Reason :- "}{" "}
                 {data?.data?.rejected || data?.data?.[0]?.rejected
                   ? data?.data?.rejection_reason ||
-                    data?.data?.[0]?.rejection_reason
+                  data?.data?.[0]?.rejection_reason
                   : action_controls?.accept?.disabled
-                  ? action_controls?.accept?.reason
-                  : action_controls?.reject?.disabled
-                  ? action_controls?.reject?.reason
-                  : null}
+                    ? action_controls?.accept?.reason
+                    : action_controls?.reject?.disabled
+                      ? action_controls?.reject?.reason
+                      : null}
               </p>
             </div>
 
@@ -1265,9 +1261,8 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
         )}
 
         <div
-          className={`${
-            metaData?.extraction_source ? "justify-between" : "justify-end"
-          } flex  gap-x-2 items-center`}
+          className={`${metaData?.extraction_source ? "justify-between" : "justify-end"
+            } flex  gap-x-2 items-center`}
         >
           {/* <div className="flex items-center justify-start"> */}
 
@@ -1349,8 +1344,7 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                 <SheetTrigger>
                   {" "}
                   <Button
-                    className={`bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000] ${
-                      open ||
+                    className={`bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000] ${open ||
                       filters?.human_verified !== "all" ||
                       filters?.human_verification !== "all" ||
                       filters?.invoice_type !== "" ||
@@ -1358,13 +1352,12 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                       filters?.end_date !== "" ||
                       filters?.clickbacon_status !== "" ||
                       filters?.auto_accepted !== ""
-                        ? "!bg-primary !text-white"
-                        : "!bg-white"
-                    }   `}
+                      ? "!bg-primary !text-white"
+                      : "!bg-white"
+                      }   `}
                   >
                     <Filter
-                      className={`${
-                        open ||
+                      className={`${open ||
                         filters?.human_verified !== "all" ||
                         filters?.human_verification !== "all" ||
                         filters?.invoice_type !== "" ||
@@ -1372,9 +1365,9 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                         filters?.end_date !== "" ||
                         filters?.clickbacon_status !== "" ||
                         filters?.auto_accepted !== ""
-                          ? "!text-white"
-                          : ""
-                      } h-5  text-black/40 dark:text-white/50`}
+                        ? "!text-white"
+                        : ""
+                        } h-5  text-black/40 dark:text-white/50`}
                     />
                   </Button>
                 </SheetTrigger>
@@ -1407,12 +1400,10 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                 <Button
                   onClick={() => {
                     navigator.clipboard.writeText(
-                      `${
-                        window.location.origin
-                      }/invoice-details?document_uuid=${
-                        document_uuid ||
-                        data?.data?.[0]?.document_uuid ||
-                        data?.data?.document_uuid
+                      `${window.location.origin
+                      }/invoice-details?document_uuid=${document_uuid ||
+                      data?.data?.[0]?.document_uuid ||
+                      data?.data?.document_uuid
                       }`
                     );
                     toast.success("Link copied to clipboard");
@@ -1460,49 +1451,33 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
               />
               {(role?.toLowerCase() == "admin" ||
                 role?.toLowerCase() == "manager") && (
-                <CustomTooltip content={"Click To reset the invoice status ."} className={"!min-w-fit"}>
-                  <Button
-                    onClick={() => {
-                      setLoadingState((prev) => ({ ...prev, reverting: true }));
-                      revertChanges(
-                        data?.data?.document_uuid ||
-                          data?.data?.[0]?.document_uuid,
-                        {
-                          onSuccess: () => {
-                            setLoadingState((prev) => ({
-                              ...prev,
-                              reverting: false
-                            }));
-                          },
-                          onError: () => {
-                            setLoadingState((prev) => ({
-                              ...prev,
-                              reverting: false
-                            }));
-                          }
-                        }
-                      );
-                    }}
-                    disabled={
-                      loadingState?.reverting ||
-                      loadingState?.rejecting ||
-                      loadingState?.markingAsNotSupported ||
-                      loadingState?.markingForReview ||
-                      loadingState?.reverting ||
-                      loadingState?.accepting ||
-                      loadingState?.saving
-                    }
-                    className="bg-transparent h-[2.4rem] dark:text-white border-primary  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
-                  >
-                    {loadingState?.reverting ? "Resetting.." : <RefreshCcwDot/>}
-                  </Button>
-                </CustomTooltip>
-              )}
+                  <CustomTooltip content={"Click To Reset the Invoice Status ."} className={"!min-w-fit"}>
+                    <Button
+                      onClick={() => {
+                        setShowResetStatusModal(true)
+
+                      }}
+                      disabled={
+                        loadingState?.reverting ||
+                        loadingState?.rejecting ||
+                        loadingState?.markingAsNotSupported ||
+                        loadingState?.markingForReview ||
+                        loadingState?.reverting ||
+                        loadingState?.accepting ||
+                        loadingState?.saving
+                      }
+                      className="bg-transparent h-[2.4rem] dark:text-white border-primary  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                    >
+                      {loadingState?.reverting ? "Resetting.." : <RefreshCcwDot className="!w-[1.1rem] !h-[1.2rem]" />}
+                    </Button>
+                  </CustomTooltip>
+                )}
               <CustomTooltip
+                className={"!min-w-fit "}
                 content={
                   action_controls?.review_later?.disabled
                     ? action_controls?.review_later?.reason
-                    : "Click To Mark It For A Review."
+                    : "Click To Mark this document  for a Review."
                 }
               >
                 <Button
@@ -1522,13 +1497,13 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                   }
                   className="bg-transparent h-[2.4rem] dark:text-white border-primary  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                 >
-                  <Flag/>
+                  <ScanEye className="!w-[1.1rem] !h-[1.2rem] text-black " />
                 </Button>
               </CustomTooltip>
-               <CustomTooltip
-               className={"!min-w-fit"}
+              <CustomTooltip
+                className={"!min-w-fit"}
                 content={
-                 "Click To Mark this Document as Multiple Invoice Document."
+                  "Click To Mark this Document as Multiple Invoice Document."
                 }
               >
                 <Button
@@ -1544,13 +1519,38 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                     loadingState?.markingForReview ||
                     loadingState?.reverting ||
                     loadingState?.accepting ||
-                    loadingState?.saving||loadingState?.mutliInvoceMarking
+                    loadingState?.saving || loadingState?.mutliInvoceMarking
                   }
                   className="bg-transparent h-[2.4rem] dark:text-white border-primary  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                 >
-                  Multiple Invoice 
+                  <Files className="!w-[1.1rem] !h-[1.2rem] text-black " />
                 </Button>
               </CustomTooltip>
+              <CustomTooltip
+                content={
+                  action_controls?.mark_as_not_supported?.disabled
+                    ? action_controls?.mark_as_not_supported?.reason
+                    : "Click To Mark This Document As Not Supported."
+                }
+                className={"!min-w-fit"}
+              >
+                <Button
+                  disabled={
+                    action_controls?.mark_as_not_supported?.disabled ||
+                    loadingState?.rejecting ||
+                    loadingState?.markingAsNotSupported ||
+                    loadingState?.markingForReview ||
+                    loadingState?.reverting ||
+                    loadingState?.accepting ||
+                    loadingState?.saving
+                  }
+                  onClick={() => setMarkAsNotSupportedModal(true)}
+                  className="bg-transparent h-[2.4rem] dark:text-white border-primary   hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                >
+                  <Flag className="!w-[1.1rem] !h-[1.2rem] text-black " />
+                </Button>
+              </CustomTooltip>
+
               <CustomTooltip
                 content={
                   action_controls?.reject?.disabled
@@ -1582,8 +1582,8 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                   !warning_checkbox_checked
                     ? "Please check vendor name checkbox."
                     : action_controls?.accept?.disabled
-                    ? action_controls?.accept?.reason
-                    : "Click To Accept This Document."
+                      ? action_controls?.accept?.reason
+                      : "Click To Accept This Document."
                 }
               >
                 <Button
@@ -1617,30 +1617,6 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                 </Button>
               </CustomTooltip>
 
-              <CustomTooltip
-                content={
-                  action_controls?.mark_as_not_supported?.disabled
-                    ? action_controls?.mark_as_not_supported?.reason
-                    : "Click To Mark This Document As Not Supported."
-                }
-                className={"!min-w-fit"}
-              >
-                <Button
-                  disabled={
-                    action_controls?.mark_as_not_supported?.disabled ||
-                    loadingState?.rejecting ||
-                    loadingState?.markingAsNotSupported ||
-                    loadingState?.markingForReview ||
-                    loadingState?.reverting ||
-                    loadingState?.accepting ||
-                    loadingState?.saving
-                  }
-                  onClick={() => setMarkAsNotSupportedModal(true)}
-                  className="bg-transparent h-[2.4rem] dark:text-white border-primary !p-0 !w-[2.4rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
-                >
-                  <FileX className="!w-[1.1rem] !h-[1.2rem] text-black "/>
-                </Button>
-              </CustomTooltip>
 
               <CustomTooltip
                 content={
@@ -1662,9 +1638,9 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                     loadingState?.saving
                   }
                   onClick={() => handleSave()}
-                  className="font-poppins h-[2.4rem] dark:text-white font-normal !p-0 w-[2.4rem] rounded-md text-sm leading-5 border-2 border-primary text-[#ffffff]"
+                  className="font-poppins h-[2.4rem] dark:text-white font-normal  rounded-md text-sm leading-5 border-2 border-primary text-[#ffffff]"
                 >
-                  {loadingState?.saving ? "Saving..." : <Save className="h-5 w-5" />}
+                  {loadingState?.saving ? "Saving..." : <Save className="!w-[1.1rem] !h-[1.2rem]" />}
                 </Button>
               </CustomTooltip>
             </div>
@@ -1682,14 +1658,12 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
               }
               pdfUrls={[
                 {
-                  document_link: `${
-                    data?.data?.document_link || data?.data?.[0]?.document_link
-                  }
+                  document_link: `${data?.data?.document_link || data?.data?.[0]?.document_link
+                    }
                     `,
-                  document_source: `${
-                    data?.data?.document_source ||
+                  document_source: `${data?.data?.document_source ||
                     data?.data?.[0]?.document_source
-                  }`
+                    }`
                 }
               ]}
             />
@@ -1722,6 +1696,61 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
             />
           </div>
         </div>
+
+        {/* Reset Invoice Status Modal */}
+        <Modal
+          open={showResetStatusModal}
+          setOpen={setShowResetStatusModal}
+           showXicon={true}
+          className={"max-w-[25rem] !rounded-xl"}
+        >
+          <ModalDescription>
+            <div className="w-full flex  flex-col justify-center h-full items-center  ">
+              <img src={warning} alt="" className="h-16 w-16 mb-2 mt-4" />
+              <p className="font-poppins font-semibold text-base leading-6  text-[#000000]">
+                Warning
+              </p>
+              <p className="px-8 !text-center mt-2 text-[#666667] font-poppins font-normal  text-sm leading-4">
+                Are you sure to Reset the Invoice Status?
+              </p>
+              <div className="flex items-center gap-x-4 mb-4 mt-8">
+                <Button
+                  onClick={() => setShowMultipleInvoiceModal(false)}
+                  className="rounded-sm !w-[4.5rem] !font-poppins bg-transparent border border-primary shadow-none text-[#000000] font-normal text-xs hover:bg-transparent"
+                >
+                  No
+                </Button>
+                <Button
+                  onClick={() => {
+                    setLoadingState((prev) => ({ ...prev, reverting: true }));
+                    revertChanges(
+                      data?.data?.document_uuid ||
+                      data?.data?.[0]?.document_uuid,
+                      {
+                        onSuccess: () => {
+                          setLoadingState((prev) => ({
+                            ...prev,
+                            reverting: false
+                          }));
+                        },
+                        onError: () => {
+                          setLoadingState((prev) => ({
+                            ...prev,
+                            reverting: false
+                          }));
+                        }
+                      }
+                    );
+                  }}
+                  disabled={loadingState?.reverting}
+                  className="rounded-sm !w-[4.5rem] !font-poppins text-xs font-normal"
+                >
+                  {loadingState?.reverting ? "Marking..." : "Yes"}
+                </Button>
+              </div>
+            </div>
+          </ModalDescription>
+        </Modal>
         {/* Mark For Review Modal */}
         <Modal
           open={markForReviewModal}
@@ -1832,7 +1861,7 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                     });
                     markAsNotSupported(
                       data?.data?.document_uuid ||
-                        data?.data?.[0]?.document_uuid,
+                      data?.data?.[0]?.document_uuid,
                       {
                         onSuccess: () => {
                           setLoadingState({
@@ -1890,7 +1919,7 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                     });
                     markAsNotSupported(
                       data?.data?.document_uuid ||
-                        data?.data?.[0]?.document_uuid,
+                      data?.data?.[0]?.document_uuid,
                       {
                         onSuccess: () => {
                           setLoadingState({
@@ -2092,7 +2121,7 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
         className={"!rounded-2xl  !w-[55rem] "}
       >
         {similarVendors?.data?.length > 0 &&
-        similarBranches?.data?.length > 0 ? (
+          similarBranches?.data?.length > 0 ? (
           <div className="my-2">
             <p className="mb-3 pl-0.5  font-poppins text-[0.9rem] font-semibold text-[#000000] ">
               Matching Verified Vendors ({similarVendors?.data?.length}) and
@@ -2154,11 +2183,9 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                                     className="max-w-44 underline cursor-pointer text-primary"
                                     onClick={() => {
                                       window.open(
-                                        `${
-                                          import.meta.env
-                                            .VITE_APP_OLD_UI_STAGING_UI
-                                        }/vendor-consolidation-v2/${
-                                          row?.vendor?.vendor_id
+                                        `${import.meta.env
+                                          .VITE_APP_OLD_UI_STAGING_UI
+                                        }/vendor-consolidation-v2/${row?.vendor?.vendor_id
                                         }`
                                       );
                                     }}
@@ -2262,11 +2289,9 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                                     className="max-w-44 underline text-primary cursor-pointer"
                                     onClick={() => {
                                       window.open(
-                                        `${
-                                          import.meta.env
-                                            .VITE_APP_OLD_UI_STAGING_UI
-                                        }/vendor-v2/${
-                                          row?.vendor?.vendor_id
+                                        `${import.meta.env
+                                          .VITE_APP_OLD_UI_STAGING_UI
+                                        }/vendor-v2/${row?.vendor?.vendor_id
                                         }/branch/${row?.branch?.branch_id}`
                                       );
                                     }}

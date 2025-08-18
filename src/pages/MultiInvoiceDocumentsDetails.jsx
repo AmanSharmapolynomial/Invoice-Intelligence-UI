@@ -36,6 +36,7 @@ import {
   Check,
   Clock,
   Filter,
+  Move,
   Pencil,
   Plus,
   Save,
@@ -64,6 +65,8 @@ import CustomDropDown from "@/components/ui/CustomDropDown";
 import { v4 as uuidv4 } from "uuid";
 import { useMarkAsNotSupported } from "@/components/invoice/api";
 import warning from "@/assets/image/warning.svg";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 const InvoiceGroupAccordion = ({
   group,
   f_key,
@@ -211,6 +214,56 @@ const InvoiceGroupAccordion = ({
   }
 
   const [editing, setEditing] = useState(false);
+  const [showMoveGroupModal, setShowMoveGroupModal] = useState(false);
+  const [selectedGroupToMove, setSelectedGroupToMove] = useState(null);
+  const [selectedGroupType, setSelectedGroupType] = useState(null);
+  const handleMoveGroup = () => {
+    if (!selectedGroupToMove || !selectedGroupType) {
+      toast.error("Please select a group type to move.");
+      return;
+    }
+
+    let copyData = JSON.parse(JSON.stringify(data));
+    if (!copyData) return;
+
+    let myData = copyData?.data?.[0];
+    if (!myData) return;
+
+    // Map UI labels to API keys
+    const typeMap = {
+      "Closed Groups": "closed_groups",
+      "Incomplete Groups": "incomplete_groups",
+      "Open Groups": "open_groups"
+    };
+
+    const targetKey = typeMap[selectedGroupType];
+    if (!targetKey) {
+      toast.error("Invalid target group type.");
+      return;
+    }
+
+    // 1. Remove group from current list
+    myData[f_key] = myData?.[f_key]?.filter((g) => g?.id !== selectedGroupToMove?.id);
+
+    // 2. Add group to new list (updating its group_type)
+    const movedGroup = {
+      ...selectedGroupToMove,
+      group_type: targetKey
+    };
+
+    myData[targetKey] = [...(myData[targetKey] || []), movedGroup];
+
+    // 3. Update React Query cache
+    queryClient.setQueryData(["multi-invoice-documents", payload], copyData);
+
+    // 4. Reset modal state
+    setShowMoveGroupModal(false);
+    setSelectedGroupToMove(null);
+    setSelectedGroupType(null);
+
+    toast.success(`Group moved to ${selectedGroupType}`);
+    setResetTrigger(prev => prev + 1)
+  };
 
   return (
     <div className="my-1">
@@ -218,15 +271,25 @@ const InvoiceGroupAccordion = ({
         className="!rounded-sm !shadow-none border !text-sm w-full"
         triggerClassName="!text-sm"
         triggerButtons={<div className="flex items-center gap-x-2">
-
           <Button className="bg-red-500 hover:bg-red-500 w-7 h-7 rounded-sm"
             onClick={(e) => {
+              e.stopPropagation();
+              setShowMoveGroupModal(true)
+              setSelectedGroupToMove(group)
+            }}
+          >
+            <Move className="w-5 h-5" />
+          </Button>
+          <Button className="bg-red-500 hover:bg-red-500 w-7 h-7 rounded-sm"
+            onClick={(e) => {
+
               e.stopPropagation();
               handleDeleteGroup();
             }}
           >
             <Trash2 className="w-5 h-5" />
           </Button>
+
 
           {!editing ? (
 
@@ -443,6 +506,125 @@ const InvoiceGroupAccordion = ({
 
         </div>
       </CustomAccordion>
+      <Modal
+        open={showMoveGroupModal}
+        title={"Move Group"}
+        className={"h-[70vh]"}
+        titleClassName={"font-poppins font-semibold text-base"}
+        setOpen={setShowMoveGroupModal}
+      >
+        <ModalDescription >
+          <p className="font-poppins font-medium text-black text-sm">Select the Group Type where u want to move the selected group :</p>
+          <RadioGroup
+            defaultValue={null}
+            onValueChange={(v) => {
+              setSelectedGroupType(v);
+              if(v!=="Open Groups"){
+setSelectedGroupToMove({...selectedGroupToMove,type:""})
+              }else{
+
+                setSelectedGroupToMove({...selectedGroupToMove,vendor_name:"",invoice_number:"",type:""})
+              }
+            }}
+            className=" flex flex-col font-poppins text-black font-medium text-sm  gap-y-2 mt-4"
+          >
+            {['Closed Groups', "Incomplete Groups", "Open Groups"]?.map((r, i) => {
+              return (
+                <div className="flex items-center space-x-2" key={i}>
+                  <RadioGroupItem value={r} id={r} disabled={selectedGroupToMove?.group_type == r?.split(" ")?.join("_")?.toLowerCase()} />
+
+                  <Label
+                    htmlFor={r}
+                    className="text-[#6D6D6D] font-medium capitalize cursor-pointer font-poppins text-xs leading-5"
+                  >
+                    {r} {f_key}
+                  </Label>
+                </div>
+              );
+            })}
+          </RadioGroup>
+          <div>
+            {selectedGroupToMove?.group_type == "open_groups" ?
+              <div className="flex flex-col gap-y-2 my-2">
+                <div className="flex items-center gap-x-2 ml-4 w-[420px] justify-between">
+                  <p className="font-poppins font-medium text-xs">Vendor Name</p>
+                  <Input
+                    className="w-72"
+                    value={selectedGroupToMove?.vendor_name || ""}
+                    onChange={(e) => {
+                      setSelectedGroupToMove({ ...selectedGroupToMove, vendor_name: e.target.value })
+                    }}
+                    placeholder="Vendor Name"
+                  />
+                </div>
+                <div className="flex items-center gap-x-2 ml-4 w-[420px] justify-between">
+                  <p className="font-poppins font-medium text-xs">Invoice Number</p>
+                  <Input
+                    className="w-72 text-xs"
+                    value={selectedGroupToMove?.invoice_number || ""}
+                    onChange={(e) => {
+                      setSelectedGroupToMove({ ...selectedGroupToMove, invoice_number: e.target.value })
+                    }}
+
+                    placeholder="Invoice Number"
+                  />
+                </div>
+              </div> : selectedGroupType?.split(" ")?.join("_")?.toLowerCase() == "open_groups" && <>
+                <div className="flex items-center gap-x-2 ml-4 w-[420px] justify-between">
+                  <p className="font-poppins font-medium text-sm">Type</p>
+                  <select
+                    value={selectedGroupToMove?.type || ""}
+                    onChange={(e) =>
+                      setSelectedGroupToMove({
+                        ...selectedGroupToMove,
+                        type: e.target.value,
+                      })
+                    }
+                    className="
+    w-full rounded-md border border-gray-300 bg-white
+    px-3 py-2 text-sm text-gray-900
+    shadow-sm focus:outline-none  focus:ring-0
+     appearance-auto 
+  "
+                  >
+                    <option value="" disabled>
+                      Select group type
+                    </option>
+                    <option value="noise" className="hover:!bg-gray-200">Noise</option>
+                    <option value="multiple_invoice">Multiple Invoice</option>
+                    <option value="unidentified">Unidentified</option>
+                  </select>
+
+
+                </div>
+              </>
+            }
+
+
+
+          </div>
+
+          <div className="flex items-center justify-center gap-x-4 my-2">
+            <Button
+              onClick={() => {
+                setShowMoveGroupModal(false);
+                setSelectedGroupToMove(null);
+                setSelectedGroupType(null)
+              }}
+              className="rounded-sm !w-[4.5rem] !font-poppins bg-transparent border border-primary shadow-none text-[#000000] font-normal text-xs hover:bg-transparent"
+            >
+              No
+            </Button>
+            <Button
+              onClick={() => handleMoveGroup()}
+              className="rounded-sm !w-[4.5rem] !font-poppins text-xs font-normal"
+            >
+              {"Move"}
+            </Button>
+          </div>
+
+        </ModalDescription>
+      </Modal>
     </div>
   );
 };
@@ -935,15 +1117,16 @@ const MultiInvoiceDocumentsDetails = () => {
                 <Share2 className="dark:text-white" />
               </Button>
             </CustomTooltip>
-           <CustomTooltip className={"!min-w-fit"} content={"Click to Mark this document as Not Supported."}>
-             <Button
+            <CustomTooltip className={"!min-w-fit"} content={action_controls?.mark_as_unsupported?.disabled ? action_controls?.mark_as_unsupported?.reason : "Click to Mark this document as Not Supported."}>
+              <Button
 
-              onClick={() => setMarkAsNotSupportedModal(true)}
-              className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[7.25rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
-            >
-              Not Supported
-            </Button>
-           </CustomTooltip>
+                onClick={() => setMarkAsNotSupportedModal(true)}
+                disabled={action_controls?.mark_as_unsupported?.disabled}
+                className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[7.25rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+              >
+                Not Supported
+              </Button>
+            </CustomTooltip>
             <CustomTooltip
               className={"!min-w-fit"}
               content={
