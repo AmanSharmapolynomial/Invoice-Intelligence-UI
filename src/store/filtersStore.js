@@ -13,7 +13,7 @@ const useFilterStore = create(
         auto_accepted_by_vda:"all",
         start_date: "",
         end_date: "",
-        clickbacon_status: "",
+        clickbacon_status: "all",
         human_verification: "all",
         vendor: "",
         sort_order: "desc",

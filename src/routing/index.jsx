@@ -34,6 +34,8 @@ import UnsupportedDocumentDetails from "@/pages/UnsupportedDocumentDetails";
 import RecentDuplicateBranchesListing from "@/pages/RecentDuplicateBranchesListing";
 import RecentDuplicateVendorsListing from "@/pages/RecentDuplicateVendorsListing";
 import AllFlaggedInvoices from "@/pages/AllFlaggedInvoices";
+import MutliInvoiceDocuments from "@/pages/MutliInvoiceDocuments";
+import MultiInvoiceDocumentsDetails from "@/pages/MultiInvoiceDocumentsDetails";
 
 const publicRoutes = [
   {
@@ -100,6 +102,38 @@ const protectedRoutes = [
     element: (
       <Protected>
         <UnsupportedDocuments />
+      </Protected>
+    )
+  },
+  {
+    path: "/unsupported-documents/details",
+    element: (
+      <Protected>
+        <UnsupportedDocumentDetails />
+      </Protected>
+    )
+  },
+  {
+    path: "/all-multi-invoice-documents",
+    element: (
+      <Protected>
+        <MutliInvoiceDocuments/>
+      </Protected>
+    )
+  },
+  {
+    path: "/multi-invoice-documents",
+    element: (
+      <Protected>
+        <MutliInvoiceDocuments/>
+      </Protected>
+    )
+  },
+  {
+    path: "/multi-invoice-documents/:document_uuid",
+    element: (
+      <Protected>
+        <MultiInvoiceDocumentsDetails/>
       </Protected>
     )
   },

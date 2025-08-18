@@ -1,12 +1,12 @@
 import approved from "@/assets/image/approved.svg";
-import warning from "@/assets/image/warning.svg";
+import copy from "@/assets/image/copy.svg";
 import tier_1 from "@/assets/image/tier_1.svg";
 import tier_2 from "@/assets/image/tier_2.svg";
 import tier_3 from "@/assets/image/tier_3.svg";
+import warning from "@/assets/image/warning.svg";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import { PdfViewer } from "@/components/common/PDFViewer";
-import copy from "@/assets/image/copy.svg";
 
 import {
   useFindDuplicateInvoices,
@@ -45,19 +45,23 @@ import useFilterStore from "@/store/filtersStore";
 import globalStore from "@/store/globalStore";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
 
-import review_later_white from "@/assets/image/review_later_white.svg";
-import review_later_black from "@/assets/image/review_later_black.svg";
 import all_invoices_black from "@/assets/image/all_invoices_black.svg";
 import all_invoices_white from "@/assets/image/all_invoices_white.svg";
-import not_supported_white from "@/assets/image/not_supported_white.svg";
-import not_supported_black from "@/assets/image/not_supported_black.svg";
-import my_tasks_white from "@/assets/image/check_book_white.svg";
-import my_tasks_black from "@/assets/image/check_book_black.svg";
-import book_user_white from "@/assets/image/book_user_white.svg";
 import book_user_black from "@/assets/image/book_user_black.svg";
+import book_user_white from "@/assets/image/book_user_white.svg";
+import my_tasks_black from "@/assets/image/check_book_black.svg";
+import my_tasks_white from "@/assets/image/check_book_white.svg";
+import flagged_black from "@/assets/image/flagged_black.svg";
+import flagged_white from "@/assets/image/flagged_white.svg";
+import not_supported_black from "@/assets/image/not_supported_black.svg";
+import not_supported_white from "@/assets/image/not_supported_white.svg";
+import review_later_black from "@/assets/image/review_later_black.svg";
+import review_later_white from "@/assets/image/review_later_white.svg";
+import userStore from "@/components/auth/store/userStore";
 import { useListRestaurants } from "@/components/home/api";
 import InvoiceFilters from "@/components/invoice/InvoiceFilters";
 import { useInvoiceStore } from "@/components/invoice/store";
+import ResizableModal from "@/components/ui/Custom/ResizeableModal";
 import CustomDropDown from "@/components/ui/CustomDropDown";
 import {
   Sheet,
@@ -67,7 +71,26 @@ import {
   SheetTitle,
   SheetTrigger
 } from "@/components/ui/sheet";
-import { useGetVendorNames, useGetVendorNotes } from "@/components/vendor/api";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow
+} from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from "@/components/ui/tooltip";
+import {
+  useGetVendorBranchPdfs,
+  useGetVendorNames,
+  useGetVendorNotes,
+  useGetVendorsPdfs
+} from "@/components/vendor/api";
 import DocumentNotes from "@/components/vendor/notes/DocumentNotes";
 import VendorNotes from "@/components/vendor/notes/VendorNotes";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
@@ -75,6 +98,7 @@ import persistStore from "@/store/persistStore";
 import useThemeStore from "@/store/themeStore";
 import {
   ArrowRight,
+  BookIcon,
   ChevronDown,
   ChevronRight,
   ChevronUp,
@@ -82,6 +106,7 @@ import {
   Copy,
   Files,
   FileX,
+  FileText,
   Filter,
   Flag,
   Info,
@@ -91,8 +116,6 @@ import {
   Save,
   ScanEye,
   Share2,
-  Table2,
-  TextSelect,
   X
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -103,37 +126,12 @@ import {
   useNavigate,
   useSearchParams
 } from "react-router-dom";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow
-} from "@/components/ui/table";
-import CustomToolTip from "@/components/ui/CustomToolTip";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from "@/components/ui/tooltip";
-import userStore from "@/components/auth/store/userStore";
-import ResizableModal from "@/components/ui/Custom/ResizeableModal";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
-import flagged_white from "@/assets/image/flagged_white.svg";
-import flagged_black from "@/assets/image/flagged_black.svg";
 // import book_user_white from "@/assets/image/book_user_white.svg";
 // import book_user_black from "@/assets/image/book_user_black.svg";
 import { useGetSidebarCounts } from "@/components/common/api";
 import useSidebarStore from "@/store/sidebarStore";
+import multi_invoice_black from "@/assets/image/multi_invoice_black.svg";
+import multi_invoice_white from "@/assets/image/multi_invoice_white.svg";
 const rejectionReasons = [
   "Duplicate invoice",
   "Multiple invoices in one PDF",
@@ -166,7 +164,8 @@ const InvoiceDetails = () => {
     useState(false);
   const [showDuplicateInvoicesWarning, setShowDuplicateInvoicesWarning] =
     useState(false);
-    const [showReReviewRequestedWarning,setShowReReviewRequestedWarning]=useState(false)
+  const [showReReviewRequestedWarning, setShowReReviewRequestedWarning] =
+    useState(false);
   let document_uuid =
     searchParams.get("document_uuid") || searchParams.get("document");
   const {
@@ -200,7 +199,7 @@ const InvoiceDetails = () => {
     markingAsNotSupported: false,
     reverting: false,
     reprocessing: false,
-    mutliInvoceMarking:false
+    mutliInvoceMarking: false
   });
 
   const { data: similarVendors, isLoading: loadingSimilarVendors } =
@@ -533,9 +532,11 @@ const InvoiceDetails = () => {
   let vendor =
     searchParams.get("vendor_id") || searchParams.get("vendor") || "";
   useEffect(() => {
-
-    if(data?.data?.re_review_requested|| data?.data?.[0]?.re_review_requested){
-      setShowReReviewRequestedWarning(true)
+    if (
+      data?.data?.re_review_requested ||
+      data?.data?.[0]?.re_review_requested
+    ) {
+      setShowReReviewRequestedWarning(true);
     }
     if (data?.data?.rejected || data?.data?.[0]?.rejected) {
       setShowAlreadySyncedModal(true);
@@ -587,8 +588,12 @@ const InvoiceDetails = () => {
     setWarningCheckboxChecked(false);
     setShowSimilarVendorsAndBranchesWarningModal(false);
     setShowAcceptModal(false);
-    setShowReReviewRequestedWarning(false)
+    setShowReReviewRequestedWarning(false);
     clearStore();
+    setShowSimilarBranchPdfs(false);
+    setShowSimilarVendorPdfs(false);
+    setSelectedSimilarBranch(null);
+    setSelectedSimilarVendor(null);
   }, [page_number]);
 
   const { mutate: revertChanges } = useRevertChanges();
@@ -604,6 +609,7 @@ const InvoiceDetails = () => {
   const [reprocessedData, setReprocessedData] = useState({});
   const [shoeReferenceLinkModal, setShowReferenceLinkModal] = useState(false);
   let linkModalTimer;
+  const { userId } = userStore();
   const { data: sideBarCounts } = useGetSidebarCounts({
     invoice_type: filters?.invoice_type,
     start_date: filters?.start_date,
@@ -611,7 +617,7 @@ const InvoiceDetails = () => {
     clickbacon_status: filters?.clickbacon_status,
     restaurant: filters?.restaurant,
     auto_accpepted: filters?.auto_accepted,
-    rerun_status: filters?.rerun_status,
+    rerun_status: filters?.rerun_status || "",
     invoice_detection_status: filters?.invoice_detection_status,
     human_verified: filters?.human_verified,
     human_verification_required: filters?.human_verification,
@@ -619,7 +625,8 @@ const InvoiceDetails = () => {
     sort_order: filters?.sort_order,
     restaurant_tier: filters?.restaurant_tier,
     rejected: filters?.rejected,
-    extraction_source: filters?.extraction_source
+    extraction_source: filters?.extraction_source,
+    assigned_to: filters?.assigned_to || userId
   });
   const [openSubmenu, setOpenSubmenu] = useState(null);
   const { expanded, setExpanded } = useSidebarStore();
@@ -640,13 +647,20 @@ const InvoiceDetails = () => {
       count: sideBarCounts?.all_flagged_documents
     },
     {
+      path: `/all-multi-invoice-documents`,
+      text: "All Multiple Invoice Documents",
+      image: theme === "light" ? multi_invoice_black : multi_invoice_white,
+      hoverImage: multi_invoice_white,
+      count: sideBarCounts?.all_multiple_invoice_documents
+    },
+    {
       path: "/my-tasks",
       text: "My Tasks",
       image: theme === "light" ? my_tasks_black : my_tasks_white,
       hoverImage: my_tasks_white,
       count:
         sideBarCounts?.my_tasks?.invoices +
-        sideBarCounts?.my_tasks?.flagged_documents,
+        sideBarCounts?.my_tasks?.flagged_documents + sideBarCounts?.my_tasks?.multiple_invoice_documents,
       children: [
         {
           path: "/my-tasks",
@@ -657,7 +671,15 @@ const InvoiceDetails = () => {
           path: "/unsupported-documents",
           text: "Flagged Documents",
           count: sideBarCounts?.my_tasks?.flagged_documents
+        },
+        {
+          path: `/multi-invoice-documents`,
+          text: "Multiple Invoice Documents",
+          image: theme === "light" ? multi_invoice_black : multi_invoice_white,
+          hoverImage: multi_invoice_white,
+          count: sideBarCounts?.my_tasks?.multiple_invoice_documents
         }
+
       ]
     },
     {
@@ -674,12 +696,7 @@ const InvoiceDetails = () => {
       hoverImage: not_supported_white,
       count: sideBarCounts?.not_supported
     },
-    {
-      path: null,
-      text: "Vendor Consolidation",
-      image: theme === "light" ? book_user_black : book_user_white,
-      hoverImage: book_user_white
-    }
+
   ];
   useEffect(() => {
     const matchingIndex = options.findIndex((option) =>
@@ -697,11 +714,75 @@ const InvoiceDetails = () => {
       setOpenSubmenu(null);
     }
   };
-const [showDocumentNotes,setShowDocumentNotes]=useState(false);
-const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
+  const [showSimilarVendorPdfs, setShowSimilarVendorPdfs] = useState(false);
+  const [showSimilarBranchPdfs, setShowSimilarBranchPdfs] = useState(false);
+  const [selectedSimilarVendor, setSelectedSimilarVendor] = useState(null);
+  const [selectedSimilarBranch, setSelectedSimilarBranch] = useState(null);
+  const { data: vendorPdfs, isLoading: loadingVendorPdfs } = useGetVendorsPdfs({
+    vendor_one: selectedSimilarVendor?.vendor_id
+  });
+  const { data: branchPdfs, isLoading: loadingBranchPdfs } =
+    useGetVendorBranchPdfs(selectedSimilarBranch?.branch_id);
+  console.log(branchPdfs);
+  const [showDocumentNotes, setShowDocumentNotes] = useState(false);
+  console.log(expanded)
+
+  const [showMultipleInvoiceModal, setShowMultipleInvoiceModal] = useState(false);
+  const [showResetStatusModal, setShowResetStatusModal] = useState(false);
   return (
     <div className="hide-scrollbar relative">
       {/* <div> */}{" "}
+      <ResizableModal
+        title={"Vendor Pdfs"}
+        y={150}
+        x={500}
+        width={700}
+        isOpen={showSimilarVendorPdfs}
+        onClose={() => {
+          setShowSimilarBranchPdfs(false);
+          setSelectedSimilarBranch(null);
+          setSelectedSimilarVendor(null);
+          setShowSimilarVendorPdfs(false);
+        }}
+      >
+        <span className="font-poppins font-semibold p-2 capitalize text-base">
+          {selectedSimilarVendor?.vendor_name} Pdfs
+        </span>
+        <PdfViewer
+          pdfUrls={
+            loadingVendorPdfs
+              ? []
+              : vendorPdfs?.data
+                ? Object?.values(vendorPdfs?.data)?.[0]
+                : []
+          }
+          multiple={true}
+          className={"!w-[40vw] !max-h-[50rem]"}
+        />
+      </ResizableModal>
+      <ResizableModal
+        title={"Vendor Branches"}
+        y={150}
+        x={500}
+        width={700}
+        // className={"!h-[80vh]"}
+        isOpen={showSimilarBranchPdfs}
+        onClose={() => {
+          setShowSimilarBranchPdfs(false);
+          setSelectedSimilarBranch(null);
+          setSelectedSimilarVendor(null);
+          setShowSimilarVendorPdfs(false);
+        }}
+      >
+        <span className="font-poppins font-semibold p-2 capitalize text-base">
+          {selectedSimilarBranch?.vendor_address} Pdfs
+        </span>
+        <PdfViewer
+          pdfUrls={loadingVendorNotes ? [] : branchPdfs?.data}
+          multiple={true}
+          className={"!w-[40vw] !max-h-[50rem]"}
+        />
+      </ResizableModal>
       <ResizableModal
         title={"AI Notes"}
         y={50}
@@ -760,7 +841,7 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
         <SheetTrigger asChild>
           <div
             onClick={() => {
-              setExpanded(!true);
+              setExpanded();
             }}
             className={`bg-primary w-5 h-5 rounded-r-sm cursor-pointer  fixed  mt-1  top-16 left-0 !z-50 flex justify-center items-center 
           ${false ? "opacity-0" : "opacity-100"}
@@ -773,7 +854,7 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
           <SheetClose
             asChild
             onClick={() => {
-              setExpanded(!false);
+              setExpanded();
             }}
           >
             <Menu className="h-5 w-5 cursor-pointer absolute right-4 top-2  text-end text-[#000000] " />
@@ -791,7 +872,7 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                 if (hasChildren) {
                   e.preventDefault();
                   if (!expanded) {
-                    setExpanded(true);
+                    setExpanded();
                     setTimeout(() => handleToggle(index, true), 150);
                   } else {
                     handleToggle(index, true);
@@ -810,20 +891,18 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
               return (
                 <div
                   key={index}
-                  className={`${
-                    role !== "admin" &&
+                  className={`${role !== "admin" &&
                     option?.text === "Not Supported Documents" &&
                     "hidden"
-                  }`}
+                    }`}
                 >
                   <Wrapper
                     to={option.path || "#"}
                     onClick={handleClick}
-                    className={`group cursor-pointer flex  items-center px-4 gap-2 py-3 text-sm font-normal transition-all duration-300 ${
-                      isActive
-                        ? "bg-primary text-white"
-                        : "text-black hover:bg-primary hover:text-white"
-                    }`}
+                    className={`group cursor-pointer flex  items-center px-4 gap-2 py-3 text-sm font-normal transition-all duration-300 ${isActive
+                      ? "bg-primary text-white"
+                      : "text-black hover:bg-primary hover:text-white"
+                      }`}
                   >
                     <div className="relative flex-shrink-0 w-5 h-5">
                       <img
@@ -834,9 +913,8 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                       <img
                         src={option?.hoverImage}
                         alt={option?.text}
-                        className={`absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity ${
-                          isActive ? "opacity-100" : ""
-                        }`}
+                        className={`absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity ${isActive ? "opacity-100" : ""
+                          }`}
                       />
                     </div>
 
@@ -846,7 +924,7 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                         <div className="flex items-center gap-2">
                           {typeof option.count === "number" && (
                             <CustomTooltip
-                              content={"Unverified Documents Count"}
+                              content={`Unverified Documents Count`}
                             >
                               <span className="text-xs bg-red-500 text-white  dark:bg-white/10 dark:text-white px-2 py-1 rounded-full">
                                 {option?.count}
@@ -871,11 +949,10 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                           to={child?.path}
                           onClick={() => setDefault()}
                           key={idx}
-                          className={`block text-sm py-3 mt-1 px-2 hover:bg-primary hover:text-white ${
-                            pathname === child?.path
-                              ? "bg-primary text-white"
-                              : "text-gray-700"
-                          }`}
+                          className={`block text-sm py-3 mt-1 px-2 hover:bg-primary hover:text-white ${pathname === child?.path
+                            ? "bg-primary text-white"
+                            : "text-gray-700"
+                            }`}
                         >
                           <div className="flex justify-between items-center">
                             <span className="truncate">{child?.text}</span>
@@ -942,8 +1019,8 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                             rest_tier == 1
                               ? tier_1
                               : rest_tier == 2
-                              ? tier_2
-                              : tier_3
+                                ? tier_2
+                                : tier_3
                           }
                           alt=""
                         />
@@ -976,7 +1053,7 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                     {myData?.human_verified === true &&
                       myData?.rejected === false && (
                         <CustomTooltip
-                        className={"mb-1 !min-w-fit"}
+                          className={"mb-1 !min-w-fit"}
                           content={`Accepted By :- ${myData?.accepted_by?.username}`}
                         >
                           <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#348355] text-[#ffffff] p-1 rounded-xl px-3">
@@ -985,41 +1062,48 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                         </CustomTooltip>
                       )}
                     {myData?.rejected === true && (
-                       <CustomTooltip
+                      <CustomTooltip
                         className={"mb-1 !min-w-fit"}
-                          content={`Rejected By :- ${myData?.rejected_by?.username}`}
-                        >
-
-                      <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#F15156] text-[#ffffff] p-1 rounded-xl   px-3">
-                        Rejected{" "}
-                      </span>
-                        </CustomTooltip>
+                        content={`Rejected By :- ${myData?.rejected_by?.username}`}
+                      >
+                        <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#F15156] text-[#ffffff] p-1 rounded-xl   px-3">
+                          Rejected{" "}
+                        </span>
+                      </CustomTooltip>
                     )}
                     {myData?.human_verified === false &&
-                      myData?.rejected === false && !myData?.re_review_requested&& (
+                      myData?.rejected === false &&
+                      !myData?.re_review_requested && (
                         <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#B28F10] text-[#ffffff] py-1.5  px-3 rounded-xl ">
                           Pending{" "}
                         </span>
                       )}
-                   <CustomTooltip content={myData?.re_review_requested && `Re-review requested at ${formatDateTimeToReadable(myData?.re_review_requested_date)} `} className={"!min-w-fit !normal-case"}>
-                     {myData?.re_review_requested === true && (
+                    <CustomTooltip
+                      content={
+                        myData?.re_review_requested &&
+                        `Re-review requested at ${formatDateTimeToReadable(
+                          myData?.re_review_requested_date
+                        )} `
+                      }
+                      className={"!min-w-fit !normal-case"}
+                    >
+                      {myData?.re_review_requested === true && (
                         <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-orange-700 text-[#ffffff] py-1  px-3 rounded-xl ">
                           Re-review Requested
                         </span>
                       )}
-                   </CustomTooltip>
+                    </CustomTooltip>
                     {myData?.human_verified === false &&
                       myData?.rejected === false && (
                         <span
-                          className={`${
-                            calculateTimeDifference(
-                              new Date(
-                                metaData?.assignment_details?.verification_due_at
-                              )
-                            )?.includes("ago")
-                              ? "!text-[#F15156]"
-                              : "!text-black"
-                          } mx-2 bg-gray-200  font-poppins font-normal text-xs leading-3  text-[#ffffff] h-6 flex items-center   px-3 rounded-xl `}
+                          className={`${calculateTimeDifference(
+                            new Date(
+                              metaData?.assignment_details?.verification_due_at
+                            )
+                          )?.includes("ago")
+                            ? "!text-[#F15156]"
+                            : "!text-black"
+                            } mx-2 bg-gray-200  font-poppins font-normal text-xs leading-3  text-[#ffffff] h-6 flex items-center   px-3 rounded-xl `}
                         >
                           <div className="flex items-center gap-x-2">
                             <CustomTooltip content={"Due Time"}>
@@ -1051,15 +1135,21 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
             </>
           )}
         </BreadCrumb>
-           {showReReviewRequestedWarning && (
+        {showReReviewRequestedWarning && (
           <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
             <div className="flex items-center gap-x-2">
               <Info className="h-5 w-5 text-[#FF9800]" />
               <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
-                This Document has been requested for a Re-review. <span className="underline underline-offset-2 px-0.5 text-primary cursor-pointer" onClick={()=>{
-                  setShowDocumentNotes(true);
-                }}>Click here</span> to check the reason.
-                
+                This Document has been requested for a Re-review.{" "}
+                <span
+                  className="underline underline-offset-2 px-0.5 text-primary cursor-pointer"
+                  onClick={() => {
+                    setShowDocumentNotes(true);
+                  }}
+                >
+                  Click here
+                </span>{" "}
+                to check the reason.
               </p>
             </div>
 
@@ -1079,8 +1169,8 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                 {vendorChanged && branchChanged
                   ? "Please Save the Vendor Name and Branch Address before proceeding."
                   : vendorChanged
-                  ? " Please Save the Vendor Name before proceeding."
-                  : "Please Save the Branch Address before proceeding."}
+                    ? " Please Save the Vendor Name before proceeding."
+                    : "Please Save the Branch Address before proceeding."}
               </p>
             </div>
 
@@ -1099,16 +1189,14 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
               <Info className="h-5 w-5 text-[#FF9800]" />
               <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
                 {similarBranches?.data?.length > 0 &&
-                similarVendors?.data?.length > 0
+                  similarVendors?.data?.length > 0
                   ? `Found ${similarVendors?.data?.length} Vendors and ${similarBranches?.data?.length} Branches.`
                   : similarVendors?.data?.length > 0
-                  ? `Found ${similarVendors?.data?.length} Similar ${
-                      similarVendors?.data?.length > 1 ? "Vendors." : "Vendor."
+                    ? `Found ${similarVendors?.data?.length} Similar ${similarVendors?.data?.length > 1 ? "Vendors." : "Vendor."
                     }`
-                  : `Found ${similarBranches?.data?.length} Similar ${
-                      similarBranches?.data?.length > 1
-                        ? "Branches."
-                        : "Branch."
+                    : `Found ${similarBranches?.data?.length} Similar ${similarBranches?.data?.length > 1
+                      ? "Branches."
+                      : "Branch."
                     }`}
               </p>
               <p
@@ -1136,12 +1224,12 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                   "Rejection Reason :- "}{" "}
                 {data?.data?.rejected || data?.data?.[0]?.rejected
                   ? data?.data?.rejection_reason ||
-                    data?.data?.[0]?.rejection_reason
+                  data?.data?.[0]?.rejection_reason
                   : action_controls?.accept?.disabled
-                  ? action_controls?.accept?.reason
-                  : action_controls?.reject?.disabled
-                  ? action_controls?.reject?.reason
-                  : null}
+                    ? action_controls?.accept?.reason
+                    : action_controls?.reject?.disabled
+                      ? action_controls?.reject?.reason
+                      : null}
               </p>
             </div>
 
@@ -1177,9 +1265,8 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
         )}
 
         <div
-          className={`${
-            metaData?.extraction_source ? "justify-between" : "justify-end"
-          } flex  gap-x-2 items-center`}
+          className={`${metaData?.extraction_source ? "justify-between" : "justify-end"
+            } flex  gap-x-2 items-center`}
         >
           {/* <div className="flex items-center justify-start"> */}
 
@@ -1261,8 +1348,7 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                 <SheetTrigger>
                   {" "}
                   <Button
-                    className={`bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000] ${
-                      open ||
+                    className={`bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000] ${open ||
                       filters?.human_verified !== "all" ||
                       filters?.human_verification !== "all" ||
                       filters?.invoice_type !== "" ||
@@ -1270,13 +1356,12 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                       filters?.end_date !== "" ||
                       filters?.clickbacon_status !== "" ||
                       filters?.auto_accepted !== ""
-                        ? "!bg-primary !text-white"
-                        : "!bg-white"
-                    }   `}
+                      ? "!bg-primary !text-white"
+                      : "!bg-white"
+                      }   `}
                   >
                     <Filter
-                      className={`${
-                        open ||
+                      className={`${open ||
                         filters?.human_verified !== "all" ||
                         filters?.human_verification !== "all" ||
                         filters?.invoice_type !== "" ||
@@ -1284,9 +1369,9 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                         filters?.end_date !== "" ||
                         filters?.clickbacon_status !== "" ||
                         filters?.auto_accepted !== ""
-                          ? "!text-white"
-                          : ""
-                      } h-5  text-black/40 dark:text-white/50`}
+                        ? "!text-white"
+                        : ""
+                        } h-5  text-black/40 dark:text-white/50`}
                     />
                   </Button>
                 </SheetTrigger>
@@ -1319,12 +1404,10 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                 <Button
                   onClick={() => {
                     navigator.clipboard.writeText(
-                      `${
-                        window.location.origin
-                      }/invoice-details?document_uuid=${
-                        document_uuid ||
-                        data?.data?.[0]?.document_uuid ||
-                        data?.data?.document_uuid
+                      `${window.location.origin
+                      }/invoice-details?document_uuid=${document_uuid ||
+                      data?.data?.[0]?.document_uuid ||
+                      data?.data?.document_uuid
                       }`
                     );
                     toast.success("Link copied to clipboard");
@@ -1372,46 +1455,29 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
               />
               {(role?.toLowerCase() == "admin" ||
                 role?.toLowerCase() == "manager") && (
-                <CustomTooltip content={"Click To Reset the Invoice Status ."} className={"!min-w-fit"}>
-                  <Button
-                    onClick={() => {
-                      setLoadingState((prev) => ({ ...prev, reverting: true }));
-                      revertChanges(
-                        data?.data?.document_uuid ||
-                          data?.data?.[0]?.document_uuid,
-                        {
-                          onSuccess: () => {
-                            setLoadingState((prev) => ({
-                              ...prev,
-                              reverting: false
-                            }));
-                          },
-                          onError: () => {
-                            setLoadingState((prev) => ({
-                              ...prev,
-                              reverting: false
-                            }));
-                          }
-                        }
-                      );
-                    }}
-                    disabled={
-                      loadingState?.reverting ||
-                      loadingState?.rejecting ||
-                      loadingState?.markingAsNotSupported ||
-                      loadingState?.markingForReview ||
-                      loadingState?.reverting ||
-                      loadingState?.accepting ||
-                      loadingState?.saving
-                    }
-                    className="bg-transparent h-[2.4rem] dark:text-white border-primary  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
-                  >
-                    {loadingState?.reverting ? "Resetting.." : <RefreshCcwDot className="!w-[1.1rem] !h-[1.2rem]"/>}
-                  </Button>
-                </CustomTooltip>
-              )}
+                  <CustomTooltip content={"Click To Reset the Invoice Status ."} className={"!min-w-fit"}>
+                    <Button
+                      onClick={() => {
+                        setShowResetStatusModal(true)
+
+                      }}
+                      disabled={
+                        loadingState?.reverting ||
+                        loadingState?.rejecting ||
+                        loadingState?.markingAsNotSupported ||
+                        loadingState?.markingForReview ||
+                        loadingState?.reverting ||
+                        loadingState?.accepting ||
+                        loadingState?.saving
+                      }
+                      className="bg-transparent h-[2.4rem] dark:text-white border-primary  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                    >
+                      {loadingState?.reverting ? "Resetting.." : <RefreshCcwDot className="!w-[1.1rem] !h-[1.2rem]" />}
+                    </Button>
+                  </CustomTooltip>
+                )}
               <CustomTooltip
-              className={"!min-w-fit "}
+                className={"!min-w-fit "}
                 content={
                   action_controls?.review_later?.disabled
                     ? action_controls?.review_later?.reason
@@ -1435,13 +1501,13 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                   }
                   className="bg-transparent h-[2.4rem] dark:text-white border-primary  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                 >
-                    <ScanEye className="!w-[1.1rem] !h-[1.2rem] text-black "/>
+                  <ScanEye className="!w-[1.1rem] !h-[1.2rem] text-black " />
                 </Button>
               </CustomTooltip>
-               <CustomTooltip
-               className={"!min-w-fit"}
+              <CustomTooltip
+                className={"!min-w-fit"}
                 content={
-                 "Click To Mark this Document as Multiple Invoice Document."
+                  "Click To Mark this Document as Multiple Invoice Document."
                 }
               >
                 <Button
@@ -1457,14 +1523,14 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                     loadingState?.markingForReview ||
                     loadingState?.reverting ||
                     loadingState?.accepting ||
-                    loadingState?.saving||loadingState?.mutliInvoceMarking
+                    loadingState?.saving || loadingState?.mutliInvoceMarking
                   }
                   className="bg-transparent h-[2.4rem] dark:text-white border-primary  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                 >
-                  <Files className="!w-[1.1rem] !h-[1.2rem] text-black "/>
+                  <Files className="!w-[1.1rem] !h-[1.2rem] text-black " />
                 </Button>
               </CustomTooltip>
-                 <CustomTooltip
+              <CustomTooltip
                 content={
                   action_controls?.mark_as_not_supported?.disabled
                     ? action_controls?.mark_as_not_supported?.reason
@@ -1485,7 +1551,7 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                   onClick={() => setMarkAsNotSupportedModal(true)}
                   className="bg-transparent h-[2.4rem] dark:text-white border-primary   hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                 >
-                  <Flag className="!w-[1.1rem] !h-[1.2rem] text-black "/>
+                  <Flag className="!w-[1.1rem] !h-[1.2rem] text-black " />
                 </Button>
               </CustomTooltip>
 
@@ -1520,8 +1586,8 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                   !warning_checkbox_checked
                     ? "Please check vendor name checkbox."
                     : action_controls?.accept?.disabled
-                    ? action_controls?.accept?.reason
-                    : "Click To Accept This Document."
+                      ? action_controls?.accept?.reason
+                      : "Click To Accept This Document."
                 }
               >
                 <Button
@@ -1555,7 +1621,7 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                 </Button>
               </CustomTooltip>
 
-           
+
               <CustomTooltip
                 content={
                   action_controls?.save?.disabled
@@ -1596,14 +1662,12 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
               }
               pdfUrls={[
                 {
-                  document_link: `${
-                    data?.data?.document_link || data?.data?.[0]?.document_link
-                  }
+                  document_link: `${data?.data?.document_link || data?.data?.[0]?.document_link
+                    }
                     `,
-                  document_source: `${
-                    data?.data?.document_source ||
+                  document_source: `${data?.data?.document_source ||
                     data?.data?.[0]?.document_source
-                  }`
+                    }`
                 }
               ]}
             />
@@ -1636,6 +1700,61 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
             />
           </div>
         </div>
+
+        {/* Reset Invoice Status Modal */}
+        <Modal
+          open={showResetStatusModal}
+          setOpen={setShowResetStatusModal}
+           showXicon={true}
+          className={"max-w-[25rem] !rounded-xl"}
+        >
+          <ModalDescription>
+            <div className="w-full flex  flex-col justify-center h-full items-center  ">
+              <img src={warning} alt="" className="h-16 w-16 mb-2 mt-4" />
+              <p className="font-poppins font-semibold text-base leading-6  text-[#000000]">
+                Warning
+              </p>
+              <p className="px-8 !text-center mt-2 text-[#666667] font-poppins font-normal  text-sm leading-4">
+                Are you sure to Reset the Invoice Status?
+              </p>
+              <div className="flex items-center gap-x-4 mb-4 mt-8">
+                <Button
+                  onClick={() => setShowMultipleInvoiceModal(false)}
+                  className="rounded-sm !w-[4.5rem] !font-poppins bg-transparent border border-primary shadow-none text-[#000000] font-normal text-xs hover:bg-transparent"
+                >
+                  No
+                </Button>
+                <Button
+                  onClick={() => {
+                    setLoadingState((prev) => ({ ...prev, reverting: true }));
+                    revertChanges(
+                      data?.data?.document_uuid ||
+                      data?.data?.[0]?.document_uuid,
+                      {
+                        onSuccess: () => {
+                          setLoadingState((prev) => ({
+                            ...prev,
+                            reverting: false
+                          }));
+                        },
+                        onError: () => {
+                          setLoadingState((prev) => ({
+                            ...prev,
+                            reverting: false
+                          }));
+                        }
+                      }
+                    );
+                  }}
+                  disabled={loadingState?.reverting}
+                  className="rounded-sm !w-[4.5rem] !font-poppins text-xs font-normal"
+                >
+                  {loadingState?.reverting ? "Marking..." : "Yes"}
+                </Button>
+              </div>
+            </div>
+          </ModalDescription>
+        </Modal>
         {/* Mark For Review Modal */}
         <Modal
           open={markForReviewModal}
@@ -1746,7 +1865,7 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                     });
                     markAsNotSupported(
                       data?.data?.document_uuid ||
-                        data?.data?.[0]?.document_uuid,
+                      data?.data?.[0]?.document_uuid,
                       {
                         onSuccess: () => {
                           setLoadingState({
@@ -1804,7 +1923,7 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                     });
                     markAsNotSupported(
                       data?.data?.document_uuid ||
-                        data?.data?.[0]?.document_uuid,
+                      data?.data?.[0]?.document_uuid,
                       {
                         onSuccess: () => {
                           setLoadingState({
@@ -2003,10 +2122,10 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
         isOpen={showAcceptModal}
         onClose={() => setShowAcceptModal()}
         title={"Information"}
-        className={"!rounded-2xl  max-w-[50rem] "}
+        className={"!rounded-2xl  !w-[55rem] "}
       >
         {similarVendors?.data?.length > 0 &&
-        similarBranches?.data?.length > 0 ? (
+          similarBranches?.data?.length > 0 ? (
           <div className="my-2">
             <p className="mb-3 pl-0.5  font-poppins text-[0.9rem] font-semibold text-[#000000] ">
               Matching Verified Vendors ({similarVendors?.data?.length}) and
@@ -2033,15 +2152,18 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
               <>
                 <div className="sticky top-0 bg-white z-50">
                   <Table className="!sticky !top-0">
-                    <TableRow className="grid grid-cols-3 items-center content-center ">
-                      <TableHead className="border-r  border-t border-l font-poppins text-sm font-semibold content-center text-black leading-5">
+                    <TableRow className="w-[100%] items-center content-center ">
+                      <TableHead className="border-r w-[30%]  border-t border-l font-poppins text-sm font-semibold content-center text-black leading-5">
                         Vendor Name
                       </TableHead>
-                      <TableHead className="border-r border-t  font-poppins text-sm font-semibold text-black leading-5 content-center">
+                      <TableHead className="border-r w-[20%] border-t  font-poppins text-sm font-semibold text-black leading-5 content-center">
                         Similarity{" "}
                       </TableHead>
-                      <TableHead className=" font-poppins text-sm border-t border-r font-semibold text-black leading-5 content-center">
+                      <TableHead className=" font-poppins w-[30%] text-sm border-t border-r font-semibold text-black leading-5 content-center">
                         Finding Method
+                      </TableHead>
+                      <TableHead className=" font-poppins text-sm w-[20%] border-t border-r font-semibold text-black leading-5 content-center">
+                        View
                       </TableHead>
                     </TableRow>
                   </Table>
@@ -2056,12 +2178,22 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                           })
                           ?.map((row, index) => (
                             <TableRow
-                              className=" !border-b grid grid-cols-3 "
+                              className=" !border-b w-[100%] flex items-center "
                               key={index}
                             >
-                              <TableCell className=" border-l font-poppins border-r font-normal content-center text-black text-sm">
+                              <TableCell className="w-[30%] border-l font-poppins border-r font-normal content-center text-black text-sm">
                                 <div className="flex items-center gap-x-2  justify-between w-full capitalize">
-                                  <span className="max-w-44">
+                                  <span
+                                    className="max-w-44 underline cursor-pointer text-primary"
+                                    onClick={() => {
+                                      window.open(
+                                        `${import.meta.env
+                                          .VITE_APP_OLD_UI_STAGING_UI
+                                        }/vendor-consolidation-v2/${row?.vendor?.vendor_id
+                                        }`
+                                      );
+                                    }}
+                                  >
                                     {" "}
                                     {row?.vendor?.vendor_name}
                                   </span>
@@ -2079,7 +2211,7 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                                   </div>
                                 </div>
                               </TableCell>
-                              <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
+                              <TableCell className="w-[20%] border-r content-center font-poppins font-normal text-black text-sm">
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger div className=" z-50">
@@ -2091,8 +2223,19 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                                   </Tooltip>
                                 </TooltipProvider>
                               </TableCell>
-                              <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
+                              <TableCell className="w-[30%] border-r content-center font-poppins font-normal text-black text-sm">
                                 {row?.finding_method}
+                              </TableCell>
+                              <TableCell className="w-[20%] border-r content-center font-poppins font-normal text-black text-sm">
+                                {
+                                  <FileText
+                                    onClick={() => {
+                                      setSelectedSimilarVendor(row?.vendor);
+                                      setShowSimilarVendorPdfs(true);
+                                    }}
+                                    className="w-4 h-4  cursor-pointer"
+                                  />
+                                }
                               </TableCell>
                             </TableRow>
                           ))}
@@ -2115,15 +2258,18 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
               <>
                 <div className="sticky top-0 bg-white z-50">
                   <Table className="!sticky !top-0">
-                    <TableRow className="grid grid-cols-3 items-center content-center ">
-                      <TableHead className="border-r  border-t border-l font-poppins text-sm font-semibold content-center text-black leading-5">
+                    <TableRow className="flex w-[100%] items-center content-center ">
+                      <TableHead className="border-r  w-[30%] border-t border-l font-poppins text-sm font-semibold content-center text-black leading-5">
                         Branch Name
                       </TableHead>
-                      <TableHead className="border-r border-t  font-poppins text-sm font-semibold text-black leading-5 content-center">
+                      <TableHead className="border-r w-[20%] border-t  font-poppins text-sm font-semibold text-black leading-5 content-center">
                         Similarity{" "}
                       </TableHead>
-                      <TableHead className=" font-poppins text-sm border-t border-r font-semibold text-black leading-5 content-center">
+                      <TableHead className=" font-poppins w-[30%] text-sm border-t border-r font-semibold text-black leading-5 content-center">
                         Finding Method
+                      </TableHead>
+                      <TableHead className=" font-poppins w-[20%] text-sm border-t border-r font-semibold text-black leading-5 content-center">
+                        View
                       </TableHead>
                     </TableRow>
                   </Table>
@@ -2138,12 +2284,22 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                           })
                           ?.map((row, index) => (
                             <TableRow
-                              className=" !border-b grid grid-cols-3 "
+                              className=" !border-b flex items-center w-[100%]"
                               key={index}
                             >
-                              <TableCell className=" border-l font-poppins border-r font-normal content-center text-black text-sm">
+                              <TableCell className="w-[30%] border-l font-poppins border-r font-normal content-center text-black text-sm">
                                 <div className="flex items-center gap-x-2 capitalize justify-between">
-                                  <span className="max-w-44">
+                                  <span
+                                    className="max-w-44 underline text-primary cursor-pointer"
+                                    onClick={() => {
+                                      window.open(
+                                        `${import.meta.env
+                                          .VITE_APP_OLD_UI_STAGING_UI
+                                        }/vendor-v2/${row?.vendor?.vendor_id
+                                        }/branch/${row?.branch?.branch_id}`
+                                      );
+                                    }}
+                                  >
                                     {row?.branch?.vendor_address}
                                   </span>
                                   <div className="flex items-center gap-x-2">
@@ -2160,7 +2316,7 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                                   </div>
                                 </div>
                               </TableCell>
-                              <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
+                              <TableCell className="w-[20%] border-r content-center font-poppins font-normal text-black text-sm">
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger div className=" z-50">
@@ -2172,8 +2328,19 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                                   </Tooltip>
                                 </TooltipProvider>
                               </TableCell>
-                              <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
+                              <TableCell className="w-[30%] border-r content-center font-poppins font-normal text-black text-sm">
                                 {row?.finding_method}
+                              </TableCell>
+                              <TableCell className="w-[20%] border-r content-center font-poppins font-normal text-black text-sm">
+                                <FileText
+                                  className="w-4 h-4 cursor-pointer"
+                                  onClick={() => {
+                                    setSelectedSimilarBranch(row?.branch);
+                                    setShowSimilarBranchPdfs(true);
+                                    setShowSimilarVendorPdfs(false);
+                                    setSelectedSimilarVendor(null);
+                                  }}
+                                />
                               </TableCell>
                             </TableRow>
                           ))}
