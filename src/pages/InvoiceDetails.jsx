@@ -1917,7 +1917,7 @@ const InvoiceDetails = () => {
                       ...loadingState,
                       mutliInvoceMarking: true
                     });
-                    markAsNotSupported(
+                    markAsMutlipleInvoice(
                       data?.data?.document_uuid ||
                       data?.data?.[0]?.document_uuid,
                       {
