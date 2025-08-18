@@ -269,16 +269,21 @@ const InvoiceGroupAccordion = ({
         className="!rounded-sm !shadow-none border !text-sm w-full"
         triggerClassName="!text-sm"
         triggerButtons={<div className="flex items-center gap-x-2">
+             <CustomTooltip className={"Move Group"}>
+
           <Button className="bg-red-500 hover:bg-red-500 w-7 h-7 rounded-sm"
             onClick={(e) => {
               e.stopPropagation();
               setShowMoveGroupModal(true)
               setSelectedGroupToMove(group)
             }}
-          >
+            >
             <Move className="w-5 h-5" />
           </Button>
-          <Button className="bg-red-500 hover:bg-red-500 w-7 h-7 rounded-sm"
+            </CustomTooltip>
+          <CustomTooltip className={"Delete Group"}>
+
+            <Button className="bg-red-500 hover:bg-red-500 w-7 h-7 rounded-sm"
             onClick={(e) => {
 
               e.stopPropagation();
@@ -287,6 +292,8 @@ const InvoiceGroupAccordion = ({
           >
             <Trash2 className="w-5 h-5" />
           </Button>
+          </CustomTooltip>
+        <CustomTooltip className={editing?"Save Group":"Edit Group"}>
 
 
           {!editing ? (
@@ -316,7 +323,11 @@ const InvoiceGroupAccordion = ({
               </Button>
             )
           }
-        </div>}
+          </CustomTooltip>
+        </div>
+        
+      }
+
         title={
           f_key == "open_groups"
             ? `${group?.type?.split("_")?.join(" ") || ""}`
