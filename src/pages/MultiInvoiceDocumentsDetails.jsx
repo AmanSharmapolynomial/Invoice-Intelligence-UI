@@ -272,6 +272,7 @@ const InvoiceGroupAccordion = ({
           <CustomTooltip content={"Move Group"}>
 
             <Button className="bg-red-500 hover:bg-red-500 w-7 h-7 rounded-sm"
+            disabled={editing}
               onClick={(e) => {
                 e.stopPropagation();
                 setShowMoveGroupModal(true)
@@ -401,11 +402,12 @@ const InvoiceGroupAccordion = ({
               <div className="flex items-center gap-x-2 ml-4 w-[420px] justify-between">
                 <p className="font-poppins font-medium text-sm">Type</p>
                 <CustomDropDown Value={group?.type} data={
-                  [{ label: "Noise", value: "noise" }, {
-                    label: "Multiple Invoice", value: "multiple_invoice"
-                  }, {
-                    label: "Unidentified", value: "unidentified"
-                  }
+                  [
+                    { label: "Noise", value: "noise" },
+                    { label: "Multiple Invoice", value: "multiple_invoice"}, 
+                    { label: "Unidentified", value: "unidentified"},
+                    { label: "Not Supported", value: "not_supported"},
+
 
                   ]}
 
@@ -518,7 +520,7 @@ const InvoiceGroupAccordion = ({
       <Modal
         open={showMoveGroupModal}
         title={"Move Group"}
-        className={"h-[70vh]"}
+        // className={"h-[70vh]"}
         titleClassName={"font-poppins font-semibold text-base"}
         setOpen={setShowMoveGroupModal}
       >
@@ -552,7 +554,7 @@ const InvoiceGroupAccordion = ({
               );
             })}
           </RadioGroup>
-          <div>
+          <div className="mt-6 mb-4">
             {selectedGroupToMove?.group_type == "open_groups" ?
               <div className="flex flex-col gap-y-2 my-2">
                 <div className="flex items-center gap-x-2 ml-4 w-[420px] justify-between">
@@ -602,6 +604,7 @@ const InvoiceGroupAccordion = ({
                     <option value="noise" className="hover:!bg-gray-200">Noise</option>
                     <option value="multiple_invoice">Multiple Invoice</option>
                     <option value="unidentified">Unidentified</option>
+                    <option value="not_supported">Not Supported</option>
                   </select>
 
 
@@ -618,7 +621,8 @@ const InvoiceGroupAccordion = ({
               onClick={() => {
                 setShowMoveGroupModal(false);
                 setSelectedGroupToMove(null);
-                setSelectedGroupType(null)
+                setSelectedGroupType(null);
+                setEditing(false);
               }}
               className="rounded-sm !w-[4.5rem] !font-poppins bg-transparent border border-primary shadow-none text-[#000000] font-normal text-xs hover:bg-transparent"
             >
