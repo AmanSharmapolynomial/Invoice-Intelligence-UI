@@ -80,6 +80,7 @@ import {
   ChevronUp,
   Clock,
   Copy,
+  Files,
   FileX,
   Filter,
   Flag,
@@ -88,6 +89,7 @@ import {
   NotebookTabs,
   RefreshCcwDot,
   Save,
+  ScanEye,
   Share2,
   Table2,
   TextSelect,
@@ -1370,7 +1372,7 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
               />
               {(role?.toLowerCase() == "admin" ||
                 role?.toLowerCase() == "manager") && (
-                <CustomTooltip content={"Click To reset the invoice status ."} className={"!min-w-fit"}>
+                <CustomTooltip content={"Click To Reset the Invoice Status ."} className={"!min-w-fit"}>
                   <Button
                     onClick={() => {
                       setLoadingState((prev) => ({ ...prev, reverting: true }));
@@ -1404,15 +1406,16 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                     }
                     className="bg-transparent h-[2.4rem] dark:text-white border-primary  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                   >
-                    {loadingState?.reverting ? "Resetting.." : <RefreshCcwDot/>}
+                    {loadingState?.reverting ? "Resetting.." : <RefreshCcwDot className="!w-[1.1rem] !h-[1.2rem]"/>}
                   </Button>
                 </CustomTooltip>
               )}
               <CustomTooltip
+              className={"!min-w-fit "}
                 content={
                   action_controls?.review_later?.disabled
                     ? action_controls?.review_later?.reason
-                    : "Click To Mark It For A Review."
+                    : "Click To Mark this document  for a Review."
                 }
               >
                 <Button
@@ -1432,7 +1435,7 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                   }
                   className="bg-transparent h-[2.4rem] dark:text-white border-primary  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                 >
-                  <Flag/>
+                    <ScanEye className="!w-[1.1rem] !h-[1.2rem] text-black "/>
                 </Button>
               </CustomTooltip>
                <CustomTooltip
@@ -1458,9 +1461,34 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                   }
                   className="bg-transparent h-[2.4rem] dark:text-white border-primary  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                 >
-                  Multiple Invoice 
+                  <Files className="!w-[1.1rem] !h-[1.2rem] text-black "/>
                 </Button>
               </CustomTooltip>
+                 <CustomTooltip
+                content={
+                  action_controls?.mark_as_not_supported?.disabled
+                    ? action_controls?.mark_as_not_supported?.reason
+                    : "Click To Mark This Document As Not Supported."
+                }
+                className={"!min-w-fit"}
+              >
+                <Button
+                  disabled={
+                    action_controls?.mark_as_not_supported?.disabled ||
+                    loadingState?.rejecting ||
+                    loadingState?.markingAsNotSupported ||
+                    loadingState?.markingForReview ||
+                    loadingState?.reverting ||
+                    loadingState?.accepting ||
+                    loadingState?.saving
+                  }
+                  onClick={() => setMarkAsNotSupportedModal(true)}
+                  className="bg-transparent h-[2.4rem] dark:text-white border-primary   hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                >
+                  <Flag className="!w-[1.1rem] !h-[1.2rem] text-black "/>
+                </Button>
+              </CustomTooltip>
+
               <CustomTooltip
                 content={
                   action_controls?.reject?.disabled
@@ -1527,31 +1555,7 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                 </Button>
               </CustomTooltip>
 
-              <CustomTooltip
-                content={
-                  action_controls?.mark_as_not_supported?.disabled
-                    ? action_controls?.mark_as_not_supported?.reason
-                    : "Click To Mark This Document As Not Supported."
-                }
-                className={"!min-w-fit"}
-              >
-                <Button
-                  disabled={
-                    action_controls?.mark_as_not_supported?.disabled ||
-                    loadingState?.rejecting ||
-                    loadingState?.markingAsNotSupported ||
-                    loadingState?.markingForReview ||
-                    loadingState?.reverting ||
-                    loadingState?.accepting ||
-                    loadingState?.saving
-                  }
-                  onClick={() => setMarkAsNotSupportedModal(true)}
-                  className="bg-transparent h-[2.4rem] dark:text-white border-primary !p-0 !w-[2.4rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
-                >
-                  <FileX className="!w-[1.1rem] !h-[1.2rem] text-black "/>
-                </Button>
-              </CustomTooltip>
-
+           
               <CustomTooltip
                 content={
                   action_controls?.save?.disabled
@@ -1572,9 +1576,9 @@ const [showMultipleInvoiceModal,setShowMultipleInvoiceModal]=useState(false)
                     loadingState?.saving
                   }
                   onClick={() => handleSave()}
-                  className="font-poppins h-[2.4rem] dark:text-white font-normal !p-0 w-[2.4rem] rounded-md text-sm leading-5 border-2 border-primary text-[#ffffff]"
+                  className="font-poppins h-[2.4rem] dark:text-white font-normal  rounded-md text-sm leading-5 border-2 border-primary text-[#ffffff]"
                 >
-                  {loadingState?.saving ? "Saving..." : <Save className="h-5 w-5" />}
+                  {loadingState?.saving ? "Saving..." : <Save className="!w-[1.1rem] !h-[1.2rem]" />}
                 </Button>
               </CustomTooltip>
             </div>
