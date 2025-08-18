@@ -269,64 +269,64 @@ const InvoiceGroupAccordion = ({
         className="!rounded-sm !shadow-none border !text-sm w-full"
         triggerClassName="!text-sm"
         triggerButtons={<div className="flex items-center gap-x-2">
-             <CustomTooltip className={"Move Group"}>
-
-          <Button className="bg-red-500 hover:bg-red-500 w-7 h-7 rounded-sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowMoveGroupModal(true)
-              setSelectedGroupToMove(group)
-            }}
-            >
-            <Move className="w-5 h-5" />
-          </Button>
-            </CustomTooltip>
-          <CustomTooltip className={"Delete Group"}>
+          <CustomTooltip content={"Move Group"}>
 
             <Button className="bg-red-500 hover:bg-red-500 w-7 h-7 rounded-sm"
-            onClick={(e) => {
-
-              e.stopPropagation();
-              handleDeleteGroup();
-            }}
-          >
-            <Trash2 className="w-5 h-5" />
-          </Button>
-          </CustomTooltip>
-        <CustomTooltip className={editing?"Save Group":"Edit Group"}>
-
-
-          {!editing ? (
-
-            <Button
-
-              className="bg-primary hover:bg-primary w-7 h-7 rounded-sm"
               onClick={(e) => {
                 e.stopPropagation();
-                setEditing(true);
+                setShowMoveGroupModal(true)
+                setSelectedGroupToMove(group)
               }}
             >
-              <Pencil />
+              <Move className="w-5 h-5" />
             </Button>
-          )
-            : (
+          </CustomTooltip>
+          <CustomTooltip content={"Delete Group"}>
+
+            <Button className="bg-red-500 hover:bg-red-500 w-7 h-7 rounded-sm"
+              onClick={(e) => {
+
+                e.stopPropagation();
+                handleDeleteGroup();
+              }}
+            >
+              <Trash2 className="w-5 h-5" />
+            </Button>
+          </CustomTooltip>
+          <CustomTooltip content={editing ? "Save Group" : "Edit Group"}>
+
+
+            {!editing ? (
+
               <Button
 
                 className="bg-primary hover:bg-primary w-7 h-7 rounded-sm"
                 onClick={(e) => {
                   e.stopPropagation();
-                  setEditing(false);
-
+                  setEditing(true);
                 }}
               >
-                <Save />
+                <Pencil />
               </Button>
             )
-          }
+              : (
+                <Button
+
+                  className="bg-primary hover:bg-primary w-7 h-7 rounded-sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEditing(false);
+
+                  }}
+                >
+                  <Save />
+                </Button>
+              )
+            }
           </CustomTooltip>
         </div>
-        
-      }
+
+        }
 
         title={
           f_key == "open_groups"
@@ -528,11 +528,11 @@ const InvoiceGroupAccordion = ({
             defaultValue={null}
             onValueChange={(v) => {
               setSelectedGroupType(v);
-              if(v!=="Open Groups"){
-setSelectedGroupToMove({...selectedGroupToMove,type:""})
-              }else{
+              if (v !== "Open Groups") {
+                setSelectedGroupToMove({ ...selectedGroupToMove, type: "" })
+              } else {
 
-                setSelectedGroupToMove({...selectedGroupToMove,vendor_name:"",invoice_number:"",type:""})
+                setSelectedGroupToMove({ ...selectedGroupToMove, vendor_name: "", invoice_number: "", type: "" })
               }
             }}
             className=" flex flex-col font-poppins text-black font-medium text-sm  gap-y-2 mt-4"
@@ -1269,15 +1269,19 @@ const MultiInvoiceDocumentsDetails = () => {
                       className="!rounded-sm  !shadow-none border !text-sm w-full"
                       triggerClassName="!text-sm"
                       contentClassName={"px-4 py-3"}
-                      triggerButtons={<> <Button
-                        className="rouned-sm h-7 w-7"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAddGroup("closed_groups");
-                        }}
-                      >
-                        <Plus className="h-5 w-5" />
-                      </Button>
+                      triggerButtons={<>
+                        <CustomTooltip content={"Add New Group"}>
+
+                          <Button
+                            className="rouned-sm h-7 w-7"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAddGroup("closed_groups");
+                            }}
+                          >
+                            <Plus className="h-5 w-5" />
+                          </Button>
+                        </CustomTooltip>
 
                       </>}
                     >
@@ -1308,16 +1312,20 @@ const MultiInvoiceDocumentsDetails = () => {
                       className="!rounded-sm  !shadow-none border !text-sm w-full"
                       triggerClassName="!text-sm"
                       contentClassName={"px-4 py-3"}
-                      triggerButtons={<> <Button
-                        className="rouned-sm h-7 w-7"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAddGroup("incomplete_groups");
-                        }}
-                      >
-                        <Plus className="h-5 w-5" />
-                      </Button>
+                      triggerButtons={<>
+                        <CustomTooltip content={"Add New Group"}>
 
+                          <Button
+                            className="rouned-sm h-7 w-7"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAddGroup("incomplete_groups");
+                            }}
+                          >
+                            <Plus className="h-5 w-5" />
+                          </Button>
+
+                        </CustomTooltip>
                       </>}
                     >
                       <div className="flex flex-col gap-y-1  max-h-[22.5rem]  overflow-auto">
@@ -1346,15 +1354,20 @@ const MultiInvoiceDocumentsDetails = () => {
                       title={`Open Groups (${myData?.open_groups?.length})`}
                       className="!rounded-sm  !shadow-none border !text-sm w-full"
                       triggerClassName="!text-sm"
-                      triggerButtons={<> <Button
-                        className="rouned-sm h-7 w-7"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAddGroup("open_groups");
-                        }}
-                      >
-                        <Plus className="h-5 w-5" />
-                      </Button>
+                      triggerButtons={<>
+
+                        <CustomTooltip content={"Add New Group"}>
+
+                          <Button
+                            className="rouned-sm h-7 w-7"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAddGroup("open_groups");
+                            }}
+                          >
+                            <Plus className="h-5 w-5" />
+                          </Button>
+                        </CustomTooltip>
                       </>}
 
                       contentClassName={"px-4 py-3"}
