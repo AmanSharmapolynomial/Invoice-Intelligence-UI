@@ -1,5 +1,10 @@
+import tier_1 from "@/assets/image/tier_1.svg";
+import tier_2 from "@/assets/image/tier_2.svg";
+import tier_3 from "@/assets/image/tier_3.svg";
+import warning from "@/assets/image/warning.svg";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
+import { PdfViewer } from "@/components/common/PDFViewer";
 import Sidebar from "@/components/common/Sidebar";
 import {
   useApproveMultiInvoiceDocument,
@@ -9,8 +14,28 @@ import {
   useSearchInvoice,
   useUpdateMultiInvoiceDocument
 } from "@/components/home/api";
+import InvoiceFilters from "@/components/invoice/InvoiceFilters";
+import InvoicePagination from "@/components/invoice/InvoicePagination";
+import { useMarkMultipleInvoiceDocumentAsNotSupported } from "@/components/invoice/api";
 import { useInvoiceStore } from "@/components/invoice/store";
 import BreadCrumb from "@/components/ui/Custom/BreadCrumb";
+import CustomAccordion from "@/components/ui/Custom/CustomAccordion";
+import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
+import CustomDropDown from "@/components/ui/CustomDropDown";
+import Loader from "@/components/ui/Loader";
+import { Modal, ModalDescription } from "@/components/ui/Modal";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger
+} from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetVendorNames } from "@/components/vendor/api";
 import {
@@ -20,17 +45,9 @@ import {
   vendorNamesFormatter
 } from "@/lib/helpers";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
+import { queryClient } from "@/lib/utils";
 import useFilterStore from "@/store/filtersStore";
 import persistStore from "@/store/persistStore";
-import { useEffect, useMemo, useState } from "react";
-import tier_1 from "@/assets/image/tier_1.svg";
-import tier_2 from "@/assets/image/tier_2.svg";
-import tier_3 from "@/assets/image/tier_3.svg";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { PdfViewer } from "@/components/common/PDFViewer";
-import { Accordion, AccordionTrigger } from "@/components/ui/accordion";
-import CustomAccordion from "@/components/ui/Custom/CustomAccordion";
-import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
   Check,
@@ -41,32 +58,13 @@ import {
   Plus,
   Save,
   Share2,
-  Trash,
   Trash2,
   X
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { queryClient } from "@/lib/utils";
+import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
-import InvoicePagination from "@/components/invoice/InvoicePagination";
-import Loader from "@/components/ui/Loader";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger
-} from "@/components/ui/sheet";
-import InvoiceFilters from "@/components/invoice/InvoiceFilters";
-import { Modal, ModalDescription } from "@/components/ui/Modal";
-import CustomDropDown from "@/components/ui/CustomDropDown";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
-import { useMarkAsNotSupported } from "@/components/invoice/api";
-import warning from "@/assets/image/warning.svg";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
 const InvoiceGroupAccordion = ({
   group,
   f_key,
@@ -938,7 +936,7 @@ const MultiInvoiceDocumentsDetails = () => {
     });
   };
 
-  const { mutate: markAsNotSupported, isPending, isError } = useMarkAsNotSupported()
+  const { mutate: markAsNotSupported, isPending, isError } = useMarkMultipleInvoiceDocumentAsNotSupported()
   const [markAsNotSupportedModal, setMarkAsNotSupportedModal] = useState(false);
   return (
     <div className="!h-screen  flex w-full " id="maindiv">
