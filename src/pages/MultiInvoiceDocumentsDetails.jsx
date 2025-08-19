@@ -65,6 +65,18 @@ import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
+
+let dropdownOptions = [
+  { label: "Noise", value: "Noise" },
+  { label: "Multiple Invoice", value: "Multiple Invoice" },
+  { label: "Unidentified", value: "Unidentified" },
+  { label: "Not Supported", value: "Not Supported" },
+  { label: "Blank Page", value: "Blank Page" },
+  { label: "Invoice Details Unclear", value: "Invoice Details Unclear" },
+  { label: "Total Amount Unclear", value: "Total Amount Unclear" },
+  { label: "Multiple Invoices on A Page", value: "Multiple Invoices on A Page" },
+]
+
 const InvoiceGroupAccordion = ({
   group,
   f_key,
@@ -272,7 +284,7 @@ const InvoiceGroupAccordion = ({
           <CustomTooltip content={"Move Group"}>
 
             <Button className="bg-red-500 hover:bg-red-500 w-7 h-7 rounded-sm"
-            disabled={editing}
+              disabled={editing}
               onClick={(e) => {
                 e.stopPropagation();
                 setShowMoveGroupModal(true)
@@ -401,15 +413,7 @@ const InvoiceGroupAccordion = ({
             f_key === "open_groups" && (
               <div className="flex items-center gap-x-2 ml-4 w-[420px] justify-between">
                 <p className="font-poppins font-medium text-sm">Type</p>
-                <CustomDropDown Value={group?.type} data={
-                  [
-                    { label: "Noise", value: "noise" },
-                    { label: "Multiple Invoice", value: "multiple_invoice"}, 
-                    { label: "Unidentified", value: "unidentified"},
-                    { label: "Not Supported", value: "not_supported"},
-
-
-                  ]}
+                <CustomDropDown Value={group?.type} data={dropdownOptions}
 
                   onChange={(v) => {
 
@@ -601,10 +605,12 @@ const InvoiceGroupAccordion = ({
                     <option value="" disabled>
                       Select group type
                     </option>
-                    <option value="noise" className="hover:!bg-gray-200">Noise</option>
-                    <option value="multiple_invoice">Multiple Invoice</option>
-                    <option value="unidentified">Unidentified</option>
-                    <option value="not_supported">Not Supported</option>
+                    {
+                      dropdownOptions?.map((option, index) => (
+                        <option value={option?.value} key={index} className="hover:!bg-gray-200">{option?.label}</option>
+
+                      ))
+                    }
                   </select>
 
 
