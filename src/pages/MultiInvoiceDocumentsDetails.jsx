@@ -67,14 +67,12 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 
 let dropdownOptions = [
-  { label: "Noise", value: "Noise" },
-  { label: "Multiple Invoice", value: "Multiple Invoice" },
-  { label: "Unidentified", value: "Unidentified" },
-  { label: "Not Supported", value: "Not Supported" },
-  { label: "Blank Page", value: "Blank Page" },
-  { label: "Invoice Details Unclear", value: "Invoice Details Unclear" },
-  { label: "Total Amount Unclear", value: "Total Amount Unclear" },
-  { label: "Multiple Invoices on A Page", value: "Multiple Invoices on A Page" },
+  { label: "Noise", value: "noise" },
+  { label: "Multiple Invoice", value: "multiple_invoice" },
+  { label: "Unidentified", value: "unidentified" },
+  { label: "Not Supported", value: "not_supported" },
+  { label: "Blank Page", value: "blank_page" },
+  { label: "Invoice Details Unclear", value: "invoice_details_unclear" },
 ]
 
 const InvoiceGroupAccordion = ({
