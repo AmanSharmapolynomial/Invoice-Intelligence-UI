@@ -89,6 +89,20 @@ const InvoiceGroupAccordion = ({
   const [newIndex, setNewIndex] = useState("");
   const [addingIndex, setAddingIndex] = useState(false);
   const [groupIndices, setGroupIndices] = useState(group?.page_indices || []);
+
+  const [editing, setEditing] = useState(false);
+  // Local states for editing fields
+  const [localVendorName, setLocalVendorName] = useState(group?.vendor_name || "");
+  const [localInvoiceNumber, setLocalInvoiceNumber] = useState(group?.invoice_number || "");
+  const [localType, setLocalType] = useState(group?.type || "");
+  useEffect(() => {
+    if (editing) {
+      setLocalVendorName(group?.vendor_name || "");
+      setLocalInvoiceNumber(group?.invoice_number || "");
+      setLocalType(group?.type || "");
+    }
+  }, [editing, group]);
+
   useEffect(() => {
     setAddingIndex(false);
     setNewIndex("");
@@ -221,7 +235,6 @@ const InvoiceGroupAccordion = ({
     );
   }
 
-  const [editing, setEditing] = useState(false);
   const [showMoveGroupModal, setShowMoveGroupModal] = useState(false);
   const [selectedGroupToMove, setSelectedGroupToMove] = useState(null);
   const [selectedGroupType, setSelectedGroupType] = useState(null);
@@ -326,8 +339,24 @@ const InvoiceGroupAccordion = ({
                   className="bg-primary hover:bg-primary w-7 h-7 rounded-sm"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setEditing(false);
 
+                    let copyData = JSON.parse(
+                      JSON.stringify(queryClient.getQueryData(["multi-invoice-documents", payload]))
+                    );
+                    if (!copyData) return;
+                    let myData = copyData?.data?.[0];
+
+                    myData?.[f_key]?.forEach((g) => {
+                      if (g?.id === group?.id) {
+                        g.vendor_name = localVendorName;
+                        g.invoice_number = localInvoiceNumber;
+                        g.type = localType;
+                      }
+                    });
+
+                    queryClient.setQueryData(["multi-invoice-documents", payload], copyData);
+                    setEditing(false);
+                    toast.success("Group updated successfully!");
                   }}
                 >
                   <Save />
@@ -352,28 +381,8 @@ const InvoiceGroupAccordion = ({
             <p className="font-poppins font-medium text-sm">Vendor Name</p>
             <Input
               className="w-72"
-              value={group?.vendor_name || ""}
-              onChange={(e) => {
-                let copyData = JSON.parse(
-                  JSON.stringify(queryClient.getQueryData(["multi-invoice-documents", payload]))
-                );
-                if (!copyData) return;
-                let myData = copyData?.data?.[0];
-                myData?.[f_key]?.forEach((g) => {
-                  if (
-                    g?.id === group?.id
-                  ) {
-                    g.vendor_name = e.target.value;
-                  }
-                });
-                queryClient.setQueryData(["multi-invoice-documents", payload], copyData);
-                setCheckedIndices((prev) =>
-                  prev?.map((id) =>
-                    id === group?.id
-
-                  )
-                );
-              }}
+              value={localVendorName}
+              onChange={(e) => setLocalVendorName(e.target.value)}
               placeholder="Vendor Name"
             />
           </div>}
@@ -381,28 +390,8 @@ const InvoiceGroupAccordion = ({
             <p className="font-poppins font-medium text-sm">Invoice Number</p>
             <Input
               className="w-72"
-              value={group?.invoice_number || ""}
-              onChange={(e) => {
-                let copyData = JSON.parse(
-                  JSON.stringify(queryClient.getQueryData(["multi-invoice-documents", payload]))
-                );
-                if (!copyData) return;
-                let myData = copyData?.data?.[0];
-                myData?.[f_key]?.forEach((g) => {
-                  if (
-                    g?.id === group?.id
-                  ) {
-                    g.invoice_number = e.target.value;
-                  }
-                });
-                queryClient.setQueryData(["multi-invoice-documents", payload], copyData);
-                setCheckedIndices((prev) =>
-                  prev?.map((id) =>
-                    id === group?.invoice_number ? e.target.value : id
-                  )
-                );
-              }}
-
+              value={localInvoiceNumber}
+              onChange={(e) => setLocalInvoiceNumber(e.target.value)}
               placeholder="Invoice Number"
             />
           </div>}
@@ -411,25 +400,10 @@ const InvoiceGroupAccordion = ({
             f_key === "open_groups" && (
               <div className="flex items-center gap-x-2 ml-4 w-[420px] justify-between">
                 <p className="font-poppins font-medium text-sm">Type</p>
-                <CustomDropDown Value={group?.type} data={dropdownOptions}
-
-                  onChange={(v) => {
-
-                    let copyData = JSON.parse(
-                      JSON.stringify(queryClient.getQueryData(["multi-invoice-documents", payload]))
-                    );
-                    if (!copyData) return;
-                    let myData = copyData?.data?.[0];
-                    myData[f_key] = myData?.[f_key]?.map((g) => {
-                      if (
-                        g?.id === group?.id
-                      ) {
-                        return { ...g, type: v };
-                      }
-                      return g;
-                    });
-                    queryClient.setQueryData(["multi-invoice-documents", payload], copyData);
-                  }}
+                <CustomDropDown
+                  Value={localType}
+                  data={dropdownOptions}
+                  onChange={(v) => setLocalType(v)}
                 />
 
               </div>
@@ -1120,7 +1094,7 @@ const MultiInvoiceDocumentsDetails = () => {
                 <InvoiceFilters />
               </SheetContent>
             </Sheet>
-            <CustomTooltip content={"Click To Copy The Link."}>
+            <CustomTooltip content={"Click to Copy The Link."}>
               <Button
                 onClick={() => {
                   navigator.clipboard.writeText(
@@ -1148,7 +1122,7 @@ const MultiInvoiceDocumentsDetails = () => {
               className={"!min-w-fit"}
               content={
                 action_controls?.reject?.disabled ? action_controls?.reject?.reason : difference?.length !== 0 ? "Some Page Indices are missing." : !all_have_indices ? "Some groups are without page indices." : !areAllGroupsChecked()
-                  ? "Check all the checkboxes in all groups to reject the document." : ""
+                  ? "Check all the checkboxes in all groups to mark as Single Invoice Document." : ""
 
               }
             >
@@ -1160,14 +1134,14 @@ const MultiInvoiceDocumentsDetails = () => {
                 disabled={action_controls?.reject?.disabled || !areAllGroupsChecked() || difference?.length !== 0 || !all_have_indices}
                 className="bg-transparent min-w-[6.5rem] max-w-fit dark:text-white h-[2.4rem] border-[#F15156]  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
               >
-                {rejecting && !errorRejecting ? "Rejecting..." : "Mark as Single Invoice"}
+                {rejecting && !errorRejecting ? "Marking..." : "Mark as Single Invoice"}
               </Button>
             </CustomTooltip>
             <CustomTooltip
               className={"!min-w-fit"}
               content={
                 action_controls?.approve?.disabled ? action_controls?.approve?.reason : difference?.length !== 0 ? "Some Page Indices are missing." : !all_have_indices ? "Some groups are without page indices." : !areAllGroupsChecked()
-                  ? "Check all the checkboxes in all groups to reject the document." : !checkAllHaveCorrectData() ? "Vendor Name or Invoice Number or Type is missing in some groups." : ""
+                  ? "Check all the checkboxes in all groups to approve the document." : !checkAllHaveCorrectData() ? "Vendor Name or Invoice Number or Type is missing in some groups." : ""
               }
             >
               <Button
@@ -1186,7 +1160,7 @@ const MultiInvoiceDocumentsDetails = () => {
               className={"!min-w-fit"}
               content={
                 action_controls?.save?.disabled ? action_controls?.save?.reason : difference?.length !== 0 ? "Some Page Indices are missing." : !all_have_indices ? "Some groups are without page indices." : !areAllGroupsChecked()
-                  ? "Check all the checkboxes in all groups to reject the document." : !checkAllHaveCorrectData() ? "Vendor Name or Invoice Number or Type is missing in some groups." : ""
+                  ? "Check all the checkboxes in all groups to save the document." : !checkAllHaveCorrectData() ? "Vendor Name or Invoice Number or Type is missing in some groups." : ""
               }
 
             >
