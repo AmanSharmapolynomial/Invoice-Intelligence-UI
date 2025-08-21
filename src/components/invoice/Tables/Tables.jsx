@@ -30,7 +30,7 @@ import {
   TriangleAlert,
   X
 } from "lucide-react";
-const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
+const Tables = ({ setData, setIsLoading=()=>{}, currentTab, setCurrentTab=()=>{} }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [showWarningModal, setShowWarningModal] = useState(false);
   const {
@@ -136,7 +136,7 @@ const Tables = ({ setData, setIsLoading, currentTab, setCurrentTab }) => {
       return;
     }
 
-    const categorySumArray = Object.entries(categorySum).map(
+    const categorySumArray = Object?.entries(categorySum)?.map(
       ([category, sum]) => ({ category, sum })
     );
 

@@ -33,13 +33,16 @@ import {
 import { useState } from "react";
 import { formatDateTimeToReadable, formatDateToReadable } from "@/lib/helpers";
 
-const DocumentNotes = ({ data = [], document_uuid, isLoading }) => {
+const DocumentNotes = ({ data = [], document_uuid, isLoading,open,setOpen }) => {
   const [note, setNote] = useState("");
 
   const { mutate, isPending } = useCreateDocumentNote();
 
   return (
-    <Sheet>
+    <Sheet
+    open={open}
+    onOpenChange={setOpen}
+    >
       <SheetTrigger>
         {" "}
         <CustomTooltip content={"View Document Notes."}>
