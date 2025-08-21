@@ -108,7 +108,25 @@ const InvoiceGroupAccordion = ({
     setNewIndex("");
     setGroupIndices(group?.page_indices || []);
   }, [resetTrigger]);
+  const handleSave = () => {
+    let copyData = JSON.parse(
+      JSON.stringify(queryClient.getQueryData(["multi-invoice-documents", payload]))
+    );
+    if (!copyData) return;
+    let myData = copyData?.data?.[0];
 
+    myData?.[f_key]?.forEach((g) => {
+      if (g?.id === group?.id) {
+        g.vendor_name = localVendorName;
+        g.invoice_number = localInvoiceNumber;
+        g.type = localType;
+      }
+    });
+
+    queryClient.setQueryData(["multi-invoice-documents", payload], copyData);
+    setEditing(false);
+    toast.success("Group updated successfully!");
+  }
   const invoiceToCompanyMap = useMemo(() => {
     const map = {};
     data?.data?.[0]?.[f_key]?.forEach((doc) => {
@@ -189,6 +207,16 @@ const InvoiceGroupAccordion = ({
         g.page_indices = updatedIndices;
       }
     });
+
+    
+    myData?.[f_key]?.forEach((g) => {
+      if (g?.id === group?.id) {
+        g.vendor_name = localVendorName;
+        g.invoice_number = localInvoiceNumber;
+        g.type = localType;
+      }
+    });
+    setEditing(false)
 
     queryClient.setQueryData(["multi-invoice-documents", payload], copyData);
   };
@@ -340,23 +368,7 @@ const InvoiceGroupAccordion = ({
                   onClick={(e) => {
                     e.stopPropagation();
 
-                    let copyData = JSON.parse(
-                      JSON.stringify(queryClient.getQueryData(["multi-invoice-documents", payload]))
-                    );
-                    if (!copyData) return;
-                    let myData = copyData?.data?.[0];
-
-                    myData?.[f_key]?.forEach((g) => {
-                      if (g?.id === group?.id) {
-                        g.vendor_name = localVendorName;
-                        g.invoice_number = localInvoiceNumber;
-                        g.type = localType;
-                      }
-                    });
-
-                    queryClient.setQueryData(["multi-invoice-documents", payload], copyData);
-                    setEditing(false);
-                    toast.success("Group updated successfully!");
+                    handleSave()
                   }}
                 >
                   <Save />
@@ -870,6 +882,7 @@ const MultiInvoiceDocumentsDetails = () => {
 
       ];
     }
+
     queryClient.setQueryData(["multi-invoice-documents", payload], copyData);
   }
   // Add id in all the groups
