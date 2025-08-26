@@ -6,7 +6,7 @@ import {
   TooltipTrigger
 } from "@/components/ui/tooltip";
 
-const CustomTooltip = ({ content, children, top = 0, className,right=0 }) => {
+const CustomTooltip = ({ content, children, top = 0, className,right=0, left=0 }) => {
   return (
     <TooltipProvider>
       <Tooltip>
@@ -14,7 +14,7 @@ const CustomTooltip = ({ content, children, top = 0, className,right=0 }) => {
         {content && (
           <TooltipContent
           
-            className={`${className} text-[#000000] font-normal capitalize !font-poppins  text-xs bg-[#ffffff] border border-black/5 !z-50 drop-shadow-sm shadow-md relative  top-${top} min-w-full !right-${right} max-w-52 break-words `}
+            className={`${className} text-[#000000] font-normal  !font-poppins  text-xs bg-[#ffffff] border border-black/5 !z-50 drop-shadow-sm shadow-md relative !left-${left}  top-${top} min-w-full !right-${right} max-w-52 break-words `}
           >
             {content}
           </TooltipContent>

@@ -13,7 +13,7 @@ const useFilterStore = create(
         auto_accepted_by_vda:"all",
         start_date: "",
         end_date: "",
-        clickbacon_status: "",
+        clickbacon_status: "all",
         human_verification: "all",
         vendor: "",
         sort_order: "desc",
@@ -24,7 +24,10 @@ const useFilterStore = create(
         token:"",
         review_later:"false",
         supported_documents:null,
-        restaurant_tier:"all"
+        restaurant_tier:"all",
+        rejected:"all",
+        extraction_source:"all",
+        re_review_requested:"all"
       },
       setFilters: (newFilters) =>
         set((state) => ({
@@ -53,7 +56,10 @@ const useFilterStore = create(
             token:"",
             review_later:"false",
             supported_documents:null,
-            restaurant_tier:"all"
+            restaurant_tier:"all",
+            rejected:'all',
+            extraction_source:"all",
+            re_review_requested:"all"
           }
         })
     }),

@@ -1,18 +1,22 @@
 import approved from "@/assets/image/approved.svg";
-import warning from "@/assets/image/warning.svg";
+import copy from "@/assets/image/copy.svg";
 import tier_1 from "@/assets/image/tier_1.svg";
 import tier_2 from "@/assets/image/tier_2.svg";
 import tier_3 from "@/assets/image/tier_3.svg";
+import warning from "@/assets/image/warning.svg";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
 import { PdfViewer } from "@/components/common/PDFViewer";
+
 import {
   useFindDuplicateInvoices,
   useGetDocumentNotes,
   useGetSimilarBranches,
   useGetSimilarVendors,
+  useMarkAsMultiInvoice,
   useMarkAsNotSupported,
   useMarkReviewLater,
+  useReprocessDocument,
   useRevertChanges,
   useUpdateDocumentMetadata,
   useUpdateDocumentTable
@@ -29,7 +33,9 @@ import { Modal, ModalDescription } from "@/components/ui/Modal";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  calculateTimeDifference,
   formatDateTime,
+  formatDateTimeToReadable,
   formatDateToReadable,
   formatRestaurantsList,
   vendorNamesFormatter
@@ -39,19 +45,23 @@ import useFilterStore from "@/store/filtersStore";
 import globalStore from "@/store/globalStore";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
 
-import review_later_white from "@/assets/image/review_later_white.svg";
-import review_later_black from "@/assets/image/review_later_black.svg";
 import all_invoices_black from "@/assets/image/all_invoices_black.svg";
 import all_invoices_white from "@/assets/image/all_invoices_white.svg";
-import not_supported_white from "@/assets/image/not_supported_white.svg";
-import not_supported_black from "@/assets/image/not_supported_black.svg";
-import my_tasks_white from "@/assets/image/check_book_white.svg";
-import my_tasks_black from "@/assets/image/check_book_black.svg";
-import book_user_white from "@/assets/image/book_user_white.svg";
 import book_user_black from "@/assets/image/book_user_black.svg";
+import book_user_white from "@/assets/image/book_user_white.svg";
+import my_tasks_black from "@/assets/image/check_book_black.svg";
+import my_tasks_white from "@/assets/image/check_book_white.svg";
+import flagged_black from "@/assets/image/flagged_black.svg";
+import flagged_white from "@/assets/image/flagged_white.svg";
+import not_supported_black from "@/assets/image/not_supported_black.svg";
+import not_supported_white from "@/assets/image/not_supported_white.svg";
+import review_later_black from "@/assets/image/review_later_black.svg";
+import review_later_white from "@/assets/image/review_later_white.svg";
+import userStore from "@/components/auth/store/userStore";
 import { useListRestaurants } from "@/components/home/api";
 import InvoiceFilters from "@/components/invoice/InvoiceFilters";
 import { useInvoiceStore } from "@/components/invoice/store";
+import ResizableModal from "@/components/ui/Custom/ResizeableModal";
 import CustomDropDown from "@/components/ui/CustomDropDown";
 import {
   Sheet,
@@ -61,7 +71,26 @@ import {
   SheetTitle,
   SheetTrigger
 } from "@/components/ui/sheet";
-import { useGetVendorNames, useGetVendorNotes } from "@/components/vendor/api";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow
+} from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from "@/components/ui/tooltip";
+import {
+  useGetVendorBranchPdfs,
+  useGetVendorNames,
+  useGetVendorNotes,
+  useGetVendorsPdfs
+} from "@/components/vendor/api";
 import DocumentNotes from "@/components/vendor/notes/DocumentNotes";
 import VendorNotes from "@/components/vendor/notes/VendorNotes";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
@@ -69,11 +98,23 @@ import persistStore from "@/store/persistStore";
 import useThemeStore from "@/store/themeStore";
 import {
   ArrowRight,
+  BookIcon,
+  ChevronDown,
   ChevronRight,
+  ChevronUp,
+  Clock,
   Copy,
+  Files,
+  FileX,
+  FileText,
   Filter,
+  Flag,
   Info,
   Menu,
+  NotebookTabs,
+  RefreshCcwDot,
+  Save,
+  ScanEye,
   Share2,
   X
 } from "lucide-react";
@@ -85,24 +126,12 @@ import {
   useNavigate,
   useSearchParams
 } from "react-router-dom";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow
-} from "@/components/ui/table";
-import CustomToolTip from "@/components/ui/CustomToolTip";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from "@/components/ui/tooltip";
-import userStore from "@/components/auth/store/userStore";
-import ResizableModal from "@/components/ui/Custom/ResizeableModal";
-
+// import book_user_white from "@/assets/image/book_user_white.svg";
+// import book_user_black from "@/assets/image/book_user_black.svg";
+import { useGetSidebarCounts } from "@/components/common/api";
+import useSidebarStore from "@/store/sidebarStore";
+import multi_invoice_black from "@/assets/image/multi_invoice_black.svg";
+import multi_invoice_white from "@/assets/image/multi_invoice_white.svg";
 const rejectionReasons = [
   "Duplicate invoice",
   "Multiple invoices in one PDF",
@@ -135,6 +164,8 @@ const InvoiceDetails = () => {
     useState(false);
   const [showDuplicateInvoicesWarning, setShowDuplicateInvoicesWarning] =
     useState(false);
+  const [showReReviewRequestedWarning, setShowReReviewRequestedWarning] =
+    useState(false);
   let document_uuid =
     searchParams.get("document_uuid") || searchParams.get("document");
   const {
@@ -154,8 +185,11 @@ const InvoiceDetails = () => {
     warning_checkbox_checked,
     setWarningCheckboxChecked,
     is_unverified_branch,
-    clearStore
+    clearStore,
+    tableData,
+    loadingMetadata
   } = invoiceDetailStore();
+
   const [isLoading, setIsLoading] = useState(true);
   const [loadingState, setLoadingState] = useState({
     saving: false,
@@ -163,7 +197,9 @@ const InvoiceDetails = () => {
     accepting: false,
     markingForReview: false,
     markingAsNotSupported: false,
-    reverting: false
+    reverting: false,
+    reprocessing: false,
+    mutliInvoceMarking: false
   });
 
   const { data: similarVendors, isLoading: loadingSimilarVendors } =
@@ -189,9 +225,16 @@ const InvoiceDetails = () => {
     useMarkReviewLater();
   const { mutate: saveDocumentTable } = useUpdateDocumentTable();
   const { mutate: markAsNotSupported } = useMarkAsNotSupported();
+  const { mutate: markAsMutlipleInvoice } = useMarkAsMultiInvoice();
   const { selectedInvoiceVendorName, selectedInvoiceRestaurantName } =
     globalStore();
+  const [showAgentValidation, setShowAgentValidation] = useState(false);
 
+  useEffect(() => {
+    if (metaData?.metadata_validation_status !== "unassigned") {
+      setShowAgentValidation(true);
+    }
+  }, [metaData]);
   const [showAcceptModal, setShowAcceptModal] = useState(false);
   const { data: duplicateInvoices } = useFindDuplicateInvoices(
     data?.data?.document_uuid || data?.data?.[0]?.document_uuid
@@ -212,7 +255,7 @@ const InvoiceDetails = () => {
   }, []);
 
   const handleSave = () => {
-    if (Object.keys(updatedFields)?.length == 0 && operations?.length == 0) {
+    if (Object?.keys(updatedFields)?.length == 0 && operations?.length == 0) {
       return toast("No Fields Updated..", {
         icon: "⚠️"
       });
@@ -344,7 +387,34 @@ const InvoiceDetails = () => {
   };
 
   const handleAccept = () => {
-    setLoadingState({ ...loadingState, accepting: true });
+    const selectedColumnIds = tableData?.data?.processed_table?.rows
+      ?.filter((f) => f?.selected_column)
+      ?.map(
+        ({ column_name, column_order, selected_column, ...rest }) =>
+          rest?.column_uuid
+      );
+
+    const hasUnknown = tableData?.data?.processed_table?.rows?.some((r) =>
+      r.cells?.some(
+        (cell) =>
+          cell?.text === "Unknown" &&
+          selectedColumnIds?.includes(cell?.column_uuid)
+      )
+    );
+
+    if (hasUnknown && metaData?.invoice_type !== "Summary Invoice") {
+      return toast.error("There is Unknown Category in the table");
+    }
+
+    if (
+      operations
+        ?.filter((it) => it?.type == "update_cell")
+        ?.find((it) => it?.data?.text == "Unknown")?.data?.text &&
+      metaData?.invoice_type !== "Summary Invoice"
+    ) {
+      return toast.error("There is Unknown Category in the table");
+    }
+    setLoadingState({ ...loadingState, saving: true });
     metaData["human_verified"] = true;
     updateTable(
       {
@@ -411,43 +481,7 @@ const InvoiceDetails = () => {
     useGetDocumentNotes(
       data?.data?.document_uuid || data?.data?.[0]?.document_uuid
     );
-  const options = [
-    {
-      path: "/home",
-      icon: null,
-      text: "All Invoices",
-      image: theme === "light" ? all_invoices_black : all_invoices_white,
-      hoverImage: all_invoices_white
-    },
-    {
-      path: "/my-tasks",
-      icon: null,
-      text: "My Tasks",
-      image: theme === "light" ? my_tasks_black : my_tasks_white,
-      hoverImage: my_tasks_white
-    },
-    {
-      path: "/review-later-tasks",
-      icon: null,
-      text: "Review Later Invoices",
-      image: theme === "light" ? review_later_black : review_later_white,
-      hoverImage: review_later_white
-    },
-    {
-      path: "/not-supported-documents",
-      icon: null,
-      text: "Not Supported Documents",
-      image: theme === "light" ? not_supported_black : not_supported_white,
-      hoverImage: not_supported_white
-    },
-    {
-      path: null,
-      icon: null,
-      text: "Vendor Consolidation",
-      image: theme === "light" ? book_user_black : book_user_white,
-      hoverImage: book_user_white
-    }
-  ];
+
   const [showWarningForBranchAndVendor, setShowWarningForBranchAndVendor] =
     useState(true);
 
@@ -475,10 +509,10 @@ const InvoiceDetails = () => {
   useEffect(() => {
     const resValue = formatRestaurantsList(
       restaurantsList && restaurantsList?.data
-    )?.find((item) => item.value == restaurant)?.value;
+    )?.find((item) => item?.value == restaurant)?.value;
     const vendValue = vendorNamesFormatter(
       vendorNamesList?.data && vendorNamesList?.data?.vendor_names
-    )?.find((item) => item.value == vendor)?.value;
+    )?.find((item) => item?.value == vendor)?.value;
 
     setRestaurantFilter(resValue);
     setVendorFilter(vendValue);
@@ -498,6 +532,12 @@ const InvoiceDetails = () => {
   let vendor =
     searchParams.get("vendor_id") || searchParams.get("vendor") || "";
   useEffect(() => {
+    if (
+      data?.data?.re_review_requested ||
+      data?.data?.[0]?.re_review_requested
+    ) {
+      setShowReReviewRequestedWarning(true);
+    }
     if (data?.data?.rejected || data?.data?.[0]?.rejected) {
       setShowAlreadySyncedModal(true);
       return;
@@ -515,6 +555,7 @@ const InvoiceDetails = () => {
   let vendor_id = searchParams.get("vendor") || "";
   // let document_uuid = searchParams.get("document_uuid") || "";
   let layout = searchParams.get("layout") || null;
+  let extraction_source = searchParams.get("extraction_source") || "all";
   let assigned_to = searchParams.get("assigned_to");
 
   let payload = {
@@ -538,7 +579,8 @@ const InvoiceDetails = () => {
     review_later: filters?.review_later || "false",
     from_view: from_view?.includes("not-supported")
       ? "not-supported-documents"
-      : ""
+      : "",
+    extraction_source
   };
 
   useEffect(() => {
@@ -546,7 +588,12 @@ const InvoiceDetails = () => {
     setWarningCheckboxChecked(false);
     setShowSimilarVendorsAndBranchesWarningModal(false);
     setShowAcceptModal(false);
+    setShowReReviewRequestedWarning(false);
     clearStore();
+    setShowSimilarBranchPdfs(false);
+    setShowSimilarVendorPdfs(false);
+    setSelectedSimilarBranch(null);
+    setSelectedSimilarVendor(null);
   }, [page_number]);
 
   const { mutate: revertChanges } = useRevertChanges();
@@ -555,13 +602,248 @@ const InvoiceDetails = () => {
     data?.data?.[0]?.restaurant?.tier ||
     data?.data?.restaurant?.tier ||
     data?.data?.[0]?.restaurant?.tier;
+  const [showAiNotesModal, setShowAiNotesModal] = useState(false);
+  const [reprocessingModal, setShowReprocessingModal] = useState(false);
+  const [reExtractionMethod, setReExtractionMethod] = useState(null);
+  const { mutate: reprocessDocument } = useReprocessDocument();
+  const [reprocessedData, setReprocessedData] = useState({});
+  const [shoeReferenceLinkModal, setShowReferenceLinkModal] = useState(false);
+  let linkModalTimer;
+  const { userId } = userStore();
+  const { data: sideBarCounts } = useGetSidebarCounts({
+    invoice_type: filters?.invoice_type,
+    start_date: filters?.start_date,
+    end_date: filters?.end_date,
+    clickbacon_status: filters?.clickbacon_status,
+    restaurant: filters?.restaurant,
+    auto_accpepted: filters?.auto_accepted,
+    rerun_status: filters?.rerun_status || "",
+    invoice_detection_status: filters?.invoice_detection_status,
+    human_verified: filters?.human_verified,
+    human_verification_required: filters?.human_verification,
+    vendor: filters?.vendor,
+    sort_order: filters?.sort_order,
+    restaurant_tier: filters?.restaurant_tier,
+    rejected: filters?.rejected,
+    extraction_source: filters?.extraction_source,
+    assigned_to: filters?.assigned_to || userId
+  });
+  const [openSubmenu, setOpenSubmenu] = useState(null);
+  const { expanded, setExpanded } = useSidebarStore();
+
+  const options = [
+    {
+      path: "/home",
+      text: "All Invoices",
+      image: theme === "light" ? all_invoices_black : all_invoices_white,
+      hoverImage: all_invoices_white,
+      count: sideBarCounts?.all_invoices
+    },
+    {
+      path: "/flagged-invoices",
+      text: "All Flagged Documents",
+      image: theme === "light" ? flagged_black : flagged_white,
+      hoverImage: flagged_white,
+      count: sideBarCounts?.all_flagged_documents
+    },
+    {
+      path: `/all-multi-invoice-documents`,
+      text: "All Multiple Invoice Documents",
+      image: theme === "light" ? multi_invoice_black : multi_invoice_white,
+      hoverImage: multi_invoice_white,
+      count: sideBarCounts?.all_multiple_invoice_documents
+    },
+    {
+      path: "/my-tasks",
+      text: "My Tasks",
+      image: theme === "light" ? my_tasks_black : my_tasks_white,
+      hoverImage: my_tasks_white,
+      count:
+        sideBarCounts?.my_tasks?.invoices +
+        sideBarCounts?.my_tasks?.flagged_documents + sideBarCounts?.my_tasks?.multiple_invoice_documents,
+      children: [
+        {
+          path: "/my-tasks",
+          text: "Invoices",
+          count: sideBarCounts?.my_tasks?.invoices
+        },
+        {
+          path: "/unsupported-documents",
+          text: "Flagged Documents",
+          count: sideBarCounts?.my_tasks?.flagged_documents
+        },
+        {
+          path: `/multi-invoice-documents`,
+          text: "Multiple Invoice Documents",
+          image: theme === "light" ? multi_invoice_black : multi_invoice_white,
+          hoverImage: multi_invoice_white,
+          count: sideBarCounts?.my_tasks?.multiple_invoice_documents
+        }
+
+      ]
+    },
+    {
+      path: "/review-later-tasks",
+      text: "Review Later Invoices",
+      image: theme === "light" ? review_later_black : review_later_white,
+      hoverImage: review_later_white,
+      count: sideBarCounts?.review_later
+    },
+    {
+      path: "/not-supported-documents",
+      text: "Not Supported Documents",
+      image: theme === "light" ? not_supported_black : not_supported_white,
+      hoverImage: not_supported_white,
+      count: sideBarCounts?.not_supported
+    },
+
+  ];
+  useEffect(() => {
+    const matchingIndex = options.findIndex((option) =>
+      option.children?.some((child) => child.path === pathname)
+    );
+    if (matchingIndex !== -1) {
+      setOpenSubmenu(matchingIndex);
+    }
+  }, [pathname]);
+
+  const handleToggle = (index, hasChildren) => {
+    if (hasChildren) {
+      setOpenSubmenu(openSubmenu === index ? null : index);
+    } else {
+      setOpenSubmenu(null);
+    }
+  };
+  const [showSimilarVendorPdfs, setShowSimilarVendorPdfs] = useState(false);
+  const [showSimilarBranchPdfs, setShowSimilarBranchPdfs] = useState(false);
+  const [selectedSimilarVendor, setSelectedSimilarVendor] = useState(null);
+  const [selectedSimilarBranch, setSelectedSimilarBranch] = useState(null);
+  const { data: vendorPdfs, isLoading: loadingVendorPdfs } = useGetVendorsPdfs({
+    vendor_one: selectedSimilarVendor?.vendor_id
+  });
+  const { data: branchPdfs, isLoading: loadingBranchPdfs } =
+    useGetVendorBranchPdfs(selectedSimilarBranch?.branch_id);
+  console.log(branchPdfs);
+  const [showDocumentNotes, setShowDocumentNotes] = useState(false);
+  console.log(expanded)
+
+  const [showMultipleInvoiceModal, setShowMultipleInvoiceModal] = useState(false);
+  const [showResetStatusModal, setShowResetStatusModal] = useState(false);
   return (
     <div className="hide-scrollbar relative">
+      {/* <div> */}{" "}
+      <ResizableModal
+        title={"Vendor Pdfs"}
+        y={150}
+        x={500}
+        width={700}
+        isOpen={showSimilarVendorPdfs}
+        onClose={() => {
+          setShowSimilarBranchPdfs(false);
+          setSelectedSimilarBranch(null);
+          setSelectedSimilarVendor(null);
+          setShowSimilarVendorPdfs(false);
+        }}
+      >
+        <span className="font-poppins font-semibold p-2 capitalize text-base">
+          {selectedSimilarVendor?.vendor_name} Pdfs
+        </span>
+        <PdfViewer
+          pdfUrls={
+            loadingVendorPdfs
+              ? []
+              : vendorPdfs?.data
+                ? Object?.values(vendorPdfs?.data)?.[0]
+                : []
+          }
+          multiple={true}
+          className={"!w-[40vw] !max-h-[50rem]"}
+        />
+      </ResizableModal>
+      <ResizableModal
+        title={"Vendor Branches"}
+        y={150}
+        x={500}
+        width={700}
+        // className={"!h-[80vh]"}
+        isOpen={showSimilarBranchPdfs}
+        onClose={() => {
+          setShowSimilarBranchPdfs(false);
+          setSelectedSimilarBranch(null);
+          setSelectedSimilarVendor(null);
+          setShowSimilarVendorPdfs(false);
+        }}
+      >
+        <span className="font-poppins font-semibold p-2 capitalize text-base">
+          {selectedSimilarBranch?.vendor_address} Pdfs
+        </span>
+        <PdfViewer
+          pdfUrls={loadingVendorNotes ? [] : branchPdfs?.data}
+          multiple={true}
+          className={"!w-[40vw] !max-h-[50rem]"}
+        />
+      </ResizableModal>
+      <ResizableModal
+        title={"AI Notes"}
+        y={50}
+        x={500}
+        width={200}
+        isOpen={showAiNotesModal}
+        onClose={() => {
+          setShowAiNotesModal(false);
+        }}
+      >
+        <span className="font-poppins font-semibold p-2 text-base">
+          AI Notes
+        </span>
+        <div className="flex flex-col gap-y-4 max-h-96 overflow-auto my-4">
+          {metaData?.ai_notes?.length > 0 &&
+            metaData?.ai_notes?.map(({ note_type, note, created_at }) => {
+              return (
+                <div key={note} className="bg-accent rounded-md z-10 px-2">
+                  <div className="w-96">
+                    <p className="font-poppins font-semibold flex items-center justify-between capitalize text-sm border-b py-2">
+                      <span> {note_type} </span>
+                      <img
+                        src={copy}
+                        alt="copy icon"
+                        onClick={() => {
+                          navigator.clipboard.writeText(note_type);
+                          toast.success("Note Type copied to clipboard");
+                        }}
+                        className=" cursor-pointer h-4  z-50"
+                      />
+                    </p>
+                    <p className="max-w-96 font-poppins flex items-start justify-between font-medium text-xs mt-1 leading-5">
+                      <span> {note}</span>
+                      <img
+                        src={copy}
+                        alt="copy icon"
+                        onClick={() => {
+                          navigator.clipboard.writeText(note);
+                          toast.success("Note copied to clipboard");
+                        }}
+                        className=" cursor-pointer h-4  z-50"
+                      />
+                    </p>
+                    <p className="max-w-96 font-poppins font-medium text-xs mt-1.5 text-end leading-5">
+                      {formatDateToReadable(created_at)}{" "}
+                      {created_at?.split(".")?.[0]?.split("T")?.[1]}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+        </div>
+      </ResizableModal>
       <Navbar />
       <Sheet>
         <SheetTrigger asChild>
           <div
-            className={`bg-primary w-5 h-5 rounded-r-sm cursor-pointer  fixed  mt-1 top-16 left-0 !z-50 flex justify-center items-center 
+            onClick={() => {
+              setExpanded();
+            }}
+            className={`bg-primary w-5 h-5 rounded-r-sm cursor-pointer  fixed  mt-1  top-16 left-0 !z-50 flex justify-center items-center 
           ${false ? "opacity-0" : "opacity-100"}
           transition-opacity duration-300 ease-in-out`}
           >
@@ -569,65 +851,135 @@ const InvoiceDetails = () => {
           </div>
         </SheetTrigger>
         <SheetContent side="left" className="px-0 !max-w-[300px] pt-8 ">
-          <SheetClose asChild>
+          <SheetClose
+            asChild
+            onClick={() => {
+              setExpanded();
+            }}
+          >
             <Menu className="h-5 w-5 cursor-pointer absolute right-4 top-2  text-end text-[#000000] " />
           </SheetClose>
-          {options.map((option, index) => {
-            const isActive = pathname === option.path;
-            return (
-              <Link
-                to={option.path}
-                key={index}
-                className={`group cursor-pointer overflow-hidden flex items-center px-4 gap-2 py-3 text-sm font-normal font-poppins transition-all duration-300 ease-in-out 
-                ${
-                  isActive
-                    ? "bg-primary text-white"
-                    : "text-black hover:bg-primary hover:text-white"
-                }`}
-              >
-                {option.icon ? (
-                  <option.icon
-                    className={`w-5 h-5 ${isActive ? "text-white" : ""}`}
-                  />
-                ) : (
-                  <div className="relative flex-shrink-0 w-5 h-5">
-                    <img
-                      src={option.image}
-                      alt={option.text}
-                      className="absolute inset-0 w-full h-full transition-opacity duration-300"
-                    />
-                    <img
-                      src={option.hoverImage}
-                      alt={option.text}
-                      className={`${
-                        isActive && "opacity-100"
-                      } absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity`}
-                    />
-                  </div>
-                )}
 
-                <span
-                  className={`transition-opacity duration-300 ease-in-out ${
-                    true ? "opacity-100" : "opacity-0"
-                  } dark:text-white`}
-                  style={{
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    marginLeft: true ? "0.5rem" : "0"
-                  }}
+          <div className=" space-y-2 flex flex-col">
+            {options?.map((option, index) => {
+              const isActive =
+                pathname === option?.path ||
+                option.children?.some((child) => child?.path === pathname);
+              const isSubmenuOpen = openSubmenu === index;
+              const hasChildren = option?.children?.length > 0;
+
+              const handleClick = (e) => {
+                if (hasChildren) {
+                  e.preventDefault();
+                  if (!expanded) {
+                    setExpanded();
+                    setTimeout(() => handleToggle(index, true), 150);
+                  } else {
+                    handleToggle(index, true);
+                  }
+                } else {
+                  if (pathname === option?.path) {
+                    e.preventDefault();
+                    return;
+                  }
+                  setDefault();
+                }
+              };
+
+              const Wrapper = option?.path ? Link : "div";
+
+              return (
+                <div
+                  key={index}
+                  className={`${role !== "admin" &&
+                    option?.text === "Not Supported Documents" &&
+                    "hidden"
+                    }`}
                 >
-                  {option.text}
-                </span>
-              </Link>
-            );
-          })}
+                  <Wrapper
+                    to={option.path || "#"}
+                    onClick={handleClick}
+                    className={`group cursor-pointer flex  items-center px-4 gap-2 py-3 text-sm font-normal transition-all duration-300 ${isActive
+                      ? "bg-primary text-white"
+                      : "text-black hover:bg-primary hover:text-white"
+                      }`}
+                  >
+                    <div className="relative flex-shrink-0 w-5 h-5">
+                      <img
+                        src={option?.image}
+                        alt={option?.text}
+                        className="absolute inset-0 w-full h-full transition-opacity duration-300"
+                      />
+                      <img
+                        src={option?.hoverImage}
+                        alt={option?.text}
+                        className={`absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity ${isActive ? "opacity-100" : ""
+                          }`}
+                      />
+                    </div>
+
+                    {expanded && (
+                      <div className="flex items-center justify-between w-full ml-2 dark:text-white">
+                        <span className="truncate">{option?.text}</span>
+                        <div className="flex items-center gap-2">
+                          {typeof option.count === "number" && (
+                            <CustomTooltip
+                              content={`Unverified Documents Count`}
+                            >
+                              <span className="text-xs bg-red-500 text-white  dark:bg-white/10 dark:text-white px-2 py-1 rounded-full">
+                                {option?.count}
+                              </span>
+                            </CustomTooltip>
+                          )}
+                          {hasChildren &&
+                            (isSubmenuOpen ? (
+                              <ChevronUp className="w-4 h-4" />
+                            ) : (
+                              <ChevronDown className="w-4 h-4" />
+                            ))}
+                        </div>
+                      </div>
+                    )}
+                  </Wrapper>
+
+                  {hasChildren && isSubmenuOpen && expanded && (
+                    <div className="ml-8 space-y-1">
+                      {option.children.map((child, idx) => (
+                        <Link
+                          to={child?.path}
+                          onClick={() => setDefault()}
+                          key={idx}
+                          className={`block text-sm py-3 mt-1 px-2 hover:bg-primary hover:text-white ${pathname === child?.path
+                            ? "bg-primary text-white"
+                            : "text-gray-700"
+                            }`}
+                        >
+                          <div className="flex justify-between items-center">
+                            <span className="truncate">{child?.text}</span>
+                            {typeof child?.count === "number" && (
+                              <CustomTooltip
+                                content={"Unverified Documents Count"}
+                              >
+                                <span className="ml-2 text-xs bg-red-500 text-white dark:bg-white/10 dark:text-white px-2 mr-2.5 py-1 rounded-full">
+                                  {child?.count}
+                                </span>
+                              </CustomTooltip>
+                            )}
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </SheetContent>
       </Sheet>
-
+      {/* </div> */}
       <Layout
         className={
-          "mx-6 rounded-md  hide-scrollbar   !shadow-none flex flex-1 flex-col justify-between gap-y-4   "
+          "mx-6 rounded-md  hide-scrollbar  !relative !shadow-none flex flex-1 flex-col justify-between gap-y-4   "
         }
       >
         <BreadCrumb
@@ -667,8 +1019,8 @@ const InvoiceDetails = () => {
                             rest_tier == 1
                               ? tier_1
                               : rest_tier == 2
-                              ? tier_2
-                              : tier_3
+                                ? tier_2
+                                : tier_3
                           }
                           alt=""
                         />
@@ -697,22 +1049,84 @@ const InvoiceDetails = () => {
                   </>
                 )}
                 <div>
-                  <div className=" -mt-[1.78rem] -ml-3">
+                  <div className=" -mt-[1.78rem] flex  gap-x-2 !capitalize -ml-3">
                     {myData?.human_verified === true &&
                       myData?.rejected === false && (
-                        <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#348355] text-[#ffffff] p-1 rounded-xl px-3">
-                          Accepted{" "}
-                        </span>
+                        <CustomTooltip
+                          className={"mb-1 !min-w-fit"}
+                          content={`Accepted By :- ${myData?.accepted_by?.username}`}
+                        >
+                          <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#348355] text-[#ffffff] p-1 rounded-xl px-3">
+                            Accepted{" "}
+                          </span>
+                        </CustomTooltip>
                       )}
                     {myData?.rejected === true && (
-                      <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#F15156] text-[#ffffff] p-1 rounded-xl   px-3">
-                        Rejected{" "}
-                      </span>
+                      <CustomTooltip
+                        className={"mb-1 !min-w-fit"}
+                        content={`Rejected By :- ${myData?.rejected_by?.username}`}
+                      >
+                        <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#F15156] text-[#ffffff] p-1 rounded-xl   px-3">
+                          Rejected{" "}
+                        </span>
+                      </CustomTooltip>
                     )}
                     {myData?.human_verified === false &&
-                      myData?.rejected === false && (
-                        <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#B28F10] text-[#ffffff] py-1  px-3 rounded-xl ">
+                      myData?.rejected === false &&
+                      !myData?.re_review_requested && (
+                        <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#B28F10] text-[#ffffff] py-1.5  px-3 rounded-xl ">
                           Pending{" "}
+                        </span>
+                      )}
+                    <CustomTooltip
+                      content={
+                        myData?.re_review_requested &&
+                        `Re-review requested at ${formatDateTimeToReadable(
+                          myData?.re_review_requested_date
+                        )} `
+                      }
+                      className={"!min-w-fit !normal-case"}
+                    >
+                      {myData?.re_review_requested === true && (
+                        <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-orange-700 text-[#ffffff] py-1  px-3 rounded-xl ">
+                          Re-review Requested
+                        </span>
+                      )}
+                    </CustomTooltip>
+                    {myData?.human_verified === false &&
+                      myData?.rejected === false && (
+                        <span
+                          className={`${calculateTimeDifference(
+                            new Date(
+                              metaData?.assignment_details?.verification_due_at
+                            )
+                          )?.includes("ago")
+                            ? "!text-[#F15156]"
+                            : "!text-black"
+                            } mx-2 bg-gray-200  font-poppins font-normal text-xs leading-3  text-[#ffffff] h-6 flex items-center   px-3 rounded-xl `}
+                        >
+                          <div className="flex items-center gap-x-2">
+                            <CustomTooltip content={"Due Time"}>
+                              <Clock className="w-4 h-4" />
+                            </CustomTooltip>
+                            <div>
+                              <CustomTooltip
+                                className={"mb-2 !min-w-fit"}
+                                content={
+                                  metaData?.assignment_details?.assigned_to
+                                    ?.username &&
+                                  `Assigned To :- ${metaData?.assignment_details?.assigned_to?.username}`
+                                }
+                              >
+                                {calculateTimeDifference(
+                                  new Date(
+                                    metaData?.assignment_details?.verification_due_at
+                                  )
+                                )}
+                              </CustomTooltip>
+                            </div>
+                          </div>
+                          {/* </CustomTooltip> */}
                         </span>
                       )}
                   </div>
@@ -721,6 +1135,32 @@ const InvoiceDetails = () => {
             </>
           )}
         </BreadCrumb>
+        {showReReviewRequestedWarning && (
+          <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
+            <div className="flex items-center gap-x-2">
+              <Info className="h-5 w-5 text-[#FF9800]" />
+              <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
+                This Document has been requested for a Re-review.{" "}
+                <span
+                  className="underline underline-offset-2 px-0.5 text-primary cursor-pointer"
+                  onClick={() => {
+                    setShowDocumentNotes(true);
+                  }}
+                >
+                  Click here
+                </span>{" "}
+                to check the reason.
+              </p>
+            </div>
+
+            <X
+              className="h-6 w-6 text-[#546E7A] absolute top-2 right-2 cursor-pointer"
+              onClick={() => {
+                setShowReReviewRequestedWarning(false);
+              }}
+            />
+          </div>
+        )}
         {(branchChanged || vendorChanged) && showWarningForBranchAndVendor && (
           <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
             <div className="flex items-center gap-x-2">
@@ -729,8 +1169,8 @@ const InvoiceDetails = () => {
                 {vendorChanged && branchChanged
                   ? "Please Save the Vendor Name and Branch Address before proceeding."
                   : vendorChanged
-                  ? " Please Save the Vendor Name before proceeding."
-                  : "Please Save the Branch Address before proceeding."}
+                    ? " Please Save the Vendor Name before proceeding."
+                    : "Please Save the Branch Address before proceeding."}
               </p>
             </div>
 
@@ -742,22 +1182,21 @@ const InvoiceDetails = () => {
             />
           </div>
         )}
+
         {showSimilarVendorsAndBranchesWarningModal && (
           <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
             <div className="flex items-center gap-x-2">
               <Info className="h-5 w-5 text-[#FF9800]" />
               <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
                 {similarBranches?.data?.length > 0 &&
-                similarVendors?.data?.length > 0
+                  similarVendors?.data?.length > 0
                   ? `Found ${similarVendors?.data?.length} Vendors and ${similarBranches?.data?.length} Branches.`
                   : similarVendors?.data?.length > 0
-                  ? `Found ${similarVendors?.data?.length} Similar ${
-                      similarVendors?.data?.length > 1 ? "Vendors." : "Vendor."
+                    ? `Found ${similarVendors?.data?.length} Similar ${similarVendors?.data?.length > 1 ? "Vendors." : "Vendor."
                     }`
-                  : `Found ${similarBranches?.data?.length} Similar ${
-                      similarBranches?.data?.length > 1
-                        ? "Branches."
-                        : "Branch."
+                    : `Found ${similarBranches?.data?.length} Similar ${similarBranches?.data?.length > 1
+                      ? "Branches."
+                      : "Branch."
                     }`}
               </p>
               <p
@@ -785,12 +1224,12 @@ const InvoiceDetails = () => {
                   "Rejection Reason :- "}{" "}
                 {data?.data?.rejected || data?.data?.[0]?.rejected
                   ? data?.data?.rejection_reason ||
-                    data?.data?.[0]?.rejection_reason
+                  data?.data?.[0]?.rejection_reason
                   : action_controls?.accept?.disabled
-                  ? action_controls?.accept?.reason
-                  : action_controls?.reject?.disabled
-                  ? action_controls?.reject?.reason
-                  : null}
+                    ? action_controls?.accept?.reason
+                    : action_controls?.reject?.disabled
+                      ? action_controls?.reject?.reason
+                      : null}
               </p>
             </div>
 
@@ -824,85 +1263,92 @@ const InvoiceDetails = () => {
             />
           </div>
         )}
-        <div className="flex justify-end gap-x-2">
-          <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
-            <CustomDropDown
-              triggerClassName={"bg-gray-100"}
-              contentClassName={"bg-gray-100"}
-              Value={searchParams.get("restaurant") || restaurantFilterValue}
-              placeholder="All Restaurants"
-              multiSelect={true}
-              className={"!max-w-fit"}
-              data={formatRestaurantsList(
-                restaurantsList && restaurantsList?.data
-              )}
-              searchPlaceholder="Search Restaurant"
-              onChange={(val) => {
-                if (typeof val == "object") {
-                  let restaurant = val.map((item) => item).join(",");
-                  setFilters({ ...filters, restaurant: restaurant });
-                  updateParams({ restaurant: restaurant });
-                } else {
-                  if (val == "none") {
-                    updateParams({ restaurant: undefined });
-                    setFilters({ ...filters, restaurant: undefined });
+
+        <div
+          className={`${metaData?.extraction_source ? "justify-between" : "justify-end"
+            } flex  gap-x-2 items-center`}
+        >
+          {/* <div className="flex items-center justify-start"> */}
+
+          {metaData?.extraction_source && (
+            <CustomTooltip content={"Extraction Source"}>
+              {/* {metadata?.extraction_source && ( */}
+              <p
+                onDoubleClick={() => {
+                  setShowReprocessingModal(true);
+                }}
+                className="font-poppins font-medium text-sm leading-5 capitalize px-4 border border-primary rounded-md py-0.5 cursor-pointer"
+              >
+                {metaData?.extraction_source}
+              </p>
+              {/* )} */}
+            </CustomTooltip>
+          )}
+          {/* </div> */}
+          <div className="flex items-center gap-x-2">
+            <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
+              <CustomDropDown
+                triggerClassName={"bg-gray-100"}
+                contentClassName={"bg-gray-100"}
+                Value={searchParams.get("restaurant") || restaurantFilterValue}
+                placeholder="All Restaurants"
+                multiSelect={true}
+                className={"!max-w-fit"}
+                data={formatRestaurantsList(
+                  restaurantsList && restaurantsList?.data
+                )}
+                searchPlaceholder="Search Restaurant"
+                onChange={(val) => {
+                  if (typeof val == "object") {
+                    let restaurant = val?.map((item) => item)?.join(",");
+                    setFilters({ ...filters, restaurant: restaurant });
+                    updateParams({ restaurant: restaurant });
                   } else {
-                    updateParams({ restaurant: val });
-                    setFilters({ ...filters, restaurant: val });
+                    if (val == "none") {
+                      updateParams({ restaurant: undefined });
+                      setFilters({ ...filters, restaurant: undefined });
+                    } else {
+                      updateParams({ restaurant: val });
+                      setFilters({ ...filters, restaurant: val });
+                    }
                   }
-                }
-              }}
-            />{" "}
-            <CustomDropDown
-              Value={searchParams.get("vendor") || vendorFilterValue}
-              className={"!max-w-56"}
-              triggerClassName={"bg-gray-100"}
-              contentClassName={"bg-gray-100"}
-              data={vendorNamesFormatter(
-                vendorNamesList?.data && vendorNamesList?.data?.vendor_names
-              )}
-              multiSelect={true}
-              onChange={(val) => {
-                if (typeof val == "object") {
-                  let vendor = val.map((item) => item).join(",");
-                  updateParams({ vendor: vendor });
-                  setFilters({ ...filters, vendor: vendor });
-                } else {
-                  if (val == "none") {
-                    updateParams({ vendor: undefined });
-                    setFilters({ ...filters, vendor: undefined });
+                }}
+              />{" "}
+              <CustomDropDown
+                Value={searchParams.get("vendor") || vendorFilterValue}
+                className={"!max-w-56"}
+                triggerClassName={"bg-gray-100"}
+                contentClassName={"bg-gray-100"}
+                data={vendorNamesFormatter(
+                  vendorNamesList?.data && vendorNamesList?.data?.vendor_names
+                )}
+                multiSelect={true}
+                onChange={(val) => {
+                  if (typeof val == "object") {
+                    let vendor = val?.map((item) => item)?.join(",");
+                    updateParams({ vendor: vendor });
+                    setFilters({ ...filters, vendor: vendor });
                   } else {
-                    setFilters({ ...filters, vendor: val });
+                    if (val == "none") {
+                      updateParams({ vendor: undefined });
+                      setFilters({ ...filters, vendor: undefined });
+                    } else {
+                      setFilters({ ...filters, vendor: val });
+                    }
                   }
-                }
-              }}
-              placeholder="All Vendors"
-              searchPlaceholder="Search Vendor Name"
-            />{" "}
-            <Sheet
-              className="!overflow-auto "
-              open={open}
-              onOpenChange={() => setOpen(!open)}
-            >
-              <SheetTrigger>
-                {" "}
-                <Button
-                  className={`bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000] ${
-                    open ||
-                    filters?.human_verified !== "all" ||
-                    filters?.human_verification !== "all" ||
-                    filters?.invoice_type !== "" ||
-                    filters?.start_date !== "" ||
-                    filters?.end_date !== "" ||
-                    filters?.clickbacon_status !== "" ||
-                    filters?.auto_accepted !== ""
-                      ? "!bg-primary !text-white"
-                      : "!bg-white"
-                  }   `}
-                >
-                  <Filter
-                    className={`${
-                      open ||
+                }}
+                placeholder="All Vendors"
+                searchPlaceholder="Search Vendor Name"
+              />{" "}
+              <Sheet
+                className="!overflow-auto "
+                open={open}
+                onOpenChange={() => setOpen(!open)}
+              >
+                <SheetTrigger>
+                  {" "}
+                  <Button
+                    className={`bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000] ${open ||
                       filters?.human_verified !== "all" ||
                       filters?.human_verification !== "all" ||
                       filters?.invoice_type !== "" ||
@@ -910,212 +1356,298 @@ const InvoiceDetails = () => {
                       filters?.end_date !== "" ||
                       filters?.clickbacon_status !== "" ||
                       filters?.auto_accepted !== ""
+                      ? "!bg-primary !text-white"
+                      : "!bg-white"
+                      }   `}
+                  >
+                    <Filter
+                      className={`${open ||
+                        filters?.human_verified !== "all" ||
+                        filters?.human_verification !== "all" ||
+                        filters?.invoice_type !== "" ||
+                        filters?.start_date !== "" ||
+                        filters?.end_date !== "" ||
+                        filters?.clickbacon_status !== "" ||
+                        filters?.auto_accepted !== ""
                         ? "!text-white"
                         : ""
-                    } h-5  text-black/40 dark:text-white/50`}
-                  />
-                </Button>
-              </SheetTrigger>
-              <SheetContent className="min-w-fit !max-w-[20rem] !overflow-auto">
-                <SheetHeader>
-                  <SheetTitle>
-                    <div
-                      id="invoice-filters"
-                      className="flex justify-between items-center"
-                    >
-                      <p>Filters</p>
+                        } h-5  text-black/40 dark:text-white/50`}
+                    />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent className="min-w-fit !max-w-[20rem] !overflow-auto">
+                  <SheetHeader>
+                    <SheetTitle>
                       <div
-                        className="flex items-center gap-x-2 cursor-pointer"
-                        onClick={() => setOpen(!open)}
+                        id="invoice-filters"
+                        className="flex justify-between items-center"
                       >
-                        <p className="text-sm font-poppins font-normal text-[#000000]">
-                          Collapse
-                        </p>
-                        <ArrowRight className="h-4 w-4 text-[#000000]" />
+                        <p>Filters</p>
+                        <div
+                          className="flex items-center gap-x-2 cursor-pointer"
+                          onClick={() => setOpen(!open)}
+                        >
+                          <p className="text-sm font-poppins font-normal text-[#000000]">
+                            Collapse
+                          </p>
+                          <ArrowRight className="h-4 w-4 text-[#000000]" />
+                        </div>
                       </div>
-                    </div>
-                  </SheetTitle>
-                </SheetHeader>
-                <InvoiceFilters />
-              </SheetContent>
-            </Sheet>
-          </div>
-          <div className="flex items-center gap-x-3">
-            <CustomTooltip content={"Click To Copy The Link."}>
-              <Button
-                onClick={() => {
-                  navigator.clipboard.writeText(
-                    `${window.location.origin}/invoice-details?document_uuid=${
-                      document_uuid ||
-                      data?.data?.[0]?.document_uuid ||
-                      data?.data?.document_uuid
-                    }`
-                  );
-                  toast.success("Link copied to clipboard");
-                }}
-                disabled={markingForReview}
-                className="bg-transparent h-[2.4rem] border-primary w-[3rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
-              >
-                <Share2 className="dark:text-white" />
-              </Button>
-            </CustomTooltip>
-
-            <DocumentNotes
-              data={documentNotes?.data}
-              document_uuid={
-                data?.data?.document_uuid || data?.data?.[0]?.document_uuid
-              }
-              isLoading={loadingDocumentNotes}
-            />
-
-            <VendorNotes
-              data={vendorNotes?.data}
-              isLoading={loadingVendorNotes}
-              vendor_id={
-                data?.data?.vendor?.vendor_id ||
-                data?.data?.[0]?.vendor?.vendor_id
-              }
-            />
-            {(role?.toLowerCase() == "admin" ||
-              role?.toLowerCase() == "manager") && (
-              <CustomTooltip content={"Click To reset the invoice status ."}>
+                    </SheetTitle>
+                  </SheetHeader>
+                  <InvoiceFilters />
+                </SheetContent>
+              </Sheet>
+            </div>
+            <div className="flex items-center gap-x-3">
+              <CustomTooltip content={"Click To Copy The Link."}>
                 <Button
                   onClick={() => {
-                    setLoadingState((prev) => ({ ...prev, reverting: true }));
-                    revertChanges(
-                      data?.data?.document_uuid ||
-                        data?.data?.[0]?.document_uuid,
-                      {
-                        onSuccess: () => {
-                          setLoadingState((prev) => ({
-                            ...prev,
-                            reverting: false
-                          }));
-                        },
-                        onError: () => {
-                          setLoadingState((prev) => ({
-                            ...prev,
-                            reverting: false
-                          }));
-                        }
-                      }
+                    navigator.clipboard.writeText(
+                      `${window.location.origin
+                      }/invoice-details?document_uuid=${document_uuid ||
+                      data?.data?.[0]?.document_uuid ||
+                      data?.data?.document_uuid
+                      }`
                     );
+                    toast.success("Link copied to clipboard");
                   }}
-                  disabled={loadingState?.reverting}
-                  className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                  disabled={markingForReview}
+                  className="bg-transparent h-[2.4rem] border-primary w-[3rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                 >
-                  {loadingState?.reverting ? "Resetting.." : "Reset Status"}
+                  <Share2 className="dark:text-white" />
                 </Button>
               </CustomTooltip>
-            )}
-            <CustomTooltip
-              content={
-                action_controls?.review_later?.disabled
-                  ? action_controls?.review_later?.reason
-                  : "Click To Mark It For A Review."
-              }
-            >
-              <Button
-                onClick={() => {
-                  setMarkForReviewModal(true);
-                  return;
-                }}
-                disabled={
-                  action_controls?.review_later?.disabled || markingForReview
+              {metaData?.ai_notes?.length > 0 && (
+                <Button
+                  onClick={() => {
+                    setShowAiNotesModal(!showAiNotesModal);
+                  }}
+                  disabled={markingForReview}
+                  className="bg-transparent h-[2.4rem] fixed bottom-5 left-4 border-primary w-[3rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                >
+                  <div className="w-full h-full relative">
+                    <NotebookTabs className="dark:text-white" />
+                    <p className="absolute px-2 rounded-full border bg-primary  -top-5 -right-6 text-white">
+                      {metaData?.ai_notes?.length}
+                    </p>
+                  </div>
+                </Button>
+              )}
+
+              <DocumentNotes
+                data={documentNotes?.data}
+                open={showDocumentNotes}
+                setOpen={setShowDocumentNotes}
+                document_uuid={
+                  data?.data?.document_uuid || data?.data?.[0]?.document_uuid
                 }
-                className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                isLoading={loadingDocumentNotes}
+              />
+
+              <VendorNotes
+                data={vendorNotes?.data}
+                isLoading={loadingVendorNotes}
+                vendor_id={
+                  data?.data?.vendor?.vendor_id ||
+                  data?.data?.[0]?.vendor?.vendor_id
+                }
+              />
+              {(role?.toLowerCase() == "admin" ||
+                role?.toLowerCase() == "manager") && (
+                  <CustomTooltip content={"Click To Reset the Invoice Status ."} className={"!min-w-fit"}>
+                    <Button
+                      onClick={() => {
+                        setShowResetStatusModal(true)
+
+                      }}
+                      disabled={
+                        loadingState?.reverting ||
+                        loadingState?.rejecting ||
+                        loadingState?.markingAsNotSupported ||
+                        loadingState?.markingForReview ||
+                        loadingState?.reverting ||
+                        loadingState?.accepting ||
+                        loadingState?.saving
+                      }
+                      className="bg-transparent h-[2.4rem] dark:text-white border-primary  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                    >
+                      {loadingState?.reverting ? "Resetting.." : <RefreshCcwDot className="!w-[1.1rem] !h-[1.2rem]" />}
+                    </Button>
+                  </CustomTooltip>
+                )}
+              <CustomTooltip
+                className={"!min-w-fit "}
+                content={
+                  action_controls?.review_later?.disabled
+                    ? action_controls?.review_later?.reason
+                    : "Click To Mark this document  for a Review."
+                }
               >
-                Review Later
-              </Button>
-            </CustomTooltip>
-            <CustomTooltip
-              content={
-                action_controls?.reject?.disabled
-                  ? action_controls?.reject?.reason
-                  : "Click To Reject This Document."
-              }
-            >
-              <Button
-                onClick={() => {
-                  setShowRejectionModal(true);
-                }}
-                disabled={action_controls?.reject?.disabled}
-                className="bg-transparent w-[6.5rem] dark:text-white h-[2.4rem] border-[#F15156]  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
-              >
-                Reject
-              </Button>
-            </CustomTooltip>
-            <CustomTooltip
-              className={"!max-w-72"}
-              content={
-                !warning_checkbox_checked
-                  ? "Please check vendor name checkbox."
-                  : action_controls?.accept?.disabled
-                  ? action_controls?.accept?.reason
-                  : "Click To Accept This Document."
-              }
-            >
-              <Button
-                onClick={() => {
-                  if (
-                    (is_unverified_vendor &&
-                      similarVendors?.data?.length > 0) ||
-                    (is_unverified_branch && similarBranches?.data?.length > 0)
-                  ) {
-                    setShowAcceptModal(true);
-                    setClickedOnAcceptButton(true);
-                    setShowSimilarVendorsAndBranchesWarningModal(false);
-                  } else {
-                    handleAccept();
+                <Button
+                  onClick={() => {
+                    setMarkForReviewModal(true);
+                    return;
+                  }}
+                  disabled={
+                    action_controls?.review_later?.disabled ||
+                    markingForReview ||
+                    loadingState?.rejecting ||
+                    loadingState?.markingAsNotSupported ||
+                    loadingState?.markingForReview ||
+                    loadingState?.reverting ||
+                    loadingState?.accepting ||
+                    loadingState?.saving
                   }
-                }}
-                disabled={
-                  !warning_checkbox_checked ||
-                  action_controls?.accept?.disabled ||
-                  loadingState?.accepting
+                  className="bg-transparent h-[2.4rem] dark:text-white border-primary  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                >
+                  <ScanEye className="!w-[1.1rem] !h-[1.2rem] text-black " />
+                </Button>
+              </CustomTooltip>
+              <CustomTooltip
+                className={"!min-w-fit"}
+                content={
+                  "Click To Mark this Document as Multiple Invoice Document."
                 }
-                className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
               >
-                {loadingState?.accepting ? "Accepting..." : "Accept"}
-              </Button>
-            </CustomTooltip>
-
-            <CustomTooltip
-              content={
-                action_controls?.mark_as_not_supported?.disabled
-                  ? action_controls?.mark_as_not_supported?.reason
-                  : "Click To Mark This Document As Not Supported."
-              }
-            >
-              <Button
-                disabled={action_controls?.mark_as_not_supported?.disabled}
-                onClick={() => setMarkAsNotSupportedModal(true)}
-                className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[7.25rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
-              >
-                Not Supported
-              </Button>
-            </CustomTooltip>
-
-            <CustomTooltip
-              content={
-                action_controls?.save?.disabled
-                  ? action_controls?.save?.reason
-                  : "Click To Save This Document."
-              }
-            >
-              <Button
-                disabled={
-                  action_controls?.save?.disabled ||
-                  loadingState?.saving ||
-                  loadingState?.rejecting ||
-                  loadingState?.accepting
+                <Button
+                  onClick={() => {
+                    setShowMultipleInvoiceModal(true);
+                    return;
+                  }}
+                  disabled={
+                    action_controls?.review_later?.disabled ||
+                    markingForReview ||
+                    loadingState?.rejecting ||
+                    loadingState?.markingAsNotSupported ||
+                    loadingState?.markingForReview ||
+                    loadingState?.reverting ||
+                    loadingState?.accepting ||
+                    loadingState?.saving || loadingState?.mutliInvoceMarking
+                  }
+                  className="bg-transparent h-[2.4rem] dark:text-white border-primary  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                >
+                  <Files className="!w-[1.1rem] !h-[1.2rem] text-black " />
+                </Button>
+              </CustomTooltip>
+              <CustomTooltip
+                content={
+                  action_controls?.mark_as_not_supported?.disabled
+                    ? action_controls?.mark_as_not_supported?.reason
+                    : "Click To Mark This Document As Not Supported."
                 }
-                onClick={() => handleSave()}
-                className="font-poppins h-[2.4rem] dark:text-white font-normal text-sm leading-5 border-2 border-primary text-[#ffffff]"
+                className={"!min-w-fit"}
               >
-                {loadingState?.saving ? "Saving..." : "Save"}
-              </Button>
-            </CustomTooltip>
+                <Button
+                  disabled={
+                    action_controls?.mark_as_not_supported?.disabled ||
+                    loadingState?.rejecting ||
+                    loadingState?.markingAsNotSupported ||
+                    loadingState?.markingForReview ||
+                    loadingState?.reverting ||
+                    loadingState?.accepting ||
+                    loadingState?.saving
+                  }
+                  onClick={() => setMarkAsNotSupportedModal(true)}
+                  className="bg-transparent h-[2.4rem] dark:text-white border-primary   hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                >
+                  <Flag className="!w-[1.1rem] !h-[1.2rem] text-black " />
+                </Button>
+              </CustomTooltip>
+
+              <CustomTooltip
+                content={
+                  action_controls?.reject?.disabled
+                    ? action_controls?.reject?.reason
+                    : "Click To Reject This Document."
+                }
+              >
+                <Button
+                  onClick={() => {
+                    setShowRejectionModal(true);
+                  }}
+                  disabled={
+                    action_controls?.reject?.disabled ||
+                    loadingState?.rejecting ||
+                    loadingState?.markingAsNotSupported ||
+                    loadingState?.markingForReview ||
+                    loadingState?.reverting ||
+                    loadingState?.accepting ||
+                    loadingState?.saving
+                  }
+                  className="bg-transparent w-[6.5rem] dark:text-white h-[2.4rem] border-[#F15156]  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                >
+                  Reject
+                </Button>
+              </CustomTooltip>
+              <CustomTooltip
+                className={"!max-w-72"}
+                content={
+                  !warning_checkbox_checked
+                    ? "Please check vendor name checkbox."
+                    : action_controls?.accept?.disabled
+                      ? action_controls?.accept?.reason
+                      : "Click To Accept This Document."
+                }
+              >
+                <Button
+                  onClick={() => {
+                    if (
+                      (is_unverified_vendor &&
+                        similarVendors?.data?.length > 0) ||
+                      (is_unverified_branch &&
+                        similarBranches?.data?.length > 0)
+                    ) {
+                      setShowAcceptModal(true);
+                      setClickedOnAcceptButton(true);
+                      setShowSimilarVendorsAndBranchesWarningModal(false);
+                    } else {
+                      handleAccept();
+                    }
+                  }}
+                  disabled={
+                    !warning_checkbox_checked ||
+                    action_controls?.accept?.disabled ||
+                    loadingState?.accepting ||
+                    loadingState?.rejecting ||
+                    loadingState?.markingAsNotSupported ||
+                    loadingState?.markingForReview ||
+                    loadingState?.reverting ||
+                    loadingState?.saving
+                  }
+                  className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                >
+                  {loadingState?.accepting ? "Accepting..." : "Accept"}
+                </Button>
+              </CustomTooltip>
+
+
+              <CustomTooltip
+                content={
+                  action_controls?.save?.disabled
+                    ? action_controls?.save?.reason
+                    : "Click To Save This Document."
+                }
+              >
+                <Button
+                  disabled={
+                    action_controls?.save?.disabled ||
+                    loadingState?.saving ||
+                    loadingState?.rejecting ||
+                    loadingState?.accepting ||
+                    loadingState?.rejecting ||
+                    loadingState?.markingAsNotSupported ||
+                    loadingState?.markingForReview ||
+                    loadingState?.reverting ||
+                    loadingState?.saving
+                  }
+                  onClick={() => handleSave()}
+                  className="font-poppins h-[2.4rem] dark:text-white font-normal  rounded-md text-sm leading-5 border-2 border-primary text-[#ffffff]"
+                >
+                  {loadingState?.saving ? "Saving..." : <Save className="!w-[1.1rem] !h-[1.2rem]" />}
+                </Button>
+              </CustomTooltip>
+            </div>
           </div>
         </div>
 
@@ -1130,14 +1662,12 @@ const InvoiceDetails = () => {
               }
               pdfUrls={[
                 {
-                  document_link: `${
-                    data?.data?.document_link || data?.data?.[0]?.document_link
-                  }
+                  document_link: `${data?.data?.document_link || data?.data?.[0]?.document_link
+                    }
                     `,
-                  document_source: `${
-                    data?.data?.document_source ||
+                  document_source: `${data?.data?.document_source ||
                     data?.data?.[0]?.document_source
-                  }`
+                    }`
                 }
               ]}
             />
@@ -1170,6 +1700,61 @@ const InvoiceDetails = () => {
             />
           </div>
         </div>
+
+        {/* Reset Invoice Status Modal */}
+        <Modal
+          open={showResetStatusModal}
+          setOpen={setShowResetStatusModal}
+           showXicon={true}
+          className={"max-w-[25rem] !rounded-xl"}
+        >
+          <ModalDescription>
+            <div className="w-full flex  flex-col justify-center h-full items-center  ">
+              <img src={warning} alt="" className="h-16 w-16 mb-2 mt-4" />
+              <p className="font-poppins font-semibold text-base leading-6  text-[#000000]">
+                Warning
+              </p>
+              <p className="px-8 !text-center mt-2 text-[#666667] font-poppins font-normal  text-sm leading-4">
+                Are you sure to Reset the Invoice Status?
+              </p>
+              <div className="flex items-center gap-x-4 mb-4 mt-8">
+                <Button
+                  onClick={() => setShowMultipleInvoiceModal(false)}
+                  className="rounded-sm !w-[4.5rem] !font-poppins bg-transparent border border-primary shadow-none text-[#000000] font-normal text-xs hover:bg-transparent"
+                >
+                  No
+                </Button>
+                <Button
+                  onClick={() => {
+                    setLoadingState((prev) => ({ ...prev, reverting: true }));
+                    revertChanges(
+                      data?.data?.document_uuid ||
+                      data?.data?.[0]?.document_uuid,
+                      {
+                        onSuccess: () => {
+                          setLoadingState((prev) => ({
+                            ...prev,
+                            reverting: false
+                          }));
+                        },
+                        onError: () => {
+                          setLoadingState((prev) => ({
+                            ...prev,
+                            reverting: false
+                          }));
+                        }
+                      }
+                    );
+                  }}
+                  disabled={loadingState?.reverting}
+                  className="rounded-sm !w-[4.5rem] !font-poppins text-xs font-normal"
+                >
+                  {loadingState?.reverting ? "Marking..." : "Yes"}
+                </Button>
+              </div>
+            </div>
+          </ModalDescription>
+        </Modal>
         {/* Mark For Review Modal */}
         <Modal
           open={markForReviewModal}
@@ -1190,7 +1775,7 @@ const InvoiceDetails = () => {
                 rows={6}
                 value={reviewLaterComments}
                 onChange={(e) => {
-                  setReviewLaterComments(e.target.value);
+                  setReviewLaterComments(e?.target?.value);
                 }}
                 className="p-2.5 dark:text-white  focus:!outline-none focus:!ring-0 "
               />
@@ -1280,7 +1865,7 @@ const InvoiceDetails = () => {
                     });
                     markAsNotSupported(
                       data?.data?.document_uuid ||
-                        data?.data?.[0]?.document_uuid,
+                      data?.data?.[0]?.document_uuid,
                       {
                         onSuccess: () => {
                           setLoadingState({
@@ -1302,6 +1887,64 @@ const InvoiceDetails = () => {
                   className="rounded-sm !w-[4.5rem] !font-poppins text-xs font-normal"
                 >
                   {loadingState?.markingAsNotSupported ? "Marking..." : "Yes"}
+                </Button>
+              </div>
+            </div>
+          </ModalDescription>
+        </Modal>
+        {/* Multiple invoice Modal */}
+        <Modal
+          open={showMultipleInvoiceModal}
+          showXicon={true}
+          className={"max-w-[25rem] !rounded-xl"}
+          setOpen={setShowMultipleInvoiceModal}
+        >
+          <ModalDescription>
+            <div className="w-full flex  flex-col justify-center h-full items-center  ">
+              <img src={warning} alt="" className="h-16 w-16 mb-2 mt-4" />
+              <p className="font-poppins font-semibold text-base leading-6  text-[#000000]">
+                Warning
+              </p>
+              <p className="px-8 !text-center mt-2 text-[#666667] font-poppins font-normal  text-sm leading-4">
+                Are you sure to mark this document as Multiple Invoice Document ?
+              </p>
+              <div className="flex items-center gap-x-4 mb-4 mt-8">
+                <Button
+                  onClick={() => setShowMultipleInvoiceModal(false)}
+                  className="rounded-sm !w-[4.5rem] !font-poppins bg-transparent border border-primary shadow-none text-[#000000] font-normal text-xs hover:bg-transparent"
+                >
+                  No
+                </Button>
+                <Button
+                  onClick={() => {
+                    setLoadingState({
+                      ...loadingState,
+                      mutliInvoceMarking: true
+                    });
+                    markAsMutlipleInvoice(
+                      data?.data?.document_uuid ||
+                      data?.data?.[0]?.document_uuid,
+                      {
+                        onSuccess: () => {
+                          setLoadingState({
+                            ...loadingState,
+                            mutliInvoceMarking: false
+                          });
+                          window.location.reload();
+                        },
+                        onError: () => {
+                          setLoadingState({
+                            ...loadingState,
+                            mutliInvoceMarking: false
+                          });
+                        }
+                      }
+                    );
+                  }}
+                  disabled={loadingState?.mutliInvoceMarking}
+                  className="rounded-sm !w-[4.5rem] !font-poppins text-xs font-normal"
+                >
+                  {loadingState?.mutliInvoceMarking ? "Marking..." : "Yes"}
                 </Button>
               </div>
             </div>
@@ -1355,7 +1998,7 @@ const InvoiceDetails = () => {
                 rows={4}
                 value={rejectionReason}
                 onChange={(e) => {
-                  setRejectionReason(e.target.value);
+                  setRejectionReason(e?.target?.value);
                 }}
                 className="p-2.5  focus:!outline-none focus:!ring-0 "
               />
@@ -1374,7 +2017,6 @@ const InvoiceDetails = () => {
           </ModalDescription>
         </Modal>
       </Layout>
-
       <Modal
         iconCN={"top-[28px]"}
         open={showDuplicateInvoicesModal}
@@ -1452,7 +2094,7 @@ const InvoiceDetails = () => {
                       <Link
                         target="_blank"
                         onClick={() => setShowDuplicateInvoicesModal(false)}
-                        to={`/invoice-details?document_uuid=${d.document_uuid}`}
+                        to={`/invoice-details?document_uuid=${d?.document_uuid}`}
                         className="font-poppins !font-normal    pl-1 underline underline-offset-4 !text-center text-xs text-[#348355] leading-4"
                       >
                         View
@@ -1476,15 +2118,14 @@ const InvoiceDetails = () => {
           </div>
         </ModalDescription>
       </Modal>
-
       <ResizableModal
         isOpen={showAcceptModal}
         onClose={() => setShowAcceptModal()}
         title={"Information"}
-        className={"!rounded-2xl  max-w-[50rem] "}
+        className={"!rounded-2xl  !w-[55rem] "}
       >
         {similarVendors?.data?.length > 0 &&
-        similarBranches?.data?.length > 0 ? (
+          similarBranches?.data?.length > 0 ? (
           <div className="my-2">
             <p className="mb-3 pl-0.5  font-poppins text-[0.9rem] font-semibold text-[#000000] ">
               Matching Verified Vendors ({similarVendors?.data?.length}) and
@@ -1511,15 +2152,18 @@ const InvoiceDetails = () => {
               <>
                 <div className="sticky top-0 bg-white z-50">
                   <Table className="!sticky !top-0">
-                    <TableRow className="grid grid-cols-3 items-center content-center ">
-                      <TableHead className="border-r  border-t border-l font-poppins text-sm font-semibold content-center text-black leading-5">
+                    <TableRow className="w-[100%] items-center content-center ">
+                      <TableHead className="border-r w-[30%]  border-t border-l font-poppins text-sm font-semibold content-center text-black leading-5">
                         Vendor Name
                       </TableHead>
-                      <TableHead className="border-r border-t  font-poppins text-sm font-semibold text-black leading-5 content-center">
+                      <TableHead className="border-r w-[20%] border-t  font-poppins text-sm font-semibold text-black leading-5 content-center">
                         Similarity{" "}
                       </TableHead>
-                      <TableHead className=" font-poppins text-sm border-t border-r font-semibold text-black leading-5 content-center">
+                      <TableHead className=" font-poppins w-[30%] text-sm border-t border-r font-semibold text-black leading-5 content-center">
                         Finding Method
+                      </TableHead>
+                      <TableHead className=" font-poppins text-sm w-[20%] border-t border-r font-semibold text-black leading-5 content-center">
+                        View
                       </TableHead>
                     </TableRow>
                   </Table>
@@ -1528,48 +2172,73 @@ const InvoiceDetails = () => {
                   <Table className="mb-4  ">
                     <TableBody>
                       {similarVendors?.data?.length > 0 &&
-                        similarVendors?.data?.map((row, index) => (
-                          <TableRow
-                            className=" !border-b grid grid-cols-3 "
-                            key={index}
-                          >
-                            <TableCell className=" border-l font-poppins border-r font-normal content-center text-black text-sm">
-                              <div className="flex items-center gap-x-2  justify-between w-full capitalize">
-                                <span className="max-w-44">
-                                  {" "}
-                                  {row?.vendor?.vendor_name}
-                                </span>
-                                <div className="flex items-center gap-x-2 !w-12">
-                                  <img src={approved} alt="" />
-                                  <Copy
-                                    className="cursor-pointer h-4 w-4"
+                        similarVendors?.data
+                          ?.sort((a, b) => {
+                            return b?.similarity_score - a?.similarity_score;
+                          })
+                          ?.map((row, index) => (
+                            <TableRow
+                              className=" !border-b w-[100%] flex items-center "
+                              key={index}
+                            >
+                              <TableCell className="w-[30%] border-l font-poppins border-r font-normal content-center text-black text-sm">
+                                <div className="flex items-center gap-x-2  justify-between w-full capitalize">
+                                  <span
+                                    className="max-w-44 underline cursor-pointer text-primary"
                                     onClick={() => {
-                                      navigator.clipboard.writeText(
-                                        row?.vendor?.vendor_name
+                                      window.open(
+                                        `${import.meta.env
+                                          .VITE_APP_OLD_UI_STAGING_UI
+                                        }/vendor-consolidation-v2/${row?.vendor?.vendor_id
+                                        }`
                                       );
-                                      toast.success("Vendor Name Copied");
                                     }}
-                                  />
+                                  >
+                                    {" "}
+                                    {row?.vendor?.vendor_name}
+                                  </span>
+                                  <div className="flex items-center gap-x-2 !w-12">
+                                    <img src={approved} alt="" />
+                                    <Copy
+                                      className="cursor-pointer h-4 w-4"
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(
+                                          row?.vendor?.vendor_name
+                                        );
+                                        toast.success("Vendor Name Copied");
+                                      }}
+                                    />
+                                  </div>
                                 </div>
-                              </div>
-                            </TableCell>
-                            <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger div className=" z-50">
-                                    <span> {row?.similarity_score}%</span>
-                                  </TooltipTrigger>
-                                  <TooltipContent className="bg-white text-black border  absolute -top-[3rem] -left-[15rem] shadow-sm px-4 flex items-center  gap-x-1  min-w-[18rem]    min-h-10 ml-[16rem]">
-                                    {row?.match_reason}
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            </TableCell>
-                            <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
-                              {row?.finding_method}
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                              </TableCell>
+                              <TableCell className="w-[20%] border-r content-center font-poppins font-normal text-black text-sm">
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger div className=" z-50">
+                                      <span> {row?.similarity_score}%</span>
+                                    </TooltipTrigger>
+                                    <TooltipContent className="bg-white text-black border  absolute -top-[3rem] -left-[15rem] shadow-sm px-4 flex items-center  gap-x-1  min-w-[18rem]    min-h-10 ml-[16rem]">
+                                      {row?.match_reason}
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </TableCell>
+                              <TableCell className="w-[30%] border-r content-center font-poppins font-normal text-black text-sm">
+                                {row?.finding_method}
+                              </TableCell>
+                              <TableCell className="w-[20%] border-r content-center font-poppins font-normal text-black text-sm">
+                                {
+                                  <FileText
+                                    onClick={() => {
+                                      setSelectedSimilarVendor(row?.vendor);
+                                      setShowSimilarVendorPdfs(true);
+                                    }}
+                                    className="w-4 h-4  cursor-pointer"
+                                  />
+                                }
+                              </TableCell>
+                            </TableRow>
+                          ))}
                     </TableBody>
                   </Table>
                 </div>
@@ -1589,15 +2258,18 @@ const InvoiceDetails = () => {
               <>
                 <div className="sticky top-0 bg-white z-50">
                   <Table className="!sticky !top-0">
-                    <TableRow className="grid grid-cols-3 items-center content-center ">
-                      <TableHead className="border-r  border-t border-l font-poppins text-sm font-semibold content-center text-black leading-5">
+                    <TableRow className="flex w-[100%] items-center content-center ">
+                      <TableHead className="border-r  w-[30%] border-t border-l font-poppins text-sm font-semibold content-center text-black leading-5">
                         Branch Name
                       </TableHead>
-                      <TableHead className="border-r border-t  font-poppins text-sm font-semibold text-black leading-5 content-center">
+                      <TableHead className="border-r w-[20%] border-t  font-poppins text-sm font-semibold text-black leading-5 content-center">
                         Similarity{" "}
                       </TableHead>
-                      <TableHead className=" font-poppins text-sm border-t border-r font-semibold text-black leading-5 content-center">
+                      <TableHead className=" font-poppins w-[30%] text-sm border-t border-r font-semibold text-black leading-5 content-center">
                         Finding Method
+                      </TableHead>
+                      <TableHead className=" font-poppins w-[20%] text-sm border-t border-r font-semibold text-black leading-5 content-center">
+                        View
                       </TableHead>
                     </TableRow>
                   </Table>
@@ -1606,47 +2278,72 @@ const InvoiceDetails = () => {
                   <Table className="mb-4  ">
                     <TableBody>
                       {similarBranches?.data?.length > 0 &&
-                        similarBranches?.data?.map((row, index) => (
-                          <TableRow
-                            className=" !border-b grid grid-cols-3 "
-                            key={index}
-                          >
-                            <TableCell className=" border-l font-poppins border-r font-normal content-center text-black text-sm">
-                              <div className="flex items-center gap-x-2 capitalize justify-between">
-                                <span className="max-w-44">
-                                  {row?.branch?.vendor_address}
-                                </span>
-                                <div className="flex items-center gap-x-2">
-                                  <img src={approved} alt="" />
-                                  <Copy
-                                    className="cursor-pointer h-4 w-4"
+                        similarBranches?.data
+                          ?.sort((a, b) => {
+                            return b?.similarity_score - a?.similarity_score;
+                          })
+                          ?.map((row, index) => (
+                            <TableRow
+                              className=" !border-b flex items-center w-[100%]"
+                              key={index}
+                            >
+                              <TableCell className="w-[30%] border-l font-poppins border-r font-normal content-center text-black text-sm">
+                                <div className="flex items-center gap-x-2 capitalize justify-between">
+                                  <span
+                                    className="max-w-44 underline text-primary cursor-pointer"
                                     onClick={() => {
-                                      navigator.clipboard.writeText(
-                                        row?.branch?.vendor_address
+                                      window.open(
+                                        `${import.meta.env
+                                          .VITE_APP_OLD_UI_STAGING_UI
+                                        }/vendor-v2/${row?.vendor?.vendor_id
+                                        }/branch/${row?.branch?.branch_id}`
                                       );
-                                      toast.success("Branch Address Copied");
                                     }}
-                                  />
+                                  >
+                                    {row?.branch?.vendor_address}
+                                  </span>
+                                  <div className="flex items-center gap-x-2">
+                                    <img src={approved} alt="" />
+                                    <Copy
+                                      className="cursor-pointer h-4 w-4"
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(
+                                          row?.branch?.vendor_address
+                                        );
+                                        toast.success("Branch Address Copied");
+                                      }}
+                                    />
+                                  </div>
                                 </div>
-                              </div>
-                            </TableCell>
-                            <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger div className=" z-50">
-                                    <span> {row?.similarity_score}%</span>
-                                  </TooltipTrigger>
-                                  <TooltipContent className="bg-white text-black border  absolute -top-[3rem] -left-[15rem] shadow-sm px-4 flex items-center  gap-x-1  min-w-[18rem]    min-h-10 ml-[16rem]">
-                                    {row?.match_reason}
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            </TableCell>
-                            <TableCell className=" border-r content-center font-poppins font-normal text-black text-sm">
-                              {row?.finding_method}
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                              </TableCell>
+                              <TableCell className="w-[20%] border-r content-center font-poppins font-normal text-black text-sm">
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger div className=" z-50">
+                                      <span> {row?.similarity_score}%</span>
+                                    </TooltipTrigger>
+                                    <TooltipContent className="bg-white text-black border  absolute -top-[3rem] -left-[15rem] shadow-sm px-4 flex items-center  gap-x-1  min-w-[18rem]    min-h-10 ml-[16rem]">
+                                      {row?.match_reason}
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </TableCell>
+                              <TableCell className="w-[30%] border-r content-center font-poppins font-normal text-black text-sm">
+                                {row?.finding_method}
+                              </TableCell>
+                              <TableCell className="w-[20%] border-r content-center font-poppins font-normal text-black text-sm">
+                                <FileText
+                                  className="w-4 h-4 cursor-pointer"
+                                  onClick={() => {
+                                    setSelectedSimilarBranch(row?.branch);
+                                    setShowSimilarBranchPdfs(true);
+                                    setShowSimilarVendorPdfs(false);
+                                    setSelectedSimilarVendor(null);
+                                  }}
+                                />
+                              </TableCell>
+                            </TableRow>
+                          ))}
                     </TableBody>
                   </Table>
                 </div>
@@ -1661,28 +2358,188 @@ const InvoiceDetails = () => {
           </div>
         )}
 
-       {clickedOnAcceptButton&& <div className="flex justify-center mt-4 mb-2 gap-x-4">
-          <Button 
-          onClick={()=>{
-            handleAccept();
-            setShowAcceptModal(false);
-            setClickedOnAcceptButton(false);
-            setShowSimilarVendorsAndBranchesWarningModal(false);
-
-          }}
-          className="rounded-sm font-normal font-poppins ">Accept</Button>
-          <Button
-            className="rounded-sm font-normal font-poppins bg-transparent hover:bg-transparent border border-primary text-black"
-            onClick={() => {
-              setShowAcceptModal(false);
-              setClickedOnAcceptButton(false);
-              setShowSimilarVendorsAndBranchesWarningModal(false);
-            }}
-          >
-            Close
-          </Button>
-        </div>}
+        {clickedOnAcceptButton && (
+          <div className="flex justify-center mt-4 mb-2 gap-x-4">
+            <Button
+              onClick={() => {
+                handleAccept();
+                setShowAcceptModal(false);
+                setClickedOnAcceptButton(false);
+                setShowSimilarVendorsAndBranchesWarningModal(false);
+              }}
+              className="rounded-sm font-normal font-poppins "
+            >
+              Accept
+            </Button>
+            <Button
+              className="rounded-sm font-normal font-poppins bg-transparent hover:bg-transparent border border-primary text-black"
+              onClick={() => {
+                setShowAcceptModal(false);
+                setClickedOnAcceptButton(false);
+                setShowSimilarVendorsAndBranchesWarningModal(false);
+              }}
+            >
+              Close
+            </Button>
+          </div>
+        )}
       </ResizableModal>
+      {/* Reprocess Modal */}
+      <Modal
+        iconCN={"top-[28px]"}
+        open={reprocessingModal}
+        setOpen={() => {
+          setShowReprocessingModal(false);
+          setReExtractionMethod(null);
+        }}
+        title={"Reprocess Document"}
+        className={"!px-0  !z-50 !min-w-[40rem] "}
+        titleClassName={
+          "text-[#000000] !font-medium  flex justify-start px-4 border-b border-b-[#E0E0E0] pb-4 pt-3 font-poppins !text-base  leading-6  pt-0.5"
+        }
+      >
+        <ModalDescription className="px-4 !z-50">
+          <div className="px-4 z-50">
+            <p className="font-poppins font-medium text-start   text-black">
+              Select Extraction Method
+            </p>
+
+            <RadioGroup
+              className="flex gap-x-4 items-center py-4"
+              value={reExtractionMethod}
+              onValueChange={(v) => {
+                setReExtractionMethod(v);
+              }}
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem
+                  value={"method_a"}
+                  id="method_a"
+                ></RadioGroupItem>
+                <Label
+                  htmlFor="method_a"
+                  className="font-poppins font-normal text-sm leading-5 text-[#000000] cursor-pointer "
+                >
+                  Method A
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem
+                  value={"method_b"}
+                  id="method_b"
+                ></RadioGroupItem>
+                <Label
+                  htmlFor="method_b"
+                  className="font-poppins font-normal text-sm leading-5 text-[#000000] cursor-pointer "
+                >
+                  Method B
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+
+          <div className="flex items-center justify-center gap-x-2  pr-2 mt-6">
+            <Button
+              onClick={() => {
+                setShowReprocessingModal(false);
+                setReExtractionMethod(null);
+              }}
+              className="rounded-sm border border-primary bg-transparent hover:bg-transparent font-poppins font-normal text-sm text-black"
+            >
+              Close
+            </Button>
+            <Button
+              disabled={loadingState?.reprocessing}
+              onClick={() => {
+                setLoadingState({ ...loadingState, reprocessing: true });
+                reprocessDocument(
+                  {
+                    document_uuid:
+                      document_uuid ||
+                      data?.data?.[0]?.document_uuid ||
+                      data?.data?.document_uuid,
+                    payload: {
+                      extraction_method: reExtractionMethod
+                    }
+                  },
+                  {
+                    onSuccess: (data) => {
+                      setLoadingState({ ...loadingState, reprocessing: false });
+                      setShowReprocessingModal(false);
+                      setShowReferenceLinkModal(true);
+                      setShowReferenceLinkModal(true);
+                      setReprocessedData(data?.data);
+                    },
+                    onError: () => {
+                      setLoadingState({ ...loadingState, reprocessing: false });
+                      setShowReprocessingModal(false);
+                    }
+                  }
+                );
+              }}
+              className={
+                "rounded-sm font-poppins text-sm text-white font-normal"
+              }
+            >
+              {loadingState?.reprocessing ? "Reprocessing..." : "Reprocess"}
+            </Button>
+          </div>
+        </ModalDescription>
+      </Modal>
+      {/* Reprocess Link Modal */}
+      <Modal
+        iconCN={"top-[28px]"}
+        open={shoeReferenceLinkModal}
+        setOpen={() => {
+          setShowReferenceLinkModal(false);
+          setReprocessedData({});
+        }}
+        title={"Reprocess Document"}
+        className={"!px-0  !z-50 !min-w-[40rem] "}
+        titleClassName={
+          "text-[#000000] !font-medium  flex justify-start px-4 border-b border-b-[#E0E0E0] pb-4 pt-3 font-poppins !text-base  leading-6  pt-0.5"
+        }
+      >
+        <ModalDescription className="px-4 !z-50">
+          <div className="px-4 z-50">
+            <p className="font-poppins font-medium text-start  capitalize  text-black">
+              Currently the document is is queued for processing and after
+              processing the document will be available. Copy the document link
+              from below button .
+            </p>
+          </div>
+
+          <div className="flex items-center justify-center gap-x-2  pr-2 mt-6">
+            <Button
+              onClick={() => {
+                setShowReferenceLinkModal(false);
+                setReprocessedData({});
+              }}
+              className="rounded-sm border border-primary bg-transparent hover:bg-transparent font-poppins font-normal text-sm text-black"
+            >
+              Close
+            </Button>
+
+            <Button
+              onClick={() => {
+                navigator.clipboard.writeText(
+                  `${window.location.origin}/invoice-details?document_uuid=${reprocessedData?.document_reference}`
+                );
+
+                toast.success("Document Link copied to clipboard");
+              }}
+              className="flex items-center gap-x-2 bg-transparent hover:bg-transparent rounded-sm border-primary border font-poppins font-normal text-sm text-black"
+            >
+              <p>Copy</p>
+              <img
+                src={copy}
+                alt="copy icon"
+                className=" right-3  top-10 cursor-pointer h-4  z-50"
+              />
+            </Button>
+          </div>
+        </ModalDescription>
+      </Modal>
     </div>
   );
 };

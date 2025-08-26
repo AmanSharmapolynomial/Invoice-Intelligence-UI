@@ -13,7 +13,8 @@ import {
   getVendorTypesAndCategories,
   updateVendorTypesAndCategories,
   getItemMasterSimilarItems,
-  getInvoiceMetaDataBoundingboxes
+  getInvoiceMetaDataBoundingboxes,
+  getUnsupportedDocuments
 } from "./utils";
 import { axiosInstance } from "@/axios/instance";
 import toast from "react-hot-toast";
@@ -23,6 +24,13 @@ export const useGetDocumentMetadata = (payload) => {
   return useQuery({
     queryKey: ["document-metadata", payload],
     queryFn: () => getInvoiceMetaData(payload),
+    gcTime: 0
+  });
+};
+export const useGetUnSupportedDocuments = (payload) => {
+  return useQuery({
+    queryKey: ["unsupported-documents", payload],
+    queryFn: () => getUnsupportedDocuments(payload),
     gcTime: 0
   });
 };
@@ -185,10 +193,9 @@ export const useUpdateDocumentMetadata = () => {
     },
     onSuccess: (data) => {
       toast.success(
-        `${data?.message} ${
-          data?.data?.updated_fields?.length > 0
-            ? `Updated Fields:-${data?.data?.updated_fields?.join(" , ")}`
-            : ``
+        `${data?.message} ${data?.data?.updated_fields?.length > 0
+          ? `Updated Fields:-${data?.data?.updated_fields?.join(" , ")}`
+          : ``
         }`,
         {
           autoClose: 2000
@@ -237,10 +244,9 @@ export const useMarkAsNotSupported = () => {
     },
     onSuccess: (data) => {
       toast.success(
-        `${data?.message} ${
-          data?.data?.updated_fields?.length > 0
-            ? `Updated Fields:-${data?.data?.updated_fields?.join(" , ")}`
-            : ``
+        `${data?.message} ${data?.data?.updated_fields?.length > 0
+          ? `Updated Fields:-${data?.data?.updated_fields?.join(" , ")}`
+          : ``
         }`,
         {
           autoClose: 2000
@@ -266,10 +272,9 @@ export const useUpdateDocumentTable = () => {
     },
     onSuccess: (data) => {
       toast.success(
-        `${data?.message} ${
-          data?.data?.updated_fields?.length > 0
-            ? `Updated Fields:-${data?.data?.updated_fields?.join(" , ")}`
-            : ``
+        `${data?.message} ${data?.data?.updated_fields?.length > 0
+          ? `Updated Fields:-${data?.data?.updated_fields?.join(" , ")}`
+          : ``
         }`,
         {
           autoClose: 2000
@@ -360,7 +365,7 @@ export const useGetSimilarBranches = (document_uuid) => {
   return useQuery({
     queryKey: ["get-similar-branches", document_uuid],
     queryFn: async () => {
-      if(!document_uuid) return;
+      if (!document_uuid) return;
       let apiUrl = `/api/document/${document_uuid}/potential-verified-branches/`;
       try {
         let response = await axiosInstance.get(apiUrl);
@@ -386,6 +391,115 @@ export const useRevertChanges = () => {
     onSuccess: (data) => {
       toast.success(data?.message);
       queryClient.invalidateQueries(["document-metadata"]);
+    }
+  });
+};
+
+
+
+
+export const useReprocessDocument = () => {
+  return useMutation({
+    mutationFn: async ({ document_uuid, payload }) => {
+      let response = await axiosInstance.post(`/api/invoice-processor/${document_uuid}/reprocess/`, {
+        ...payload
+      })
+      return response
+    },
+    onError: (data) => {
+      toast.error(data?.message);
+    },
+    onSuccess: (data) => {
+      toast.success(data?.message);
+      // queryClient.invalidateQueries(["document-metadata"]);
+    }
+  })
+}
+
+
+
+export const useUpdateDocumentStatus = () => {
+  return useMutation({
+    mutationFn: async (payload) => {
+      let response = await axiosInstance.put(`/api/document/unsupported/${payload?.document_uuid}/update-status/`, {
+        document_type: payload?.document_type
+      });
+      return response;
+    },
+    onError: (data) => {
+      toast.error(data?.message);
+    },
+    onSuccess: (data) => {
+      toast.success(data?.message);
+      queryClient.invalidateQueries(['unsupported-documents'])
+      // queryClient.invalidateQueries(["document-metadata"]);
+    }
+  })
+}
+
+
+export const useGetSupportedUnsupportedOptions = () => {
+  return useQuery({
+    queryKey: ['unsupported-supported-options'],
+    queryFn: async () => {
+      let response = await axiosInstance.get(`/api/document/unsupported/supported-unsupported-options/`);
+      return response;
+    }
+  })
+}
+
+
+
+export const useMarkAsMultiInvoice = () => {
+  return useMutation({
+    mutationFn: async (document_uuid) => {
+      const response = await axiosInstance.post(
+        `/api/document/${document_uuid}/mark-as-multiple-invoice-document/`
+      );
+      return response;
+    },
+    onSuccess: (data) => {
+      toast.success(
+        `${data?.message} ${data?.data?.updated_fields?.length > 0
+          ? `Updated Fields:-${data?.data?.updated_fields?.join(" , ")}`
+          : ``
+        }`,
+        {
+          autoClose: 2000
+        }
+      );
+    },
+    onError: (data) => {
+      toast.error(data?.message);
+    }
+  });
+};
+
+
+
+
+
+export const useMarkMultipleInvoiceDocumentAsNotSupported = () => {
+  return useMutation({
+    mutationFn: async (document_uuid) => {
+      const response = await axiosInstance.post(
+        `/api/document/multiple-invoice-detections/${document_uuid}/mark-as-unsupported/`
+      );
+      return response;
+    },
+    onSuccess: (data) => {
+      toast.success(
+        `${data?.message} ${data?.data?.updated_fields?.length > 0
+          ? `Updated Fields:-${data?.data?.updated_fields?.join(" , ")}`
+          : ``
+        }`,
+        {
+          autoClose: 2000
+        }
+      );
+    },
+    onError: (data) => {
+      toast.error(data?.message);
     }
   });
 };

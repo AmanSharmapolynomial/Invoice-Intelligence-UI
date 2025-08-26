@@ -13,6 +13,7 @@ import useUpdateParams from "@/lib/hooks/useUpdateParams";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "../ui/button";
+import useFilterStore from "@/store/filtersStore";
 
 const TablePagination = ({
   totalPages = null,
@@ -21,6 +22,7 @@ const TablePagination = ({
   className
 }) => {
   const [searchParams] = useSearchParams();
+  const {filters,setFilters}=useFilterStore()
 
   const currentPage = parseInt(searchParams.get([`${Key}`])) || 1;
 
@@ -32,6 +34,7 @@ const TablePagination = ({
       const newPage = currentPage - 1;
       updateParams({ [`${Key}`]: newPage });
       setPageIndex(newPage);
+      setFilters({...filters,page:newPage})
     }
   };
 
@@ -40,18 +43,22 @@ const TablePagination = ({
       const newPage = currentPage + 1;
       updateParams({ [`${Key}`]: newPage });
       setPageIndex(newPage);
+      setFilters({...filters,page:newPage})
     }
   };
   const handleNavigateStart = () => {
     updateParams({ [`${Key}`]: 1 });
-    setPageIndex(newPage);
+    setPageIndex(1);
+    setFilters({...filters,page:1})
   };
   const handleNavigateEnd = () => {
     updateParams({ [`${Key}`]: totalPages });
-    setPageIndex(newPage);
+    setPageIndex(totalPages);
+    setFilters({...filters,page:totalPages})
   };
   useEffect(() => {
     setPageIndex(currentPage);
+    setFilters({...filters,page:currentPage})
   }, [currentPage]);
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -116,7 +123,7 @@ const TablePagination = ({
               updateParams({ [`${Key}`]: newPageIndex });
               setPageIndex(newPageIndex);
             }}
-            className=" !shadow-none !text-sm font-medium remove-number-spinner text-[#000000] border-none focus:!border-[#FFFFFF] focus:!outline-none focus:!ring-[#FFFFFF] bg-[#FFFFFF]  flex justify-center items-center  w-[3rem]   h-[1.25rem] "
+            className=" !shadow-none !text-sm font-medium remove-number-spinner text-[#000000] border-none focus:!border-[#FFFFFF] focus:!outline-none focus:!ring-[#FFFFFF] bg-[#FFFFFF]  flex justify-center items-center  min-w-[3rem] !w-fit !max-w-[4rem]   h-[1.25rem] "
           />
           <img src={slash} alt="" className="h-4 w-6" />
 

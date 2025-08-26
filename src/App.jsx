@@ -83,13 +83,16 @@ function App() {
             title="Bulk Item Categorization"
             content="Manage and delegate invoice tasks seamlessly."
           />
-          <CustomCard
-            Icon={frame15}
-            className={"cursor-pointer"}
-            showIcon={true}
-            onClick={() => navigate(`/vendors-potential-duplicates`)}
-            title="Duplicate Vendor Findings"
-          />
+          {(role?.toLowerCase() == "manager" ||
+            role?.toLowerCase() == "admin") && (
+            <CustomCard
+              Icon={frame15}
+              className={"cursor-pointer"}
+              showIcon={true}
+              onClick={() => navigate(`/vendors-potential-duplicates`)}
+              title="Duplicate Vendor Findings"
+            />
+          )}
           {(role?.toLowerCase() == "manager" ||
             role?.toLowerCase() == "admin") && (
             <CustomCard
