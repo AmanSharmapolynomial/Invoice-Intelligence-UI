@@ -63,7 +63,7 @@ const Tables = ({ setData, setIsLoading = () => { }, currentTab, setCurrentTab =
   let rejected = searchParams.get("rejected") || "all";
   let from_view = searchParams.get("from_view") || "";
   let extraction_source = searchParams.get("extraction_source") || "all";
-  let re_review_requested = searchParams.get("re_review_requested") || "all";
+  let re_review_requested = searchParams.get("re_review_requested");
   let payload = {
     page: page,
     page_size: filters?.page_size,
