@@ -26,7 +26,7 @@ export const getInvoiceMetaData = async (payload) => {
       payload?.from_view == "not-supported-documents"
         ? "&supported_documents=false"
         : ""
-    }&restaurant_tier=${payload?.restaurant_tier}&rejected=${payload?.rejected}&extraction_source=${payload?.extraction_source}&re_review_requested=${payload?.re_review_requested}`;
+    }&restaurant_tier=${payload?.restaurant_tier}&rejected=${payload?.rejected}&extraction_source=${payload?.extraction_source}&${payload?.re_review_requested ? `re_review_requested=${payload?.re_review_requested}` : "" }`;
   }
 
   const response = await axiosInstance.get(apiUrl);

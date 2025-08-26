@@ -67,19 +67,20 @@ const Sidebar = ({ className }) => {
       hoverImage: book_down_white,
       count: data?.all_re_review_requested_documents||0
     },
-    {
-      path: "/flagged-invoices",
-      text: "All Flagged Documents",
-      image: theme === "light" ? flagged_black : flagged_white,
-      hoverImage: flagged_white,
-      count: data?.all_flagged_documents
-    },
+  
     {
       path: "/all-multi-invoice-documents",
       text: "All Multiple Invoice Documents",
       image: theme === "light" ? multi_invoice_black : multi_invoice_white,
       hoverImage: multi_invoice_white,
       count: data?.all_multiple_invoice_documents
+    },
+      {
+      path: "/flagged-invoices",
+      text: "All Flagged Documents",
+      image: theme === "light" ? flagged_black : flagged_white,
+      hoverImage: flagged_white,
+      count: data?.all_flagged_documents
     },
     {
       path: "/my-tasks",
@@ -93,10 +94,12 @@ const Sidebar = ({ className }) => {
           text: "Invoices",
           count: data?.my_tasks?.invoices
         },
-        {
-          path: `/unsupported-documents`,
-          text: "Flagged Documents",
-          count: data?.my_tasks?.flagged_documents
+         {
+          path: "/re-review-requested-assigned",
+          text: "Re-review Requested Documents",
+          image: theme === "light" ? book_down_black : book_down_black,
+          hoverImage: book_down_white,
+            count: data?.my_tasks?.re_review_requested_documents||0
         },
         {
           path: `/multi-invoice-documents`,
@@ -105,13 +108,12 @@ const Sidebar = ({ className }) => {
           hoverImage: multi_invoice_white,
           count: data?.my_tasks?.multiple_invoice_documents
         },
-        {
-          path: "/re-review-requested-assigned",
-          text: "Re-review Requested Documents",
-          image: theme === "light" ? book_down_black : book_down_black,
-          hoverImage: book_down_white,
-            count: data?.my_tasks?.re_review_requested_documents||0
+          {
+          path: `/unsupported-documents`,
+          text: "Flagged Documents",
+          count: data?.my_tasks?.flagged_documents
         },
+     
       ]
     },
     {
