@@ -36,6 +36,7 @@ import RecentDuplicateVendorsListing from "@/pages/RecentDuplicateVendorsListing
 import AllFlaggedInvoices from "@/pages/AllFlaggedInvoices";
 import MutliInvoiceDocuments from "@/pages/MutliInvoiceDocuments";
 import MultiInvoiceDocumentsDetails from "@/pages/MultiInvoiceDocumentsDetails";
+import ReReviewRequested from "@/pages/ReReviewRequested";
 
 const publicRoutes = [
   {
@@ -142,6 +143,22 @@ const protectedRoutes = [
     element: (
       <Protected>
         <UnsupportedDocumentDetails />
+      </Protected>
+    )
+  },
+  {
+    path: "/re-review-requested",
+    element: (
+      <Protected>
+        <ReReviewRequested />
+      </Protected>
+    )
+  },
+  {
+    path: "/re-review-requested-assigned",
+    element: (
+      <Protected>
+        <ReReviewRequested />
       </Protected>
     )
   },

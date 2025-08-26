@@ -141,13 +141,13 @@ const InvoiceTable = ({
     window.addEventListener("click", handleClick);
     return () => window.removeEventListener("click", handleClick);
   }, []);
+  // alert(pathname)
 
   return (
     <div className="w-full overflow-auto  dark:bg-[#051C14] mb-1.5 dark:border-b dark:border-r dark:border-l dark:border-primary ">
       <Table
-        className={`flex flex-col  show-scrollbar custom-scrollbar box-border  scrollbar max-h-[${
-          height - 1
-        }vh]  `}
+        className={`flex flex-col  show-scrollbar custom-scrollbar box-border  scrollbar max-h-[${height - 1
+          }vh]  `}
         style={{ height: `${height}vh` }}
       >
         <TableHeader className="sticky top-0 !bg-white dark:!bg-transparent border-b !z-20">
@@ -155,17 +155,13 @@ const InvoiceTable = ({
             {invoiceTableHeaders?.map(({ label, styling }, i) => (
               <TableHead
                 key={label}
-                className={`flex ${
-                  review_later
+                className={`flex ${review_later
                     ? "!w-[9.090909090909091%] !pl-[0.9rem]"
                     : "!w-[10%]"
-                } !h-full !min-h-16 !max-h-fit !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-start gap-x-1 ${
-                  !review_later && styling
-                } !font-semibold text-sm !border-b-0   ${
-                  data && Object?.keys(data)?.length > 0 ? "" : " "
-                }  ${label === "Invoice #" && " !pl-2"} ${
-                  i !== invoiceTableHeaders?.length - 1 ? "!border-r" : "!"
-                }`}
+                  } !h-full !min-h-16 !max-h-fit !pt-0 dark:text-[#F6F6F6] !text-center flex-wrap break-words  text-[#000000] font-poppins  !border-r  items-center !justify-start gap-x-1 ${!review_later && styling
+                  } !font-semibold text-sm !border-b-0   ${data && Object?.keys(data)?.length > 0 ? "" : " "
+                  }  ${label === "Invoice #" && " !pl-2"} ${i !== invoiceTableHeaders?.length - 1 ? "!border-r" : "!"
+                  }`}
               >
                 {label == "Load Date" && (
                   <>
@@ -268,16 +264,15 @@ const InvoiceTable = ({
                   className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                   onClick={() => {
                     window.open(
-                      `/invoice-details/?page_number=${
-                        (page - 1) * 10 + ((contextMenu.index ?? 0) + 1)
-                      }&from_view=${
+                      `/invoice-details/?page_number=${(page - 1) * 10 + ((contextMenu.index ?? 0) + 1)
+                      }&from_view=${pathname=="/re-review-requested" ? "re-review" :
                         pathname?.includes("review")
                           ? "review_later"
                           : pathname?.includes("my-tasks")
-                          ? "my-tasks"
-                          : pathname?.includes("not-supported")
-                          ? "not-supported-documents"
-                          : "invoice_listing"
+                            ? "my-tasks"
+                            : pathname?.includes("not-supported")
+                              ? "not-supported-documents"
+                              : "invoice_listing"
                       }`,
                       "_blank"
                     );
@@ -301,9 +296,8 @@ const InvoiceTable = ({
                     return (
                       <TableHead
                         key={i}
-                        className={`!text-left  py-4  justify-normal !font-semibold !text-[#1C1C1E]  border ${
-                          i !== 9 || i !== 8 ? "!w-[9.0999%]" : "!w-[9.099%]"
-                        }    `}
+                        className={`!text-left  py-4  justify-normal !font-semibold !text-[#1C1C1E]  border ${i !== 9 || i !== 8 ? "!w-[9.0999%]" : "!w-[9.099%]"
+                          }    `}
                       >
                         {" "}
                         {i == 0 ? (
@@ -380,31 +374,26 @@ const InvoiceTable = ({
                             : restaurant?.restaurant_id
                         );
                         navigate(
-                          `/invoice-details/?page_number=${
-                            (page - 1) * 10 + (index + 1)
-                          }&from_view=${
-                            pathname?.includes("review")
-                              ? "review_later"
-                              : pathname?.includes("my-tasks")
+                          `/invoice-details/?page_number=${(page - 1) * 10 + (index + 1)
+                          }&from_view=${pathname=="/re-review-requested" ? "re-review" :pathname?.includes("review")
+                            ? "review_later"
+                            : pathname?.includes("my-tasks")
                               ? "my-tasks"
                               : pathname?.includes("not-supported")
-                              ? "not-supported-documents"
-                              : "invoice_listing"
+                                ? "not-supported-documents"
+                                : "invoice_listing"
                           }`
                         );
                       }}
-                      className={`${
-                        index == 0 ? "!border-t" : "!border-t-0"
-                      }  flex !py-0  !font-poppins  !min-h-16 !max-h-44  !text-sm w-[100%]  !text-[#1C1C1E] items-center  !border   ${
-                        index == data?.length - 1 ? "!border-b" : "!border-b-0"
-                      } w-full`}
+                      className={`${index == 0 ? "!border-t" : "!border-t-0"
+                        }  flex !py-0  !font-poppins  !min-h-16 !max-h-44  !text-sm w-[100%]  !text-[#1C1C1E] items-center  !border   ${index == data?.length - 1 ? "!border-b" : "!border-b-0"
+                        } w-full`}
                     >
                       <TableCell
-                        className={`flex dark:!text-[#F6F6F6] !h-full !min-h-16 !max-h-44 font-poppins  cursor-pointer !text-left  justify-start gap-x-2 !p-0 !font-normal ${
-                          review_later
+                        className={`flex dark:!text-[#F6F6F6] !h-full !min-h-16 !max-h-44 font-poppins  cursor-pointer !text-left  justify-start gap-x-2 !p-0 !font-normal ${review_later
                             ? "!w-[9.090909090909091%]"
                             : "!w-[10%] pl-2 border-r "
-                        }  text-sm  `}
+                          }  text-sm  `}
                       >
                         <div className=" w-full flex  ">
                           <div className="border-r !w-[30%] flex mr-4 justify-center  !items-center h-full">
@@ -431,11 +420,10 @@ const InvoiceTable = ({
                       </TableCell>
 
                       <TableCell
-                        className={` dark:!text-[#F6F6F6] border-r-0  !min-h-16 !max-h-44  flex font-poppins cursor-pointer !text-left items-center justify-start  !break-word whitespace-normal !font-normal !text-[#1C1C1E] ${
-                          review_later
+                        className={` dark:!text-[#F6F6F6] border-r-0  !min-h-16 !max-h-44  flex font-poppins cursor-pointer !text-left items-center justify-start  !break-word whitespace-normal !font-normal !text-[#1C1C1E] ${review_later
                             ? "!w-[9.090909090909091%] border-l"
                             : "!w-[10%] "
-                        } text-sm `}
+                          } text-sm `}
                       >
                         <div className="flex items-center justify-between w-full gap-x-4">
                           <span className="max-w-20 break-words whitespace-normal">
@@ -451,8 +439,8 @@ const InvoiceTable = ({
                                 restaurant?.tier == 1
                                   ? tier_1
                                   : restaurant?.tier == 2
-                                  ? tier_2
-                                  : tier_3
+                                    ? tier_2
+                                    : tier_3
                               }
                               alt=""
                             />
@@ -461,14 +449,12 @@ const InvoiceTable = ({
                       </TableCell>
 
                       <TableCell
-                        className={` ${
-                          review_later ? "!w-[9.090909090909091%]" : "!w-[10%] "
-                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-16 !max-h-44 !h-full border-l  !text-left items-center gap-x-2 justify-start !break-word whitespace-normal truncate  !font-normal !text-[#1C1C1E]   !capitalize  text-sm break`}
+                        className={` ${review_later ? "!w-[9.090909090909091%]" : "!w-[10%] "
+                          } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-16 !max-h-44 !h-full border-l  !text-left items-center gap-x-2 justify-start !break-word whitespace-normal truncate  !font-normal !text-[#1C1C1E]   !capitalize  text-sm break`}
                       >
                         <span
-                          className={`${
-                            vendor?.human_verified && "text-primary"
-                          } w-[80%]`}
+                          className={`${vendor?.human_verified && "text-primary"
+                            } w-[80%]`}
                         >
                           {" "}
                           {vendor?.vendor_name}
@@ -484,25 +470,21 @@ const InvoiceTable = ({
                       </TableCell>
 
                       <TableCell
-                        className={`flex dark:!text-[#F6F6F6] font-poppins !min-h-16 !max-h-44 !h-full  border-l cursor-pointer text-sm  !text-left items-center justify-start !break-word whitespace-normal !font-normal !text-[#1C1C1E] ${
-                          review_later
+                        className={`flex dark:!text-[#F6F6F6] font-poppins !min-h-16 !max-h-44 !h-full  border-l cursor-pointer text-sm  !text-left items-center justify-start !break-word whitespace-normal !font-normal !text-[#1C1C1E] ${review_later
                             ? "!w-[9.090909090909091%] pl-[0.9rem]"
                             : "!w-[10%] pl-[1.05rem]"
-                        }   `}
+                          }   `}
                       >
                         {formatDateToReadable(date_uploaded?.split("T")[0])}
                       </TableCell>
 
                       <TableCell
-                        className={`${
-                          review_later
+                        className={`${review_later
                             ? "!w-[9.090909090909091%] !pl-[0.9rem]"
                             : "!w-[10%] pl-[1rem]"
-                        } flex dark:!text-[#F6F6F6] ${
-                          (rejected || human_verified) && "!text-primary"
-                        } font-poppins cursor-pointer !min-h-16 !max-h-44 text-sm w-full border-l h-full !text-left items-center justify-start !break-word whitespace-normal !font-normal text-[#1C1C1E] ${
-                          timeRemaining?.includes("ago") && "text-[#F15156]"
-                        } `}
+                          } flex dark:!text-[#F6F6F6] ${(rejected || human_verified) && "!text-primary"
+                          } font-poppins cursor-pointer !min-h-16 !max-h-44 text-sm w-full border-l h-full !text-left items-center justify-start !break-word whitespace-normal !font-normal text-[#1C1C1E] ${timeRemaining?.includes("ago") && "text-[#F15156]"
+                          } `}
                       >
                         <CustomTooltip
                           className={"!min-w-[15rem]"}
@@ -511,11 +493,11 @@ const InvoiceTable = ({
                           <div className="w-full ">
                             {(assignment_details &&
                               (rejected || human_verified)) ||
-                            auto_accepted
+                              auto_accepted
                               ? "Completed"
                               : (assignment_details &&
-                                  timeRemaining?.split("-").join("")) ||
-                                "NA"}
+                                timeRemaining?.split("-").join("")) ||
+                              "NA"}
                           </div>
                         </CustomTooltip>
                       </TableCell>
@@ -532,30 +514,28 @@ const InvoiceTable = ({
                             });
                           }
                         }}
-                        className={`${
-                          review_later
+                        className={`${review_later
                             ? "!w-[9.090909090909091%] pl-[0.9rem]"
                             : "!w-[10%] pl-[1rem]"
-                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-16 !max-h-44 text-sm border-l h-full  items-center justify-start text-left pr-[7.25rem] !break-word whitespace-normal  capitalize  !font-normal !text-[#1C1C1E] 
-                        ${
-                          auto_accepted
+                          } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-16 !max-h-44 text-sm border-l h-full  items-center justify-start text-left pr-[7.25rem] !break-word whitespace-normal  capitalize  !font-normal !text-[#1C1C1E] 
+                        ${auto_accepted
                             ? "!text-[#348355]"
                             : rejected === true
-                            ? "!text-[#F15156]"
-                            : human_verified == true
-                            ? "!text-[#348355]"
-                            : "NA"
-                        }
+                              ? "!text-[#F15156]"
+                              : human_verified == true
+                                ? "!text-[#348355]"
+                                : "NA"
+                          }
                         
                         `}
                       >
                         {auto_accepted === true
                           ? "Auto Accepted"
                           : rejected === true
-                          ? "Rejected"
-                          : human_verified == true
-                          ? "Accepted"
-                          : "NA"}
+                            ? "Rejected"
+                            : human_verified == true
+                              ? "Accepted"
+                              : "NA"}
                       </TableCell>
 
                       <TableCell
@@ -570,36 +550,33 @@ const InvoiceTable = ({
                             });
                           }
                         }}
-                        className={` ${
-                          review_later
+                        className={` ${review_later
                             ? "!w-[9.0909090909090910909091%] !pl-[0.8rem]"
                             : "!w-[10%] !pl-[0.9rem]"
-                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-16 !max-h-44 text-sm border-l h-full !text-left items-center !justify-start  !font-normal !break-word whitespace-normal !text-[#1C1C1E]  `}
+                          } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-16 !max-h-44 text-sm border-l h-full !text-left items-center !justify-start  !font-normal !break-word whitespace-normal !text-[#1C1C1E]  `}
                       >
                         {clickbacon_status}
                       </TableCell>
 
                       <TableCell
-                        className={`${
-                          review_later
+                        className={`${review_later
                             ? "!w-[9.090909090909091%] pl-[0.9rem] "
                             : "!w-[10%] pl-[0.9rem]"
-                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-16 !max-h-44 border-l h-full  text-sm !text-left items-center justify-start !font-normal !text-[#1C1C1E] !break-word whitespace-normal  `}
+                          } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-16 !max-h-44 border-l h-full  text-sm !text-left items-center justify-start !font-normal !text-[#1C1C1E] !break-word whitespace-normal  `}
                       >
                         {invoice_type}
                       </TableCell>
                       <TableCell
-                        className={`${
-                          review_later
+                        className={`${review_later
                             ? "!w-[9.090909090909091%] pl-[0.9rem]"
                             : "!w-[10%] pl-[0.9rem]"
-                        } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-16 !max-h-44 border-l h-full text-sm !text-left items-center justify-start !font-normal !text-[#1C1C1E] !break-word whitespace-normal `}
+                          } flex dark:!text-[#F6F6F6] font-poppins cursor-pointer !min-h-16 !max-h-44 border-l h-full text-sm !text-left items-center justify-start !font-normal !text-[#1C1C1E] !break-word whitespace-normal `}
                       >
                         {!human_verified_date
                           ? "NA"
                           : formatDateToReadable(
-                              human_verified_date?.split("T")?.[0]
-                            ) || "NA"}
+                            human_verified_date?.split("T")?.[0]
+                          ) || "NA"}
                       </TableCell>
 
                       <TableCell className="flex capitalize dark:!text-[#F6F6F6] pl-4  !min-h-16 !max-h-44 font-poppins cursor-pointer text-sm !text-left items-center justify-start border-l h-full !break-word whitespace-normal  !font-normal !text-[#1C1C1E] !w-[10%] ">

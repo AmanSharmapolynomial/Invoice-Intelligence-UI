@@ -80,7 +80,18 @@ const BreadCrumb = ({
           }
         });
         navigate(`/my-tasks` + `?${newParams?.toString()}`);
-      } else {
+      }else if(from_view=="re-review"){
+        const newParams = new URLSearchParams();
+
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value) {
+            newParams.set(key, value);
+          }
+        });
+        navigate(`/re-review-requested` + `?${newParams?.toString()}`);
+
+      } 
+       else {
         const newParams = new URLSearchParams();
 
         Object.entries(filters).forEach(([key, value]) => {
