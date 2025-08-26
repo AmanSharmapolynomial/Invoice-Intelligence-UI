@@ -30,6 +30,7 @@ import {
   TriangleAlert,
   X
 } from "lucide-react";
+import userStore from "@/components/auth/store/userStore";
 const Tables = ({ setData, setIsLoading = () => { }, currentTab, setCurrentTab = () => { } }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [showWarningModal, setShowWarningModal] = useState(false);
@@ -88,8 +89,20 @@ const Tables = ({ setData, setIsLoading = () => { }, currentTab, setCurrentTab =
     restaurant_tier,
     rejected,
     extraction_source,
-    re_review_requested: re_review_requested || filters?.re_review_requested || "all"
   };
+  const {userId}=userStore();
+  if(from_view=="re-review" ){
+    payload = {
+      ...payload,
+      re_review_requested:filters?.re_review_requested|| re_review_requested
+    }
+  }
+  if(from_view=="re-review-assigned"){
+    payload = {
+      ...payload,
+      assigned_to:userId
+    }
+  }
 
   const { data, isLoading, isPending, isFetched } =
     useGetDocumentMetadata(payload);

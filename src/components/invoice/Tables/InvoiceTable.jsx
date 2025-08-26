@@ -375,7 +375,7 @@ const InvoiceTable = ({
                         );
                         navigate(
                           `/invoice-details/?page_number=${(page - 1) * 10 + (index + 1)
-                          }&from_view=${pathname=="/re-review-requested" ? "re-review" :pathname?.includes("review")
+                          }&from_view=${pathname=="/re-review-requested"? "re-review" :pathname=="/re-review-requested-assigned" ?"re-review-assigned":pathname?.includes("review")
                             ? "review_later"
                             : pathname?.includes("my-tasks")
                               ? "my-tasks"
