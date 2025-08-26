@@ -27,7 +27,7 @@ const useFilterStore = create(
         restaurant_tier:"all",
         rejected:"all",
         extraction_source:"all",
-        re_review_requested:"all"
+        re_review_requested:undefined
       },
       setFilters: (newFilters) =>
         set((state) => ({
@@ -59,7 +59,7 @@ const useFilterStore = create(
             restaurant_tier:"all",
             rejected:'all',
             extraction_source:"all",
-            re_review_requested:"all"
+            re_review_requested:undefined
           }
         })
     }),
