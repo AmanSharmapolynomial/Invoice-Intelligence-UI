@@ -1,5 +1,10 @@
+import tier_1 from "@/assets/image/tier_1.svg";
+import tier_2 from "@/assets/image/tier_2.svg";
+import tier_3 from "@/assets/image/tier_3.svg";
+import warning from "@/assets/image/warning.svg";
 import Layout from "@/components/common/Layout";
 import Navbar from "@/components/common/Navbar";
+import { PdfViewer } from "@/components/common/PDFViewer";
 import Sidebar from "@/components/common/Sidebar";
 import {
   useApproveMultiInvoiceDocument,
@@ -9,8 +14,28 @@ import {
   useSearchInvoice,
   useUpdateMultiInvoiceDocument
 } from "@/components/home/api";
+import InvoiceFilters from "@/components/invoice/InvoiceFilters";
+import InvoicePagination from "@/components/invoice/InvoicePagination";
+import { useMarkMultipleInvoiceDocumentAsNotSupported } from "@/components/invoice/api";
 import { useInvoiceStore } from "@/components/invoice/store";
 import BreadCrumb from "@/components/ui/Custom/BreadCrumb";
+import CustomAccordion from "@/components/ui/Custom/CustomAccordion";
+import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
+import CustomDropDown from "@/components/ui/CustomDropDown";
+import Loader from "@/components/ui/Loader";
+import { Modal, ModalDescription } from "@/components/ui/Modal";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger
+} from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetVendorNames } from "@/components/vendor/api";
 import {
@@ -20,17 +45,9 @@ import {
   vendorNamesFormatter
 } from "@/lib/helpers";
 import useUpdateParams from "@/lib/hooks/useUpdateParams";
+import { queryClient } from "@/lib/utils";
 import useFilterStore from "@/store/filtersStore";
 import persistStore from "@/store/persistStore";
-import { useEffect, useMemo, useState } from "react";
-import tier_1 from "@/assets/image/tier_1.svg";
-import tier_2 from "@/assets/image/tier_2.svg";
-import tier_3 from "@/assets/image/tier_3.svg";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { PdfViewer } from "@/components/common/PDFViewer";
-import { Accordion, AccordionTrigger } from "@/components/ui/accordion";
-import CustomAccordion from "@/components/ui/Custom/CustomAccordion";
-import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
   Check,
@@ -41,32 +58,23 @@ import {
   Plus,
   Save,
   Share2,
-  Trash,
   Trash2,
   X
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { queryClient } from "@/lib/utils";
+import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
-import InvoicePagination from "@/components/invoice/InvoicePagination";
-import Loader from "@/components/ui/Loader";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger
-} from "@/components/ui/sheet";
-import InvoiceFilters from "@/components/invoice/InvoiceFilters";
-import { Modal, ModalDescription } from "@/components/ui/Modal";
-import CustomDropDown from "@/components/ui/CustomDropDown";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
-import { useMarkAsNotSupported } from "@/components/invoice/api";
-import warning from "@/assets/image/warning.svg";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+
+let dropdownOptions = [
+  { label: "Noise", value: "noise" },
+  { label: "Multiple Invoice", value: "multiple_invoice" },
+  { label: "Unidentified", value: "unidentified" },
+  { label: "Not Supported", value: "not_supported" },
+  { label: "Blank Page", value: "blank_page" },
+  { label: "Invoice Details Unclear", value: "invoice_details_unclear" },
+]
+
 const InvoiceGroupAccordion = ({
   group,
   f_key,
@@ -81,12 +89,44 @@ const InvoiceGroupAccordion = ({
   const [newIndex, setNewIndex] = useState("");
   const [addingIndex, setAddingIndex] = useState(false);
   const [groupIndices, setGroupIndices] = useState(group?.page_indices || []);
+
+  const [editing, setEditing] = useState(false);
+  // Local states for editing fields
+  const [localVendorName, setLocalVendorName] = useState(group?.vendor_name || "");
+  const [localInvoiceNumber, setLocalInvoiceNumber] = useState(group?.invoice_number || "");
+  const [localType, setLocalType] = useState(group?.type || "");
+  useEffect(() => {
+    if (editing) {
+      setLocalVendorName(group?.vendor_name || "");
+      setLocalInvoiceNumber(group?.invoice_number || "");
+      setLocalType(group?.type || "");
+    }
+  }, [editing, group]);
+
   useEffect(() => {
     setAddingIndex(false);
     setNewIndex("");
     setGroupIndices(group?.page_indices || []);
   }, [resetTrigger]);
+  const handleSave = () => {
+    let copyData = JSON.parse(
+      JSON.stringify(queryClient.getQueryData(["multi-invoice-documents", payload]))
+    );
+    if (!copyData) return;
+    let myData = copyData?.data?.[0];
 
+    myData?.[f_key]?.forEach((g) => {
+      if (g?.id === group?.id) {
+        g.vendor_name = localVendorName;
+        g.invoice_number = localInvoiceNumber;
+        g.type = localType;
+      }
+    });
+
+    queryClient.setQueryData(["multi-invoice-documents", payload], copyData);
+    setEditing(false);
+    toast.success("Group updated successfully!");
+  }
   const invoiceToCompanyMap = useMemo(() => {
     const map = {};
     data?.data?.[0]?.[f_key]?.forEach((doc) => {
@@ -168,6 +208,16 @@ const InvoiceGroupAccordion = ({
       }
     });
 
+    
+    myData?.[f_key]?.forEach((g) => {
+      if (g?.id === group?.id) {
+        g.vendor_name = localVendorName;
+        g.invoice_number = localInvoiceNumber;
+        g.type = localType;
+      }
+    });
+    setEditing(false)
+
     queryClient.setQueryData(["multi-invoice-documents", payload], copyData);
   };
 
@@ -213,7 +263,6 @@ const InvoiceGroupAccordion = ({
     );
   }
 
-  const [editing, setEditing] = useState(false);
   const [showMoveGroupModal, setShowMoveGroupModal] = useState(false);
   const [selectedGroupToMove, setSelectedGroupToMove] = useState(null);
   const [selectedGroupType, setSelectedGroupType] = useState(null);
@@ -271,54 +320,66 @@ const InvoiceGroupAccordion = ({
         className="!rounded-sm !shadow-none border !text-sm w-full"
         triggerClassName="!text-sm"
         triggerButtons={<div className="flex items-center gap-x-2">
-          <Button className="bg-red-500 hover:bg-red-500 w-7 h-7 rounded-sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowMoveGroupModal(true)
-              setSelectedGroupToMove(group)
-            }}
-          >
-            <Move className="w-5 h-5" />
-          </Button>
-          <Button className="bg-red-500 hover:bg-red-500 w-7 h-7 rounded-sm"
-            onClick={(e) => {
+          <CustomTooltip content={"Move Group"}>
 
-              e.stopPropagation();
-              handleDeleteGroup();
-            }}
-          >
-            <Trash2 className="w-5 h-5" />
-          </Button>
-
-
-          {!editing ? (
-
-            <Button
-
-              className="bg-primary hover:bg-primary w-7 h-7 rounded-sm"
+            <Button className="bg-red-500 hover:bg-red-500 w-7 h-7 rounded-sm"
+              disabled={editing}
               onClick={(e) => {
                 e.stopPropagation();
-                setEditing(true);
+                setShowMoveGroupModal(true)
+                setSelectedGroupToMove(group)
               }}
             >
-              <Pencil />
+              <Move className="w-5 h-5" />
             </Button>
-          )
-            : (
+          </CustomTooltip>
+          <CustomTooltip content={"Delete Group"}>
+
+            <Button className="bg-red-500 hover:bg-red-500 w-7 h-7 rounded-sm"
+              onClick={(e) => {
+
+                e.stopPropagation();
+                handleDeleteGroup();
+              }}
+            >
+              <Trash2 className="w-5 h-5" />
+            </Button>
+          </CustomTooltip>
+          <CustomTooltip content={editing ? "Save Group" : "Edit Group"}>
+
+
+            {!editing ? (
+
               <Button
 
                 className="bg-primary hover:bg-primary w-7 h-7 rounded-sm"
                 onClick={(e) => {
                   e.stopPropagation();
-                  setEditing(false);
-
+                  setEditing(true);
                 }}
               >
-                <Save />
+                <Pencil />
               </Button>
             )
-          }
-        </div>}
+              : (
+                <Button
+
+                  className="bg-primary hover:bg-primary w-7 h-7 rounded-sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+
+                    handleSave()
+                  }}
+                >
+                  <Save />
+                </Button>
+              )
+            }
+          </CustomTooltip>
+        </div>
+
+        }
+
         title={
           f_key == "open_groups"
             ? `${group?.type?.split("_")?.join(" ") || ""}`
@@ -332,28 +393,8 @@ const InvoiceGroupAccordion = ({
             <p className="font-poppins font-medium text-sm">Vendor Name</p>
             <Input
               className="w-72"
-              value={group?.vendor_name || ""}
-              onChange={(e) => {
-                let copyData = JSON.parse(
-                  JSON.stringify(queryClient.getQueryData(["multi-invoice-documents", payload]))
-                );
-                if (!copyData) return;
-                let myData = copyData?.data?.[0];
-                myData?.[f_key]?.forEach((g) => {
-                  if (
-                    g?.id === group?.id
-                  ) {
-                    g.vendor_name = e.target.value;
-                  }
-                });
-                queryClient.setQueryData(["multi-invoice-documents", payload], copyData);
-                setCheckedIndices((prev) =>
-                  prev?.map((id) =>
-                    id === group?.id
-
-                  )
-                );
-              }}
+              value={localVendorName}
+              onChange={(e) => setLocalVendorName(e.target.value)}
               placeholder="Vendor Name"
             />
           </div>}
@@ -361,28 +402,8 @@ const InvoiceGroupAccordion = ({
             <p className="font-poppins font-medium text-sm">Invoice Number</p>
             <Input
               className="w-72"
-              value={group?.invoice_number || ""}
-              onChange={(e) => {
-                let copyData = JSON.parse(
-                  JSON.stringify(queryClient.getQueryData(["multi-invoice-documents", payload]))
-                );
-                if (!copyData) return;
-                let myData = copyData?.data?.[0];
-                myData?.[f_key]?.forEach((g) => {
-                  if (
-                    g?.id === group?.id
-                  ) {
-                    g.invoice_number = e.target.value;
-                  }
-                });
-                queryClient.setQueryData(["multi-invoice-documents", payload], copyData);
-                setCheckedIndices((prev) =>
-                  prev?.map((id) =>
-                    id === group?.invoice_number ? e.target.value : id
-                  )
-                );
-              }}
-
+              value={localInvoiceNumber}
+              onChange={(e) => setLocalInvoiceNumber(e.target.value)}
               placeholder="Invoice Number"
             />
           </div>}
@@ -391,32 +412,10 @@ const InvoiceGroupAccordion = ({
             f_key === "open_groups" && (
               <div className="flex items-center gap-x-2 ml-4 w-[420px] justify-between">
                 <p className="font-poppins font-medium text-sm">Type</p>
-                <CustomDropDown Value={group?.type} data={
-                  [{ label: "Noise", value: "noise" }, {
-                    label: "Multiple Invoice", value: "multiple_invoice"
-                  }, {
-                    label: "Unidentified", value: "unidentified"
-                  }
-
-                  ]}
-
-                  onChange={(v) => {
-
-                    let copyData = JSON.parse(
-                      JSON.stringify(queryClient.getQueryData(["multi-invoice-documents", payload]))
-                    );
-                    if (!copyData) return;
-                    let myData = copyData?.data?.[0];
-                    myData[f_key] = myData?.[f_key]?.map((g) => {
-                      if (
-                        g?.id === group?.id
-                      ) {
-                        return { ...g, type: v };
-                      }
-                      return g;
-                    });
-                    queryClient.setQueryData(["multi-invoice-documents", payload], copyData);
-                  }}
+                <CustomDropDown
+                  Value={localType}
+                  data={dropdownOptions}
+                  onChange={(v) => setLocalType(v)}
                 />
 
               </div>
@@ -509,7 +508,7 @@ const InvoiceGroupAccordion = ({
       <Modal
         open={showMoveGroupModal}
         title={"Move Group"}
-        className={"h-[70vh]"}
+        // className={"h-[70vh]"}
         titleClassName={"font-poppins font-semibold text-base"}
         setOpen={setShowMoveGroupModal}
       >
@@ -519,11 +518,11 @@ const InvoiceGroupAccordion = ({
             defaultValue={null}
             onValueChange={(v) => {
               setSelectedGroupType(v);
-              if(v!=="Open Groups"){
-setSelectedGroupToMove({...selectedGroupToMove,type:""})
-              }else{
+              if (v !== "Open Groups") {
+                setSelectedGroupToMove({ ...selectedGroupToMove, type: "" })
+              } else {
 
-                setSelectedGroupToMove({...selectedGroupToMove,vendor_name:"",invoice_number:"",type:""})
+                setSelectedGroupToMove({ ...selectedGroupToMove, vendor_name: "", invoice_number: "", type: "" })
               }
             }}
             className=" flex flex-col font-poppins text-black font-medium text-sm  gap-y-2 mt-4"
@@ -543,7 +542,7 @@ setSelectedGroupToMove({...selectedGroupToMove,type:""})
               );
             })}
           </RadioGroup>
-          <div>
+          <div className="mt-6 mb-4">
             {selectedGroupToMove?.group_type == "open_groups" ?
               <div className="flex flex-col gap-y-2 my-2">
                 <div className="flex items-center gap-x-2 ml-4 w-[420px] justify-between">
@@ -590,9 +589,12 @@ setSelectedGroupToMove({...selectedGroupToMove,type:""})
                     <option value="" disabled>
                       Select group type
                     </option>
-                    <option value="noise" className="hover:!bg-gray-200">Noise</option>
-                    <option value="multiple_invoice">Multiple Invoice</option>
-                    <option value="unidentified">Unidentified</option>
+                    {
+                      dropdownOptions?.map((option, index) => (
+                        <option value={option?.value} key={index} className="hover:!bg-gray-200">{option?.label}</option>
+
+                      ))
+                    }
                   </select>
 
 
@@ -609,7 +611,8 @@ setSelectedGroupToMove({...selectedGroupToMove,type:""})
               onClick={() => {
                 setShowMoveGroupModal(false);
                 setSelectedGroupToMove(null);
-                setSelectedGroupType(null)
+                setSelectedGroupType(null);
+                setEditing(false);
               }}
               className="rounded-sm !w-[4.5rem] !font-poppins bg-transparent border border-primary shadow-none text-[#000000] font-normal text-xs hover:bg-transparent"
             >
@@ -879,6 +882,7 @@ const MultiInvoiceDocumentsDetails = () => {
 
       ];
     }
+
     queryClient.setQueryData(["multi-invoice-documents", payload], copyData);
   }
   // Add id in all the groups
@@ -938,7 +942,7 @@ const MultiInvoiceDocumentsDetails = () => {
     });
   };
 
-  const { mutate: markAsNotSupported, isPending, isError } = useMarkAsNotSupported()
+  const { mutate: markAsNotSupported, isPending, isError } = useMarkMultipleInvoiceDocumentAsNotSupported()
   const [markAsNotSupportedModal, setMarkAsNotSupportedModal] = useState(false);
   return (
     <div className="!h-screen  flex w-full " id="maindiv">
@@ -1103,7 +1107,7 @@ const MultiInvoiceDocumentsDetails = () => {
                 <InvoiceFilters />
               </SheetContent>
             </Sheet>
-            <CustomTooltip content={"Click To Copy The Link."}>
+            <CustomTooltip content={"Click to Copy The Link."}>
               <Button
                 onClick={() => {
                   navigator.clipboard.writeText(
@@ -1131,7 +1135,7 @@ const MultiInvoiceDocumentsDetails = () => {
               className={"!min-w-fit"}
               content={
                 action_controls?.reject?.disabled ? action_controls?.reject?.reason : difference?.length !== 0 ? "Some Page Indices are missing." : !all_have_indices ? "Some groups are without page indices." : !areAllGroupsChecked()
-                  ? "Check all the checkboxes in all groups to reject the document." : ""
+                  ? "Check all the checkboxes in all groups to mark as Single Invoice Document." : ""
 
               }
             >
@@ -1143,14 +1147,14 @@ const MultiInvoiceDocumentsDetails = () => {
                 disabled={action_controls?.reject?.disabled || !areAllGroupsChecked() || difference?.length !== 0 || !all_have_indices}
                 className="bg-transparent min-w-[6.5rem] max-w-fit dark:text-white h-[2.4rem] border-[#F15156]  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
               >
-                {rejecting && !errorRejecting ? "Rejecting..." : "Mark as Single Invoice"}
+                {rejecting && !errorRejecting ? "Marking..." : "Mark as Single Invoice"}
               </Button>
             </CustomTooltip>
             <CustomTooltip
               className={"!min-w-fit"}
               content={
                 action_controls?.approve?.disabled ? action_controls?.approve?.reason : difference?.length !== 0 ? "Some Page Indices are missing." : !all_have_indices ? "Some groups are without page indices." : !areAllGroupsChecked()
-                  ? "Check all the checkboxes in all groups to reject the document." : !checkAllHaveCorrectData() ? "Vendor Name or Invoice Number or Type is missing in some groups." : ""
+                  ? "Check all the checkboxes in all groups to approve the document." : !checkAllHaveCorrectData() ? "Vendor Name or Invoice Number or Type is missing in some groups." : ""
               }
             >
               <Button
@@ -1169,7 +1173,7 @@ const MultiInvoiceDocumentsDetails = () => {
               className={"!min-w-fit"}
               content={
                 action_controls?.save?.disabled ? action_controls?.save?.reason : difference?.length !== 0 ? "Some Page Indices are missing." : !all_have_indices ? "Some groups are without page indices." : !areAllGroupsChecked()
-                  ? "Check all the checkboxes in all groups to reject the document." : !checkAllHaveCorrectData() ? "Vendor Name or Invoice Number or Type is missing in some groups." : ""
+                  ? "Check all the checkboxes in all groups to save the document." : !checkAllHaveCorrectData() ? "Vendor Name or Invoice Number or Type is missing in some groups." : ""
               }
 
             >
@@ -1260,15 +1264,19 @@ const MultiInvoiceDocumentsDetails = () => {
                       className="!rounded-sm  !shadow-none border !text-sm w-full"
                       triggerClassName="!text-sm"
                       contentClassName={"px-4 py-3"}
-                      triggerButtons={<> <Button
-                        className="rouned-sm h-7 w-7"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAddGroup("closed_groups");
-                        }}
-                      >
-                        <Plus className="h-5 w-5" />
-                      </Button>
+                      triggerButtons={<>
+                        <CustomTooltip content={"Add New Group"}>
+
+                          <Button
+                            className="rouned-sm h-7 w-7"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAddGroup("closed_groups");
+                            }}
+                          >
+                            <Plus className="h-5 w-5" />
+                          </Button>
+                        </CustomTooltip>
 
                       </>}
                     >
@@ -1299,16 +1307,20 @@ const MultiInvoiceDocumentsDetails = () => {
                       className="!rounded-sm  !shadow-none border !text-sm w-full"
                       triggerClassName="!text-sm"
                       contentClassName={"px-4 py-3"}
-                      triggerButtons={<> <Button
-                        className="rouned-sm h-7 w-7"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAddGroup("incomplete_groups");
-                        }}
-                      >
-                        <Plus className="h-5 w-5" />
-                      </Button>
+                      triggerButtons={<>
+                        <CustomTooltip content={"Add New Group"}>
 
+                          <Button
+                            className="rouned-sm h-7 w-7"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAddGroup("incomplete_groups");
+                            }}
+                          >
+                            <Plus className="h-5 w-5" />
+                          </Button>
+
+                        </CustomTooltip>
                       </>}
                     >
                       <div className="flex flex-col gap-y-1  max-h-[22.5rem]  overflow-auto">
@@ -1337,15 +1349,20 @@ const MultiInvoiceDocumentsDetails = () => {
                       title={`Open Groups (${myData?.open_groups?.length})`}
                       className="!rounded-sm  !shadow-none border !text-sm w-full"
                       triggerClassName="!text-sm"
-                      triggerButtons={<> <Button
-                        className="rouned-sm h-7 w-7"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAddGroup("open_groups");
-                        }}
-                      >
-                        <Plus className="h-5 w-5" />
-                      </Button>
+                      triggerButtons={<>
+
+                        <CustomTooltip content={"Add New Group"}>
+
+                          <Button
+                            className="rouned-sm h-7 w-7"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAddGroup("open_groups");
+                            }}
+                          >
+                            <Plus className="h-5 w-5" />
+                          </Button>
+                        </CustomTooltip>
                       </>}
 
                       contentClassName={"px-4 py-3"}
