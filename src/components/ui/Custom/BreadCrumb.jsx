@@ -34,6 +34,23 @@ const BreadCrumb = ({
   const navigator = () => {
     if (pathname == "/home") {
       navigate("/");
+    }
+    if (pathname?.includes("/multi-invoice-documents/")) {
+      if (searchParams.get("assigned_to")) {
+        navigate("/multi-invoice-documents?assigned_to=" + searchParams.get("assigned_to"));
+      } else {
+
+        navigate("/all-multi-invoice-documents")
+      }
+    }
+    else if (pathname?.includes("/unsupported-documents/details/")) {
+      if (searchParams.get("is_all")) {
+        navigate("/flagged-invoices");
+      } else {
+        navigate("/unsupported-documents");
+      }
+    } else if (pathname == "/unsupported-documents") {
+      navigate("/home");
     } else if (pathname == "/item-master-vendors") {
       navigate("/");
     } else if (pathname == "/bulk-categorization") {
@@ -42,6 +59,8 @@ const BreadCrumb = ({
       navigate("/vendors-duplicate-branch-findings");
     } else if (from_view == "item-master-vendors") {
       navigate("/item-master-vendors");
+    } else if (pathname?.includes("/recent-duplicate-branch-findings")) {
+      navigate("/vendors-duplicate-branch-findings");
     } else if (pathname == "/invoice-details/") {
       if (from_view == "review_later") {
         const newParams = new URLSearchParams();
@@ -61,7 +80,28 @@ const BreadCrumb = ({
           }
         });
         navigate(`/my-tasks` + `?${newParams?.toString()}`);
-      } else {
+      }else if(from_view=="re-review"){
+        const newParams = new URLSearchParams();
+
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value) {
+            newParams.set(key, value);
+          }
+        });
+        navigate(`/re-review-requested` + `?${newParams?.toString()}`);
+
+      } else if(from_view=="re-review-assigned"){
+        const newParams = new URLSearchParams();
+
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value) {
+            newParams.set(key, value);
+          }
+        });
+        navigate(`/re-review-requested-assigned` + `?${newParams?.toString()}`);
+
+      } 
+       else {
         const newParams = new URLSearchParams();
 
         Object.entries(filters).forEach(([key, value]) => {
@@ -115,10 +155,9 @@ const BreadCrumb = ({
                   <BreadcrumbLink asChild>
                     <Link
                       to={path}
-                      className={`${
-                        index == crumbs?.length - 1 &&
+                      className={`${index == crumbs?.length - 1 &&
                         "!text-[#1E7944] dark:!text-[#1E7944]"
-                      } text-[#000000] !font-poppins !font-normal capitalize text-xs dark:!text-[#FFFFFF]`}
+                        } text-[#000000] !font-poppins !font-normal capitalize text-xs dark:!text-[#FFFFFF]`}
                     >
                       {label}
                     </Link>

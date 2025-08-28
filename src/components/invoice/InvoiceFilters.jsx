@@ -37,6 +37,8 @@ const InvoiceFilters = () => {
   let auto_accepted = searchParams.get("auto_accepted") || "all";
   let auto_accepted_by_vda = searchParams.get("auto_accepted_by_vda") || "all";
   let assigned_to = searchParams.get("assigned_to") || "none";
+  let rejected = searchParams.get("rejected") || "all";
+  let extraction_source = searchParams.get("extraction_source") || "all";
   let start_date = searchParams.get("start_date") || "";
   let end_date = searchParams.get("end_date") || "";
   const { data: users, isLoading: loadingUsers } = useGetUsersList();
@@ -83,7 +85,9 @@ const InvoiceFilters = () => {
       // rerun_status: "all",
       detected: "all",
       auto_accepted: "all",
-      auto_accepted_by_vda: ""
+      auto_accepted_by_vda: "",
+      rejected: "all",
+      extraction_source:"all"
     };
 
     setFilters(defaultFilters);
@@ -95,7 +99,9 @@ const InvoiceFilters = () => {
       vendor: "",
       restaurant: "",
       assigned_to: "",
-      sort_order: "desc"
+      sort_order: "desc",
+      rejected: "all",
+      extraction_source:"all"
     });
 
     setRestaurantFilter("none");
@@ -171,6 +177,39 @@ const InvoiceFilters = () => {
             data={clickBACONStatusFilterOptions}
           />
         </div>
+        <div>
+          <CustomSelect
+            placeholder="All"
+            triggerClassName={"!w-full"}
+            label="Extraction Source"
+            value={extraction_source}
+            onSelect={(val) => updateFilter("extraction_source", val)}
+            data={[
+              {
+                label: "Method A",
+                value: "method_a"
+              },
+              {
+                label: "Method B",
+                value: "method_b"
+              },
+              {
+                label: "All",
+                value: "all"
+              },
+            ]}
+          />
+        </div>
+        <div>
+          <CustomSelect
+            placeholder="All"
+            triggerClassName={"!w-full"}
+            label="Rejected"
+            value={rejected}
+            onSelect={(val) => updateFilter("rejected", val)}
+            data={AutoAcceptedFilterFilterOptions}
+          />
+        </div>
         {/* <div>
           <CustomSelect
             value={restaurant_tier}
@@ -207,15 +246,15 @@ const InvoiceFilters = () => {
               onSelect={(val) => {
                 if (typeof val == "object") {
                   let assigned_to = val.map((item) => item).join(",");
-                  setFilters({ ...filters, assigned_to: assigned_to });
-                  updateParams({ assigned_to: assigned_to });
+                  setFilters({ ...filters, assigned_to: assigned_to,page:1 });
+                  updateParams({ assigned_to: assigned_to,page:1 });
                 } else {
                   if (val == "none") {
                     updateParams({ assigned_to: undefined });
-                    setFilters({ ...filters, assigned_to: undefined });
+                    setFilters({ ...filters, assigned_to: undefined,page:1 });
                   } else {
-                    updateParams({ assigned_to: val });
-                    setFilters({ ...filters, assigned_to: val });
+                    updateParams({ assigned_to: val,page:1 });
+                    setFilters({ ...filters, assigned_to: val,page:1 });
                   }
                 }
               }}

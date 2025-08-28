@@ -26,7 +26,7 @@ export const getInvoiceMetaData = async (payload) => {
       payload?.from_view == "not-supported-documents"
         ? "&supported_documents=false"
         : ""
-    }&restaurant_tier=${payload?.restaurant_tier}`;
+    }&restaurant_tier=${payload?.restaurant_tier}&rejected=${payload?.rejected}&extraction_source=${payload?.extraction_source}&${payload?.re_review_requested ? `re_review_requested=${payload?.re_review_requested}` : "" }`;
   }
 
   const response = await axiosInstance.get(apiUrl);
@@ -143,5 +143,16 @@ export const updateVendorTypesAndCategories = async ({
 }) => {
   const apiUrl = `/api/vendor/${vendor_id}/type-and-categories/`;
   const response = await axiosInstance.put(apiUrl, { ...payload });
+  return response;
+};
+
+
+export const getUnsupportedDocuments = async (payload) => {
+  let apiUrl = `/api/document/unsupported/?page=${payload?.page}&page_size=${payload?.page_size}&restaurant_tier=${payload?.restaurant_tier}&invoice_type=${payload?.invoice_type}&start_date=${payload?.start_date}&end_date=${payload?.end_date}&clickbacon_status=${payload?.clickbacon_status}&restaurant=${payload?.restaurant}&auto_accepted=${payload?.auto_accepted}&auto_accepted_by_vda=${payload?.auto_accepted_by_vda}&invoice_detection_status=${payload?.detected}&human_verified=${payload?.human_verified}&human_verification_required=${payload?.human_verification}&sort_order=${payload?.sort_order}&assigned_to=${payload?.assigned_to}&rejected=${payload?.rejected}&extraction_source=${payload?.extraction_source}&detailed_view=${payload?.detailed_view}`;
+
+   
+
+  const response = await axiosInstance.get(apiUrl);
+
   return response;
 };

@@ -71,6 +71,8 @@ const Home = () => {
   let invoice_number = searchParams.get("invoice_number") || "";
   let assigned_to = searchParams.get("assigned_to");
   let document_priority = searchParams.get("document_priority") || "all";
+  let rejected = searchParams.get("rejected") || "all";
+  let extraction_source = searchParams.get("extraction_source") || "all";
   let restaurant_tier =
     searchParams.get("restaurant_tier") == "null" ||
     searchParams.get("restaurant_tier") == "all"
@@ -80,7 +82,7 @@ const Home = () => {
   const { data: restaurantsList, isLoading: restaurantsListLoading } =
     useListRestaurants();
   const { data: vendorNamesList, isLoading: vendorNamesLoading } =
-    useGetVendorNames();
+    useGetVendorNames("all",restaurant);
 
   const {
     setRestaurantFilter,
@@ -108,7 +110,9 @@ const Home = () => {
     document_priority,
     auto_accepted_by_vda,
     review_later: "false",
-    restaurant_tier: restaurant_tier || "all"
+    restaurant_tier: restaurant_tier || "all",
+    rejected,
+    extraction_source
   };
   const { data, isLoading } = useListInvoices(payload);
   useEffect(() => {
@@ -357,7 +361,9 @@ const Home = () => {
                     }
                     if (invoiceNumber?.length !== 0) {
                       setShowResults(true);
-                      searchInvoices(invoiceNumber, {
+
+
+                      searchInvoices(encodeURIComponent(invoiceNumber), {
                         onSuccess: (data) => {
                           setSearchedInvoices(data?.data);
                         }

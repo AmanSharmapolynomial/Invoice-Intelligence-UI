@@ -68,6 +68,8 @@ const MyTasks = () => {
   let sort_order = searchParams.get("sort_order") || "desc";
   let invoice_number = searchParams.get("invoice_number") || "";
   let assigned_to = searchParams.get("assigned_to");
+  let rejected = searchParams.get("rejected") || "all";
+  let extraction_source = searchParams.get("extraction_source") || "all";
   let auto_accepted_by_vda = searchParams.get("auto_accepted_by_vda") || "all";
 
   let { userId } = userStore();
@@ -81,7 +83,7 @@ const MyTasks = () => {
   const { data: restaurantsList, isLoading: restaurantsListLoading } =
     useListRestaurants();
   const { data: vendorNamesList, isLoading: vendorNamesLoading } =
-    useGetVendorNames();
+    useGetVendorNames("all",restaurant);
   const {
     setRestaurantFilter,
     setVendorFilter,
@@ -104,11 +106,13 @@ const MyTasks = () => {
     page,
     sort_order,
     human_verified,
-    assigned_to: userId,
+    assigned_to: assigned_to||userId,
     document_priority,
     auto_accepted_by_vda,
     review_later: "false",
-    restaurant_tier: restaurant_tier || "all"
+    restaurant_tier: restaurant_tier || "all",
+    rejected,
+    extraction_source
   };
   const { data, isLoading } = useListInvoices(payload);
   useEffect(() => {
@@ -329,26 +333,27 @@ const MyTasks = () => {
                 variant="search"
                 placeholder="Search invoice"
                 value={invoiceNumber}
-                onChange={(value) => {
+               onChange={(value) => {
                   setInvoiceNumber(value);
-
-                  clearTimeout(timer);
-                  if (value?.length == 0) {
-                    setShowResults(false);
-                    return;
-                  }
-                  timer = setTimeout(() => {
-                    if (value?.length !== 0) {
+                }}
+                onKeyDown={(e) => {
+                  // alert(e.key)
+                  if (e.key == "Enter") {
+                    if (invoiceNumber?.length == 0) {
+                      setShowResults(false);
+                      return;
+                    }
+                    if (invoiceNumber?.length !== 0) {
                       setShowResults(true);
-                      searchInvoices(value, {
+
+
+                      searchInvoices(encodeURIComponent(invoiceNumber), {
                         onSuccess: (data) => {
                           setSearchedInvoices(data?.data);
                         }
                       });
-                      setInvoiceNumber("");
                     }
-                  }, 500);
-                }}
+                  }}}
                 className="min-w-72 max-w-96 border border-gray-200 relative  focus:!ring-0 focus:!outline-none remove-number-spinner"
               />
 

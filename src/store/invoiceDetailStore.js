@@ -8,6 +8,7 @@ export const invoiceDetailStore = create((set, get) => ({
   invoiceType: null,
   metaData: {},
   bounding_box: {},
+  loadingMetadata:false,
   bounding_boxes: [],
   highlightAll: false,
   combinedTableCopy: {},
@@ -58,7 +59,7 @@ export const invoiceDetailStore = create((set, get) => ({
   metadataTableCopy: {},
   warning_checkbox_checked: false,
   setMetadataTableCopy: (cpy) => set({ metadataTableCopy: cpy }),
-
+  setLoadingMetadata:(val)=>set({loadingMetadata:val}),
   showTextExtractionModal: false,
   setShowTextExtractionModal: (val) => set({ showTextExtractionModal: val }),
   setWarningCheckboxChecked: (v) => set({ warning_checkbox_checked: v }),

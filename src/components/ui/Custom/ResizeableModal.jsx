@@ -79,7 +79,7 @@ const ResizableModal = ({
       <div
         onMouseDown={allowModalDragging && handleMouseDown}
         style={{
-          width: `${size.width}px`,
+          width: `${size.width}px !important`,
      
           top: `${position.y}px`,
           left: `${position.x}px`,

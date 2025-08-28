@@ -113,62 +113,62 @@ const HumanVerificationTable = ({
     {
       label: "Add Row",
       action: () => {
-        addRow(contextMenu.rowIndex);
+        addRow(contextMenu?.rowIndex);
       }
     },
     {
       label: "Copy Row Up",
       action: () => {
-        copyRow(contextMenu.rowIndex, "up");
+        copyRow(contextMenu?.rowIndex, "up");
       }
     },
     {
       label: "Copy Row Down",
       action: () => {
-        copyRow(contextMenu.rowIndex, "down");
+        copyRow(contextMenu?.rowIndex, "down");
       }
     },
 
-    {
-      label: "Add Cell",
-      action: () => {
-        // rowIndex, column_uuid, cell_uuid, row_uuid
-        addNewCell(
-          contextMenu.rowIndex,
-          contextMenu?.column_uuid,
-          contextMenu?.cell_uuid,
-          contextMenu?.row_uuid
-        );
-      }
-    },
-    {
-      label: "Delete Cell",
-      action: () => {
-        deleteCell(
-          contextMenu?.rowIndex,
-          contextMenu?.column_uuid,
-          contextMenu?.cell_uuid
-        );
-      }
-    },
+    // {
+    //   label: "Add Cell",
+    //   action: () => {
+    //     // rowIndex, column_uuid, cell_uuid, row_uuid
+    //     addNewCell(
+    //       contextMenu.rowIndex,
+    //       contextMenu?.column_uuid,
+    //       contextMenu?.cell_uuid,
+    //       contextMenu?.row_uuid
+    //     );
+    //   }
+    // },
+    // {
+    //   label: "Delete Cell",
+    //   action: () => {
+    //     deleteCell(
+    //       contextMenu?.rowIndex,
+    //       contextMenu?.column_uuid,
+    //       contextMenu?.cell_uuid
+    //     );
+    //   }
+    // },
 
     {
       label: "Shift Row Up",
       action: () => {
-        handleRowShifting(contextMenu.rowIndex, "up");
+        handleRowShifting(contextMenu?.rowIndex, "up");
       }
     },
     {
       label: "Shift Row Down",
       action: () => {
-        handleRowShifting(contextMenu.rowIndex, "down");
+        handleRowShifting(contextMenu?.rowIndex, "down");
       }
     },
 
     {
       label: "Delete Row",
       action: () => {
-        deleteRow(contextMenu.rowIndex);
+        deleteRow(contextMenu?.rowIndex);
       }
     }
   ];
@@ -233,12 +233,12 @@ const HumanVerificationTable = ({
       let copyObj = JSON.parse(JSON.stringify(data));
       const { columns = [], rows = [] } = copyObj?.data?.processed_table;
       const columnOrderMap = columns?.reduce((acc, column) => {
-        acc[column.column_uuid] = column.column_order;
+        acc[column?.column_uuid] = column?.column_order;
         return acc;
       }, {});
       copyObj?.data?.processed_table?.rows?.forEach((row) => {
         row?.cells?.sort((a, b) => {
-          return columnOrderMap[a.column_uuid] - columnOrderMap[b.column_uuid];
+          return columnOrderMap?.[a?.column_uuid] - columnOrderMap?.[b?.column_uuid];
         });
       });
 
@@ -286,7 +286,7 @@ const HumanVerificationTable = ({
       setMetaData({
         ...metaData,
         ["document_metadata"]: {
-          ...metaData.document_metadata,
+          ...metaData?.document_metadata,
           added_fees: [0]
         }
       });
@@ -295,7 +295,7 @@ const HumanVerificationTable = ({
       setMetaData({
         ...metaData,
         ["document_metadata"]: {
-          ...metaData.document_metadata,
+          ...metaData?.document_metadata,
           added_taxes: [0]
         }
       });
@@ -304,7 +304,7 @@ const HumanVerificationTable = ({
       setMetaData({
         ...metaData,
         ["document_metadata"]: {
-          ...metaData.document_metadata,
+          ...metaData?.document_metadata,
           added_discounts: [0]
         }
       });
@@ -377,7 +377,7 @@ const HumanVerificationTable = ({
   ).toFixed(2);
 
   let categoryColumnId =
-    columns?.find((c) => c.column_name == "Category")?.column_uuid || null;
+    columns?.find((c) => c?.column_name == "Category")?.column_uuid || null;
   const selectedColumnIds = columns
     ?.filter((f) => f?.selected_column)
     ?.map(
@@ -420,15 +420,15 @@ const HumanVerificationTable = ({
 
       const { tableData: lastTableData, operations: lastOperations } =
         history.pop();
-      const lastOperation = lastOperations[lastOperations.length - 1];
+      const lastOperation = lastOperations?.[lastOperations?.length - 1];
       if (lastOperation?.type === "delete_row") {
-        const deletedRowUuid = lastOperation.data.transaction_uuid;
-        const restoredRow = lastTableData.data.processed_table.rows.find(
-          (row) => row.transaction_uuid === deletedRowUuid
+        const deletedRowUuid = lastOperation?.data?.transaction_uuid;
+        const restoredRow = lastTableData?.data?.processed_table?.rows?.find(
+          (row) => row?.transaction_uuid === deletedRowUuid
         );
 
         const updatedRows = [
-          ...lastTableData.data.processed_table.rows,
+          ...lastTableData?.data?.processed_table?.rows,
           restoredRow
         ];
         let copyData = JSON.parse(JSON.stringify(data));
@@ -450,13 +450,13 @@ const HumanVerificationTable = ({
     saveHistory();
     let copyData = JSON.parse(JSON.stringify(data));
     const updatedRows = [...copyData?.data?.processed_table?.rows];
-    const deletedRow = updatedRows[rowIndex];
+    const deletedRow = updatedRows?.[rowIndex];
     updatedRows.splice(rowIndex, 1);
     const operation = {
       type: "delete_row",
       operation_order: operations.length + 1,
       data: {
-        transaction_uuid: deletedRow.transaction_uuid
+        transaction_uuid: deletedRow?.transaction_uuid
       }
     };
     setOperations([...operations, operation]);
@@ -495,20 +495,20 @@ const HumanVerificationTable = ({
       operation_order: operations?.length + 1,
       data: {
         row_1_uuid:
-          copyObj.data.processed_table.rows[rowIndex]?.transaction_uuid,
+          copyObj?.data?.processed_table?.rows?.[rowIndex]?.transaction_uuid,
         row_2_uuid:
-          copyObj.data.processed_table.rows[shiftToIndex]?.transaction_uuid
+          copyObj?.data?.processed_table?.rows?.[shiftToIndex]?.transaction_uuid
       }
     };
 
     // Swap the rows
-    temp = copyObj.data.processed_table.rows[rowIndex];
+    temp = copyObj?.data?.processed_table?.rows?.[rowIndex];
     copyObj.data.processed_table.rows[rowIndex] =
-      copyObj.data.processed_table.rows[shiftToIndex];
+      copyObj?.data?.processed_table?.rows?.[shiftToIndex];
     copyObj.data.processed_table.rows[shiftToIndex] = temp;
 
     // Update the row orders after the swap
-    copyObj.data.processed_table.rows.forEach((row, index) => {
+    copyObj?.data?.processed_table?.rows?.forEach((row, index) => {
       row.row_order = index + 1; // Recalculate the row_order based on the new index
     });
 
@@ -538,16 +538,16 @@ const HumanVerificationTable = ({
     const updatedRows = data?.data?.processed_table?.rows?.map((row) => ({
       ...row,
       cells: [
-        ...row.cells,
+        ...row?.cells,
         {
-          column_uuid: newColumn.column_uuid,
+          column_uuid: newColumn?.column_uuid,
           text: "", // Initialize with an empty text
           actual_text: null,
           confidence: null,
           page_index: 0,
-          row_uuid: row.transaction_uuid,
+          row_uuid: row?.transaction_uuid,
           cell_uuid: uuidv4(), // Unique identifier for the new cell
-          selected_column: newColumn.selected_column
+          selected_column: newColumn?.selected_column
         }
       ]
     }));
@@ -557,7 +557,7 @@ const HumanVerificationTable = ({
       data: {
         ...data.data,
         processed_table: {
-          ...data.data.processed_table,
+          ...data?.data?.processed_table,
           rows: updatedRows,
           columns: updatedColumns
         }
@@ -568,14 +568,14 @@ const HumanVerificationTable = ({
       type: "create_column",
       operation_order: operations.length + 1,
       data: {
-        column_uuid: newColumn.column_uuid,
-        column_name: newColumn.column_name,
-        selected_column: newColumn.selected_column,
+        column_uuid: newColumn?.column_uuid,
+        column_name: newColumn?.column_name,
+        selected_column: newColumn?.selected_column,
         cells: updatedRows.map((row) => ({
           row_uuid: row.transaction_uuid,
-          column_uuid: newColumn.column_uuid,
+          column_uuid: newColumn?.column_uuid,
           cell_uuid: row.cells.find(
-            (cell) => cell.column_uuid === newColumn.column_uuid
+            (cell) => cell?.column_uuid === newColumn?.column_uuid
           ).cell_uuid,
           text: ""
         }))
@@ -604,7 +604,7 @@ const HumanVerificationTable = ({
         page_index: 0,
         row_uuid: uuidv4(),
         cell_uuid: uuidv4(),
-        selected_column: column.selected_column
+        selected_column: column?.selected_column
       })),
       row_order:
         data?.data?.processed_table?.rows[
@@ -616,9 +616,9 @@ const HumanVerificationTable = ({
       type: "create_row",
       operation_order: operations?.length + 1,
       data: {
-        transaction_uuid: newRow.transaction_uuid,
-        row_order: newRow.row_order,
-        cells: newRow.cells
+        transaction_uuid: newRow?.transaction_uuid,
+        row_order: newRow?.row_order,
+        cells: newRow?.cells
       }
     };
     setOperations([...operations, operation]);
@@ -663,17 +663,17 @@ const HumanVerificationTable = ({
         type: "update_cell",
         operation_order: operations.length + 1,
         data: {
-          cell_uuid: targetCell.cell_uuid,
+          cell_uuid: targetCell?.cell_uuid,
           row_uuid:
-            copyObj.data.processed_table.rows[rowIndex].transaction_uuid,
-          column_uuid: targetCell.column_uuid,
+            copyObj?.data?.processed_table?.rows?.[rowIndex]?.transaction_uuid,
+          column_uuid: targetCell?.column_uuid,
           text: value || null
         }
       };
-      copyObj.data.processed_table.rows[rowIndex].cells.forEach((c, i) => {
-        c["column_name"] = data.data.processed_table.columns[i]?.column_name;
+      copyObj?.data?.processed_table?.rows?.[rowIndex]?.cells?.forEach((c, i) => {
+        c["column_name"] = data?.data?.processed_table?.columns?.[i]?.column_name;
       });
-      let extPriceCellColumnUUID = copyObj.data.processed_table.columns?.find(
+      let extPriceCellColumnUUID = copyObj?.data?.processed_table?.columns?.find(
         (col) => col?.column_name === "Extended Price"
       )?.["column_uuid"];
 
@@ -691,7 +691,7 @@ const HumanVerificationTable = ({
           selectedColumnIds?.includes(c?.column_uuid)
         );
         let row = {
-          ...copyObj.data.processed_table.rows[rowIndex],
+          ...copyObj?.data?.processed_table?.rows?.[rowIndex],
           cells: cells
         };
 
@@ -703,7 +703,7 @@ const HumanVerificationTable = ({
           {
             onSuccess: (data) => {
               const extPriceCell = data?.data?.cells.find(
-                (cell) => cell.column_uuid === extPriceCellColumnUUID
+                (cell) => cell?.column_uuid === extPriceCellColumnUUID
               );
 
               const newOperation = {
@@ -712,8 +712,8 @@ const HumanVerificationTable = ({
                 data: {
                   cell_uuid: extPriceCell?.cell_uuid,
                   row_uuid:
-                    copyObj.data.processed_table.rows[rowIndex]
-                      .transaction_uuid,
+                    copyObj?.data?.processed_table?.rows?.[rowIndex]
+                      ?.transaction_uuid,
                   column_uuid: extPriceCellColumnUUID,
                   text: extPriceCell?.text || null
                 }
@@ -721,7 +721,7 @@ const HumanVerificationTable = ({
 
               // Add the new operation for the extended price
               setOperations([...copyOperations, newOperation]);
-              copyObj.data.processed_table.rows[rowIndex] = data.data;
+              copyObj.data.processed_table.rows[rowIndex] = data?.data;
 
               setReCalculateCWiseSum(true); // Recalculate category-wise sum
               queryClient.setQueryData(
@@ -780,7 +780,7 @@ const HumanVerificationTable = ({
         ...cell,
         row_uuid: uuidv4(),
         cell_uuid: uuidv4(),
-        text:cell?.text||null
+        text: cell?.text || null
       }))
     };
 
@@ -793,9 +793,9 @@ const HumanVerificationTable = ({
         type: "create_row",
         operation_order: operations?.length + 1,
         data: {
-          transaction_uuid: newRow.transaction_uuid,
-          row_order: newRow.row_order,
-          cells: newRow.cells
+          transaction_uuid: newRow?.transaction_uuid,
+          row_order: newRow?.row_order,
+          cells: newRow?.cells
         }
       }
     ];
@@ -849,7 +849,7 @@ const HumanVerificationTable = ({
         page_index: 0,
         row_uuid: uuidv4(),
         cell_uuid: uuidv4(),
-        selected_column: column.selected_column
+        selected_column: column?.selected_column
       })),
       row_order: clickedRow ? clickedRow?.row_order - 1 : 1,
       transaction_uuid: uuidv4()
@@ -868,11 +868,11 @@ const HumanVerificationTable = ({
     let new_operations = [
       {
         type: "create_row",
-        operation_order: operations.length + 1,
+        operation_order: operations?.length + 1,
         data: {
-          transaction_uuid: newRow.transaction_uuid,
-          row_order: newRow.row_order,
-          cells: newRow.cells
+          transaction_uuid: newRow?.transaction_uuid,
+          row_order: newRow?.row_order,
+          cells: newRow?.cells
         }
       }
     ];
@@ -881,14 +881,14 @@ const HumanVerificationTable = ({
       // If a row is inserted at a specific index, record the move operation
       const moveRowOperation = {
         type: "move_row",
-        operation_order: operations.length + 2,
+        operation_order: operations?.length + 2,
         data: {
-          selected_row_uuid: newRow.transaction_uuid,
-          move_to_row_uuid: rows[rowIndex]?.transaction_uuid
+          selected_row_uuid: newRow?.transaction_uuid,
+          move_to_row_uuid: rows?.[rowIndex]?.transaction_uuid
         }
       };
 
-      new_operations.push(moveRowOperation);
+      new_operations?.push(moveRowOperation);
     }
 
     // Add the operations to the history
@@ -905,10 +905,10 @@ const HumanVerificationTable = ({
   };
 
   const addNewCell = (rowIndex, column_uuid, cell_uuid, row_uuid) => {
-    console.log("add new cell called")
+    console.log("add new cell called");
     // Step 1: Deep copy the data object
     const combinedTableCopy = JSON.parse(JSON.stringify(data));
-    const copyData = combinedTableCopy.data.processed_table;
+    const copyData = combinedTableCopy?.data?.processed_table;
 
     saveHistory(); // Save the current state for undo/redo
 
@@ -917,7 +917,7 @@ const HumanVerificationTable = ({
     // Step 2: Check if the last row exists and capture the last cell for the specified column
     const lastRow = rows[rows.length - 1];
     const lastCell = lastRow
-      ? lastRow.cells.find((cell) => cell.column_uuid === column_uuid)
+      ? lastRow?.cells?.find((cell) => cell?.column_uuid === column_uuid)
       : null;
 
     // Step 3: Create a new row if needed
@@ -926,14 +926,14 @@ const HumanVerificationTable = ({
       const newRowUuid = uuidv4();
       newRow = {
         transaction_uuid: newRowUuid,
-        row_order: rows.length + 1,
+        row_order: rows?.length + 1,
         item_master: {}, // Placeholder for additional data
-        cells: rows[0].cells.map((cell) => ({
+        cells: rows?.[0]?.cells?.map((cell) => ({
           ...cell,
           cell_uuid: uuidv4(),
           row_uuid: newRowUuid,
-          text: cell.column_uuid === column_uuid ? lastCell.text : "",
-          actual_text: cell.column_uuid === column_uuid ? lastCell.text : ""
+          text: cell?.column_uuid === column_uuid ? lastCell?.text : "",
+          actual_text: cell?.column_uuid === column_uuid ? lastCell?.text : ""
         }))
       };
 
@@ -942,28 +942,28 @@ const HumanVerificationTable = ({
 
     // Step 4: Shift cells down for the specified column
     for (let i = rows.length - 1; i > rowIndex; i--) {
-      const currentRow = rows[i];
-      const previousRow = rows[i - 1];
+      const currentRow = rows?.[i];
+      const previousRow = rows?.[i - 1];
 
-      const currentCell = currentRow.cells.find(
-        (cell) => cell.column_uuid === column_uuid
+      const currentCell = currentRow?.cells?.find(
+        (cell) => cell?.column_uuid === column_uuid
       );
-      const previousCell = previousRow.cells.find(
-        (cell) => cell.column_uuid === column_uuid
+      const previousCell = previousRow?.cells?.find(
+        (cell) => cell?.column_uuid === column_uuid
       );
 
       if (currentCell && previousCell) {
-        currentCell.text = previousCell.text;
-        currentCell.actual_text = previousCell.actual_text;
+        currentCell.text = previousCell?.text;
+        currentCell.actual_text = previousCell?.actual_text;
         currentCell.cell_uuid = uuidv4();
       }
     }
 
     // Step 5: Add an empty cell at the target position
-    const targetRow = rows[rowIndex];
+    const targetRow = rows?.[rowIndex];
     if (targetRow) {
-      const targetCell = targetRow.cells.find(
-        (cell) => cell.column_uuid === column_uuid
+      const targetCell = targetRow?.cells?.find(
+        (cell) => cell?.column_uuid === column_uuid
       );
       if (targetCell) {
         Object.assign(targetCell, {
@@ -981,9 +981,9 @@ const HumanVerificationTable = ({
           type: "create_row",
           operation_order: operations?.length + 1,
           data: {
-            transaction_uuid: newRow.transaction_uuid,
-            row_order: newRow.row_order,
-            cells: newRow.cells
+            transaction_uuid: newRow?.transaction_uuid,
+            row_order: newRow?.row_order,
+            cells: newRow?.cells
           }
         }
       : null;
@@ -996,13 +996,13 @@ const HumanVerificationTable = ({
         current_column_uuid: column_uuid,
         current_row_uuid: row_uuid,
         new_cell_uuid: targetRow?.cells.find(
-          (cell) => cell.column_uuid === column_uuid
+          (cell) => cell?.column_uuid === column_uuid
         )?.cell_uuid
       }
     };
 
     const newOperations = [...operations];
-    if (createRowOperation) newOperations.push(createRowOperation);
+    if (createRowOperation) newOperations?.push(createRowOperation);
     newOperations.push(createCellOperation);
 
     setOperations(newOperations);
@@ -1027,7 +1027,7 @@ const HumanVerificationTable = ({
       return;
     }
 
-    if (!columns.some((col) => col.column_uuid === column_uuid)) {
+    if (!columns.some((col) => col?.column_uuid === column_uuid)) {
       toast.error("Invalid column UUID.");
       return;
     }
@@ -1035,37 +1035,37 @@ const HumanVerificationTable = ({
     // Find the target cell
     const targetRow = rows[rowIndex];
     const targetCell = targetRow?.cells.find(
-      (cell) => cell.cell_uuid === cell_uuid && cell.column_uuid === column_uuid
+      (cell) => cell?.cell_uuid === cell_uuid && cell?.column_uuid === column_uuid
     );
 
     // Shift cells upward
-    for (let i = rowIndex; i < rows.length - 1; i++) {
-      const currentCell = rows[i]?.cells.find(
-        (cell) => cell.column_uuid === column_uuid
+    for (let i = rowIndex; i < rows?.length - 1; i++) {
+      const currentCell = rows?.[i]?.cells?.find(
+        (cell) => cell?.column_uuid === column_uuid
       );
-      const nextCell = rows[i + 1]?.cells.find(
-        (cell) => cell.column_uuid === column_uuid
+      const nextCell = rows?.[i + 1]?.cells.find(
+        (cell) => cell?.column_uuid === column_uuid
       );
 
       if (currentCell && nextCell) {
         Object.assign(currentCell, {
-          text: nextCell.text,
-          actual_text: nextCell.actual_text,
-          confidence: nextCell.confidence,
+          text: nextCell?.text,
+          actual_text: nextCell?.actual_text,
+          confidence: nextCell?.confidence,
           cell_uuid: nextCell?.cell_uuid,
-          bounding_box: nextCell.bounding_box || null
+          bounding_box: nextCell?.bounding_box || null
         });
       }
     }
 
     // Clear the last cell
-    const lastRow = rows[rows.length - 1];
+    const lastRow = rows?.[rows?.length - 1];
     const lastCell = lastRow?.cells.find(
-      (cell) => cell.column_uuid === column_uuid
+      (cell) => cell?.column_uuid === column_uuid
     );
 
     if (lastCell) {
-      Object.assign(lastCell, {
+      Object?.assign(lastCell, {
         text: "",
         actual_text: null,
         confidence: null,
@@ -1078,7 +1078,7 @@ const HumanVerificationTable = ({
 
     const operation = {
       type: "delete_cell",
-      operation_order: operations.length + 1,
+      operation_order: operations?.length + 1,
       data: {
         current_cell_uuid: cell_uuid, // The UUID of the cell being deleted
         current_column_uuid: column_uuid, // The column where the deletion occurred
@@ -1091,10 +1091,10 @@ const HumanVerificationTable = ({
     queryClient.setQueryData(["combined-table", document_uuid], copyData);
 
     // Validate the final state
-    const allCellUuids = rows.flatMap((row) =>
-      row.cells.map((cell) => cell.cell_uuid)
+    const allCellUuids = rows?.flatMap((row) =>
+      row?.cells?.map((cell) => cell?.cell_uuid)
     );
-    if (new Set(allCellUuids).size !== allCellUuids.length) {
+    if (new Set(allCellUuids)?.size !== allCellUuids?.length) {
       toast.error("Duplicate UUIDs found after cell deletion.");
     }
 
@@ -1104,32 +1104,32 @@ const HumanVerificationTable = ({
 
   const addTax = () => {
     const newData = { ...metaData };
-    newData["document_metadata"]["added_taxes"].push(0);
+    newData?.["document_metadata"]?.["added_taxes"]?.push(0);
     setMetaData(newData);
   };
 
   const addDiscount = () => {
     const newData = { ...metaData };
-    newData["document_metadata"]["added_discounts"].push(0);
+    newData?.["document_metadata"]?.["added_discounts"]?.push(0);
     setMetaData(newData);
   };
 
   const addNewFeeAmt = () => {
     const newData = { ...metaData };
-    newData["document_metadata"]["added_fees"].push(0);
+    newData?.["document_metadata"]?.["added_fees"]?.push(0);
     setMetaData(newData);
   };
 
   const removeDiscount = (index) => {
     const newData = { ...metaData };
-    newData["document_metadata"]["added_discounts"].splice(index, 1);
+    newData?.["document_metadata"]?.["added_discounts"]?.splice(index, 1);
     setMetaData(newData);
     setUpdatedFields((prevFields) => {
       return {
         ...prevFields,
         document_metadata: {
-          ...prevFields.document_metadata,
-          added_discounts: newData["document_metadata"]["added_discounts"]
+          ...prevFields?.document_metadata,
+          added_discounts: newData?.["document_metadata"]?.["added_discounts"]
         }
       };
     });
@@ -1137,14 +1137,14 @@ const HumanVerificationTable = ({
 
   const removeTax = (index) => {
     const newData = { ...metaData };
-    newData["document_metadata"]["added_taxes"].splice(index, 1);
+    newData?.["document_metadata"]?.["added_taxes"]?.splice(index, 1);
     setMetaData(newData);
     setUpdatedFields((prevFields) => {
       return {
         ...prevFields,
         document_metadata: {
-          ...prevFields.document_metadata,
-          added_taxes: newData["document_metadata"]["added_taxes"]
+          ...prevFields?.document_metadata,
+          added_taxes: newData?.["document_metadata"]?.["added_taxes"]
         }
       };
     });
@@ -1152,14 +1152,14 @@ const HumanVerificationTable = ({
 
   const removeFee = (index) => {
     const newData = { ...metaData };
-    newData["document_metadata"]["added_fees"].splice(index, 1);
+    newData?.["document_metadata"]?.["added_fees"]?.splice(index, 1);
     setMetaData(newData);
     setUpdatedFields((prevFields) => {
       return {
         ...prevFields,
         document_metadata: {
-          ...prevFields.document_metadata,
-          added_fees: newData["document_metadata"]["added_fees"]
+          ...prevFields?.document_metadata,
+          added_fees: newData?.["document_metadata"]?.["added_fees"]
         }
       };
     });
@@ -1201,9 +1201,9 @@ const HumanVerificationTable = ({
       // Update the existing operation with the new column name
       let updatedOperations = [...operations];
       updatedOperations[existingIndex] = {
-        ...updatedOperations[existingIndex],
+        ...updatedOperations?.[existingIndex],
         data: {
-          ...updatedOperations[existingIndex]?.data,
+          ...updatedOperations?.[existingIndex]?.data,
           column_name
         }
       };
@@ -1221,16 +1221,16 @@ const HumanVerificationTable = ({
     let transaction_uuid = last_edited_line_item?.transaction_uuid;
 
     let copyObj = { ...data };
-    let lastEditedRow = copyObj.data.processed_table.rows?.find(
-      (r) => r.transaction_uuid == transaction_uuid
+    let lastEditedRow = copyObj?.data?.processed_table?.rows?.find(
+      (r) => r?.transaction_uuid == transaction_uuid
     );
 
     let ops = [...operations]; // Start with the existing operations
     let lng = operations?.length || 0;
 
-    lastEditedRow.cells.forEach((cell) => {
-      if (selectedColumnIds.includes(cell?.column_uuid)) {
-        if (cell.column_name !== "Category") {
+    lastEditedRow?.cells?.forEach((cell) => {
+      if (selectedColumnIds?.includes(cell?.column_uuid)) {
+        if (cell?.column_name !== "Category") {
           if (
             !cell?.text ||
             cell?.column_name == "Item Description" ||
@@ -1240,13 +1240,13 @@ const HumanVerificationTable = ({
               type: "update_cell",
               operation_order: lng + 1,
               data: {
-                cell_uuid: cell.cell_uuid,
+                cell_uuid: cell?.cell_uuid,
                 row_uuid: transaction_uuid,
-                column_uuid: cell.column_uuid,
-                text: row[keysDecapitalizer(cell?.column_name)] || null
+                column_uuid: cell?.column_uuid,
+                text: row?.[keysDecapitalizer(cell?.column_name)] || null
               }
             });
-            cell.text = row[keysDecapitalizer(cell?.column_name)];
+            cell.text = row?.[keysDecapitalizer(cell?.column_name)];
             lng += 1;
           }
         } else {
@@ -1255,13 +1255,13 @@ const HumanVerificationTable = ({
               type: "update_cell",
               operation_order: lng + 1,
               data: {
-                cell_uuid: cell.cell_uuid,
+                cell_uuid: cell?.cell_uuid,
                 row_uuid: transaction_uuid,
-                column_uuid: cell.column_uuid,
-                text: row[keysDecapitalizer(cell?.column_name)]?.name || null
+                column_uuid: cell?.column_uuid,
+                text: row?.[keysDecapitalizer(cell?.column_name)]?.name || null
               }
             });
-            cell.text = row[keysDecapitalizer(cell?.column_name)]?.name;
+            cell.text = row?.[keysDecapitalizer(cell?.column_name)]?.name;
             lng += 1;
           }
         }
@@ -1272,7 +1272,7 @@ const HumanVerificationTable = ({
 
     queryClient.setQueryData(["combined-table", document_uuid], copyObj);
   };
-
+console.log(metaData)
   return (
     <>
       {" "}
@@ -1458,7 +1458,7 @@ const HumanVerificationTable = ({
                 <div className=" flex  min-w-full hide-scrollbar   sticky top-0 bg-white/80 z-20">
                   <div className="flex justify-between items-center gap-x-4 w-full ">
                     {columns
-                      ?.filter((c) => c.selected_column)
+                      ?.filter((c) => c?.selected_column)
                       ?.map(
                         ({
                           column_uuid,
@@ -1576,7 +1576,7 @@ const HumanVerificationTable = ({
                                       row_uuid: row?.transaction_uuid
                                     });
                                   }}
-                                  className="!w-[12rem]  font-poppins   font-normal text-sm leading-4 text-[#121212] !max-w-full  justify-center    flex items-center  capitalize  text-left"
+                                  className={`${cell?.column_uuid==categoryColumnId && cell?.text?.toLowerCase()=="unknown"&& "border border-red-500"} !w-[12rem]  font-poppins   font-normal text-sm leading-4 text-[#121212] !max-w-full  justify-center    flex items-center  capitalize  text-left`}
                                   key={i}
                                 >
                                   {editMode?.rowIndex === index &&
@@ -1584,8 +1584,9 @@ const HumanVerificationTable = ({
                                     <>
                                       {cell?.column_uuid ===
                                       categoryColumnId ? (
-                                        <div>
+                                        <div      >
                                           <CustomDropDown
+                                    
                                             Value={
                                               additionalData?.data?.category_choices?.find(
                                                 (c) => c.name == cell?.text
@@ -1601,7 +1602,7 @@ const HumanVerificationTable = ({
                                                 index,
                                                 i,
                                                 additionalData?.data?.category_choices?.find(
-                                                  (c) => c.category_id == v
+                                                  (c) => c?.category_id == v
                                                 )?.name,
                                                 row
                                               );
@@ -1627,6 +1628,7 @@ const HumanVerificationTable = ({
                                           onDoubleClick={(e) => {
                                             e.preventDefault();
                                           }}
+
                                           onKeyPress={(e) => {
                                             handleKeyPress(
                                               e,
@@ -1646,7 +1648,7 @@ const HumanVerificationTable = ({
                                               row,
                                               false
                                             );
-                                            setCellValue(e.target.value);
+                                            setCellValue(e?.target?.value);
                                           }}
                                         />
                                       )}
@@ -1865,7 +1867,7 @@ const HumanVerificationTable = ({
                           return {
                             ...prevFields,
                             document_metadata: {
-                              ...prevFields.document_metadata,
+                              ...prevFields?.document_metadata,
                               added_taxes:
                                 newData["document_metadata"]["added_taxes"]
                             }
@@ -1912,9 +1914,9 @@ const HumanVerificationTable = ({
                           return {
                             ...prevFields,
                             document_metadata: {
-                              ...prevFields.document_metadata,
+                              ...prevFields?.document_metadata,
                               added_fees:
-                                newData["document_metadata"]["added_fees"]
+                                newData?.["document_metadata"]?.["added_fees"]
                             }
                           };
                         });
@@ -1962,9 +1964,9 @@ const HumanVerificationTable = ({
                             return {
                               ...prevFields,
                               document_metadata: {
-                                ...prevFields.document_metadata,
+                                ...prevFields?.document_metadata,
                                 added_discounts:
-                                  newData["document_metadata"][
+                                  newData?.["document_metadata"]?.[
                                     "added_discounts"
                                   ]
                               }
@@ -2039,7 +2041,7 @@ const HumanVerificationTable = ({
                   return {
                     ...prevFields,
                     document_metadata: {
-                      ...prevFields.document_metadata,
+                      ...prevFields?.document_metadata,
                       invoice_extracted_total: v
                     }
                   };
@@ -2096,12 +2098,12 @@ const HumanVerificationTable = ({
               if (boundng_boxes) {
                 setBoundingBox({
                   box: boundng_boxes,
-                  page_index: boundng_boxes["page_index"]
+                  page_index: boundng_boxes?.["page_index"]
                 });
                 setBoundingBoxes([
                   {
                     box: boundng_boxes,
-                    page_index: boundng_boxes["page_index"]
+                    page_index: boundng_boxes?.["page_index"]
                   }
                 ]);
               }
@@ -2127,7 +2129,7 @@ const HumanVerificationTable = ({
                   return {
                     ...prevFields,
                     document_metadata: {
-                      ...prevFields.document_metadata,
+                      ...prevFields?.document_metadata,
                       invoice_extracted_total: v
                     }
                   };
@@ -2185,46 +2187,56 @@ const HumanVerificationTable = ({
               </p>
             </div>
           ) : (
-           <div className="max-h-60 overflow-auto">
-             <table className="  w-full mt-4 ">
-              {/* <TableHeader className=" top-0 z-10 bg-white "> */}
-              <tr
-                className={`
+            <div className="max-h-60 overflow-auto">
+              <table className="  w-full mt-4 ">
+                {/* <TableHeader className=" top-0 z-10 bg-white "> */}
+                <tr
+                  className={`
                   !w-full !border !border-l-2 border-t-2 `}
-              >
-                {last_edited_line_item_columns?.map((col, index) => (
-                  <th
-                    key={index}
-                    className={` border sticky top-0  !border-l bg-white font-poppins h-12  content-center px-2 items-center !justify-start font-semibold text-sm text-black   leading-5`}
-                  >
-                    <div className="flex items-center h-full  justify-normal">
-                      {keysCapitalizer(col)}
-                    </div>
-                  </th>
-                ))}
-              </tr>
+                >
+                  {last_edited_line_item_columns?.map((col, index) => (
+                    <th
+                      key={index}
+                      className={` border sticky top-0  !border-l bg-white font-poppins h-12  content-center px-2 items-center !justify-start font-semibold text-sm text-black   leading-5`}
+                    >
+                      <div className="flex items-center h-full  justify-normal">
+                        {keysCapitalizer(col)}
+                      </div>
+                    </th>
+                  ))}
+                </tr>
 
-              <tbody className="w-full ">
-                {similarLineItems?.map((row, index) => (
-                  <tr
-                    key={index}
-                    onClick={() => {
-                      handleInsertRow(row);
-                    }}
-                    className={` cursor-pointer`}
-                  >
-                    {last_edited_line_item_columns?.map((col, i) => (
-                      <td
-                        key={i}
-                        className="border  py-2 px-2 font-poppins text-black !font-normal !text-xs"
-                      >
-                        {col == "category" ? row["category"]?.name : row[col]}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                <tbody className="w-full ">
+                  {similarLineItems?.map((row, index) => (
+                    <tr
+                      key={index}
+                      onClick={() => {
+                        handleInsertRow(row);
+                      }}
+                      className={` cursor-pointer`}
+                    >
+                      {last_edited_line_item_columns?.map((col, i) => (
+                        <td
+                          key={i}
+                          className="border  py-2 px-2 font-poppins text-black !font-normal !text-xs"
+                        >
+                          <div className="w-full flex items-center justify-between">
+                            <span>
+                              {col == "category"
+                                ? row?.["category"]?.name
+                                : row[col]}
+                            </span>
+
+                            {row?.["human_verified"] && col == "category" && (
+                              <img src={approved} alt="" />
+                            )}
+                          </div>
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>

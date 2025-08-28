@@ -67,7 +67,9 @@ const ReviewLaterTasks = () => {
     searchParams.get("vendor_id") || searchParams.get("vendor") || "";
   let sort_order = searchParams.get("sort_order") || "desc";
   let invoice_number = searchParams.get("invoice_number") || "";
+  let rejected = searchParams.get("rejected") || "all";
   let assigned_to = searchParams.get("assigned_to");
+  let extraction_source = searchParams.get("extraction_source") || "all";
   let document_priority = searchParams.get("document_priority") || "all";
   let restaurant_tier =
     searchParams.get("restaurant_tier") == "null" ||
@@ -79,7 +81,7 @@ const ReviewLaterTasks = () => {
   const { data: restaurantsList, isLoading: restaurantsListLoading } =
     useListRestaurants();
   const { data: vendorNamesList, isLoading: vendorNamesLoading } =
-    useGetVendorNames();
+    useGetVendorNames("all",restaurant);
   const {
     setRestaurantFilter,
     setVendorFilter,
@@ -106,7 +108,9 @@ const ReviewLaterTasks = () => {
     assigned_to,
     document_priority,
     review_later: true,
-    restaurant_tier: restaurant_tier || "all"
+    restaurant_tier: restaurant_tier || "all",
+    rejected,
+    extraction_source
   };
   const { data, isLoading } = useListInvoices(payload);
   useEffect(() => {
@@ -329,23 +333,24 @@ const ReviewLaterTasks = () => {
                 value={invoiceNumber}
                 onChange={(value) => {
                   setInvoiceNumber(value);
-
-                  clearTimeout(timer);
-                  if (value?.length == 0) {
-                    setShowResults(false);
-                    return;
-                  }
-                  timer = setTimeout(() => {
-                    if (value?.length !== 0) {
+                }}
+                onKeyDown={(e) => {
+                  // alert(e.key)
+                  if (e.key == "Enter") {
+                    if (invoiceNumber?.length == 0) {
+                      setShowResults(false);
+                      return;
+                    }
+                    if (invoiceNumber?.length !== 0) {
                       setShowResults(true);
-                      searchInvoices(value, {
+
+                      searchInvoices(encodeURIComponent(invoiceNumber), {
                         onSuccess: (data) => {
                           setSearchedInvoices(data?.data);
                         }
                       });
-                      setInvoiceNumber("");
                     }
-                  }, 500);
+                  }
                 }}
                 className="min-w-72 max-w-96 border border-gray-200 relative  focus:!ring-0 focus:!outline-none remove-number-spinner"
               />
