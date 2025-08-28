@@ -65,9 +65,9 @@ const Sidebar = ({ className }) => {
       text: "All Re-review Requested Documents",
       image: theme === "light" ? book_down_black : book_down_black,
       hoverImage: book_down_white,
-      count: data?.all_re_review_requested_documents||0
+      count: data?.all_re_review_requested_documents || 0
     },
-  
+
     {
       path: "/all-multi-invoice-documents",
       text: "All Multiple Invoice Documents",
@@ -75,7 +75,7 @@ const Sidebar = ({ className }) => {
       hoverImage: multi_invoice_white,
       count: data?.all_multiple_invoice_documents
     },
-      {
+    {
       path: "/flagged-invoices",
       text: "All Flagged Documents",
       image: theme === "light" ? flagged_black : flagged_white,
@@ -87,19 +87,19 @@ const Sidebar = ({ className }) => {
       text: "My Tasks",
       image: theme === "light" ? my_tasks_black : my_tasks_white,
       hoverImage: my_tasks_white,
-      count: data?.my_tasks?.invoices + data?.my_tasks?.flagged_documents + data?.my_tasks?.multiple_invoice_documents +data?.my_tasks?.re_review_requested_documents||0,
+      count: data?.my_tasks?.invoices + data?.my_tasks?.flagged_documents + data?.my_tasks?.multiple_invoice_documents + data?.my_tasks?.re_review_requested_documents || 0,
       children: [
         {
           path: "/my-tasks",
           text: "Invoices",
           count: data?.my_tasks?.invoices
         },
-         {
+        {
           path: "/re-review-requested-assigned",
           text: "Re-review Requested Documents",
           image: theme === "light" ? book_down_black : book_down_black,
           hoverImage: book_down_white,
-            count: data?.my_tasks?.re_review_requested_documents||0
+          count: data?.my_tasks?.re_review_requested_documents || 0
         },
         {
           path: `/multi-invoice-documents`,
@@ -108,12 +108,12 @@ const Sidebar = ({ className }) => {
           hoverImage: multi_invoice_white,
           count: data?.my_tasks?.multiple_invoice_documents
         },
-          {
+        {
           path: `/unsupported-documents`,
           text: "Flagged Documents",
           count: data?.my_tasks?.flagged_documents
         },
-     
+
       ]
     },
     {
@@ -173,24 +173,24 @@ const Sidebar = ({ className }) => {
               option.children?.some((child) => child.path === pathname);
             const isSubmenuOpen = openSubmenu === index;
             const hasChildren = option.children?.length > 0;
-
             const handleClick = (e) => {
               if (hasChildren) {
                 e.preventDefault();
                 if (!expanded) {
                   setExpanded();
-                  setTimeout(() => handleToggle(index, true), 150);
+ handleToggle(index, true);
                 } else {
                   handleToggle(index, true);
                 }
               } else {
                 if (pathname === option.path) {
-                  e.preventDefault();
+                  e.preventDefault(); // don’t reset if already here
                   return;
                 }
-                setDefault();
+                setDefault(); // only reset when changing tab
               }
             };
+
 
             const Wrapper = option.path ? Link : "div";
 
@@ -203,8 +203,8 @@ const Sidebar = ({ className }) => {
                   }`}
               >
                 <Wrapper
-                  to={option.path || "#"}
-                  onClick={handleClick}
+                   to={option.path || "#"}
+  onClick={handleClick}
                   className={`group relative cursor-pointer flex items-center px-4 gap-2 py-3 text-sm font-normal transition-all duration-300 ${isActive
                     ? "bg-primary text-white"
                     : "text-black hover:bg-primary hover:text-white"
@@ -264,7 +264,17 @@ const Sidebar = ({ className }) => {
                     {option.children.map((child, idx) => (
                       <Link
                         to={child.path}
-                        onClick={() => setDefault()}
+                        onClick={(e) => {
+                          if (pathname == child.path) {
+                            e.preventDefault()
+                          
+                            // do nothing, no reset, no preventDefault
+                            return;
+                          }else{
+
+                            setDefault();
+                          }
+                        }}
                         key={idx}
                         className={`block text-sm py-3 mt-1 px-2 hover:bg-primary hover:text-white ${pathname === child.path
                           ? "bg-primary text-white"

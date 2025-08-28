@@ -132,6 +132,8 @@ import { useGetSidebarCounts } from "@/components/common/api";
 import useSidebarStore from "@/store/sidebarStore";
 import multi_invoice_black from "@/assets/image/multi_invoice_black.svg";
 import multi_invoice_white from "@/assets/image/multi_invoice_white.svg";
+import book_down_white from "@/assets/image/book_down_white.svg";
+import book_down_black from "@/assets/image/book_down_black.svg";
 const rejectionReasons = [
   "Duplicate invoice",
   "Multiple invoices in one PDF",
@@ -611,14 +613,14 @@ const InvoiceDetails = () => {
   let linkModalTimer;
   const { userId } = userStore();
   const { data: sideBarCounts } = useGetSidebarCounts({
-    invoice_type: filters?.invoice_type,
+    invoice_type: filters?.invoice_type || "all",
     start_date: filters?.start_date,
     end_date: filters?.end_date,
-    clickbacon_status: filters?.clickbacon_status,
+    clickbacon_status: filters?.clickbacon_status || "all",
     restaurant: filters?.restaurant,
-    auto_accpepted: filters?.auto_accepted,
-    rerun_status: filters?.rerun_status || "",
-    invoice_detection_status: filters?.invoice_detection_status,
+    auto_accpepted: filters?.auto_accepted || "all",
+    rerun_status: filters?.rerun_status || "all",
+    // invoice_detection_status: filters?.invoice_detection_status,
     human_verified: filters?.human_verified,
     human_verification_required: filters?.human_verification,
     vendor: filters?.vendor,
@@ -626,7 +628,8 @@ const InvoiceDetails = () => {
     restaurant_tier: filters?.restaurant_tier,
     rejected: filters?.rejected,
     extraction_source: filters?.extraction_source,
-    assigned_to: filters?.assigned_to || userId
+    assigned_to: userId,
+    auto_accepted_by_vda: filters?.auto_accepted_by_vda,
   });
   const [openSubmenu, setOpenSubmenu] = useState(null);
   const { expanded, setExpanded } = useSidebarStore();
@@ -640,6 +643,21 @@ const InvoiceDetails = () => {
       count: sideBarCounts?.all_invoices
     },
     {
+      path: "/re-review-requested",
+      text: "All Re-review Requested Documents",
+      image: theme === "light" ? book_down_black : book_down_black,
+      hoverImage: book_down_white,
+      count: sideBarCounts?.all_re_review_requested_documents || 0
+    },
+
+    {
+      path: "/all-multi-invoice-documents",
+      text: "All Multiple Invoice Documents",
+      image: theme === "light" ? multi_invoice_black : multi_invoice_white,
+      hoverImage: multi_invoice_white,
+      count: sideBarCounts?.all_multiple_invoice_documents
+    },
+    {
       path: "/flagged-invoices",
       text: "All Flagged Documents",
       image: theme === "light" ? flagged_black : flagged_white,
@@ -647,20 +665,11 @@ const InvoiceDetails = () => {
       count: sideBarCounts?.all_flagged_documents
     },
     {
-      path: `/all-multi-invoice-documents`,
-      text: "All Multiple Invoice Documents",
-      image: theme === "light" ? multi_invoice_black : multi_invoice_white,
-      hoverImage: multi_invoice_white,
-      count: sideBarCounts?.all_multiple_invoice_documents
-    },
-    {
       path: "/my-tasks",
       text: "My Tasks",
       image: theme === "light" ? my_tasks_black : my_tasks_white,
       hoverImage: my_tasks_white,
-      count:
-        sideBarCounts?.my_tasks?.invoices +
-        sideBarCounts?.my_tasks?.flagged_documents + sideBarCounts?.my_tasks?.multiple_invoice_documents,
+      count: sideBarCounts?.my_tasks?.invoices + sideBarCounts?.my_tasks?.flagged_documents + sideBarCounts?.my_tasks?.multiple_invoice_documents + sideBarCounts?.my_tasks?.re_review_requested_documents || 0,
       children: [
         {
           path: "/my-tasks",
@@ -668,9 +677,11 @@ const InvoiceDetails = () => {
           count: sideBarCounts?.my_tasks?.invoices
         },
         {
-          path: "/unsupported-documents",
-          text: "Flagged Documents",
-          count: sideBarCounts?.my_tasks?.flagged_documents
+          path: "/re-review-requested-assigned",
+          text: "Re-review Requested Documents",
+          image: theme === "light" ? book_down_black : book_down_black,
+          hoverImage: book_down_white,
+          count: sideBarCounts?.my_tasks?.re_review_requested_documents || 0
         },
         {
           path: `/multi-invoice-documents`,
@@ -678,7 +689,12 @@ const InvoiceDetails = () => {
           image: theme === "light" ? multi_invoice_black : multi_invoice_white,
           hoverImage: multi_invoice_white,
           count: sideBarCounts?.my_tasks?.multiple_invoice_documents
-        }
+        },
+        {
+          path: `/unsupported-documents`,
+          text: "Flagged Documents",
+          count: sideBarCounts?.my_tasks?.flagged_documents
+        },
 
       ]
     },
@@ -695,9 +711,9 @@ const InvoiceDetails = () => {
       image: theme === "light" ? not_supported_black : not_supported_white,
       hoverImage: not_supported_white,
       count: sideBarCounts?.not_supported
-    },
-
+    }
   ];
+
   useEffect(() => {
     const matchingIndex = options.findIndex((option) =>
       option.children?.some((child) => child.path === pathname)
@@ -837,12 +853,12 @@ const InvoiceDetails = () => {
         </div>
       </ResizableModal>
       <Navbar />
-      <Sheet>
+      <Sheet open={expanded} onOpenChange={setExpanded}>
         <SheetTrigger asChild>
           <div
-            onClick={() => {
-              setExpanded();
-            }}
+            // onClick={() => {
+            //   setExpanded();
+            // }}
             className={`bg-primary w-5 h-5 rounded-r-sm cursor-pointer  fixed  mt-1  top-16 left-0 !z-50 flex justify-center items-center 
           ${false ? "opacity-0" : "opacity-100"}
           transition-opacity duration-300 ease-in-out`}
@@ -850,15 +866,12 @@ const InvoiceDetails = () => {
             <ChevronRight className="text-white h-3.5 w-3.5" />
           </div>
         </SheetTrigger>
-        <SheetContent side="left" className="px-0 !max-w-[300px] pt-8 ">
-          <SheetClose
-            asChild
-            onClick={() => {
-              setExpanded();
-            }}
-          >
-            <Menu className="h-5 w-5 cursor-pointer absolute right-4 top-2  text-end text-[#000000] " />
-          </SheetClose>
+        <SheetContent side="left" className="px-0 !max-w-[350px] pt-8 ">
+
+          <Menu onClick={() => {
+            setExpanded()
+          }} className="h-5 w-5 cursor-pointer absolute right-4 top-2  text-end text-[#000000] " />
+
 
           <div className=" space-y-2 flex flex-col">
             {options?.map((option, index) => {
@@ -1705,7 +1718,7 @@ const InvoiceDetails = () => {
         <Modal
           open={showResetStatusModal}
           setOpen={setShowResetStatusModal}
-           showXicon={true}
+          showXicon={true}
           className={"max-w-[25rem] !rounded-xl"}
         >
           <ModalDescription>
