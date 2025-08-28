@@ -155,7 +155,7 @@ const ReReviewRequested = () => {
   useEffect(() => {
     if (pathname == "/re-review-requested-assigned") {
       updateParams({ assigned_to: userId, re_review_requested: true });
-      setFilters({ ...filters, assigned_to: userId });
+      setFilters({ ...filters, assigned_to: userId, re_review_requested: true });
     }
     setFilters({ ...filters, re_review_requested: true });
   }, [pathname]);
