@@ -100,7 +100,8 @@ const Tables = ({ setData, setIsLoading = () => { }, currentTab, setCurrentTab =
   if(from_view=="re-review-assigned"){
     payload = {
       ...payload,
-      assigned_to:userId
+      assigned_to:userId,
+       re_review_requested:filters?.re_review_requested|| re_review_requested
     }
   }
 
