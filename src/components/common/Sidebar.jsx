@@ -13,12 +13,12 @@ import my_tasks_white from "@/assets/image/check_book_white.svg";
 import my_tasks_black from "@/assets/image/check_book_black.svg";
 import flagged_white from "@/assets/image/flagged_white.svg";
 import flagged_black from "@/assets/image/flagged_black.svg";
-import book_user_white from "@/assets/image/book_user_white.svg";
-import book_user_black from "@/assets/image/book_user_black.svg";
+import book_down_white from "@/assets/image/book_down_white.svg";
+import book_down_black from "@/assets/image/book_down_black.svg";
 
 import multi_invoice_black from "@/assets/image/multi_invoice_black.svg";
 import multi_invoice_white from "@/assets/image/multi_invoice_white.svg";
-import { ChevronRight, ChevronDown, ChevronUp, Menu, Info } from "lucide-react";
+import { ChevronRight, ChevronDown, ChevronUp, Menu, Info, BookDown } from "lucide-react";
 import userStore from "../auth/store/userStore";
 import { useGetSidebarCounts } from "./api";
 import CustomTooltip from "../ui/Custom/CustomTooltip";
@@ -27,18 +27,18 @@ const Sidebar = ({ className }) => {
   const { expanded, setExpanded } = useSidebarStore();
   const { theme } = useThemeStore();
   const { pathname } = useLocation();
-  const { role ,userId} = userStore();
+  const { role, userId } = userStore();
   const { setDefault, filters } = useFilterStore();
   const [openSubmenu, setOpenSubmenu] = useState(null);
 
   const { data, isLoading } = useGetSidebarCounts({
-    invoice_type: filters?.invoice_type||"all",
+    invoice_type: filters?.invoice_type || "all",
     start_date: filters?.start_date,
     end_date: filters?.end_date,
-    clickbacon_status: filters?.clickbacon_status||"all",
+    clickbacon_status: filters?.clickbacon_status || "all",
     restaurant: filters?.restaurant,
-    auto_accpepted: filters?.auto_accepted||"all",
-    rerun_status: filters?.rerun_status||"all",
+    auto_accpepted: filters?.auto_accepted || "all",
+    rerun_status: filters?.rerun_status || "all",
     // invoice_detection_status: filters?.invoice_detection_status,
     human_verified: filters?.human_verified,
     human_verification_required: filters?.human_verification,
@@ -61,12 +61,13 @@ const Sidebar = ({ className }) => {
       count: data?.all_invoices
     },
     {
-      path: "/flagged-invoices",
-      text: "All Flagged Documents",
-      image: theme === "light" ? flagged_black : flagged_white,
-      hoverImage: flagged_white,
-      count: data?.all_flagged_documents
+      path: "/re-review-requested",
+      text: "All Re-review Requested Documents",
+      image: theme === "light" ? book_down_black : book_down_black,
+      hoverImage: book_down_white,
+      count: data?.all_re_review_requested_documents || 0
     },
+
     {
       path: "/all-multi-invoice-documents",
       text: "All Multiple Invoice Documents",
@@ -75,11 +76,18 @@ const Sidebar = ({ className }) => {
       count: data?.all_multiple_invoice_documents
     },
     {
+      path: "/flagged-invoices",
+      text: "All Flagged Documents",
+      image: theme === "light" ? flagged_black : flagged_white,
+      hoverImage: flagged_white,
+      count: data?.all_flagged_documents
+    },
+    {
       path: "/my-tasks",
       text: "My Tasks",
       image: theme === "light" ? my_tasks_black : my_tasks_white,
       hoverImage: my_tasks_white,
-      count: data?.my_tasks?.invoices + data?.my_tasks?.flagged_documents +data?.my_tasks?.multiple_invoice_documents,
+      count: data?.my_tasks?.invoices + data?.my_tasks?.flagged_documents + data?.my_tasks?.multiple_invoice_documents + data?.my_tasks?.re_review_requested_documents || 0,
       children: [
         {
           path: "/my-tasks",
@@ -87,9 +95,11 @@ const Sidebar = ({ className }) => {
           count: data?.my_tasks?.invoices
         },
         {
-          path: `/unsupported-documents`,
-          text: "Flagged Documents",
-          count: data?.my_tasks?.flagged_documents
+          path: "/re-review-requested-assigned",
+          text: "Re-review Requested Documents",
+          image: theme === "light" ? book_down_black : book_down_black,
+          hoverImage: book_down_white,
+          count: data?.my_tasks?.re_review_requested_documents || 0
         },
         {
           path: `/multi-invoice-documents`,
@@ -97,7 +107,13 @@ const Sidebar = ({ className }) => {
           image: theme === "light" ? multi_invoice_black : multi_invoice_white,
           hoverImage: multi_invoice_white,
           count: data?.my_tasks?.multiple_invoice_documents
-        }
+        },
+        {
+          path: `/unsupported-documents`,
+          text: "Flagged Documents",
+          count: data?.my_tasks?.flagged_documents
+        },
+
       ]
     },
     {
@@ -116,7 +132,7 @@ const Sidebar = ({ className }) => {
     }
   ];
 
-  const width = expanded ? "18rem" : "3.75rem";
+  const width = expanded ? "20rem" : "3.75rem";
 
   useEffect(() => {
     const matchingIndex = options.findIndex((option) =>
@@ -157,44 +173,42 @@ const Sidebar = ({ className }) => {
               option.children?.some((child) => child.path === pathname);
             const isSubmenuOpen = openSubmenu === index;
             const hasChildren = option.children?.length > 0;
-
             const handleClick = (e) => {
               if (hasChildren) {
                 e.preventDefault();
                 if (!expanded) {
                   setExpanded();
-                  setTimeout(() => handleToggle(index, true), 150);
+ handleToggle(index, true);
                 } else {
                   handleToggle(index, true);
                 }
               } else {
                 if (pathname === option.path) {
-                  e.preventDefault();
+                  e.preventDefault(); // don’t reset if already here
                   return;
                 }
-                setDefault();
+                setDefault(); // only reset when changing tab
               }
             };
+
 
             const Wrapper = option.path ? Link : "div";
 
             return (
               <div
                 key={index}
-                className={`${
-                  role !== "admin" &&
+                className={`${role !== "admin" &&
                   option?.text === "Not Supported Documents" &&
                   "hidden"
-                }`}
+                  }`}
               >
                 <Wrapper
-                  to={option.path || "#"}
-                  onClick={handleClick}
-                  className={`group relative cursor-pointer flex items-center px-4 gap-2 py-3 text-sm font-normal transition-all duration-300 ${
-                    isActive
-                      ? "bg-primary text-white"
-                      : "text-black hover:bg-primary hover:text-white"
-                  }`}
+                   to={option.path || "#"}
+  onClick={handleClick}
+                  className={`group relative cursor-pointer flex items-center px-4 gap-2 py-3 text-sm font-normal transition-all duration-300 ${isActive
+                    ? "bg-primary text-white"
+                    : "text-black hover:bg-primary hover:text-white"
+                    }`}
                 >
                   {!expanded &&
                     typeof option?.count == "number" &&
@@ -218,14 +232,13 @@ const Sidebar = ({ className }) => {
                     <img
                       src={option?.hoverImage}
                       alt={option?.text}
-                      className={`absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity ${
-                        isActive ? "opacity-100" : ""
-                      }`}
+                      className={`absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity ${isActive ? "opacity-100" : ""
+                        }`}
                     />
                   </div>
 
                   {expanded && (
-                    <div className="flex items-center justify-between w-full ml-2 dark:text-white">
+                    <div className="flex items-center justify-between gap-x-2 w-full ml-2 dark:text-white">
                       <span className="truncate">{option?.text}</span>
                       <div className="flex items-center gap-2">
                         {typeof option?.count === "number" && (
@@ -251,13 +264,22 @@ const Sidebar = ({ className }) => {
                     {option.children.map((child, idx) => (
                       <Link
                         to={child.path}
-                        onClick={() => setDefault()}
+                        onClick={(e) => {
+                          if (pathname == child.path) {
+                            e.preventDefault()
+                          
+                            // do nothing, no reset, no preventDefault
+                            return;
+                          }else{
+
+                            setDefault();
+                          }
+                        }}
                         key={idx}
-                        className={`block text-sm py-3 mt-1 px-2 hover:bg-primary hover:text-white ${
-                          pathname === child.path
-                            ? "bg-primary text-white"
-                            : "text-gray-700"
-                        }`}
+                        className={`block text-sm py-3 mt-1 px-2 hover:bg-primary hover:text-white ${pathname === child.path
+                          ? "bg-primary text-white"
+                          : "text-gray-700"
+                          }`}
                       >
                         <div className="flex justify-between items-center">
                           <span className="truncate">{child?.text}</span>
