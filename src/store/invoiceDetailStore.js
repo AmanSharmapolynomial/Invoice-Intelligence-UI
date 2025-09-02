@@ -73,6 +73,8 @@ export const invoiceDetailStore = create((set, get) => ({
     })),
   clearUpdatedFields: () => set({ updatedFields: {} }),
   totalExtendedPrce: 0,
+  showUniqueItemCodeRuleModal:false,
+  showDepositRuleModal:false,
   setTotalExtendedPrice: (val) => set({ totalExtendedPrce: val }),
 
   setHighlightRow: (val) => set({ highlightRow: val }),
@@ -93,6 +95,12 @@ export const invoiceDetailStore = create((set, get) => ({
   setBoundingBoxes: (boxes) => set({ bounding_boxes: boxes }),
   setCurrentDocumentUUID: (v) => set({ current_document_uuid: v }),
   setAdded: (flag) => set({ added: flag }),
+  setShowUniqueItemCodeRuleModal:(val)=>set({showUniqueItemCodeRuleModal:val}),
+  setShowDepositRuleModal:(val)=>set({showDepositRuleModal:val}),
+  duplicateItemCodeRows:[],
+  depositColumnRows:[],
+  setDuplicateItemCodeRows:(data)=>set({duplicateItemCodeRows:data}),
+  setDepositColumnRows:(data)=>set({depositColumnRows:data}),
   clearStore: () =>
     set({
       categoryWiseSum: [],
@@ -121,6 +129,7 @@ export const invoiceDetailStore = create((set, get) => ({
       last_edited_line_item_columns: [],
       similarLineItems: [],
       showSimilarLineItemsModal: false,
-      similarLineItemsRequiredColumns: []
+      similarLineItemsRequiredColumns: [],
+      showUniqueItemCodeRuleModal:false
     })
 }));
