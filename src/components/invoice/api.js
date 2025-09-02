@@ -503,3 +503,23 @@ export const useMarkMultipleInvoiceDocumentAsNotSupported = () => {
     }
   });
 };
+
+
+export const useApplyBusinessRule = () => {
+  return useMutation({
+    mutationFn: async ({ rule, document_uuid }) => {
+      let response = await axiosInstance.post(`/api/document/${document_uuid}/apply-business-rule/`, { rule });
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries("duplicate-invoices");
+      queryClient.invalidateQueries("document-metadata");
+      queryClient.invalidateQueries("combined-table");
+      queryClient.invalidateQueries("additional-data");
+    },
+    meta: {
+      successMsg: true,
+      errorMsg: true
+    }
+  })
+}
