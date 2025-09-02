@@ -263,7 +263,84 @@ const InvoiceDetails = () => {
   useEffect(() => {
     appendFiltersToUrl();
   }, []);
+  const getDuplicateItemCodeRows = (tableData) => {
+    if (!tableData) return { hasConflict: false, duplicateRows: [] };
+    const rows = tableData?.data?.processed_table?.rows || [];
+    let item_code_column_uuid = tableData?.data?.processed_table?.columns?.find((c) => c?.column_name == "Item Code")?.column_uuid;
+    let item_description_column_uuid = tableData?.data?.processed_table?.columns?.find((c) => c?.column_name == "Item Description")?.column_uuid;
+    // Map to group rows by item code
+    const itemMap = {};
 
+    rows.forEach((row) => {
+      let itemCode = "";
+      let itemDesc = "";
+
+      row?.cells?.forEach((cell) => {
+        if (cell?.column_uuid == item_code_column_uuid) {
+          console.log(cell?.text)
+          itemCode = (cell?.text || "null");
+        }
+        if (cell?.column_uuid == item_description_column_uuid) {
+          itemDesc = (cell?.text || "null");
+        }
+      });
+
+      if (itemCode) {
+        if (!itemMap[itemCode]) {
+          itemMap[itemCode] = { descSet: new Set(), rows: [] };
+        }
+        if (itemDesc) {
+          itemMap[itemCode].descSet.add(itemDesc);
+        }
+        itemMap[itemCode].rows.push(row);
+      }
+    });
+
+    // Find all item codes with multiple descriptions
+    const duplicateRows = [];
+    Object.values(itemMap).forEach(({ descSet, rows }) => {
+      if (descSet.size > 1) {
+        duplicateRows.push(...rows);
+      }
+    });
+    console.log(itemMap)
+
+    return {
+      hasConflict: duplicateRows.length > 0,
+      duplicateRows,
+    };
+  };
+  const hasDepositColumnWithValue = (tableData) => {
+    if (!tableData) return { hasDeposit: false, rowsWithDeposit: [] };
+
+    const rows = tableData?.data?.processed_table?.rows || [];
+    const depositColumn = tableData?.data?.processed_table?.columns?.find(
+      (c) => c?.column_name === "Deposit"
+    );
+
+    if (!depositColumn) {
+      return { hasDeposit: false, rowsWithDeposit: [] };
+    }
+
+    const depositColumnUuid = depositColumn?.column_uuid;
+    const rowsWithDeposit = [];
+
+    rows.forEach((row) => {
+      const depositCell = row?.cells?.find(
+        (cell) => cell?.column_uuid === depositColumnUuid
+      );
+      const value = depositCell?.text?.trim();
+
+      if (value && value !== "0" && value !== "--") {
+        rowsWithDeposit.push(row);
+      }
+    });
+
+    return {
+      hasDeposit: rowsWithDeposit.length > 0,
+      rowsWithDeposit,
+    };
+  };
   const handleSave = () => {
     if (Object?.keys(updatedFields)?.length == 0 && operations?.length == 0) {
       return toast("No Fields Updated..", {
@@ -340,6 +417,15 @@ const InvoiceDetails = () => {
               //   refreshed = true;
               //   window.location.reload();
               // }
+              if (getDuplicateItemCodeRows(tableData)?.hasConflict) {
+                setShowUniqueItemCodeRuleModal(true);
+                setDuplicateItemCodeRows(getDuplicateItemCodeRows(tableData)?.duplicateRows)
+              }
+              if (hasDepositColumnWithValue(tableData)?.hasDeposit ) {
+                setShowDepositRuleModal(true);
+                setDepositColumnRows(hasDepositColumnWithValue(tableData)?.rowsWithDeposit)
+                // setFirstTime(false)
+              }
             },
 
             onError: () => setLoadingState({ ...loadingState, saving: false })
@@ -2636,7 +2722,7 @@ const InvoiceDetails = () => {
           setShowDuplicateItemCodeWarning(false);
           setDuplicateItemCodeRows([])
         }}
-        title={"Unique Item Code Detected"}
+        title={"Detected multiple line items with the same item code but different descriptions."}
         className={"!px-0  !z-50 !min-w-[40rem] "}
         titleClassName={
           "text-[#000000] !font-medium  flex justify-start px-4 border-b border-b-[#E0E0E0] pb-4 pt-3 font-poppins !text-base  leading-6  pt-0.5"
@@ -2652,7 +2738,7 @@ const InvoiceDetails = () => {
             <Table className="table-auto border-collapse w-full my-4 mx-2">
               <TableHeader>
                 <TableRow>
-                  {tableData?.data?.processed_table?.columns?.map((c) => (
+                  {tableData?.data?.processed_table?.columns?.filter(c=>c?.selected_column)?.map((c) => (
                     <TableHead
                       key={c?.column_uuid}
                       className="px-4 py-2 text-left text-sm font-semibold whitespace-nowrap"
@@ -2741,7 +2827,7 @@ const InvoiceDetails = () => {
           setShowDepositColumnWarning(false);
 
         }}
-        title={"Unique Item Code Detected"}
+        title={"Detected deposit values in the table."}
         className={"!px-0  !z-50 !min-w-[40rem] "}
         titleClassName={
           "text-[#000000] !font-medium  flex justify-start px-4 border-b border-b-[#E0E0E0] pb-4 pt-3 font-poppins !text-base  leading-6  pt-0.5"
@@ -2757,7 +2843,7 @@ const InvoiceDetails = () => {
             <Table className="table-auto border-collapse w-full my-4 mx-2">
               <TableHeader>
                 <TableRow>
-                  {tableData?.data?.processed_table?.columns?.map((c) => (
+                  {tableData?.data?.processed_table?.columns?.filter(c=>c?.selected_column)?.map((c) => (
                     <TableHead
                       key={c?.column_uuid}
                       className="px-4 py-2 text-left text-sm font-semibold whitespace-nowrap"
