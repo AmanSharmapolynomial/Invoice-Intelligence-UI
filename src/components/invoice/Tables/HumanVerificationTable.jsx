@@ -1293,7 +1293,7 @@ const HumanVerificationTable = ({
       row?.cells?.forEach((cell) => {
         if (cell?.column_uuid == item_code_column_uuid) {
           console.log(cell?.text)
-          itemCode = (cell?.text || "").trim();
+          itemCode = (cell?.text || "null");
         }
         if (cell?.column_uuid == item_description_column_uuid) {
           itemDesc = (cell?.text || "null");
@@ -1360,11 +1360,11 @@ const HumanVerificationTable = ({
   useEffect(() => {
 if(data){
 
-  if (getDuplicateItemCodeRows(data)?.hasConflict && (calculate||firstTime )) {
+  if (getDuplicateItemCodeRows(data)?.hasConflict && (firstTime )) {
     setShowUniqueItemCodeRuleModal(true);
     setDuplicateItemCodeRows(getDuplicateItemCodeRows(data)?.duplicateRows)
   }
-  if (hasDepositColumnWithValue(data)?.hasDeposit && (calculate||firstTime )) {
+  if (hasDepositColumnWithValue(data)?.hasDeposit && (firstTime )) {
     setShowDepositRuleModal(true);
     setDepositColumnRows(hasDepositColumnWithValue(data)?.rowsWithDeposit)
     // setFirstTime(false)
@@ -1373,7 +1373,7 @@ if(data){
 }
 
   }, [data]);
-  console.log(hasDepositColumnWithValue(data))
+ 
   
   return (
     <>
