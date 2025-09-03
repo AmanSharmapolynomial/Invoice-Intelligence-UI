@@ -136,6 +136,7 @@ import multi_invoice_black from "@/assets/image/multi_invoice_black.svg";
 import multi_invoice_white from "@/assets/image/multi_invoice_white.svg";
 import book_down_white from "@/assets/image/book_down_white.svg";
 import book_down_black from "@/assets/image/book_down_black.svg";
+import Loader from "@/components/ui/Loader";
 const rejectionReasons = [
   "Duplicate invoice",
   "Multiple invoices in one PDF",
@@ -417,11 +418,11 @@ const InvoiceDetails = () => {
               //   refreshed = true;
               //   window.location.reload();
               // }
-              if (getDuplicateItemCodeRows(tableData)?.hasConflict) {
-                setShowUniqueItemCodeRuleModal(true);
-                setDuplicateItemCodeRows(getDuplicateItemCodeRows(tableData)?.duplicateRows)
-              }
-              if (hasDepositColumnWithValue(tableData)?.hasDeposit ) {
+              // if (getDuplicateItemCodeRows(tableData)?.hasConflict) {
+              //   setShowUniqueItemCodeRuleModal(true);
+              //   setDuplicateItemCodeRows(getDuplicateItemCodeRows(tableData)?.duplicateRows)
+              // }
+              if (hasDepositColumnWithValue(tableData)?.hasDeposit) {
                 setShowDepositRuleModal(true);
                 setDepositColumnRows(hasDepositColumnWithValue(tableData)?.rowsWithDeposit)
                 // setFirstTime(false)
@@ -851,6 +852,8 @@ const InvoiceDetails = () => {
       ({ column_name, column_order, selected_column, ...rest }) =>
         rest?.column_uuid
     );
+  const [showLoader, setShowLoader] = useState(false);
+  let loaderTimer;
   return (
     <div className="hide-scrollbar relative">
       {/* <div> */}{" "}
@@ -1096,7 +1099,11 @@ const InvoiceDetails = () => {
         </SheetContent>
       </Sheet>
       {/* </div> */}
-      <Layout
+      {showLoader ? <div className="w-full flex items-center justify-center h-[80vh]">
+
+
+        <Loader className={"!h-12 !w-12"} />
+      </div> : <Layout
         className={
           "mx-6 rounded-md  hide-scrollbar  !relative !shadow-none flex flex-1 flex-col justify-between gap-y-4   "
         }
@@ -2190,6 +2197,13 @@ const InvoiceDetails = () => {
           </ModalDescription>
         </Modal>
       </Layout>
+      }
+
+
+
+
+
+
       <Modal
         iconCN={"top-[28px]"}
         open={showDuplicateInvoicesModal}
@@ -2714,7 +2728,7 @@ const InvoiceDetails = () => {
         </ModalDescription>
       </Modal>
       {/* Unique Item Code Rule Modal */}
-      <Modal
+      {/* <Modal
         iconCN={"top-[28px]"}
         open={showDuplicateItemCodeWarning}
 
@@ -2817,7 +2831,7 @@ const InvoiceDetails = () => {
             </Button>
           </div>
         </ModalDescription>
-      </Modal>
+      </Modal> */}
       {/* Deposit Column */}
 
       <Modal
@@ -2840,52 +2854,52 @@ const InvoiceDetails = () => {
               Do you want to apply the Liquor Deposit Split Rule to separate deposit amounts from the line items?
             </p>
           </div>
-<div className="relative max-h-44 overflow-auto">
-  <table className="table-auto border-collapse w-full my-4 mx-2">
-    <thead className="sticky top-0 bg-white z-50">
-      <tr className="border-b">
-        {tableData?.data?.processed_table?.columns
-          ?.filter((c) => c?.selected_column)
-          ?.map((c) => (
-            <th
-              key={c?.column_uuid}
-              className="px-4 py-2 text-left text-sm text-black font-semibold whitespace-nowrap"
-              style={{
-                minWidth:
-                  c?.column_name === "Item Description"
-                    ? "200px"
-                    : c?.column_name === "Item Code"
-                    ? "100px"
-                    : "120px",
-              }}
-            >
-              {c?.column_name}
-            </th>
-          ))}
-      </tr>
-    </thead>
+          <div className="relative max-h-44 overflow-auto">
+            <table className="table-auto border-collapse w-full my-4 mx-2">
+              <thead className="sticky top-0 bg-white z-50">
+                <tr className="border-b">
+                  {tableData?.data?.processed_table?.columns
+                    ?.filter((c) => c?.selected_column)
+                    ?.map((c) => (
+                      <th
+                        key={c?.column_uuid}
+                        className="px-4 py-2 text-left text-sm text-black font-semibold whitespace-nowrap"
+                        style={{
+                          minWidth:
+                            c?.column_name === "Item Description"
+                              ? "200px"
+                              : c?.column_name === "Item Code"
+                                ? "100px"
+                                : "120px",
+                        }}
+                      >
+                        {c?.column_name}
+                      </th>
+                    ))}
+                </tr>
+              </thead>
 
-    <tbody>
-      {depositColumnRows?.map((row, index) => (
-        <tr
-          key={index}
-          className="border-b border-[#F5F5F5] hover:bg-gray-50"
-        >
-          {row?.cells
-            ?.filter((c) => selectedColumnIds?.includes(c?.column_uuid))
-            ?.map((cell, i) => (
-              <td
-                key={i}
-                className="px-4 py-2 text-sm align-top whitespace-pre-wrap break-words"
-              >
-                {cell?.text || "--"}
-              </td>
-            ))}
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
+              <tbody>
+                {depositColumnRows?.map((row, index) => (
+                  <tr
+                    key={index}
+                    className="border-b border-[#F5F5F5] hover:bg-gray-50"
+                  >
+                    {row?.cells
+                      ?.filter((c) => selectedColumnIds?.includes(c?.column_uuid))
+                      ?.map((cell, i) => (
+                        <td
+                          key={i}
+                          className="px-4 py-2 text-sm align-top whitespace-pre-wrap break-words"
+                        >
+                          {cell?.text || "--"}
+                        </td>
+                      ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
 
           <div className="flex items-center justify-center gap-x-2  pr-2 mt-6 mb-2">
@@ -2896,7 +2910,7 @@ const InvoiceDetails = () => {
 
 
               }}
-              className="rounded-sm border border-primary bg-transparent hover:bg-transparent font-poppins font-normal text-sm text-black"
+              className="rounded-sm border border-red-500 bg-transparent focus:border-red-500 focus:!ring-0 ring-0 focus:outline-none !outline-none hover:bg-transparent font-poppins font-normal text-sm text-black"
             >
               Ignore
             </Button>
@@ -2909,7 +2923,12 @@ const InvoiceDetails = () => {
                   onSuccess: () => {
                     setLoadingState({ ...loadingState, applyingRule: false });
                     setShowDepositColumnWarning(false);
-                    setShowDepositRuleModal(false)
+                    setShowDepositRuleModal(false);
+                    setShowLoader(true);
+                    clearTimeout(loaderTimer);
+                    loaderTimer = setTimeout(() => {
+                      setShowLoader(false);
+                    }, 2000);
 
                   },
                   onError: () => {
