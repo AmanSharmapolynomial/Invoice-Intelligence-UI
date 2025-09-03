@@ -1279,7 +1279,12 @@ const InvoiceDetails = () => {
         >
           {/* <div className="flex items-center justify-start"> */}
 
-          {metaData?.extraction_source && (
+          {metaData?.pre_extracted_invoice?<> <p
+               
+                className="font-poppins font-medium text-sm leading-5 capitalize px-4 border border-yellow-600 rounded-md py-0.5 "
+              >
+               Pre Extracted Invoice
+              </p></>:(metaData?.extraction_source && (
             <CustomTooltip content={"Extraction Source"}>
               {/* {metadata?.extraction_source && ( */}
               <p
@@ -1292,7 +1297,7 @@ const InvoiceDetails = () => {
               </p>
               {/* )} */}
             </CustomTooltip>
-          )}
+          ))}
           {/* </div> */}
           <div className="flex items-center gap-x-2">
             <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
