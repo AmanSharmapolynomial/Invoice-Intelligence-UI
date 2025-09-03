@@ -981,9 +981,9 @@ const MultiInvoiceDocumentsDetails = () => {
                           <img
                             className="h-4 w-4"
                             src={
-                              myData?.tier == 1
+                             myData?.restaurant?.tier== 1
                                 ? tier_1
-                                : myData?.tier == 2
+                                : myData?.restaurant?.tier == 2
                                   ? tier_2
                                   : tier_3
                             }
