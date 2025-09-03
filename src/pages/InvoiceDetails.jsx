@@ -2734,51 +2734,52 @@ const InvoiceDetails = () => {
               Do you want to apply the Unique Item Code Rule to ensure each item code is linked to a single description?
             </p>
           </div>
-          <div>
-            <Table className="table-auto border-collapse w-full my-4 mx-2">
-              <TableHeader>
-                <TableRow>
-                  {tableData?.data?.processed_table?.columns?.filter(c=>c?.selected_column)?.map((c) => (
-                    <TableHead
-                      key={c?.column_uuid}
-                      className="px-4 py-2 text-left text-sm font-semibold whitespace-nowrap"
-                      style={{
-                        minWidth:
-                          c?.column_name === "Item Description"
-                            ? "200px"
-                            : c?.column_name === "Item Code"
-                              ? "100px"
-                              : "120px",
-                      }}
-                    >
-                      {c?.column_name}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
+       <div className="relative max-h-44 overflow-auto">
+  <table className="table-auto border-collapse w-full my-4 mx-2">
+    <thead className="sticky top-0 bg-white z-50">
+      <tr className="border-b">
+        {tableData?.data?.processed_table?.columns
+          ?.filter((c) => c?.selected_column)
+          ?.map((c) => (
+            <th
+              key={c?.column_uuid}
+              className="px-4 py-2 text-left text-sm text-black font-semibold whitespace-nowrap"
+              style={{
+                minWidth:
+                  c?.column_name === "Item Description"
+                    ? "200px"
+                    : c?.column_name === "Item Code"
+                    ? "100px"
+                    : "120px",
+              }}
+            >
+              {c?.column_name}
+            </th>
+          ))}
+      </tr>
+    </thead>
 
-              <TableBody>
-                {duplicateItemCodeRows?.map((row, index) => (
-                  <TableRow
-                    key={index}
-                    className="border-b border-[#F5F5F5] hover:bg-gray-50"
-                  >
-                    {row?.cells
-                      ?.filter((c) => selectedColumnIds?.includes(c?.column_uuid))
-                      ?.map((cell, i) => (
-                        <TableCell
-                          key={i}
-                          className="px-4 py-2 text-sm align-top whitespace-pre-wrap break-words"
-                        >
-                          {cell?.text || "--"}
-                        </TableCell>
-                      ))}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-
-          </div>
+    <tbody>
+      {duplicateItemCodeRows?.map((row, index) => (
+        <tr
+          key={index}
+          className="border-b border-[#F5F5F5] hover:bg-gray-50"
+        >
+          {row?.cells
+            ?.filter((c) => selectedColumnIds?.includes(c?.column_uuid))
+            ?.map((cell, i) => (
+              <td
+                key={i}
+                className="px-4 py-2 text-sm align-top whitespace-pre-wrap break-words"
+              >
+                {cell?.text || "--"}
+              </td>
+            ))}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
           <div className="flex items-center justify-center gap-x-2  pr-2 mt-6 mb-2">
             <Button
               onClick={() => {
@@ -2839,51 +2840,54 @@ const InvoiceDetails = () => {
               Do you want to apply the Liquor Deposit Split Rule to separate deposit amounts from the line items?
             </p>
           </div>
-          <div>
-            <Table className="table-auto border-collapse w-full my-4 mx-2">
-              <TableHeader>
-                <TableRow>
-                  {tableData?.data?.processed_table?.columns?.filter(c=>c?.selected_column)?.map((c) => (
-                    <TableHead
-                      key={c?.column_uuid}
-                      className="px-4 py-2 text-left text-sm font-semibold whitespace-nowrap"
-                      style={{
-                        minWidth:
-                          c?.column_name === "Item Description"
-                            ? "200px"
-                            : c?.column_name === "Item Code"
-                              ? "100px"
-                              : "120px",
-                      }}
-                    >
-                      {c?.column_name}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
+<div className="relative max-h-44 overflow-auto">
+  <table className="table-auto border-collapse w-full my-4 mx-2">
+    <thead className="sticky top-0 bg-white z-50">
+      <tr className="border-b">
+        {tableData?.data?.processed_table?.columns
+          ?.filter((c) => c?.selected_column)
+          ?.map((c) => (
+            <th
+              key={c?.column_uuid}
+              className="px-4 py-2 text-left text-sm text-black font-semibold whitespace-nowrap"
+              style={{
+                minWidth:
+                  c?.column_name === "Item Description"
+                    ? "200px"
+                    : c?.column_name === "Item Code"
+                    ? "100px"
+                    : "120px",
+              }}
+            >
+              {c?.column_name}
+            </th>
+          ))}
+      </tr>
+    </thead>
 
-              <TableBody>
-                {depositColumnRows?.map((row, index) => (
-                  <TableRow
-                    key={index}
-                    className="border-b border-[#F5F5F5] hover:bg-gray-50"
-                  >
-                    {row?.cells
-                      ?.filter((c) => selectedColumnIds?.includes(c?.column_uuid))
-                      ?.map((cell, i) => (
-                        <TableCell
-                          key={i}
-                          className="px-4 py-2 text-sm align-top whitespace-pre-wrap break-words"
-                        >
-                          {cell?.text || "--"}
-                        </TableCell>
-                      ))}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+    <tbody>
+      {depositColumnRows?.map((row, index) => (
+        <tr
+          key={index}
+          className="border-b border-[#F5F5F5] hover:bg-gray-50"
+        >
+          {row?.cells
+            ?.filter((c) => selectedColumnIds?.includes(c?.column_uuid))
+            ?.map((cell, i) => (
+              <td
+                key={i}
+                className="px-4 py-2 text-sm align-top whitespace-pre-wrap break-words"
+              >
+                {cell?.text || "--"}
+              </td>
+            ))}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
 
-          </div>
+
           <div className="flex items-center justify-center gap-x-2  pr-2 mt-6 mb-2">
             <Button
               onClick={() => {
