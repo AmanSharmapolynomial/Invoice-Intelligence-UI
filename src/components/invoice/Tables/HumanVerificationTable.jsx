@@ -1360,10 +1360,10 @@ const HumanVerificationTable = ({
   useEffect(() => {
 if(data){
 
-  if (getDuplicateItemCodeRows(data)?.hasConflict && (firstTime )) {
-    setShowUniqueItemCodeRuleModal(true);
-    setDuplicateItemCodeRows(getDuplicateItemCodeRows(data)?.duplicateRows)
-  }
+  // if (getDuplicateItemCodeRows(data)?.hasConflict && (firstTime )) {
+  //   setShowUniqueItemCodeRuleModal(true);
+  //   setDuplicateItemCodeRows(getDuplicateItemCodeRows(data)?.duplicateRows)
+  // }
   if (hasDepositColumnWithValue(data)?.hasDeposit && (firstTime )) {
     setShowDepositRuleModal(true);
     setDepositColumnRows(hasDepositColumnWithValue(data)?.rowsWithDeposit)
