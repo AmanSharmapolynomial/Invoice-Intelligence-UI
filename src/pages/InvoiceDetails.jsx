@@ -9,7 +9,6 @@ import Navbar from "@/components/common/Navbar";
 import { PdfViewer } from "@/components/common/PDFViewer";
 
 import {
-  useApplyBusinessRule,
   useFindDuplicateInvoices,
   useGetApplicableBusinessRules,
   useGetDocumentNotes,
@@ -77,7 +76,6 @@ import {
   TableBody,
   TableCell,
   TableHead,
-  TableHeader,
   TableRow
 } from "@/components/ui/table";
 import {
@@ -169,8 +167,6 @@ const InvoiceDetails = () => {
     useState(false);
   const [showReReviewRequestedWarning, setShowReReviewRequestedWarning] =
     useState(false);
-  const [showDuplicateItemCodeWarning, setShowDuplicateItemCodeWarning] = useState(false);
-  const [showDepositColumnWarning, setShowDepositColumnWarning] = useState(false);
   let document_uuid =
     searchParams.get("document_uuid") || searchParams.get("document");
   const {
@@ -206,8 +202,7 @@ const InvoiceDetails = () => {
     markingAsNotSupported: false,
     reverting: false,
     reprocessing: false,
-    mutliInvoceMarking: false,
-    applyingRule: false
+    mutliInvoceMarking: false
   });
 
   const { data: similarVendors, isLoading: loadingSimilarVendors } =
@@ -234,7 +229,6 @@ const InvoiceDetails = () => {
   const { mutate: saveDocumentTable } = useUpdateDocumentTable();
   const { mutate: markAsNotSupported } = useMarkAsNotSupported();
   const { mutate: markAsMutlipleInvoice } = useMarkAsMultiInvoice();
-  const { mutate: applyBusinessRule } = useApplyBusinessRule();
   const { mutate: getBusinessRules } = useGetApplicableBusinessRules()
   const { selectedInvoiceVendorName, selectedInvoiceRestaurantName } =
     globalStore();
@@ -840,12 +834,6 @@ const InvoiceDetails = () => {
 
   const [showMultipleInvoiceModal, setShowMultipleInvoiceModal] = useState(false);
   const [showResetStatusModal, setShowResetStatusModal] = useState(false);
-  const selectedColumnIds = tableData?.data?.processed_table?.columns
-    ?.filter((f) => f?.selected_column)
-    ?.map(
-      ({ column_name, column_order, selected_column, ...rest }) =>
-        rest?.column_uuid
-    );
   const [showLoader, setShowLoader] = useState(false);
   let loaderTimer;
   const [firstTime, setFirstTime] = useState(true);
@@ -1281,60 +1269,6 @@ const InvoiceDetails = () => {
             </>
           )}
         </BreadCrumb>
-        {showUniqueItemCodeRuleModal && (
-          <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
-            <div className="flex items-center gap-x-2">
-              <Info className="h-5 w-5 text-[#FF9800]" />
-              <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
-                Detected multiple line items with the same item code but different descriptions.
-
-                <span
-                  className="underline underline-offset-2 px-0.5 text-primary cursor-pointer"
-                  onClick={() => {
-                    setShowDuplicateItemCodeWarning(true);
-                  }}
-                >
-                  Click here
-                </span>{" "}
-                to check.
-              </p>
-            </div>
-
-            <X
-              className="h-6 w-6 text-[#546E7A] absolute top-2 right-2 cursor-pointer"
-              onClick={() => {
-                setShowUniqueItemCodeRuleModal(false);
-              }}
-            />
-          </div>
-        )}
-        {showDepositRuleModal && (
-          <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
-            <div className="flex items-center gap-x-2">
-              <Info className="h-5 w-5 text-[#FF9800]" />
-              <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
-                Detected deposit values in the table.
-
-                <span
-                  className="underline underline-offset-2 px-0.5 text-primary cursor-pointer"
-                  onClick={() => {
-                    setShowDepositColumnWarning(true);
-                  }}
-                >
-                  Click here
-                </span>{" "}
-                to check.
-              </p>
-            </div>
-
-            <X
-              className="h-6 w-6 text-[#546E7A] absolute top-2 right-2 cursor-pointer"
-              onClick={() => {
-                setShowDepositRuleModal(false);
-              }}
-            />
-          </div>
-        )}
         {showReReviewRequestedWarning && (
           <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
             <div className="flex items-center gap-x-2">
@@ -1470,7 +1404,12 @@ const InvoiceDetails = () => {
         >
           {/* <div className="flex items-center justify-start"> */}
 
-          {metaData?.extraction_source && (
+          {metaData?.pre_extracted_invoice?<> <p
+               
+                className="font-poppins font-medium text-sm leading-5 capitalize px-4 border border-yellow-600 rounded-md py-0.5 "
+              >
+               Pre Extracted Invoice
+              </p></>:(metaData?.extraction_source && (
             <CustomTooltip content={"Extraction Source"}>
               {/* {metadata?.extraction_source && ( */}
               <p
@@ -1483,7 +1422,7 @@ const InvoiceDetails = () => {
               </p>
               {/* )} */}
             </CustomTooltip>
-          )}
+          ))}
           {/* </div> */}
           <div className="flex items-center gap-x-2">
             <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
