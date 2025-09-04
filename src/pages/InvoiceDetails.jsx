@@ -9,7 +9,9 @@ import Navbar from "@/components/common/Navbar";
 import { PdfViewer } from "@/components/common/PDFViewer";
 
 import {
+  useApplyBusinessRule,
   useFindDuplicateInvoices,
+  useGetApplicableBusinessRules,
   useGetDocumentNotes,
   useGetSimilarBranches,
   useGetSimilarVendors,
@@ -75,6 +77,7 @@ import {
   TableBody,
   TableCell,
   TableHead,
+  TableHeader,
   TableRow
 } from "@/components/ui/table";
 import {
@@ -131,6 +134,7 @@ import { useGetSidebarCounts } from "@/components/common/api";
 import useSidebarStore from "@/store/sidebarStore";
 import book_down_white from "@/assets/image/book_down_white.svg";
 import book_down_black from "@/assets/image/book_down_black.svg";
+import Loader from "@/components/ui/Loader";
 const rejectionReasons = [
   "Duplicate invoice",
   "Multiple invoices in one PDF",
@@ -165,6 +169,8 @@ const InvoiceDetails = () => {
     useState(false);
   const [showReReviewRequestedWarning, setShowReReviewRequestedWarning] =
     useState(false);
+  const [showDuplicateItemCodeWarning, setShowDuplicateItemCodeWarning] = useState(false);
+  const [showDepositColumnWarning, setShowDepositColumnWarning] = useState(false);
   let document_uuid =
     searchParams.get("document_uuid") || searchParams.get("document");
   const {
@@ -186,7 +192,9 @@ const InvoiceDetails = () => {
     is_unverified_branch,
     clearStore,
     tableData,
-    loadingMetadata
+    loadingMetadata,
+    setShowUniqueItemCodeRuleModal,
+    showUniqueItemCodeRuleModal, duplicateItemCodeRows, depositColumnRows, setShowDepositRuleModal, showDepositRuleModal, setDepositColumnRows, setDuplicateItemCodeRows,metadataTableCopy
   } = invoiceDetailStore();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -198,7 +206,8 @@ const InvoiceDetails = () => {
     markingAsNotSupported: false,
     reverting: false,
     reprocessing: false,
-    mutliInvoceMarking: false
+    mutliInvoceMarking: false,
+    applyingRule: false
   });
 
   const { data: similarVendors, isLoading: loadingSimilarVendors } =
@@ -225,6 +234,8 @@ const InvoiceDetails = () => {
   const { mutate: saveDocumentTable } = useUpdateDocumentTable();
   const { mutate: markAsNotSupported } = useMarkAsNotSupported();
   const { mutate: markAsMutlipleInvoice } = useMarkAsMultiInvoice();
+  const { mutate: applyBusinessRule } = useApplyBusinessRule();
+  const { mutate: getBusinessRules } = useGetApplicableBusinessRules()
   const { selectedInvoiceVendorName, selectedInvoiceRestaurantName } =
     globalStore();
   const [showAgentValidation, setShowAgentValidation] = useState(false);
@@ -252,7 +263,84 @@ const InvoiceDetails = () => {
   useEffect(() => {
     appendFiltersToUrl();
   }, []);
+  const getDuplicateItemCodeRows = (tableData) => {
+    if (!tableData) return { hasConflict: false, duplicateRows: [] };
+    const rows = tableData?.data?.processed_table?.rows || [];
+    let item_code_column_uuid = tableData?.data?.processed_table?.columns?.find((c) => c?.column_name == "Item Code")?.column_uuid;
+    let item_description_column_uuid = tableData?.data?.processed_table?.columns?.find((c) => c?.column_name == "Item Description")?.column_uuid;
+    // Map to group rows by item code
+    const itemMap = {};
 
+    rows.forEach((row) => {
+      let itemCode = "";
+      let itemDesc = "";
+
+      row?.cells?.forEach((cell) => {
+        if (cell?.column_uuid == item_code_column_uuid) {
+
+          itemCode = (cell?.text || "null");
+        }
+        if (cell?.column_uuid == item_description_column_uuid) {
+          itemDesc = (cell?.text || "null");
+        }
+      });
+
+      if (itemCode) {
+        if (!itemMap[itemCode]) {
+          itemMap[itemCode] = { descSet: new Set(), rows: [] };
+        }
+        if (itemDesc) {
+          itemMap[itemCode].descSet.add(itemDesc);
+        }
+        itemMap[itemCode].rows.push(row);
+      }
+    });
+
+    // Find all item codes with multiple descriptions
+    const duplicateRows = [];
+    Object.values(itemMap).forEach(({ descSet, rows }) => {
+      if (descSet.size > 1) {
+        duplicateRows.push(...rows);
+      }
+    });
+
+
+    return {
+      hasConflict: duplicateRows.length > 0,
+      duplicateRows,
+    };
+  };
+  const hasDepositColumnWithValue = (tableData) => {
+    if (!tableData) return { hasDeposit: false, rowsWithDeposit: [] };
+
+    const rows = tableData?.data?.processed_table?.rows || [];
+    const depositColumn = tableData?.data?.processed_table?.columns?.find(
+      (c) => c?.column_name === "Deposit"
+    );
+
+    if (!depositColumn) {
+      return { hasDeposit: false, rowsWithDeposit: [] };
+    }
+
+    const depositColumnUuid = depositColumn?.column_uuid;
+    const rowsWithDeposit = [];
+
+    rows.forEach((row) => {
+      const depositCell = row?.cells?.find(
+        (cell) => cell?.column_uuid === depositColumnUuid
+      );
+      const value = depositCell?.text?.trim();
+
+      if (value && value !== "0" && value !== "--") {
+        rowsWithDeposit.push(row);
+      }
+    });
+
+    return {
+      hasDeposit: rowsWithDeposit.length > 0,
+      rowsWithDeposit,
+    };
+  };
   const handleSave = () => {
     if (Object?.keys(updatedFields)?.length == 0 && operations?.length == 0) {
       return toast("No Fields Updated..", {
@@ -323,12 +411,17 @@ const InvoiceDetails = () => {
               });
               queryClient.invalidateQueries({ queryKey: ["combined-table"] });
               queryClient.invalidateQueries({ queryKey: ["additional-data"] });
-              // queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
-              // setCombinedTableCopy({});
-              // if (!refreshed) {
-              //   refreshed = true;
-              //   window.location.reload();
-              // }
+
+
+              getBusinessRules(metaData?.document_uuid, {
+                onSuccess: (data) => {
+                  if (hasDepositColumnWithValue(tableData)?.hasDeposit) {
+                    // setShowDepositRuleModal(true);
+                    setDepositColumnRows(hasDepositColumnWithValue(tableData)?.rowsWithDeposit)
+                    // setFirstTime(false)
+                  }
+                }
+              })
             },
 
             onError: () => setLoadingState({ ...loadingState, saving: false })
@@ -593,6 +686,13 @@ const InvoiceDetails = () => {
     setShowSimilarVendorPdfs(false);
     setSelectedSimilarBranch(null);
     setSelectedSimilarVendor(null);
+    setShowDuplicateItemCodeWarning(false);
+    setShowUniqueItemCodeRuleModal(false);
+    setShowDepositColumnWarning(false);
+    setShowDepositRuleModal(false);
+    setDepositColumnRows([]);
+    setDuplicateItemCodeRows([]);
+    setFirstTime(false)
   }, [page_number]);
 
   const { mutate: revertChanges } = useRevertChanges();
@@ -735,12 +835,45 @@ const InvoiceDetails = () => {
   });
   const { data: branchPdfs, isLoading: loadingBranchPdfs } =
     useGetVendorBranchPdfs(selectedSimilarBranch?.branch_id);
-  console.log(branchPdfs);
+
   const [showDocumentNotes, setShowDocumentNotes] = useState(false);
-  console.log(expanded)
 
   const [showMultipleInvoiceModal, setShowMultipleInvoiceModal] = useState(false);
   const [showResetStatusModal, setShowResetStatusModal] = useState(false);
+  const selectedColumnIds = tableData?.data?.processed_table?.columns
+    ?.filter((f) => f?.selected_column)
+    ?.map(
+      ({ column_name, column_order, selected_column, ...rest }) =>
+        rest?.column_uuid
+    );
+  const [showLoader, setShowLoader] = useState(false);
+  let loaderTimer;
+  const [firstTime, setFirstTime] = useState(true);
+  useEffect(() => {
+    if (metadataTableCopy?.document_uuid) {
+      if (!firstTime) {
+
+        getBusinessRules(metadataTableCopy?.document_uuid, {
+          onSuccess: (data) => {
+            setFirstTime(false);
+           
+            if (data?.liquor_deposit_separation) {
+              setShowDepositRuleModal(true)
+
+            }
+          }
+        })
+      }
+    }
+  }, [metadataTableCopy, firstTime]);
+  useEffect(()=>{
+ if (hasDepositColumnWithValue(tableData)?.hasDeposit) {
+              // setShowDepositRuleModal(true);
+              setDepositColumnRows(hasDepositColumnWithValue(tableData)?.rowsWithDeposit)
+              // setFirstTime(false)
+            }
+  },[tableData])
+  console.log(metadataTableCopy, "metadata")
   return (
     <div className="hide-scrollbar relative">
       {/* <div> */}{" "}
@@ -986,7 +1119,11 @@ const InvoiceDetails = () => {
         </SheetContent>
       </Sheet>
       {/* </div> */}
-      <Layout
+      {showLoader ? <div className="w-full flex items-center justify-center h-[80vh]">
+
+
+        <Loader className={"!h-12 !w-12"} />
+      </div> : <Layout
         className={
           "mx-6 rounded-md  hide-scrollbar  !relative !shadow-none flex flex-1 flex-col justify-between gap-y-4   "
         }
@@ -1144,6 +1281,60 @@ const InvoiceDetails = () => {
             </>
           )}
         </BreadCrumb>
+        {showUniqueItemCodeRuleModal && (
+          <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
+            <div className="flex items-center gap-x-2">
+              <Info className="h-5 w-5 text-[#FF9800]" />
+              <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
+                Detected multiple line items with the same item code but different descriptions.
+
+                <span
+                  className="underline underline-offset-2 px-0.5 text-primary cursor-pointer"
+                  onClick={() => {
+                    setShowDuplicateItemCodeWarning(true);
+                  }}
+                >
+                  Click here
+                </span>{" "}
+                to check.
+              </p>
+            </div>
+
+            <X
+              className="h-6 w-6 text-[#546E7A] absolute top-2 right-2 cursor-pointer"
+              onClick={() => {
+                setShowUniqueItemCodeRuleModal(false);
+              }}
+            />
+          </div>
+        )}
+        {showDepositRuleModal && (
+          <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
+            <div className="flex items-center gap-x-2">
+              <Info className="h-5 w-5 text-[#FF9800]" />
+              <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
+                Detected deposit values in the table.
+
+                <span
+                  className="underline underline-offset-2 px-0.5 text-primary cursor-pointer"
+                  onClick={() => {
+                    setShowDepositColumnWarning(true);
+                  }}
+                >
+                  Click here
+                </span>{" "}
+                to check.
+              </p>
+            </div>
+
+            <X
+              className="h-6 w-6 text-[#546E7A] absolute top-2 right-2 cursor-pointer"
+              onClick={() => {
+                setShowDepositRuleModal(false);
+              }}
+            />
+          </div>
+        )}
         {showReReviewRequestedWarning && (
           <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
             <div className="flex items-center gap-x-2">
@@ -2031,6 +2222,13 @@ const InvoiceDetails = () => {
           </ModalDescription>
         </Modal>
       </Layout>
+      }
+
+
+
+
+
+
       <Modal
         iconCN={"top-[28px]"}
         open={showDuplicateInvoicesModal}
@@ -2550,6 +2748,226 @@ const InvoiceDetails = () => {
                 alt="copy icon"
                 className=" right-3  top-10 cursor-pointer h-4  z-50"
               />
+            </Button>
+          </div>
+        </ModalDescription>
+      </Modal>
+      {/* Unique Item Code Rule Modal */}
+      {/* <Modal
+        iconCN={"top-[28px]"}
+        open={showDuplicateItemCodeWarning}
+
+        setOpen={() => {
+          setShowDuplicateItemCodeWarning(false);
+          setDuplicateItemCodeRows([])
+        }}
+        title={"Detected multiple line items with the same item code but different descriptions."}
+        className={"!px-0  !z-50 !min-w-[40rem] "}
+        titleClassName={
+          "text-[#000000] !font-medium  flex justify-start px-4 border-b border-b-[#E0E0E0] pb-4 pt-3 font-poppins !text-base  leading-6  pt-0.5"
+        }
+      >
+        <ModalDescription className="px-4 !z-50">
+          <div className="px-4 z-50">
+            <p className="font-poppins font-medium text-start  text-black">
+              Do you want to apply the Unique Item Code Rule to ensure each item code is linked to a single description?
+            </p>
+          </div>
+       <div className="relative max-h-44 overflow-auto">
+  <table className="table-auto border-collapse w-full my-4 mx-2">
+    <thead className="sticky top-0 bg-white z-50">
+      <tr className="border-b">
+        {tableData?.data?.processed_table?.columns
+          ?.filter((c) => c?.selected_column)
+          ?.map((c) => (
+            <th
+              key={c?.column_uuid}
+              className="px-4 py-2 text-left text-sm text-black font-semibold whitespace-nowrap"
+              style={{
+                minWidth:
+                  c?.column_name === "Item Description"
+                    ? "200px"
+                    : c?.column_name === "Item Code"
+                    ? "100px"
+                    : "120px",
+              }}
+            >
+              {c?.column_name}
+            </th>
+          ))}
+      </tr>
+    </thead>
+
+    <tbody>
+      {duplicateItemCodeRows?.map((row, index) => (
+        <tr
+          key={index}
+          className="border-b border-[#F5F5F5] hover:bg-gray-50"
+        >
+          {row?.cells
+            ?.filter((c) => selectedColumnIds?.includes(c?.column_uuid))
+            ?.map((cell, i) => (
+              <td
+                key={i}
+                className="px-4 py-2 text-sm align-top whitespace-pre-wrap break-words"
+              >
+                {cell?.text || "--"}
+              </td>
+            ))}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+          <div className="flex items-center justify-center gap-x-2  pr-2 mt-6 mb-2">
+            <Button
+              onClick={() => {
+                setShowDuplicateItemCodeWarning(false);
+                setDu
+              }}
+              className="rounded-sm border border-primary bg-transparent hover:bg-transparent font-poppins font-normal text-sm text-black"
+            >
+              Ignore
+            </Button>
+
+            <Button
+              disabled={loadingState?.applyingRule}
+              onClick={() => {
+
+                setLoadingState({ ...loadingState, applyingRule: true });
+                applyBusinessRule({ rule: "unique_item_code", document_uuid: metaData?.document_uuid }, {
+                  onSuccess: () => {
+                    setLoadingState({ ...loadingState, applyingRule: false });
+                    setShowDuplicateItemCodeWarning(false);
+                    setShowUniqueItemCodeRuleModal(false);
+                  },
+                  onError: () => {
+                    setLoadingState({ ...loadingState, applyingRule: false });
+                  }
+                })
+
+              }}
+              className="flex items-center gap-x-2 bg-transparent hover:bg-transparent rounded-sm border-primary border font-poppins font-normal text-sm text-black"
+            >
+              {
+                loadingState?.applyingRule ? "Applying" : "Apply"
+              }
+
+            </Button>
+          </div>
+        </ModalDescription>
+      </Modal> */}
+      {/* Deposit Column */}
+
+      <Modal
+        iconCN={"top-[28px]"}
+        open={showDepositColumnWarning}
+
+        setOpen={() => {
+          setShowDepositColumnWarning(false);
+
+        }}
+        title={"Detected deposit values in the table."}
+        className={"!px-0  !z-50 !min-w-[40rem] "}
+        titleClassName={
+          "text-[#000000] !font-medium  flex justify-start px-4 border-b border-b-[#E0E0E0] pb-4 pt-3 font-poppins !text-base  leading-6  pt-0.5"
+        }
+      >
+        <ModalDescription className="px-4 !z-50">
+          <div className="px-4 z-50">
+            <p className="font-poppins font-medium text-start  text-black">
+              Do you want to apply the Liquor Deposit Split Rule to separate deposit amounts from the line items?
+            </p>
+          </div>
+          <div className="relative max-h-44 overflow-auto">
+            <table className="table-auto border-collapse w-full my-4 mx-2">
+              <thead className="sticky top-0 bg-white z-50">
+                <tr className="border-b">
+                  {tableData?.data?.processed_table?.columns
+                    ?.filter((c) => c?.selected_column)
+                    ?.map((c) => (
+                      <th
+                        key={c?.column_uuid}
+                        className="px-4 py-2 text-left text-sm text-black font-semibold whitespace-nowrap"
+                        style={{
+                          minWidth:
+                            c?.column_name === "Item Description"
+                              ? "200px"
+                              : c?.column_name === "Item Code"
+                                ? "100px"
+                                : "120px",
+                        }}
+                      >
+                        {c?.column_name}
+                      </th>
+                    ))}
+                </tr>
+              </thead>
+
+              <tbody>
+                {depositColumnRows?.map((row, index) => (
+                  <tr
+                    key={index}
+                    className="border-b border-[#F5F5F5] hover:bg-gray-50"
+                  >
+                    {row?.cells
+                      ?.filter((c) => selectedColumnIds?.includes(c?.column_uuid))
+                      ?.map((cell, i) => (
+                        <td
+                          key={i}
+                          className="px-4 py-2 text-sm align-top whitespace-pre-wrap break-words"
+                        >
+                          {cell?.text || "--"}
+                        </td>
+                      ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+
+          <div className="flex items-center justify-center gap-x-2  pr-2 mt-6 mb-2">
+            <Button
+              onClick={() => {
+                setShowDepositColumnWarning(false);
+                // setDepositColumnRows([]);
+
+
+              }}
+              className="rounded-sm border border-red-500 bg-transparent focus:border-red-500 focus:!ring-0 ring-0 focus:outline-none !outline-none hover:bg-transparent font-poppins font-normal text-sm text-black"
+            >
+              Ignore
+            </Button>
+
+            <Button
+              disabled={loadingState?.applyingRule}
+              onClick={() => {
+                setLoadingState({ ...loadingState, applyingRule: true });
+                applyBusinessRule({ rule: "liquor_deposit_separation", document_uuid: metaData?.document_uuid }, {
+                  onSuccess: () => {
+                    setLoadingState({ ...loadingState, applyingRule: false });
+                    setShowDepositColumnWarning(false);
+                    setShowDepositRuleModal(false);
+                    setShowLoader(true);
+                    clearTimeout(loaderTimer);
+                    loaderTimer = setTimeout(() => {
+                      setShowLoader(false);
+                    }, 2000);
+
+                  },
+                  onError: () => {
+                    setLoadingState({ ...loadingState, applyingRule: false });
+                  }
+                })
+
+              }}
+              className="flex items-center gap-x-2 bg-transparent hover:bg-transparent rounded-sm border-primary border font-poppins font-normal text-sm text-black"
+            >
+              {
+                loadingState?.applyingRule ? "Applying" : "Apply"
+              }
+
             </Button>
           </div>
         </ModalDescription>
