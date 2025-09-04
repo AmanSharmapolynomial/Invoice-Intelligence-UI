@@ -712,7 +712,7 @@ const MultiInvoiceDocumentsDetails = () => {
     restaurant_tier: restaurant_tier || "all",
     rejected,
     extraction_source,
-    detailed_view
+    detailed_view:true
   };
   const { data, isLoading, refetch } = useListMultiInvoiceDocuments(payload);
   const {
