@@ -1357,22 +1357,22 @@ const HumanVerificationTable = ({
   };
 };
 
-  useEffect(() => {
-if(data){
+//   useEffect(() => {
+// if(data){
 
-  // if (getDuplicateItemCodeRows(data)?.hasConflict && (firstTime )) {
-  //   setShowUniqueItemCodeRuleModal(true);
-  //   setDuplicateItemCodeRows(getDuplicateItemCodeRows(data)?.duplicateRows)
-  // }
-  if (hasDepositColumnWithValue(data)?.hasDeposit && (firstTime )) {
-    setShowDepositRuleModal(true);
-    setDepositColumnRows(hasDepositColumnWithValue(data)?.rowsWithDeposit)
-    // setFirstTime(false)
-  }
-  setFirstTime(false)
-}
+//   // if (getDuplicateItemCodeRows(data)?.hasConflict && (firstTime )) {
+//   //   setShowUniqueItemCodeRuleModal(true);
+//   //   setDuplicateItemCodeRows(getDuplicateItemCodeRows(data)?.duplicateRows)
+//   // }
+//   if (hasDepositColumnWithValue(data)?.hasDeposit && (firstTime )) {
+//     setShowDepositRuleModal(true);
+//     setDepositColumnRows(hasDepositColumnWithValue(data)?.rowsWithDeposit)
+//     // setFirstTime(false)
+//   }
+//   setFirstTime(false)
+// }
 
-  }, [data]);
+//   }, [data]);
  
   
   return (
