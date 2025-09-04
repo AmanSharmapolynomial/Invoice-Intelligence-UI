@@ -11,6 +11,7 @@ import { PdfViewer } from "@/components/common/PDFViewer";
 import {
   useApplyBusinessRule,
   useFindDuplicateInvoices,
+  useGetApplicableBusinessRules,
   useGetDocumentNotes,
   useGetSimilarBranches,
   useGetSimilarVendors,
@@ -196,7 +197,7 @@ const InvoiceDetails = () => {
     tableData,
     loadingMetadata,
     setShowUniqueItemCodeRuleModal,
-    showUniqueItemCodeRuleModal, duplicateItemCodeRows, depositColumnRows, setShowDepositRuleModal, showDepositRuleModal, setDepositColumnRows, setDuplicateItemCodeRows
+    showUniqueItemCodeRuleModal, duplicateItemCodeRows, depositColumnRows, setShowDepositRuleModal, showDepositRuleModal, setDepositColumnRows, setDuplicateItemCodeRows,metadataTableCopy
   } = invoiceDetailStore();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -237,6 +238,7 @@ const InvoiceDetails = () => {
   const { mutate: markAsNotSupported } = useMarkAsNotSupported();
   const { mutate: markAsMutlipleInvoice } = useMarkAsMultiInvoice();
   const { mutate: applyBusinessRule } = useApplyBusinessRule();
+  const { mutate: getBusinessRules } = useGetApplicableBusinessRules()
   const { selectedInvoiceVendorName, selectedInvoiceRestaurantName } =
     globalStore();
   const [showAgentValidation, setShowAgentValidation] = useState(false);
@@ -278,7 +280,7 @@ const InvoiceDetails = () => {
 
       row?.cells?.forEach((cell) => {
         if (cell?.column_uuid == item_code_column_uuid) {
-          console.log(cell?.text)
+
           itemCode = (cell?.text || "null");
         }
         if (cell?.column_uuid == item_description_column_uuid) {
@@ -304,7 +306,7 @@ const InvoiceDetails = () => {
         duplicateRows.push(...rows);
       }
     });
-    console.log(itemMap)
+
 
     return {
       hasConflict: duplicateRows.length > 0,
@@ -412,21 +414,17 @@ const InvoiceDetails = () => {
               });
               queryClient.invalidateQueries({ queryKey: ["combined-table"] });
               queryClient.invalidateQueries({ queryKey: ["additional-data"] });
-              // queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
-              // setCombinedTableCopy({});
-              // if (!refreshed) {
-              //   refreshed = true;
-              //   window.location.reload();
-              // }
-              // if (getDuplicateItemCodeRows(tableData)?.hasConflict) {
-              //   setShowUniqueItemCodeRuleModal(true);
-              //   setDuplicateItemCodeRows(getDuplicateItemCodeRows(tableData)?.duplicateRows)
-              // }
-              if (hasDepositColumnWithValue(tableData)?.hasDeposit) {
-                setShowDepositRuleModal(true);
-                setDepositColumnRows(hasDepositColumnWithValue(tableData)?.rowsWithDeposit)
-                // setFirstTime(false)
-              }
+
+
+              getBusinessRules(metaData?.document_uuid, {
+                onSuccess: (data) => {
+                  if (hasDepositColumnWithValue(tableData)?.hasDeposit) {
+                    // setShowDepositRuleModal(true);
+                    setDepositColumnRows(hasDepositColumnWithValue(tableData)?.rowsWithDeposit)
+                    // setFirstTime(false)
+                  }
+                }
+              })
             },
 
             onError: () => setLoadingState({ ...loadingState, saving: false })
@@ -696,7 +694,8 @@ const InvoiceDetails = () => {
     setShowDepositColumnWarning(false);
     setShowDepositRuleModal(false);
     setDepositColumnRows([]);
-    setDuplicateItemCodeRows([])
+    setDuplicateItemCodeRows([]);
+    setFirstTime(false)
   }, [page_number]);
 
   const { mutate: revertChanges } = useRevertChanges();
@@ -840,9 +839,8 @@ const InvoiceDetails = () => {
   });
   const { data: branchPdfs, isLoading: loadingBranchPdfs } =
     useGetVendorBranchPdfs(selectedSimilarBranch?.branch_id);
-  console.log(branchPdfs);
+
   const [showDocumentNotes, setShowDocumentNotes] = useState(false);
-  console.log(expanded)
 
   const [showMultipleInvoiceModal, setShowMultipleInvoiceModal] = useState(false);
   const [showResetStatusModal, setShowResetStatusModal] = useState(false);
@@ -854,6 +852,32 @@ const InvoiceDetails = () => {
     );
   const [showLoader, setShowLoader] = useState(false);
   let loaderTimer;
+  const [firstTime, setFirstTime] = useState(true);
+  useEffect(() => {
+    if (metadataTableCopy?.document_uuid) {
+      if (!firstTime) {
+
+        getBusinessRules(metadataTableCopy?.document_uuid, {
+          onSuccess: (data) => {
+            setFirstTime(false);
+           
+            if (data?.liquor_deposit_separation) {
+              setShowDepositRuleModal(true)
+
+            }
+          }
+        })
+      }
+    }
+  }, [metadataTableCopy, firstTime]);
+  useEffect(()=>{
+ if (hasDepositColumnWithValue(tableData)?.hasDeposit) {
+              // setShowDepositRuleModal(true);
+              setDepositColumnRows(hasDepositColumnWithValue(tableData)?.rowsWithDeposit)
+              // setFirstTime(false)
+            }
+  },[tableData])
+  console.log(metadataTableCopy, "metadata")
   return (
     <div className="hide-scrollbar relative">
       {/* <div> */}{" "}

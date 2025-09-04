@@ -518,12 +518,23 @@ export const useApplyBusinessRule = () => {
       queryClient.invalidateQueries("additional-data");
       toast.success(data?.message)
     },
-    onError:()=>{
-toast.error(data?.message)
+    onError: () => {
+      toast.error(data?.message)
     },
     meta: {
       successMsg: true,
       errorMsg: true
+    }
+  })
+}
+
+
+
+export const useGetApplicableBusinessRules = () => {
+  return useMutation({
+    mutationFn: async (document_uuid) => {
+      let response = await axiosInstance.get(`/api/document/${document_uuid}/check-applicable-business-rules/`);
+      return response?.data || {};
     }
   })
 }
