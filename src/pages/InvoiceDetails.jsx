@@ -47,8 +47,6 @@ import { invoiceDetailStore } from "@/store/invoiceDetailStore";
 
 import all_invoices_black from "@/assets/image/all_invoices_black.svg";
 import all_invoices_white from "@/assets/image/all_invoices_white.svg";
-import book_user_black from "@/assets/image/book_user_black.svg";
-import book_user_white from "@/assets/image/book_user_white.svg";
 import my_tasks_black from "@/assets/image/check_book_black.svg";
 import my_tasks_white from "@/assets/image/check_book_white.svg";
 import flagged_black from "@/assets/image/flagged_black.svg";
@@ -98,15 +96,14 @@ import persistStore from "@/store/persistStore";
 import useThemeStore from "@/store/themeStore";
 import {
   ArrowRight,
-  BookIcon,
   ChevronDown,
   ChevronRight,
   ChevronUp,
   Clock,
   Copy,
   Files,
-  FileX,
   FileText,
+  FileX,
   Filter,
   Flag,
   Info,
@@ -128,10 +125,10 @@ import {
 } from "react-router-dom";
 // import book_user_white from "@/assets/image/book_user_white.svg";
 // import book_user_black from "@/assets/image/book_user_black.svg";
-import { useGetSidebarCounts } from "@/components/common/api";
-import useSidebarStore from "@/store/sidebarStore";
 import multi_invoice_black from "@/assets/image/multi_invoice_black.svg";
 import multi_invoice_white from "@/assets/image/multi_invoice_white.svg";
+import { useGetSidebarCounts } from "@/components/common/api";
+import useSidebarStore from "@/store/sidebarStore";
 import book_down_white from "@/assets/image/book_down_white.svg";
 import book_down_black from "@/assets/image/book_down_black.svg";
 const rejectionReasons = [
@@ -633,7 +630,6 @@ const InvoiceDetails = () => {
   });
   const [openSubmenu, setOpenSubmenu] = useState(null);
   const { expanded, setExpanded } = useSidebarStore();
-
   const options = [
     {
       path: "/home",
@@ -1283,7 +1279,12 @@ const InvoiceDetails = () => {
         >
           {/* <div className="flex items-center justify-start"> */}
 
-          {metaData?.extraction_source && (
+          {metaData?.pre_extracted_invoice?<> <p
+               
+                className="font-poppins font-medium text-sm leading-5 capitalize px-4 border border-yellow-600 rounded-md py-0.5 "
+              >
+               Pre Extracted Invoice
+              </p></>:(metaData?.extraction_source && (
             <CustomTooltip content={"Extraction Source"}>
               {/* {metadata?.extraction_source && ( */}
               <p
@@ -1296,7 +1297,7 @@ const InvoiceDetails = () => {
               </p>
               {/* )} */}
             </CustomTooltip>
-          )}
+          ))}
           {/* </div> */}
           <div className="flex items-center gap-x-2">
             <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
