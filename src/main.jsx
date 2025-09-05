@@ -11,13 +11,13 @@ import { router } from "./routing/index.jsx";
 import ErrorBoundary from "./components/common/ErrorBoundaries.jsx";
 
 // Initialize Sentry before rendering
-Sentry.init({
-  dsn: "https://bc3120adb6c43cadd8982712658c11a6@o4509682681905152.ingest.us.sentry.io/4509688521228288",
-  sendDefaultPii: false,
-  integrations: [Sentry.browserTracingIntegration()],
-  tracesSampleRate: 1.0,
-  tracePropagationTargets: [/^https:\/\/invoice-intelligence-ui-prod\.vercel\.app/],
-});
+// Sentry.init({
+//   dsn: "https://bc3120adb6c43cadd8982712658c11a6@o4509682681905152.ingest.us.sentry.io/4509688521228288",
+//   sendDefaultPii: false,
+//   integrations: [Sentry.browserTracingIntegration()],
+//   tracesSampleRate: 1.0,
+//   tracePropagationTargets: [/^https:\/\/invoice-intelligence-ui-prod\.vercel\.app/],
+// });
 
 // Theme setup
 const storedTheme = localStorage.getItem("theme") || "light";
@@ -30,7 +30,7 @@ if (storedTheme === "dark") {
 // Render app
 const root = document.getElementById("root");
 createRoot(root).render(
-  <Sentry.ErrorBoundary fallback={<p>An error has occurred.</p>}>
+  // <Sentry.ErrorBoundary fallback={<p>An error has occurred.</p>}>
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router}>
         <ErrorBoundary>
@@ -38,5 +38,5 @@ createRoot(root).render(
         </ErrorBoundary>
       </RouterProvider>
     </QueryClientProvider>
-  </Sentry.ErrorBoundary>
+  // </Sentry.ErrorBoundary>
 );
