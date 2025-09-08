@@ -86,8 +86,6 @@ const HumanVerificationTable = ({
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [editMode, setEditMode] = useState({ rowIndex: null, cellIndex: null });
   const [cellValue, setCellValue] = useState("");
-  const [firstTime,setFirstTime]=useState(true);
-  const[calculate,setCalculate]=useState(false)
 
   const { mutate: lookUpItemMaster, isPending: loadingItemLookups } =
     useGetItemMasterLookUp();
@@ -213,11 +211,7 @@ const HumanVerificationTable = ({
     last_edited_line_item_columns,
     setSimilarLineItemsRequiredColumns,
     similarLineItemsRequiredColumns,
-    setShowSimilarLineItemsModal,
-    setShowUniqueItemCodeRuleModal,
-    setDuplicateItemCodeRows,
-    setShowDepositRuleModal,
-    setDepositColumnRows
+    setShowSimilarLineItemsModal
   } = invoiceDetailStore();
 
   const { columns = [], rows = [] } = data?.data?.processed_table;
@@ -740,7 +734,7 @@ const HumanVerificationTable = ({
           }
         );
       }
-      setCalculate(true)
+
       // Update query data for the combined table
       queryClient.setQueryData(["combined-table", document_uuid], copyObj);
       setLastEditedLineItemColumns(
@@ -984,14 +978,14 @@ const HumanVerificationTable = ({
     // Step 6: Prepare operations for history/undo
     const createRowOperation = newRow
       ? {
-        type: "create_row",
-        operation_order: operations?.length + 1,
-        data: {
-          transaction_uuid: newRow?.transaction_uuid,
-          row_order: newRow?.row_order,
-          cells: newRow?.cells
+          type: "create_row",
+          operation_order: operations?.length + 1,
+          data: {
+            transaction_uuid: newRow?.transaction_uuid,
+            row_order: newRow?.row_order,
+            cells: newRow?.cells
+          }
         }
-      }
       : null;
 
     const createCellOperation = {
@@ -1379,9 +1373,10 @@ const HumanVerificationTable = ({
     <>
       {" "}
       <div
-        className={`${metadata?.invoice_type !== "Summary Invoice" &&
+        className={`${
+          metadata?.invoice_type !== "Summary Invoice" &&
           "max-h-[42rem]   overflow-hidden"
-          } w-full -mt-3 border border-[#F0F0F0] shadow-sm rounded-md  `}
+        } w-full -mt-3 border border-[#F0F0F0] shadow-sm rounded-md  `}
       >
         {loadingItemLookups && (
           <div className="w-full h-full  bg-white bg-opacity-50 !z-50 absolute"></div>
@@ -1448,8 +1443,9 @@ const HumanVerificationTable = ({
                         onClick={() => {
                           setViewDeleteColumn(!viewDeleteColumn);
                         }}
-                        className={`${viewDeleteColumn && "bg-primary text-white"
-                          } cursor-pointer px- py-1.5 font-poppins font-normal text-xs rounded-sm`}
+                        className={`${
+                          viewDeleteColumn && "bg-primary text-white"
+                        } cursor-pointer px- py-1.5 font-poppins font-normal text-xs rounded-sm`}
                       >
                         View Row Delete Button
                       </p>
@@ -1457,8 +1453,9 @@ const HumanVerificationTable = ({
                         onClick={() => {
                           setViewVerificationColumn(!viewVerificationColumn);
                         }}
-                        className={`${viewVerificationColumn && "bg-primary text-white"
-                          } cursor-pointer px- py-1.5 font-poppins font-normal text-xs rounded-sm`}
+                        className={`${
+                          viewVerificationColumn && "bg-primary text-white"
+                        } cursor-pointer px- py-1.5 font-poppins font-normal text-xs rounded-sm`}
                       >
                         View Verification Button
                       </p>
@@ -1466,8 +1463,9 @@ const HumanVerificationTable = ({
                         onClick={() => {
                           setViewShiftColumn(!viewShiftColumn);
                         }}
-                        className={`${viewShiftColumn && "bg-primary text-white"
-                          } cursor-pointer px- py-1.5 font-poppins font-normal text-xs rounded-sm`}
+                        className={`${
+                          viewShiftColumn && "bg-primary text-white"
+                        } cursor-pointer px- py-1.5 font-poppins font-normal text-xs rounded-sm`}
                       >
                         View Row Shift Button
                       </p>
@@ -1518,23 +1516,24 @@ const HumanVerificationTable = ({
         )}
         {metadata?.invoice_type !== "Summary Invoice" && (
           <div
-            className={`flex items-center justify-between py-3 !text-[#121212] !font-poppins !font-semibold !text-base px-8 ${metaData?.document_metadata?.invoice_extracted_total ==
-                calculatedsum
+            className={`flex items-center justify-between py-3 !text-[#121212] !font-poppins !font-semibold !text-base px-8 ${
+              metaData?.document_metadata?.invoice_extracted_total ==
+              calculatedsum
                 ? "bg-green-100"
                 : "bg-[#FFEEEF]"
-              }`}
+            }`}
           >
             <p>Difference</p>
             <p>
               ${" "}
               {metaData?.document_metadata?.invoice_extracted_total ==
-                calculatedsum
+              calculatedsum
                 ? 0
                 : (
-                  Number(
-                    metaData?.document_metadata?.invoice_extracted_total
-                  ) - Number(calculatedsum)
-                ).toFixed(2)}
+                    Number(
+                      metaData?.document_metadata?.invoice_extracted_total
+                    ) - Number(calculatedsum)
+                  ).toFixed(2)}
             </p>
           </div>
         )}
@@ -1599,16 +1598,17 @@ const HumanVerificationTable = ({
                   {(viewDeleteColumn ||
                     viewShiftColumn ||
                     viewVerificationColumn) && (
-                      <TableCell
-                        className={`${viewDeleteColumn &&
-                          viewShiftColumn &&
-                          viewVerificationColumn &&
-                          "w-[6.2rem]"
-                          } !border-l  sticky !max-w-[6.2rem]  min-w-[6.3rem]   flex justify-center items-center font-poppins font-normal text-xs !p-0 min-h-full bg-white/90  !right-[0px]`}
-                      >
-                        Actions
-                      </TableCell>
-                    )}
+                    <TableCell
+                      className={`${
+                        viewDeleteColumn &&
+                        viewShiftColumn &&
+                        viewVerificationColumn &&
+                        "w-[6.2rem]"
+                      } !border-l  sticky !max-w-[6.2rem]  min-w-[6.3rem]   flex justify-center items-center font-poppins font-normal text-xs !p-0 min-h-full bg-white/90  !right-[0px]`}
+                    >
+                      Actions
+                    </TableCell>
+                  )}
                   {/* </div> */}
                 </div>
 
@@ -1672,17 +1672,17 @@ const HumanVerificationTable = ({
                                       row_uuid: row?.transaction_uuid
                                     });
                                   }}
-                                  className={`${cell?.column_uuid == categoryColumnId && cell?.text?.toLowerCase() == "unknown" && "border border-red-500"} !w-[12rem]  font-poppins   font-normal text-sm leading-4 text-[#121212] !max-w-full  justify-center    flex items-center  capitalize  text-left`}
+                                  className={`${cell?.column_uuid==categoryColumnId && cell?.text?.toLowerCase()=="unknown"&& "border border-red-500"} !w-[12rem]  font-poppins   font-normal text-sm leading-4 text-[#121212] !max-w-full  justify-center    flex items-center  capitalize  text-left`}
                                   key={i}
                                 >
                                   {editMode?.rowIndex === index &&
-                                    editMode?.cellIndex == i ? (
+                                  editMode?.cellIndex == i ? (
                                     <>
                                       {cell?.column_uuid ===
-                                        categoryColumnId ? (
+                                      categoryColumnId ? (
                                         <div      >
                                           <CustomDropDown
-
+                                    
                                             Value={
                                               additionalData?.data?.category_choices?.find(
                                                 (c) => c.name == cell?.text
@@ -1737,13 +1737,13 @@ const HumanVerificationTable = ({
                                           }}
                                           onChange={(e) => {
                                             e.stopPropagation();
-                                            // handleSaveCell(
-                                            //   index,
-                                            //   i,
-                                            //   e.target.value,
-                                            //   row,
-                                            //   false
-                                            // );
+                                            handleSaveCell(
+                                              index,
+                                              i,
+                                              e.target.value,
+                                              row,
+                                              false
+                                            );
                                             setCellValue(e?.target?.value);
                                           }}
                                         />
@@ -1760,128 +1760,128 @@ const HumanVerificationTable = ({
                         {(viewDeleteColumn ||
                           viewShiftColumn ||
                           viewVerificationColumn) && (
-                            <TableCell className="sticky !max-w-full min-w-[6.2rem] border-l gap-x-4 flex  justify-center  items-center font-poppins font-normal text-xs leading-4 bg-white/90  right-0 !z-10">
-                              <CustomTooltip
-                                content={
-                                  <div className="flex flex-col gap-x-2 items-start gap-y-2">
-                                    <div className="flex items-center gap-x-2">
-                                      <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
-                                        Category :{" "}
-                                      </p>
-                                      <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
-                                        {row?.item_master?.category || "NA"}
-                                      </p>
-                                    </div>
-                                    <div className="flex items-center gap-x-2">
-                                      <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
-                                        Vendor :
-                                      </p>
-                                      <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
-                                        {row?.item_master?.vendor || "NA"}
-                                      </p>
-                                    </div>
-                                    <div className="flex items-center gap-x-2">
-                                      <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
-                                        Branch :
-                                      </p>
-                                      <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
-                                        {row?.item_master?.branch || "NA"}
-                                      </p>
-                                    </div>
-                                    <div className="flex items-center gap-x-2">
-                                      <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
-                                        Item Code :{" "}
-                                      </p>
-                                      <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
-                                        {row?.item_master?.item_code || "NA"}
-                                      </p>
-                                    </div>
-                                    <div className="flex items-center gap-x-2">
-                                      <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
-                                        Item Description :
-                                      </p>
-                                      <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
-                                        {row?.item_master?.item_description ||
-                                          "NA"}
-                                      </p>
-                                    </div>
+                          <TableCell className="sticky !max-w-full min-w-[6.2rem] border-l gap-x-4 flex  justify-center  items-center font-poppins font-normal text-xs leading-4 bg-white/90  right-0 !z-10">
+                            <CustomTooltip
+                              content={
+                                <div className="flex flex-col gap-x-2 items-start gap-y-2">
+                                  <div className="flex items-center gap-x-2">
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
+                                      Category :{" "}
+                                    </p>
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
+                                      {row?.item_master?.category || "NA"}
+                                    </p>
                                   </div>
-                                }
-                                className={
-                                  "!absolute !w-[30em] !top-0 right-16  border-[#CBCBCB] !rounded-md !bg-[#F2F2F7] !z-50"
-                                }
-                              >
-                                {viewVerificationColumn &&
-                                  (row?.item_master?.human_verified ? (
-                                    <img
-                                      src={approved}
-                                      alt=""
-                                      onDoubleClick={() =>
-                                        window.open(
-                                          `/item-master-details/${row?.item_master?.item_uuid}`,
-                                          "_blank"
-                                        )
-                                      }
-                                      className="h-5 w-5 mt-[0.8px] cursor-pointer"
-                                    />
-                                  ) : row?.item_master?.human_verified ==
-                                    false ? (
-                                    <img
-                                      onDoubleClick={() =>
-                                        window.open(
-                                          `/item-master-details/${row?.item_master?.item_uuid}`,
-                                          "_blank"
-                                        )
-                                      }
-                                      src={unapproved}
-                                      alt=""
-                                      className="h-5 w-5 mt-[0.8px] cursor-pointer"
-                                    />
-                                  ) : (
-                                    <img
-                                      onDoubleClick={() =>
-                                        window.open(
-                                          `/item-master-details/${row?.item_master?.item_uuid}`,
-                                          "_blank"
-                                        )
-                                      }
-                                      className="h-5  cursor-pointer"
-                                      src={warning_mark}
-                                    />
-                                  ))}
-                                {/* <Link target="_blank" to={`https://www.google.com/search?q=${row?.cells?.[2]?.text}`}>
+                                  <div className="flex items-center gap-x-2">
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
+                                      Vendor :
+                                    </p>
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
+                                      {row?.item_master?.vendor || "NA"}
+                                    </p>
+                                  </div>
+                                  <div className="flex items-center gap-x-2">
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
+                                      Branch :
+                                    </p>
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
+                                      {row?.item_master?.branch || "NA"}
+                                    </p>
+                                  </div>
+                                  <div className="flex items-center gap-x-2">
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
+                                      Item Code :{" "}
+                                    </p>
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
+                                      {row?.item_master?.item_code || "NA"}
+                                    </p>
+                                  </div>
+                                  <div className="flex items-center gap-x-2">
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
+                                      Item Description :
+                                    </p>
+                                    <p className="font-poppins font-normal text-xs leading-4 text-[#000000]">
+                                      {row?.item_master?.item_description ||
+                                        "NA"}
+                                    </p>
+                                  </div>
+                                </div>
+                              }
+                              className={
+                                "!absolute !w-[30em] !top-0 right-16  border-[#CBCBCB] !rounded-md !bg-[#F2F2F7] !z-50"
+                              }
+                            >
+                              {viewVerificationColumn &&
+                                (row?.item_master?.human_verified ? (
+                                  <img
+                                    src={approved}
+                                    alt=""
+                                    onDoubleClick={() =>
+                                      window.open(
+                                        `/item-master-details/${row?.item_master?.item_uuid}`,
+                                        "_blank"
+                                      )
+                                    }
+                                    className="h-5 w-5 mt-[0.8px] cursor-pointer"
+                                  />
+                                ) : row?.item_master?.human_verified ==
+                                  false ? (
+                                  <img
+                                    onDoubleClick={() =>
+                                      window.open(
+                                        `/item-master-details/${row?.item_master?.item_uuid}`,
+                                        "_blank"
+                                      )
+                                    }
+                                    src={unapproved}
+                                    alt=""
+                                    className="h-5 w-5 mt-[0.8px] cursor-pointer"
+                                  />
+                                ) : (
+                                  <img
+                                    onDoubleClick={() =>
+                                      window.open(
+                                        `/item-master-details/${row?.item_master?.item_uuid}`,
+                                        "_blank"
+                                      )
+                                    }
+                                    className="h-5  cursor-pointer"
+                                    src={warning_mark}
+                                  />
+                                ))}
+                              {/* <Link target="_blank" to={`https://www.google.com/search?q=${row?.cells?.[2]?.text}`}>
                                   <Globe/>
                                 </Link> */}
-                              </CustomTooltip>
+                            </CustomTooltip>
 
-                              {viewDeleteColumn && (
-                                <Trash2
-                                  className="h-4 w-4 text-[#1C1C1E] cursor-pointer"
-                                  onClick={() => deleteRow(index)}
-                                />
-                              )}
-                              {viewShiftColumn && (
-                                <div className="flex flex-col gap-y-1">
-                                  <CustomTooltip content={"Shift Row Up"}>
-                                    <ArrowUpFromLine
-                                      className="h-4 w-4 text-[#1C1C1E] cursor-pointer"
-                                      onClick={() =>
-                                        handleRowShifting(index, "up")
-                                      }
-                                    />
-                                  </CustomTooltip>
-                                  <CustomTooltip content={"Shift Row Down"}>
-                                    <ArrowDownFromLine
-                                      className="h-4 w-4 text-[#1C1C1E] cursor-pointer"
-                                      onClick={() =>
-                                        handleRowShifting(index, "down")
-                                      }
-                                    />
-                                  </CustomTooltip>
-                                </div>
-                              )}
-                            </TableCell>
-                          )}
+                            {viewDeleteColumn && (
+                              <Trash2
+                                className="h-4 w-4 text-[#1C1C1E] cursor-pointer"
+                                onClick={() => deleteRow(index)}
+                              />
+                            )}
+                            {viewShiftColumn && (
+                              <div className="flex flex-col gap-y-1">
+                                <CustomTooltip content={"Shift Row Up"}>
+                                  <ArrowUpFromLine
+                                    className="h-4 w-4 text-[#1C1C1E] cursor-pointer"
+                                    onClick={() =>
+                                      handleRowShifting(index, "up")
+                                    }
+                                  />
+                                </CustomTooltip>
+                                <CustomTooltip content={"Shift Row Down"}>
+                                  <ArrowDownFromLine
+                                    className="h-4 w-4 text-[#1C1C1E] cursor-pointer"
+                                    onClick={() =>
+                                      handleRowShifting(index, "down")
+                                    }
+                                  />
+                                </CustomTooltip>
+                              </div>
+                            )}
+                          </TableCell>
+                        )}
                       </div>
                     );
                   })}
@@ -1975,8 +1975,9 @@ const HumanVerificationTable = ({
                     <button
                       onClick={() => removeTax(index)}
                       disabled={index === 0}
-                      className={`border-0 bg-transparent ${index === 0 ? "hidden" : "flex"
-                        }`}
+                      className={`border-0 bg-transparent ${
+                        index === 0 ? "hidden" : "flex"
+                      }`}
                     >
                       <Trash2 className="text-[#F15156] h-4 w-4 " />
                     </button>
@@ -2021,8 +2022,9 @@ const HumanVerificationTable = ({
                     <button
                       onClick={() => removeFee(index)}
                       disabled={index === 0}
-                      className={`border-0 bg-transparent ${index === 0 ? "hidden" : "flex"
-                        }`}
+                      className={`border-0 bg-transparent ${
+                        index === 0 ? "hidden" : "flex"
+                      }`}
                     >
                       <Trash2 className="text-[#F15156] h-4 w-4 " />
                     </button>
@@ -2061,7 +2063,7 @@ const HumanVerificationTable = ({
                                 ...prevFields?.document_metadata,
                                 added_discounts:
                                   newData?.["document_metadata"]?.[
-                                  "added_discounts"
+                                    "added_discounts"
                                   ]
                               }
                             };
@@ -2072,8 +2074,9 @@ const HumanVerificationTable = ({
                       <button
                         onClick={() => removeDiscount(index)}
                         disabled={index === 0}
-                        className={`border-0 bg-transparent ${index === 0 ? "hidden" : "flex"
-                          }`}
+                        className={`border-0 bg-transparent ${
+                          index === 0 ? "hidden" : "flex"
+                        }`}
                       >
                         <Trash2 className="text-[#F15156] h-4 w-4 " />
                       </button>
@@ -2157,23 +2160,24 @@ const HumanVerificationTable = ({
           </div>
           {metadata?.invoice_type !== "Summary Invoice" && (
             <div
-              className={`flex items-center justify-between py-3 !text-[#121212] !font-poppins  my-4 !font-semibold !text-base px-4 ${metaData?.document_metadata?.invoice_extracted_total ==
-                  calculatedsum
+              className={`flex items-center justify-between py-3 !text-[#121212] !font-poppins  my-4 !font-semibold !text-base px-4 ${
+                metaData?.document_metadata?.invoice_extracted_total ==
+                calculatedsum
                   ? "bg-green-100"
                   : "bg-[#FFEEEF]"
-                }`}
+              }`}
             >
               <p>Difference</p>
               <p>
                 ${" "}
                 {metaData?.document_metadata?.invoice_extracted_total ==
-                  calculatedsum
+                calculatedsum
                   ? 0
                   : (
-                    Number(
-                      metaData?.document_metadata?.invoice_extracted_total
-                    ) - Number(calculatedsum)
-                  ).toFixed(2)}
+                      Number(
+                        metaData?.document_metadata?.invoice_extracted_total
+                      ) - Number(calculatedsum)
+                    ).toFixed(2)}
               </p>
             </div>
           )}
@@ -2204,10 +2208,11 @@ const HumanVerificationTable = ({
               setBoundingBox({});
               setBoundingBoxes([]);
             }}
-            className={`${metadata?.invoice_type == "Summary Invoice"
+            className={`${
+              metadata?.invoice_type == "Summary Invoice"
                 ? "py-4 mx-2 my-4 rounded-xl border-[#D9D9D9]"
                 : "my-4"
-              } flex items-center justify-between pl-4 font-poppins font-normal text-sm text-[#121212] pr-2 border`}
+            } flex items-center justify-between pl-4 font-poppins font-normal text-sm text-[#121212] pr-2 border`}
           >
             <p>Extracted Total</p>
             <CustomInput
