@@ -114,7 +114,7 @@ const Tables = ({ setData, setIsLoading = () => { }, currentTab, setCurrentTab =
     );
 
   useEffect(() => {
-    setMetadataTableCopy(data?.data?.[0] || data?.data);
+    setMetadataTableCopy(data);
 
     setMetaData(data?.data?.[0] || data?.data);
     setLoadingMetadata(isLoading);
