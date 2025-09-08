@@ -194,7 +194,7 @@ const InvoiceDetails = () => {
     tableData,
     loadingMetadata,
     setShowUniqueItemCodeRuleModal,
-    showUniqueItemCodeRuleModal, duplicateItemCodeRows, depositColumnRows, setShowDepositRuleModal, showDepositRuleModal, setDepositColumnRows, setDuplicateItemCodeRows,metadataTableCopy
+    showUniqueItemCodeRuleModal, duplicateItemCodeRows, depositColumnRows, setShowDepositRuleModal, showDepositRuleModal, setDepositColumnRows, setDuplicateItemCodeRows,metadataTableCopy,metadataTableCopy2
   } = invoiceDetailStore();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -595,7 +595,7 @@ const InvoiceDetails = () => {
     setVendorFilter,
     vendorFilterValue,
     restaurantFilterValue,
-    setVendorNames
+    setVendorNames,
   } = useInvoiceStore();
   const { setDefault } = useFilterStore();
   useEffect(() => {
@@ -850,10 +850,10 @@ const InvoiceDetails = () => {
   let loaderTimer;
   const [firstTime, setFirstTime] = useState(true);
   useEffect(() => {
-    if (metadataTableCopy?.document_uuid) {
+    if (metadataTableCopy2?.document_uuid) {
       if (!firstTime) {
 
-        getBusinessRules(metadataTableCopy?.document_uuid, {
+        getBusinessRules(metadataTableCopy2?.document_uuid, {
           onSuccess: (data) => {
             setFirstTime(false);
            
@@ -865,7 +865,7 @@ const InvoiceDetails = () => {
         })
       }
     }
-  }, [metadataTableCopy, firstTime]);
+  }, [metadataTableCopy2, firstTime]);
   useEffect(()=>{
  if (hasDepositColumnWithValue(tableData)?.hasDeposit) {
               // setShowDepositRuleModal(true);
