@@ -1111,7 +1111,7 @@ const MultiInvoiceDocumentsDetails = () => {
               <Button
                 onClick={() => {
                   navigator.clipboard.writeText(
-                    `${window.location.origin}/multi-invoice-documents/${data?.data?.[0]?.document_uuid}`
+                    `${window.location.origin}/multi-invoice-documents/${data?.data?.[0]?.document_uuid}?page_number=${page}`
                   );
                   toast.success("Link copied to clipboard");
                 }}
