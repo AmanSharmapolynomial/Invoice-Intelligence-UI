@@ -27,22 +27,19 @@ export const listInvoices = async (payload) => {
   } = payload;
   let apiUrl;
 
-  if(human_verification=="" ){
+  if (human_verification == "") {
     return
   }
   if (review_later) {
-    apiUrl = `/api/document/?page_size=${page_size}&page=${page}&invoice_type=${invoice_type}&end_date=${end_date}&start_date=${start_date}&auto_accepted=${auto_accepted}&human_verification_required=${human_verification}&rerun_status=&clickbacon_status=${clickbacon_status}&restaurant=${restaurant}&vendor=${vendor}&sort_order=${sort_order}&human_verified=${human_verified}&assigned_to=${
-      assigned_to || ""
-    }&document_priority=${document_priority}&review_later=${review_later}&auto_accepted_by_vda=${auto_accepted_by_vda}&restaurant_tier=${restaurant_tier}&rejected=${rejected}&extraction_source=${extraction_source}&${payload?.re_review_requested&&`re_review_requested=${payload?.re_review_requested}`}`;
-  } else if(supported_documents==false){
-    apiUrl = `/api/document/?page_size=${page_size}&page=${page}&invoice_type=${invoice_type}&end_date=${end_date}&start_date=${start_date}&auto_accepted=${auto_accepted}&human_verification_required=${human_verification}&rerun_status=&clickbacon_status=${clickbacon_status}&restaurant=${restaurant}&vendor=${vendor}&sort_order=${sort_order}&human_verified=${human_verified}&assigned_to=${
-      assigned_to || ""
-    }&document_priority=${document_priority}&auto_accepted_by_vda=${auto_accepted_by_vda}&supported_documents=false&restaurant_tier=${restaurant_tier}&rejected=${rejected}&extraction_source=${extraction_source}&${payload?.re_review_requested&&`re_review_requested=${payload?.re_review_requested}`}`;
-    
+    apiUrl = `/api/document/?page_size=${page_size}&page=${page}&invoice_type=${invoice_type}&end_date=${end_date}&start_date=${start_date}&auto_accepted=${auto_accepted}&human_verification_required=${human_verification}&rerun_status=&clickbacon_status=${clickbacon_status}&restaurant=${restaurant}&vendor=${vendor}&sort_order=${sort_order}&human_verified=${human_verified}&assigned_to=${assigned_to || ""
+      }&document_priority=${document_priority}&review_later=${review_later}&auto_accepted_by_vda=${auto_accepted_by_vda}&restaurant_tier=${restaurant_tier}&rejected=${rejected}&extraction_source=${extraction_source}&${payload?.re_review_requested && `re_review_requested=${payload?.re_review_requested}`}`;
+  } else if (supported_documents == false) {
+    apiUrl = `/api/document/?page_size=${page_size}&page=${page}&invoice_type=${invoice_type}&end_date=${end_date}&start_date=${start_date}&auto_accepted=${auto_accepted}&human_verification_required=${human_verification}&rerun_status=&clickbacon_status=${clickbacon_status}&restaurant=${restaurant}&vendor=${vendor}&sort_order=${sort_order}&human_verified=${human_verified}&assigned_to=${assigned_to || ""
+      }&document_priority=${document_priority}&auto_accepted_by_vda=${auto_accepted_by_vda}&supported_documents=false&restaurant_tier=${restaurant_tier}&rejected=${rejected}&extraction_source=${extraction_source}&${payload?.re_review_requested && `re_review_requested=${payload?.re_review_requested}`}`;
+
   } else {
-    apiUrl = `/api/document/?page_size=${page_size}&page=${page}&invoice_type=${invoice_type}&end_date=${end_date}&start_date=${start_date}&auto_accepted=${auto_accepted}&human_verification_required=${human_verification}&rerun_status=&clickbacon_status=${clickbacon_status}&restaurant=${restaurant}&vendor=${vendor}&sort_order=${sort_order}&human_verified=${human_verified}&assigned_to=${
-      assigned_to || ""
-    }&document_priority=${document_priority}&auto_accepted_by_vda=${auto_accepted_by_vda}&restaurant_tier=${restaurant_tier}&rejected=${rejected}&extraction_source=${extraction_source}&${payload?.re_review_requested&&`re_review_requested=${payload?.re_review_requested}`}`;
+    apiUrl = `/api/document/?page_size=${page_size}&page=${page}&invoice_type=${invoice_type}&end_date=${end_date}&start_date=${start_date}&auto_accepted=${auto_accepted}&human_verification_required=${human_verification}&rerun_status=&clickbacon_status=${clickbacon_status}&restaurant=${restaurant}&vendor=${vendor}&sort_order=${sort_order}&human_verified=${human_verified}&assigned_to=${assigned_to || ""
+      }&document_priority=${document_priority}&auto_accepted_by_vda=${auto_accepted_by_vda}&restaurant_tier=${restaurant_tier}&rejected=${rejected}&extraction_source=${extraction_source}&${payload?.re_review_requested && `re_review_requested=${payload?.re_review_requested}`}`;
   }
 
   const response = await axiosInstance.get(apiUrl);
@@ -66,7 +63,7 @@ export const searchInvoice = async (invoice_number) => {
 };
 
 
-export const listMultiInvoiceDocument=async(payload)=>{
+export const listMultiInvoiceDocument = async (payload) => {
   const {
     start_date,
     end_date,
@@ -90,28 +87,37 @@ export const listMultiInvoiceDocument=async(payload)=>{
     restaurant_tier,
     rejected,
     extraction_source,
-    detailed_view
+    detailed_view,
+    copy_link,
+    document_uuid
   } = payload;
   let apiUrl;
 
-  if(human_verification=="" ){
+  if (human_verification == "") {
     return
   }
-  if (review_later) {
-    apiUrl = `/api/document/multiple-invoice-detections/?page_size=${page_size}&page=${page}&invoice_type=${invoice_type}&end_date=${end_date}&start_date=${start_date}&auto_accepted=${auto_accepted}&human_verification_required=${human_verification}&rerun_status=&clickbacon_status=${clickbacon_status}&restaurant=${restaurant}&vendor=${vendor}&sort_order=${sort_order}&human_verified=${human_verified}&assigned_to=${
-      assigned_to || ""
-    }&document_priority=${document_priority}&review_later=${review_later}&auto_accepted_by_vda=${auto_accepted_by_vda}&restaurant_tier=${restaurant_tier}&rejected=${rejected}&extraction_source=${extraction_source}&detailed_view=${detailed_view}`;
-  } else if(supported_documents==false){
-    apiUrl = `/api/document/multiple-invoice-detections/?page_size=${page_size}&page=${page}&invoice_type=${invoice_type}&end_date=${end_date}&start_date=${start_date}&auto_accepted=${auto_accepted}&human_verification_required=${human_verification}&rerun_status=&clickbacon_status=${clickbacon_status}&restaurant=${restaurant}&vendor=${vendor}&sort_order=${sort_order}&human_verified=${human_verified}&assigned_to=${
-      assigned_to || ""
-    }&document_priority=${document_priority}&auto_accepted_by_vda=${auto_accepted_by_vda}&supported_documents=false&restaurant_tier=${restaurant_tier}&rejected=${rejected}&extraction_source=${extraction_source}&detailed_view=${detailed_view}`;
-    
+
+  if (copy_link) {
+    apiUrl = `/api/document/multiple-invoice-detections/${document_uuid}/details/`
+  } else if (review_later) {
+    apiUrl = `/api/document/multiple-invoice-detections/?page_size=${page_size}&page=${page}&invoice_type=${invoice_type}&end_date=${end_date}&start_date=${start_date}&auto_accepted=${auto_accepted}&human_verification_required=${human_verification}&rerun_status=&clickbacon_status=${clickbacon_status}&restaurant=${restaurant}&vendor=${vendor}&sort_order=${sort_order}&human_verified=${human_verified}&assigned_to=${assigned_to || ""
+      }&document_priority=${document_priority}&review_later=${review_later}&auto_accepted_by_vda=${auto_accepted_by_vda}&restaurant_tier=${restaurant_tier}&rejected=${rejected}&extraction_source=${extraction_source}&detailed_view=${detailed_view}`;
+  } else if (supported_documents == false) {
+    apiUrl = `/api/document/multiple-invoice-detections/?page_size=${page_size}&page=${page}&invoice_type=${invoice_type}&end_date=${end_date}&start_date=${start_date}&auto_accepted=${auto_accepted}&human_verification_required=${human_verification}&rerun_status=&clickbacon_status=${clickbacon_status}&restaurant=${restaurant}&vendor=${vendor}&sort_order=${sort_order}&human_verified=${human_verified}&assigned_to=${assigned_to || ""
+      }&document_priority=${document_priority}&auto_accepted_by_vda=${auto_accepted_by_vda}&supported_documents=false&restaurant_tier=${restaurant_tier}&rejected=${rejected}&extraction_source=${extraction_source}&detailed_view=${detailed_view}`;
+
   } else {
-    apiUrl = `/api/document/multiple-invoice-detections/?page_size=${page_size}&page=${page}&invoice_type=${invoice_type}&end_date=${end_date}&start_date=${start_date}&auto_accepted=${auto_accepted}&human_verification_required=${human_verification}&rerun_status=&clickbacon_status=${clickbacon_status}&restaurant=${restaurant}&vendor=${vendor}&sort_order=${sort_order}&human_verified=${human_verified}&assigned_to=${
-      assigned_to || ""
-    }&document_priority=${document_priority}&auto_accepted_by_vda=${auto_accepted_by_vda}&restaurant_tier=${restaurant_tier}&rejected=${rejected}&extraction_source=${extraction_source}&detailed_view=${detailed_view}`;
+    apiUrl = `/api/document/multiple-invoice-detections/?page_size=${page_size}&page=${page}&invoice_type=${invoice_type}&end_date=${end_date}&start_date=${start_date}&auto_accepted=${auto_accepted}&human_verification_required=${human_verification}&rerun_status=&clickbacon_status=${clickbacon_status}&restaurant=${restaurant}&vendor=${vendor}&sort_order=${sort_order}&human_verified=${human_verified}&assigned_to=${assigned_to || ""
+      }&document_priority=${document_priority}&auto_accepted_by_vda=${auto_accepted_by_vda}&restaurant_tier=${restaurant_tier}&rejected=${rejected}&extraction_source=${extraction_source}&detailed_view=${detailed_view}`;
   }
 
   const response = await axiosInstance.get(apiUrl);
+  // console.log(response,"response");
+  if (copy_link) {
+    return {
+      ...response,
+      data:[response?.data]
+    }
+  }
   return response;
 }
