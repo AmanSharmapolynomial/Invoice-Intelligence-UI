@@ -63,7 +63,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 
 let dropdownOptions = [
@@ -208,7 +208,7 @@ const InvoiceGroupAccordion = ({
       }
     });
 
-    
+
     myData?.[f_key]?.forEach((g) => {
       if (g?.id === group?.id) {
         g.vendor_name = localVendorName;
@@ -641,8 +641,8 @@ const MultiInvoiceDocumentsDetails = () => {
   const [open, setOpen] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const { setVendorNames: setVendorsList } = persistStore();
-  let page = searchParams.get("page_number") || 1;
-  let page_size = searchParams.get("page_size") || 1;
+  let page = searchParams.get("page_number");
+  let page_size = searchParams.get("page_size");
   let invoice_type = searchParams.get("invoice_type") || "";
   let human_verification =
     searchParams.get("human_verification") || filters?.human_verification;
@@ -669,7 +669,7 @@ const MultiInvoiceDocumentsDetails = () => {
   let invoice_number = searchParams.get("invoice_number") || "";
   let assigned_to = searchParams.get("assigned_to");
   let detailed_view = searchParams.get("detailed_view") || "false";
-
+  let copyLink = searchParams.get('copy_link') || false
   let document_priority = searchParams.get("document_priority") || "all";
   let restaurant_tier =
     searchParams.get("restaurant_tier") == "null" ||
@@ -689,7 +689,9 @@ const MultiInvoiceDocumentsDetails = () => {
     restaurantFilterValue,
     setVendorNames
   } = useInvoiceStore();
-  const payload = {
+  let { pathname } = useLocation();
+  console.log()
+  let payload = {
     auto_accepted: auto_accepted,
     end_date: end_date,
     human_verification: human_verification,
@@ -712,8 +714,11 @@ const MultiInvoiceDocumentsDetails = () => {
     restaurant_tier: restaurant_tier || "all",
     rejected,
     extraction_source,
-    detailed_view:true
+    detailed_view: true
   };
+  if (copyLink) {
+    payload = { ...payload, copy_link: true, document_uuid: pathname?.split("/")?.[2] }
+  }
   const { data, isLoading, refetch } = useListMultiInvoiceDocuments(payload);
   const {
     mutate: rejectDocument,
@@ -793,7 +798,7 @@ const MultiInvoiceDocumentsDetails = () => {
   };
 
   useEffect(() => {
-    appendFiltersToUrl();
+    !copyLink && appendFiltersToUrl();
   }, []);
   const [checkedIndices, setCheckedIndices] = useState([]);
   const getAllGroupIds = () => {
@@ -814,7 +819,7 @@ const MultiInvoiceDocumentsDetails = () => {
 
   const [currentPageIndex, setCurrentPageIndex] = useState(null);
   const [allIndices, setAllIndices] = useState([]);
-
+  console.log(data)
   useEffect(() => {
     if (data && allIndices?.length === 0) { // only set once
       const indices = [
@@ -981,7 +986,7 @@ const MultiInvoiceDocumentsDetails = () => {
                           <img
                             className="h-4 w-4"
                             src={
-                             myData?.restaurant?.tier== 1
+                              myData?.restaurant?.tier == 1
                                 ? tier_1
                                 : myData?.restaurant?.tier == 2
                                   ? tier_2
@@ -1111,7 +1116,7 @@ const MultiInvoiceDocumentsDetails = () => {
               <Button
                 onClick={() => {
                   navigator.clipboard.writeText(
-                    `${window.location.origin}/multi-invoice-documents/${data?.data?.[0]?.document_uuid}?page_number=${page}`
+                    `${window.location.origin}/multi-invoice-documents/${data?.data?.[0]?.document_uuid}?copy_link=true`
                   );
                   toast.success("Link copied to clipboard");
                 }}
@@ -1220,7 +1225,7 @@ const MultiInvoiceDocumentsDetails = () => {
                 multiple={false}
                 currentPage={currentPageIndex}
               />
-              {
+              {!copyLink &&
                 <InvoicePagination
                   totalPages={data?.total_pages}
                   currentTab={""}
