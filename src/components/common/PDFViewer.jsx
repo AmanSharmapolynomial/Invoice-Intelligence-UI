@@ -181,6 +181,8 @@ export const PdfViewer = ({
       const targetPageIndex = bounding_box.page_index;
       if (targetPageIndex + 1 !== pageNum) {
         setPageNum(targetPageIndex + 1);
+      }else{
+        setPageNum(pageNum)
       }
     }
   }, [bounding_box, pageNum, bounding_boxes]);
