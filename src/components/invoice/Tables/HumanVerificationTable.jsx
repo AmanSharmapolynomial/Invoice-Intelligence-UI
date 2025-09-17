@@ -1650,7 +1650,7 @@ const HumanVerificationTable = ({
                                         pushed.push({
                                           box: cell?.bounding_box,
                                           page_index:
-                                            cell?.bounding_box?.page_index || 0
+                                            cell?.bounding_box?.page_index 
                                         })
                                       );
 
