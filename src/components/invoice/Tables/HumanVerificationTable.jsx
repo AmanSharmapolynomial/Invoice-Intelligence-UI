@@ -1286,7 +1286,7 @@ const HumanVerificationTable = ({
 
       row?.cells?.forEach((cell) => {
         if (cell?.column_uuid == item_code_column_uuid) {
-          console.log(cell?.text)
+          // console.log(cell?.text)
           itemCode = (cell?.text || "null");
         }
         if (cell?.column_uuid == item_description_column_uuid) {
@@ -1312,7 +1312,7 @@ const HumanVerificationTable = ({
         duplicateRows.push(...rows);
       }
     });
-    console.log(itemMap)
+    // console.log(itemMap)
 
     return {
       hasConflict: duplicateRows.length > 0,
@@ -1540,7 +1540,7 @@ const HumanVerificationTable = ({
 
         {metadata?.invoice_type !== "Summary Invoice" && (
           <div className="pb-2  overflow-hidden w-full  ">
-            <Table className="w-full   overflow-auto      ">
+            <Table className="w-full   overflow-auto     ">
               <TableBody
                 className="w-full "
                 onMouseLeave={() => {
@@ -1551,7 +1551,7 @@ const HumanVerificationTable = ({
                   }
                 }}
               >
-                <div className=" flex  min-w-full hide-scrollbar   sticky top-0 bg-white/80 z-20">
+                <div className=" flex  min-w-full hide-scrollbar sticky top-0 bg-white/80 z-20">
                   <div className="flex justify-between items-center gap-x-4 w-full ">
                     {columns
                       ?.filter((c) => c?.selected_column)
@@ -1639,9 +1639,10 @@ const HumanVerificationTable = ({
                                       } else {
                                         setHoveredRow(false);
                                       }
+                                      // console.log(cell)
                                       setBoundingBox({
                                         box: cell?.bounding_box,
-                                        page_index: cell?.page_index
+                                        page_index: cell?.bounding_box?.page_index
                                       });
 
                                       let pushed = [];
@@ -1650,7 +1651,7 @@ const HumanVerificationTable = ({
                                         pushed.push({
                                           box: cell?.bounding_box,
                                           page_index:
-                                            cell?.bounding_box?.page_index 
+                                            cell?.bounding_box?.page_index ||0
                                         })
                                       );
 
