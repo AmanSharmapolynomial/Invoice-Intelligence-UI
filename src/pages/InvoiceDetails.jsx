@@ -873,7 +873,7 @@ const InvoiceDetails = () => {
               // setFirstTime(false)
             }
   },[tableData])
-  console.log(metadataTableCopy, "metadata")
+  // console.log(metadataTableCopy, "metadata")
   return (
     <div className="hide-scrollbar relative">
       {/* <div> */}{" "}
