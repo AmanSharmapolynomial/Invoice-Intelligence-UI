@@ -177,10 +177,12 @@ export const PdfViewer = ({
     }
   }, [setCurentPage,currentPage]);
   useEffect(() => {
-    if (bounding_box && bounding_box.page_index ) {
+ 
+    if (bounding_box && bounding_box.page_index>-1 ) {
       const targetPageIndex = bounding_box.page_index;
+   
       if (targetPageIndex + 1 !== pageNum) {
-        setPageNum(targetPageIndex + 1);
+        setPageNum(Number(targetPageIndex) + 1);
       }else{
         setPageNum(pageNum)
       }
