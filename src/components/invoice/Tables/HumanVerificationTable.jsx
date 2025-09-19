@@ -1640,17 +1640,31 @@ const HumanVerificationTable = ({
                                         setHoveredRow(false);
                                       }
                                       // console.log(cell)
-                                      setBoundingBox({
+                                   
+                                      let isSamePageIndex=row?.cells?.map((cell)=>({
+                                          box: cell?.bounding_box,
+                                          page_index:
+                                            cell?.bounding_box?.page_index ||0
+                                        }))?.every((c)=>c.page_index== row?.cells?.[0]?.page_index);
+                                      let average_page_index=Math.ceil(row?.cells?.map((cell)=>({
+                                          box: cell?.bounding_box,
+                                          page_index:
+                                            cell?.bounding_box?.page_index ||0
+                                        }))?.reduce((sum, num) => sum + num?.page_index, 0) / row?.cells?.length)
+   setBoundingBox({
                                         box: cell?.bounding_box,
-                                        page_index: cell?.bounding_box?.page_index
+                                        page_index: cell?.page_index||average_page_index
                                       });
+                                     
 
+
+//console.log(row.cells,'cells')
                                       let pushed = [];
 
                                       row.cells?.map((cell) =>
                                         pushed.push({
                                           box: cell?.bounding_box,
-                                          page_index:
+                                          page_index:!isSamePageIndex?average_page_index:
                                             cell?.bounding_box?.page_index ||0
                                         })
                                       );

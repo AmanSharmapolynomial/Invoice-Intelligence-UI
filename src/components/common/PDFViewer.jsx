@@ -177,7 +177,7 @@ export const PdfViewer = ({
     }
   }, [setCurentPage,currentPage]);
   useEffect(() => {
- 
+//  console.log(bounding_boxes)
     if (bounding_box && bounding_box.page_index>-1 ) {
       const targetPageIndex = bounding_box.page_index;
    
@@ -188,6 +188,7 @@ export const PdfViewer = ({
       }
     }
   }, [bounding_box, pageNum, bounding_boxes]);
+
 
   const getBoundingBoxStyle = (width, height, bb, showBorder) => {
     let rotation = 0;
@@ -343,7 +344,7 @@ export const PdfViewer = ({
 
   useEffect(() => {
     if (pageDimensions.width && pageDimensions.height) {
-      if (!highlightAll && bounding_box) {
+      if (!highlightAll && bounding_box?.page_index) {
         zoomToBoundingBox(
           pageDimensions.width,
           pageDimensions.height,
