@@ -1536,7 +1536,14 @@ const HumanVerificationTable = ({
         {metadata?.invoice_type !== "Summary Invoice" && (
 
           <div className={cn("relative overflow-auto border border-border rounded-lg",)} style={{ maxHeight: "500px" }}>
-            <table className="w-full border-collapse">
+            <table   onMouseLeave={() => {
+                  if (stopHovering) {
+                    setBoundingBox({});
+                    setHighlightRow(false);
+                    setBoundingBoxes([]);
+                  }
+                }}
+ className="w-full border-collapse">
               <thead>
                 <tr className="bg-muted/50">
                   {[...columns, {
@@ -1592,7 +1599,7 @@ const HumanVerificationTable = ({
                 {rows?.map((row, index) => {
                   return (
                     <tr
-                      className="hover:bg-white/80"
+                      className="hover:!bg-gray-100"
                       key={index}
                     >
                       {row?.cells
@@ -1750,7 +1757,7 @@ const HumanVerificationTable = ({
                         {(viewDeleteColumn ||
                           viewShiftColumn ||
                           viewVerificationColumn) && (
-                          <td className="sticky !max-w-full min-w-[6.2rem] gap-x-4 flex  justify-center  items-center font-poppins font-normal text-xs leading-4 bg-white/90  right-0 !z-30 h-[2.5rem]">
+                          <td className="sticky !max-w-full min-w-[6.2rem] gap-x-4 flex  justify-center  items-center font-poppins font-normal text-xs leading-4 bg-white/90  right-0 !z-30 min-h-[3rem]">
                             <CustomTooltip
                               content={
                                 <div className="flex flex-col gap-x-2 items-start gap-y-2">
