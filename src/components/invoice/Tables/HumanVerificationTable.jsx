@@ -21,7 +21,7 @@ import {
   keysCapitalizer,
   keysDecapitalizer
 } from "@/lib/helpers";
-import { queryClient } from "@/lib/utils";
+import { cn, queryClient } from "@/lib/utils";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
 import { v4 as uuidv4 } from "uuid";
 
@@ -978,14 +978,14 @@ const HumanVerificationTable = ({
     // Step 6: Prepare operations for history/undo
     const createRowOperation = newRow
       ? {
-          type: "create_row",
-          operation_order: operations?.length + 1,
-          data: {
-            transaction_uuid: newRow?.transaction_uuid,
-            row_order: newRow?.row_order,
-            cells: newRow?.cells
-          }
+        type: "create_row",
+        operation_order: operations?.length + 1,
+        data: {
+          transaction_uuid: newRow?.transaction_uuid,
+          row_order: newRow?.row_order,
+          cells: newRow?.cells
         }
+      }
       : null;
 
     const createCellOperation = {
@@ -1320,63 +1320,62 @@ const HumanVerificationTable = ({
     };
   };
   const hasDepositColumnWithValue = (tableData) => {
-  if (!tableData) return { hasDeposit: false, rowsWithDeposit: [] };
+    if (!tableData) return { hasDeposit: false, rowsWithDeposit: [] };
 
-  const rows = tableData?.data?.processed_table?.rows || [];
-  const depositColumn = tableData?.data?.processed_table?.columns?.find(
-    (c) => c?.column_name === "Deposit"
-  );
-
-  if (!depositColumn) {
-    return { hasDeposit: false, rowsWithDeposit: [] };
-  }
-
-  const depositColumnUuid = depositColumn?.column_uuid;
-  const rowsWithDeposit = [];
-
-  rows.forEach((row) => {
-    const depositCell = row?.cells?.find(
-      (cell) => cell?.column_uuid === depositColumnUuid
+    const rows = tableData?.data?.processed_table?.rows || [];
+    const depositColumn = tableData?.data?.processed_table?.columns?.find(
+      (c) => c?.column_name === "Deposit"
     );
-    const value = depositCell?.text?.trim();
 
-    if (value && value !== "0" && value !== "--") {
-      rowsWithDeposit.push(row);
+    if (!depositColumn) {
+      return { hasDeposit: false, rowsWithDeposit: [] };
     }
-  });
 
-  return {
-    hasDeposit: rowsWithDeposit.length > 0,
-    rowsWithDeposit,
+    const depositColumnUuid = depositColumn?.column_uuid;
+    const rowsWithDeposit = [];
+
+    rows.forEach((row) => {
+      const depositCell = row?.cells?.find(
+        (cell) => cell?.column_uuid === depositColumnUuid
+      );
+      const value = depositCell?.text?.trim();
+
+      if (value && value !== "0" && value !== "--") {
+        rowsWithDeposit.push(row);
+      }
+    });
+
+    return {
+      hasDeposit: rowsWithDeposit.length > 0,
+      rowsWithDeposit,
+    };
   };
-};
 
-//   useEffect(() => {
-// if(data){
+  //   useEffect(() => {
+  // if(data){
 
-//   // if (getDuplicateItemCodeRows(data)?.hasConflict && (firstTime )) {
-//   //   setShowUniqueItemCodeRuleModal(true);
-//   //   setDuplicateItemCodeRows(getDuplicateItemCodeRows(data)?.duplicateRows)
-//   // }
-//   if (hasDepositColumnWithValue(data)?.hasDeposit && (firstTime )) {
-//     setShowDepositRuleModal(true);
-//     setDepositColumnRows(hasDepositColumnWithValue(data)?.rowsWithDeposit)
-//     // setFirstTime(false)
-//   }
-//   setFirstTime(false)
-// }
+  //   // if (getDuplicateItemCodeRows(data)?.hasConflict && (firstTime )) {
+  //   //   setShowUniqueItemCodeRuleModal(true);
+  //   //   setDuplicateItemCodeRows(getDuplicateItemCodeRows(data)?.duplicateRows)
+  //   // }
+  //   if (hasDepositColumnWithValue(data)?.hasDeposit && (firstTime )) {
+  //     setShowDepositRuleModal(true);
+  //     setDepositColumnRows(hasDepositColumnWithValue(data)?.rowsWithDeposit)
+  //     // setFirstTime(false)
+  //   }
+  //   setFirstTime(false)
+  // }
 
-//   }, [data]);
- 
-  
+  //   }, [data]);
+
+
   return (
     <>
       {" "}
       <div
-        className={`${
-          metadata?.invoice_type !== "Summary Invoice" &&
+        className={`${metadata?.invoice_type !== "Summary Invoice" &&
           "max-h-[42rem]   overflow-hidden"
-        } w-full -mt-3 border border-[#F0F0F0] shadow-sm rounded-md  `}
+          } w-full -mt-3 border border-[#F0F0F0] shadow-sm rounded-md  `}
       >
         {loadingItemLookups && (
           <div className="w-full h-full  bg-white bg-opacity-50 !z-50 absolute"></div>
@@ -1423,7 +1422,7 @@ const HumanVerificationTable = ({
               </CustomTooltip>
 
               <CustomTooltip content={"Row Actions"}>
-                <div className="!relative">
+                <div className="!relative !z-50">
                   <div
                     className="border  rounded-sm h-8 w-8 flex justify-center items-center cursor-pointer "
                     onClick={() => setShowActionsPopup(!showActionsPopup)}
@@ -1443,9 +1442,8 @@ const HumanVerificationTable = ({
                         onClick={() => {
                           setViewDeleteColumn(!viewDeleteColumn);
                         }}
-                        className={`${
-                          viewDeleteColumn && "bg-primary text-white"
-                        } cursor-pointer px- py-1.5 font-poppins font-normal text-xs rounded-sm`}
+                        className={`${viewDeleteColumn && "bg-primary text-white"
+                          } cursor-pointer px- py-1.5 font-poppins font-normal !z-50 text-xs rounded-sm`}
                       >
                         View Row Delete Button
                       </p>
@@ -1453,9 +1451,8 @@ const HumanVerificationTable = ({
                         onClick={() => {
                           setViewVerificationColumn(!viewVerificationColumn);
                         }}
-                        className={`${
-                          viewVerificationColumn && "bg-primary text-white"
-                        } cursor-pointer px- py-1.5 font-poppins font-normal text-xs rounded-sm`}
+                        className={`${viewVerificationColumn && "bg-primary text-white"
+                          } cursor-pointer px- py-1.5 font-poppins font-normal !z-50 text-xs rounded-sm`}
                       >
                         View Verification Button
                       </p>
@@ -1463,9 +1460,8 @@ const HumanVerificationTable = ({
                         onClick={() => {
                           setViewShiftColumn(!viewShiftColumn);
                         }}
-                        className={`${
-                          viewShiftColumn && "bg-primary text-white"
-                        } cursor-pointer px- py-1.5 font-poppins font-normal text-xs rounded-sm`}
+                        className={`${viewShiftColumn && "bg-primary text-white"
+                          } cursor-pointer px- py-1.5 font-poppins font-normal !z-50  text-xs rounded-sm`}
                       >
                         View Row Shift Button
                       </p>
@@ -1516,252 +1512,245 @@ const HumanVerificationTable = ({
         )}
         {metadata?.invoice_type !== "Summary Invoice" && (
           <div
-            className={`flex items-center justify-between py-3 !text-[#121212] !font-poppins !font-semibold !text-base px-8 ${
-              metaData?.document_metadata?.invoice_extracted_total ==
+            className={`flex items-center justify-between py-3 !text-[#121212] !font-poppins !font-semibold !text-base px-8 ${metaData?.document_metadata?.invoice_extracted_total ==
               calculatedsum
-                ? "bg-green-100"
-                : "bg-[#FFEEEF]"
-            }`}
+              ? "bg-green-100"
+              : "bg-[#FFEEEF]"
+              }`}
           >
             <p>Difference</p>
             <p>
               ${" "}
               {metaData?.document_metadata?.invoice_extracted_total ==
-              calculatedsum
+                calculatedsum
                 ? 0
                 : (
-                    Number(
-                      metaData?.document_metadata?.invoice_extracted_total
-                    ) - Number(calculatedsum)
-                  ).toFixed(2)}
+                  Number(
+                    metaData?.document_metadata?.invoice_extracted_total
+                  ) - Number(calculatedsum)
+                ).toFixed(2)}
             </p>
           </div>
         )}
 
         {metadata?.invoice_type !== "Summary Invoice" && (
-          <div className="pb-2  overflow-hidden w-full  ">
-            <Table className="w-full   overflow-auto     ">
-              <TableBody
-                className="w-full "
-                onMouseLeave={() => {
-                  if (stopHovering) {
-                    setBoundingBox({});
-                    setHighlightRow(false);
-                    setBoundingBoxes([]);
-                  }
-                }}
-              >
-                <div className=" flex  min-w-full hide-scrollbar sticky top-0 bg-white/80 z-20">
-                  <div className="flex justify-between items-center gap-x-4 w-full ">
-                    {columns
-                      ?.filter((c) => c?.selected_column)
-                      ?.map(
-                        ({
-                          column_uuid,
-                          column_name,
-                          column_order,
-                          selected_column
-                        }) => {
-                          return (
-                            <TableCell
-                              className="!min-w-[12rem] !max-w-full      flex items-center justify-center "
-                              key={column_uuid}
-                            >
-                              <CustomDropDown
-                                Value={column_name}
-                                className={"!w-[rem]"}
-                                triggerClassName={
-                                  "!max-w-full !h-[2.25rem] !min-w-[10.5rem]  "
-                                }
-                                data={[
-                                  ...headerNamesFormatter(
-                                    additionalData?.data
-                                      ?.processed_table_header_candidates
-                                  )?.filter(
-                                    (col) =>
-                                      !existing_column_names?.includes(
-                                        col?.label?.toLowerCase()
-                                      )
-                                  ),
-                                  { label: "NA", value: "NA" }
-                                ]}
-                                onChange={(c, item) => {
-                                  handleDropdownChange(column_uuid, c);
-                                }}
-                              />
-                            </TableCell>
-                          );
-                        }
-                      )}
-                  </div>
-                  {/* <div className="w-full sticky right-0   flex items-center "> */}
-                  {(viewDeleteColumn ||
-                    viewShiftColumn ||
-                    viewVerificationColumn) && (
-                    <TableCell
-                      className={`${
-                        viewDeleteColumn &&
-                        viewShiftColumn &&
-                        viewVerificationColumn &&
-                        "w-[6.2rem]"
-                      } !border-l  sticky !max-w-[6.2rem]  min-w-[6.3rem]   flex justify-center items-center font-poppins font-normal text-xs !p-0 min-h-full bg-white/90  !right-[0px]`}
+
+          <div className={cn("relative overflow-auto border border-border rounded-lg",)} style={{ maxHeight: "500px" }}>
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-muted/50">
+                  {[...columns, {
+                    column_name: "Actions", column_uuid: "284848", selected_column: true, sticky: 'right'
+                  }]
+                    ?.filter((c) => c?.selected_column)
+                    ?.map(
+                      ({
+                        column_uuid,
+                        column_name,
+                        column_order,
+                        selected_column,
+                        sticky
+                      }) => {
+                        return (
+                          <th
+                            key={column_uuid}
+                            className={cn(
+                              "px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border",
+                              "sticky top-0 bg-muted/50 !bg-white  !z-30",
+                              sticky === "right" && "sticky right-0 !border  border-border !z-50 bg-muted/50  ",
+                            )}
+                          >
+                            {column_name !== "Actions" ? <CustomDropDown
+                              Value={column_name}
+                              className={"!w-[rem]"}
+                              triggerClassName={
+                                "!max-w-full !h-[2.25rem] !min-w-[10.5rem]  "
+                              }
+                              data={[
+                                ...headerNamesFormatter(
+                                  additionalData?.data
+                                    ?.processed_table_header_candidates
+                                )?.filter(
+                                  (col) =>
+                                    !existing_column_names?.includes(
+                                      col?.label?.toLowerCase()
+                                    )
+                                ),
+                                { label: "NA", value: "NA" }
+                              ]}
+                              onChange={(c, item) => {
+                                handleDropdownChange(column_uuid, c);
+                              }}
+                            /> : <span className="!bg-white !text-sm">{column_name}</span>}
+                          </th>
+                        );
+                      }
+                    )}
+                </tr>
+              </thead>
+              <tbody>
+                {rows?.map((row, index) => {
+                  return (
+                    <tr
+                      className="hover:bg-white/80"
+                      key={index}
                     >
-                      Actions
-                    </TableCell>
-                  )}
-                  {/* </div> */}
-                </div>
-
-                <div className=" flex flex-col gap-x-2   px-0.5 max-h-[30rem]  ">
-                  {rows?.map((row, index) => {
-                    return (
-                      <div className="flex !relative">
-                        <TableRow
-                          bordered
-                          key={index}
-                          className="flex w-full gap-x-2  mb-2 border-b !border-b-[#F5F5F5]      justify-between "
-                        >
-                          {row?.cells
-                            ?.filter((c) =>
-                              selectedColumnIds?.includes(c?.column_uuid)
-                            )
-                            ?.map((cell, i) => {
-                              return (
-                                <TableCell
-                                  onClick={() =>
-                                    handleEditCell(index, i, cell?.text)
+                      {row?.cells
+                        ?.filter((c) =>
+                          selectedColumnIds?.includes(c?.column_uuid)
+                        )
+                        ?.map((cell, i) => {
+                          return (
+                            <td
+                              onClick={() =>
+                                handleEditCell(index, i, cell?.text)
+                              }
+                              onMouseEnter={(e) => {
+                                e.stopPropagation();
+                                if (stopHovering) {
+                                  if (cell.bounding_box == null) {
+                                    setHoveredRow(true);
+                                  } else {
+                                    setHoveredRow(false);
                                   }
-                                  onMouseEnter={(e) => {
-                                    e.stopPropagation();
-                                    if (stopHovering) {
-                                      if (cell.bounding_box == null) {
-                                        setHoveredRow(true);
-                                      } else {
-                                        setHoveredRow(false);
-                                      }
-                                      // console.log(cell)
-                                      setBoundingBox({
-                                        box: cell?.bounding_box,
-                                        page_index: cell?.bounding_box?.page_index
-                                      });
+                                  // console.log(cell)
 
-                                      let pushed = [];
+                                  let isSamePageIndex = row?.cells?.map((cell) => ({
+                                    box: cell?.bounding_box,
+                                    page_index:
+                                      cell?.bounding_box?.page_index || 0
+                                  }))?.every((c) => c.page_index == row?.cells?.[0]?.page_index);
+                                  let average_page_index = Math.ceil(row?.cells?.map((cell) => ({
+                                    box: cell?.bounding_box,
+                                    page_index:
+                                      cell?.bounding_box?.page_index || 0
+                                  }))?.reduce((sum, num) => sum + num?.page_index, 0) / row?.cells?.length)
+                                  setBoundingBox({
+                                    box: cell?.bounding_box,
+                                    page_index: cell?.page_index || average_page_index
+                                  });
 
-                                      row.cells?.map((cell) =>
-                                        pushed.push({
-                                          box: cell?.bounding_box,
-                                          page_index:
-                                            cell?.bounding_box?.page_index ||0
-                                        })
-                                      );
 
-                                      setBoundingBoxes(pushed);
-                                      setHighlightRow(true);
-                                      setHighlightAll(false);
-                                    }
-                                  }}
-                                  onContextMenu={(e) => {
-                                    e.preventDefault();
 
-                                    setContextMenu({
-                                      visible: true,
-                                      position: { x: e.pageX, y: e.pageY },
-                                      rowIndex: index,
-                                      cellIndex: i,
-                                      column_uuid: cell?.column_uuid,
-                                      cell_uuid: cell?.cell_uuid,
-                                      row_uuid: row?.transaction_uuid
-                                    });
-                                  }}
-                                  className={`${cell?.column_uuid==categoryColumnId && cell?.text?.toLowerCase()=="unknown"&& "border border-red-500"} !w-[12rem]  font-poppins   font-normal text-sm leading-4 text-[#121212] !max-w-full  justify-center    flex items-center  capitalize  text-left`}
-                                  key={i}
-                                >
-                                  {editMode?.rowIndex === index &&
-                                  editMode?.cellIndex == i ? (
-                                    <>
-                                      {cell?.column_uuid ===
-                                      categoryColumnId ? (
-                                        <div      >
-                                          <CustomDropDown
-                                    
-                                            Value={
-                                              additionalData?.data?.category_choices?.find(
-                                                (c) => c.name == cell?.text
-                                              )?.category_id
-                                            }
-                                            data={categoryNamesFormatter(
-                                              additionalData?.data
-                                                ?.category_choices
-                                            )}
-                                            onChange={(v) => {
-                                              setCellValue(v);
-                                              handleSaveCell(
-                                                index,
-                                                i,
-                                                additionalData?.data?.category_choices?.find(
-                                                  (c) => c?.category_id == v
-                                                )?.name,
-                                                row
-                                              );
-                                            }}
-                                          />
-                                        </div>
-                                      ) : (
-                                        <Textarea
-                                          value={cellValue}
-                                          onBlur={() => {
-                                            handleSaveCell(
-                                              index,
-                                              i,
-                                              cellValue,
-                                              row,
-                                              false
-                                            );
-                                          }}
-                                          onClick={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                          }}
-                                          onDoubleClick={(e) => {
-                                            e.preventDefault();
-                                          }}
+                                  //console.log(row.cells,'cells')
+                                  let pushed = [];
 
-                                          onKeyPress={(e) => {
-                                            handleKeyPress(
-                                              e,
-                                              index,
-                                              i,
-                                              cellValue,
-                                              row,
-                                              false
-                                            );
-                                          }}
-                                          onChange={(e) => {
-                                            e.stopPropagation();
-                                            handleSaveCell(
-                                              index,
-                                              i,
-                                              e.target.value,
-                                              row,
-                                              false
-                                            );
-                                            setCellValue(e?.target?.value);
-                                          }}
-                                        />
-                                      )}
-                                    </>
+                                  row.cells?.map((cell) =>
+                                    pushed.push({
+                                      box: cell?.bounding_box,
+                                      page_index: !isSamePageIndex ? average_page_index :
+                                        cell?.bounding_box?.page_index || 0
+                                    })
+                                  );
+
+                                  setBoundingBoxes(pushed);
+                                  setHighlightRow(true);
+                                  setHighlightAll(false);
+                                }
+                              }}
+                              onContextMenu={(e) => {
+                                e.preventDefault();
+
+                                setContextMenu({
+                                  visible: true,
+                                  position: { x: e.pageX, y: e.pageY },
+                                  rowIndex: index,
+                                  cellIndex: i,
+                                  column_uuid: cell?.column_uuid,
+                                  cell_uuid: cell?.cell_uuid,
+                                  row_uuid: row?.transaction_uuid
+                                });
+                              }}
+                              className={`${cell?.column_uuid == categoryColumnId && cell?.text?.toLowerCase() == "unknown" && "border border-red-500"} !w-[12rem] h-[2.5rem] font-poppins   font-normal text-sm leading-4 text-[#121212] !max-w-full    capitalize  text-left `}
+                              key={i}
+                            >
+                             <div className="flex items-center justify-center">
+                               {editMode?.rowIndex === index &&
+                                editMode?.cellIndex == i ? (
+                                <>
+                                  {cell?.column_uuid ===
+                                    categoryColumnId ? (
+                                    <div      >
+                                      <CustomDropDown
+
+                                        Value={
+                                          additionalData?.data?.category_choices?.find(
+                                            (c) => c.name == cell?.text
+                                          )?.category_id
+                                        }
+                                        data={categoryNamesFormatter(
+                                          additionalData?.data
+                                            ?.category_choices
+                                        )}
+                                        onChange={(v) => {
+                                          setCellValue(v);
+                                          handleSaveCell(
+                                            index,
+                                            i,
+                                            additionalData?.data?.category_choices?.find(
+                                              (c) => c?.category_id == v
+                                            )?.name,
+                                            row
+                                          );
+                                        }}
+                                      />
+                                    </div>
                                   ) : (
-                                    <>{cell?.text || "--"}</>
-                                  )}
-                                </TableCell>
-                              );
-                            })}
-                        </TableRow>
+                                    <Textarea
+                                      value={cellValue}
+                                      onBlur={() => {
+                                        handleSaveCell(
+                                          index,
+                                          i,
+                                          cellValue,
+                                          row,
+                                          false
+                                        );
+                                      }}
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                      }}
+                                      onDoubleClick={(e) => {
+                                        e.preventDefault();
+                                      }}
 
+                                      onKeyPress={(e) => {
+                                        handleKeyPress(
+                                          e,
+                                          index,
+                                          i,
+                                          cellValue,
+                                          row,
+                                          false
+                                        );
+                                      }}
+                                      onChange={(e) => {
+                                        e.stopPropagation();
+                                        handleSaveCell(
+                                          index,
+                                          i,
+                                          e.target.value,
+                                          row,
+                                          false
+                                        );
+                                        setCellValue(e?.target?.value);
+                                      }}
+                                    />
+                                  )}
+                                </>
+                              ) : (
+                                <>{cell?.text || "--"}</>
+                              )}
+                             </div>
+                            </td>
+                          );
+                        })}
+                        
                         {(viewDeleteColumn ||
                           viewShiftColumn ||
                           viewVerificationColumn) && (
-                          <TableCell className="sticky !max-w-full min-w-[6.2rem] border-l gap-x-4 flex  justify-center  items-center font-poppins font-normal text-xs leading-4 bg-white/90  right-0 !z-10">
+                          <td className="sticky !max-w-full min-w-[6.2rem] gap-x-4 flex  justify-center  items-center font-poppins font-normal text-xs leading-4 bg-white/90  right-0 !z-30 h-[2.5rem]">
                             <CustomTooltip
                               content={
                                 <div className="flex flex-col gap-x-2 items-start gap-y-2">
@@ -1881,14 +1870,17 @@ const HumanVerificationTable = ({
                                 </CustomTooltip>
                               </div>
                             )}
-                          </TableCell>
+                          </td>
                         )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </TableBody>
-            </Table>
+                    </tr>
+
+
+                    // </div>
+                  );
+                })}
+
+              </tbody>
+            </table>
           </div>
         )}
       </div>
@@ -1976,9 +1968,8 @@ const HumanVerificationTable = ({
                     <button
                       onClick={() => removeTax(index)}
                       disabled={index === 0}
-                      className={`border-0 bg-transparent ${
-                        index === 0 ? "hidden" : "flex"
-                      }`}
+                      className={`border-0 bg-transparent ${index === 0 ? "hidden" : "flex"
+                        }`}
                     >
                       <Trash2 className="text-[#F15156] h-4 w-4 " />
                     </button>
@@ -2023,9 +2014,8 @@ const HumanVerificationTable = ({
                     <button
                       onClick={() => removeFee(index)}
                       disabled={index === 0}
-                      className={`border-0 bg-transparent ${
-                        index === 0 ? "hidden" : "flex"
-                      }`}
+                      className={`border-0 bg-transparent ${index === 0 ? "hidden" : "flex"
+                        }`}
                     >
                       <Trash2 className="text-[#F15156] h-4 w-4 " />
                     </button>
@@ -2064,7 +2054,7 @@ const HumanVerificationTable = ({
                                 ...prevFields?.document_metadata,
                                 added_discounts:
                                   newData?.["document_metadata"]?.[
-                                    "added_discounts"
+                                  "added_discounts"
                                   ]
                               }
                             };
@@ -2075,9 +2065,8 @@ const HumanVerificationTable = ({
                       <button
                         onClick={() => removeDiscount(index)}
                         disabled={index === 0}
-                        className={`border-0 bg-transparent ${
-                          index === 0 ? "hidden" : "flex"
-                        }`}
+                        className={`border-0 bg-transparent ${index === 0 ? "hidden" : "flex"
+                          }`}
                       >
                         <Trash2 className="text-[#F15156] h-4 w-4 " />
                       </button>
@@ -2161,24 +2150,23 @@ const HumanVerificationTable = ({
           </div>
           {metadata?.invoice_type !== "Summary Invoice" && (
             <div
-              className={`flex items-center justify-between py-3 !text-[#121212] !font-poppins  my-4 !font-semibold !text-base px-4 ${
-                metaData?.document_metadata?.invoice_extracted_total ==
+              className={`flex items-center justify-between py-3 !text-[#121212] !font-poppins  my-4 !font-semibold !text-base px-4 ${metaData?.document_metadata?.invoice_extracted_total ==
                 calculatedsum
-                  ? "bg-green-100"
-                  : "bg-[#FFEEEF]"
-              }`}
+                ? "bg-green-100"
+                : "bg-[#FFEEEF]"
+                }`}
             >
               <p>Difference</p>
               <p>
                 ${" "}
                 {metaData?.document_metadata?.invoice_extracted_total ==
-                calculatedsum
+                  calculatedsum
                   ? 0
                   : (
-                      Number(
-                        metaData?.document_metadata?.invoice_extracted_total
-                      ) - Number(calculatedsum)
-                    ).toFixed(2)}
+                    Number(
+                      metaData?.document_metadata?.invoice_extracted_total
+                    ) - Number(calculatedsum)
+                  ).toFixed(2)}
               </p>
             </div>
           )}
@@ -2209,11 +2197,10 @@ const HumanVerificationTable = ({
               setBoundingBox({});
               setBoundingBoxes([]);
             }}
-            className={`${
-              metadata?.invoice_type == "Summary Invoice"
-                ? "py-4 mx-2 my-4 rounded-xl border-[#D9D9D9]"
-                : "my-4"
-            } flex items-center justify-between pl-4 font-poppins font-normal text-sm text-[#121212] pr-2 border`}
+            className={`${metadata?.invoice_type == "Summary Invoice"
+              ? "py-4 mx-2 my-4 rounded-xl border-[#D9D9D9]"
+              : "my-4"
+              } flex items-center justify-between pl-4 font-poppins font-normal text-sm text-[#121212] pr-2 border`}
           >
             <p>Extracted Total</p>
             <CustomInput
