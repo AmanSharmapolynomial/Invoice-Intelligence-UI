@@ -177,13 +177,18 @@ export const PdfViewer = ({
     }
   }, [setCurentPage,currentPage]);
   useEffect(() => {
-    if (bounding_box && bounding_box.page_index !== undefined) {
+//  console.log(bounding_boxes)
+    if (bounding_box && bounding_box.page_index>-1 ) {
       const targetPageIndex = bounding_box.page_index;
+   
       if (targetPageIndex + 1 !== pageNum) {
-        setPageNum(targetPageIndex + 1);
+        setPageNum(Number(targetPageIndex) + 1);
+      }else{
+        setPageNum(pageNum)
       }
     }
   }, [bounding_box, pageNum, bounding_boxes]);
+
 
   const getBoundingBoxStyle = (width, height, bb, showBorder) => {
     let rotation = 0;
@@ -253,6 +258,9 @@ export const PdfViewer = ({
   };
 
   const zoomToBoundingBox = (width, height, bb) => {
+    if(!bb){
+      return
+    }
     let rotation = 0;
     if (image_rotations?.[`image_${pageNum - 1}`]?.image_rotated) {
       rotation = image_rotations?.[`image_${pageNum - 1}`]?.rotation_angle;
@@ -336,7 +344,7 @@ export const PdfViewer = ({
 
   useEffect(() => {
     if (pageDimensions.width && pageDimensions.height) {
-      if (!highlightAll && bounding_box) {
+      if (!highlightAll && bounding_box?.page_index) {
         zoomToBoundingBox(
           pageDimensions.width,
           pageDimensions.height,
@@ -664,7 +672,7 @@ export const PdfViewer = ({
   useEffect(() => {
     setShowTextExtractionModal(false);
   }, [page]);
-  console.log(pdfUrls);
+  
   return (
     <>
       {loadinMetadata ? (
