@@ -378,6 +378,8 @@ const HumanVerificationTable = ({
 
   let categoryColumnId =
     columns?.find((c) => c?.column_name == "Category")?.column_uuid || null;
+  let soldCategoryColumnId =
+    columns?.find((c) => c?.column_name == "Sold By")?.column_uuid || null;
   const selectedColumnIds = columns
     ?.filter((f) => f?.selected_column)
     ?.map(
@@ -1703,6 +1705,24 @@ const HumanVerificationTable = ({
                                       />
                                     </div>
                                   ) : (
+                                    cell?.column_uuid==soldCategoryColumnId? <CustomDropDown
+
+                                        Value={
+                                          additionalData?.data?.sold_by_choices?.find(
+                                            (c) => c== cell?.text
+                                          )
+                                        }
+                                        data={additionalData?.data?.sold_by_choices?.map((it)=>({label:it,value:it}))}
+                                        onChange={(v) => {
+                                          setCellValue(v);
+                                          handleSaveCell(
+                                            index,
+                                            i,
+                                            v,
+                                            row
+                                          );
+                                        }}
+                                      />:
                                     <Textarea
                                       value={cellValue}
                                       onBlur={() => {
