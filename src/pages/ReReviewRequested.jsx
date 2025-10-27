@@ -67,7 +67,10 @@ const ReReviewRequested = () => {
       searchParams.get("restaurant_tier") == "all"
       ? null
       : searchParams.get("restaurant_tier");
-
+  let agent_metadata_validation_status =
+    searchParams.get("agent_metadata_validation_status") || "all";
+  let agent_table_data_validation_status =
+    searchParams.get("agent_table_data_validation_status") || "all";
   const updateParams = useUpdateParams();
   const { data: restaurantsList, isLoading: restaurantsListLoading } =
     useListRestaurants();
@@ -103,6 +106,8 @@ const ReReviewRequested = () => {
     rejected,
     extraction_source,
     re_review_requested: re_review_requested,
+    agent_metadata_validation_status,
+    agent_table_data_validation_status
   };
   const { data, isLoading } = useListInvoices(payload);
   useEffect(() => {
