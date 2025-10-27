@@ -76,7 +76,10 @@ const ReviewLaterTasks = () => {
     searchParams.get("restaurant_tier") == "all"
       ? null
       : searchParams.get("restaurant_tier");
-
+        let agent_metadata_validation_status =
+    searchParams.get("agent_metadata_validation_status") || "all";
+  let agent_table_data_validation_status =
+    searchParams.get("agent_table_data_validation_status") || "all";
   const updateParams = useUpdateParams();
   const { data: restaurantsList, isLoading: restaurantsListLoading } =
     useListRestaurants();
@@ -110,7 +113,9 @@ const ReviewLaterTasks = () => {
     review_later: true,
     restaurant_tier: restaurant_tier || "all",
     rejected,
-    extraction_source
+    extraction_source,
+    agent_metadata_validation_status,
+    agent_table_data_validation_status
   };
   const { data, isLoading } = useListInvoices(payload);
   useEffect(() => {

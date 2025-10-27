@@ -49,6 +49,8 @@ const Sidebar = ({ className }) => {
     extraction_source: filters?.extraction_source,
     assigned_to: userId,
     auto_accepted_by_vda: filters?.auto_accepted_by_vda,
+      agent_metadata_validation_status: filters?.agent_metadata_validation_status||"all",
+    agent_table_data_validation_status: filters?.agent_table_data_validation_status||"all"
   });
 
 

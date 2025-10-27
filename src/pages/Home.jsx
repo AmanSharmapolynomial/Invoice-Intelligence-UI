@@ -73,6 +73,8 @@ const Home = () => {
   let document_priority = searchParams.get("document_priority") || "all";
   let rejected = searchParams.get("rejected") || "all";
   let extraction_source = searchParams.get("extraction_source") || "all";
+  let agent_table_data_validation_status = searchParams.get("agent_table_data_validation_status") || "all";
+  let agent_metadata_validation_status = searchParams.get("agent_metadata_validation_status") || "all";
   let restaurant_tier =
     searchParams.get("restaurant_tier") == "null" ||
     searchParams.get("restaurant_tier") == "all"
@@ -112,7 +114,9 @@ const Home = () => {
     review_later: "false",
     restaurant_tier: restaurant_tier || "all",
     rejected,
-    extraction_source
+    extraction_source,
+          agent_table_data_validation_status,
+        agent_metadata_validation_status,
   };
   const { data, isLoading } = useListInvoices(payload);
   useEffect(() => {
