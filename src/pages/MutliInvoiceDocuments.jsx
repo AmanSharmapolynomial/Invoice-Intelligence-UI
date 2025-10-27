@@ -94,7 +94,10 @@ const MutliInvoiceDocuments = () => {
       searchParams.get("restaurant_tier") == "all"
       ? null
       : searchParams.get("restaurant_tier");
-
+  let agent_metadata_validation_status =
+    searchParams.get("agent_metadata_validation_status") || "all";
+  let agent_table_data_validation_status =
+    searchParams.get("agent_table_data_validation_status") || "all";
   const updateParams = useUpdateParams();
   const { data: restaurantsList, isLoading: restaurantsListLoading } =
     useListRestaurants();
@@ -130,7 +133,9 @@ const MutliInvoiceDocuments = () => {
     restaurant_tier: restaurant_tier || "all",
     rejected,
     extraction_source,
-    detailed_view: false
+    detailed_view: false,
+    agent_metadata_validation_status,
+    agent_table_data_validation_status
   };
 const {userId}=userStore()
   useEffect(()=>{

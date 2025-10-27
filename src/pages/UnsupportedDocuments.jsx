@@ -85,6 +85,10 @@ const {pathname}=useLocation();
     searchParams.get("restaurant_tier") == "all"
       ? null
       : searchParams.get("restaurant_tier");
+        let agent_metadata_validation_status =
+    searchParams.get("agent_metadata_validation_status") || "all";
+  let agent_table_data_validation_status =
+    searchParams.get("agent_table_data_validation_status") || "all";
   const payload = {
     auto_accepted: auto_accepted,
     end_date: end_date,
@@ -108,6 +112,8 @@ const {pathname}=useLocation();
     rejected,
     extraction_source,
     detailed_view: false,
+    agent_metadata_validation_status,
+  agent_table_data_validation_status
   };
   const { data, isLoading } = useGetUnSupportedDocuments(payload);
   const navigate = useNavigate();
