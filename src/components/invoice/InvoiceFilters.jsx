@@ -29,11 +29,12 @@ const InvoiceFilters = () => {
   let human_verified = searchParams.get("human_verified") || "all";
   let invoice_type = searchParams.get("invoice_type") || "all";
   let clickbacon_status = searchParams.get("clickbacon_status") || "all";
-  let restaurant_tier =
-    searchParams.get("restaurant_tier") == "null" ||
-    searchParams.get("restaurant_tier") == "all"
-      ? null
-      : searchParams.get("restaurant_tier");
+  let agent_metadata_validation_status =
+    searchParams.get("agent_metadata_validation_status") == "null" ||
+    searchParams.get("agent_metadata_validation_status") == "all"
+      ? 'all'
+      : searchParams.get("agent_metadata_validation_status") || "all";
+  let agent_table_data_validation_status =searchParams.get("agent_table_data_validation_status") || "all";
   let auto_accepted = searchParams.get("auto_accepted") || "all";
   let auto_accepted_by_vda = searchParams.get("auto_accepted_by_vda") || "all";
   let assigned_to = searchParams.get("assigned_to") || "none";
@@ -210,30 +211,61 @@ const InvoiceFilters = () => {
             data={AutoAcceptedFilterFilterOptions}
           />
         </div>
-        {/* <div>
+         <div>
           <CustomSelect
-            value={restaurant_tier}
-            label="Restaurant Tier"
-            placeholder="All Tiers Restaurants"
+            value={agent_metadata_validation_status}
+            label="Agent Metadata Validation Status"
+            placeholder="All"
             commandGroupClassName="!min-h-[5rem] !max-h-[10rem]"
             className={"!min-w-[10rem]  w-full"}
             data={[
-              { label: "Tier 1", value: "1" },
-              { label: "Tier 2", value: "2" },
-              { label: "Tier 3", value: "3" },
-              { label: "All", value: null }
+              { label: "Unassigned", value: "unassigned" },
+              { label: "Assigned", value: "assigned" },
+              { label: "Queued", value: "queued" },
+              { label: "Processing", value: "processing" },
+              { label: "Approved", value: "approved" },
+              { label: "Rejected", value: "rejected" },
+              { label: "All", value: "all" },
             ]}
             onSelect={(val) => {
               if (val == null) {
-                updateParams({ restaurant_tier: undefined });
-                setFilters({ ...filters, restaurant_tier: undefined });
+                updateParams({ agent_metadata_validation_status: undefined });
+                setFilters({ ...filters, agent_metadata_validation_status: undefined });
               } else {
-                updateParams({ restaurant_tier: val });
-                setFilters({ ...filters, restaurant_tier: val });
+                updateParams({ agent_metadata_validation_status: val });
+                setFilters({ ...filters, agent_metadata_validation_status: val });
               }
             }}
           />
-        </div> */}
+        </div>
+        <div>
+          <CustomSelect
+            value={agent_table_data_validation_status}
+            label="Agent Table Data  Validation Status"
+            placeholder="All"
+            commandGroupClassName="!min-h-[5rem] !max-h-[10rem]"
+            className={"!min-w-[10rem]  w-full"}
+            data={[
+              { label: "Unassigned", value: "unassigned" },
+              { label: "Assigned", value: "assigned" },
+              { label: "Queued", value: "queued" },
+              { label: "Processing", value: "processing" },
+              { label: "Approved", value: "approved" },
+              { label: "Rejected", value: "rejected" },
+              { label: "All", value: "all" },
+            ]}
+            onSelect={(val) => {
+              if (val == 'all') {
+                updateParams({ agent_table_data_validation_status: undefined });
+                setFilters({ ...filters, agent_table_data_validation_status: undefined });
+              } else {
+                updateParams({ agent_table_data_validation_status: val });
+                setFilters({ ...filters, agent_table_data_validation_status: val });
+              }
+            }}
+          />
+        </div>
+
         <div>
           {(role?.toLowerCase() == "admin" ||
             role?.toLowerCase() == "manager") && (

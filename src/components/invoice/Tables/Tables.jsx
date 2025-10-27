@@ -90,6 +90,9 @@ const Tables = ({ setData, setIsLoading = () => { }, currentTab, setCurrentTab =
     restaurant_tier,
     rejected,
     extraction_source,
+    agent_table_data_validation_status: filters?.agent_table_data_validation_status||"all",
+    agent_metadata_validation_status:
+      filters?.agent_metadata_validation_status||"all"
   };
   const {userId}=userStore();
   if(from_view=="re-review" ){
