@@ -12,6 +12,7 @@ import {
   useApplyBusinessRule,
   useFindDuplicateInvoices,
   useGetApplicableBusinessRules,
+  useGetDocumentAnalytics,
   useGetDocumentNotes,
   useGetSimilarBranches,
   useGetSimilarVendors,
@@ -42,7 +43,7 @@ import {
   formatRestaurantsList,
   vendorNamesFormatter
 } from "@/lib/helpers";
-import { queryClient } from "@/lib/utils";
+import { cn, queryClient } from "@/lib/utils";
 import useFilterStore from "@/store/filtersStore";
 import globalStore from "@/store/globalStore";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
@@ -116,6 +117,7 @@ import {
   Save,
   ScanEye,
   Share2,
+  UserRoundCog,
   X
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -135,6 +137,7 @@ import useSidebarStore from "@/store/sidebarStore";
 import book_down_white from "@/assets/image/book_down_white.svg";
 import book_down_black from "@/assets/image/book_down_black.svg";
 import Loader from "@/components/ui/Loader";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 const rejectionReasons = [
   "Duplicate invoice",
   "Multiple invoices in one PDF",
@@ -194,7 +197,7 @@ const InvoiceDetails = () => {
     tableData,
     loadingMetadata,
     setShowUniqueItemCodeRuleModal,
-    showUniqueItemCodeRuleModal, duplicateItemCodeRows, depositColumnRows, setShowDepositRuleModal, showDepositRuleModal, setDepositColumnRows, setDuplicateItemCodeRows,metadataTableCopy,metadataTableCopy2
+    showUniqueItemCodeRuleModal, duplicateItemCodeRows, depositColumnRows, setShowDepositRuleModal, showDepositRuleModal, setDepositColumnRows, setDuplicateItemCodeRows, metadataTableCopy, metadataTableCopy2
   } = invoiceDetailStore();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -239,7 +242,8 @@ const InvoiceDetails = () => {
   const { selectedInvoiceVendorName, selectedInvoiceRestaurantName } =
     globalStore();
   const [showAgentValidation, setShowAgentValidation] = useState(false);
-
+  const [showDocumentAnalytics, setShowDocumentAnalytics] = useState(false);
+  const { data: documentAnalytics, isLoading: loadingDocumentAnalytics } = useGetDocumentAnalytics(metaData?.document_uuid, (role == "admin" || role == "developer") ? showDocumentAnalytics : false);
   useEffect(() => {
     if (metaData?.metadata_validation_status !== "unassigned") {
       setShowAgentValidation(true);
@@ -856,7 +860,7 @@ const InvoiceDetails = () => {
         getBusinessRules(metadataTableCopy2?.document_uuid, {
           onSuccess: (data) => {
             setFirstTime(false);
-           
+
             if (data?.liquor_deposit_separation) {
               setShowDepositRuleModal(true)
 
@@ -866,14 +870,14 @@ const InvoiceDetails = () => {
       }
     }
   }, [metadataTableCopy2, firstTime]);
-  useEffect(()=>{
- if (hasDepositColumnWithValue(tableData)?.hasDeposit) {
-              // setShowDepositRuleModal(true);
-              setDepositColumnRows(hasDepositColumnWithValue(tableData)?.rowsWithDeposit)
-              // setFirstTime(false)
-            }
-  },[tableData])
-  // console.log(metadataTableCopy, "metadata")
+  useEffect(() => {
+    if (hasDepositColumnWithValue(tableData)?.hasDeposit) {
+      // setShowDepositRuleModal(true);
+      setDepositColumnRows(hasDepositColumnWithValue(tableData)?.rowsWithDeposit)
+      // setFirstTime(false)
+    }
+  }, [tableData])
+  console.log(documentAnalytics, "document analytis")
   return (
     <div className="hide-scrollbar relative">
       {/* <div> */}{" "}
@@ -1470,12 +1474,12 @@ const InvoiceDetails = () => {
         >
           {/* <div className="flex items-center justify-start"> */}
 
-          {metaData?.pre_extracted_invoice?<> <p
-               
-                className="font-poppins font-medium text-sm leading-5 capitalize px-4 border border-yellow-600 rounded-md py-0.5 "
-              >
-               Pre Extracted Invoice
-              </p></>:(metaData?.extraction_source && (
+          {metaData?.pre_extracted_invoice ? <> <p
+
+            className="font-poppins font-medium text-sm leading-5 capitalize px-4 border border-yellow-600 rounded-md py-0.5 "
+          >
+            Pre Extracted Invoice
+          </p></> : (metaData?.extraction_source && (
             <CustomTooltip content={"Extraction Source"}>
               {/* {metadata?.extraction_source && ( */}
               <p
@@ -1638,6 +1642,22 @@ const InvoiceDetails = () => {
                     </p>
                   </div>
                 </Button>
+              )}
+              {(role == "admin" || role == "developer") && (
+                <Button
+                    onClick={() => {
+                      setShowDocumentAnalytics(!showDocumentAnalytics);
+                    }}
+                    // disabled={markingForReview}
+                    className="bg-transparent h-[2.4rem] !p-0 fixed bottom-5 left-20 border-primary !cursor-pointer c hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal bg-white text-sm z-50"
+                  >
+                      <CustomTooltip content="Agent Analytics" className={"!z-50"}>
+                    <div className=" h-[2.4rem] w-[3rem] flex items-center justify-center relative">
+                      <UserRoundCog className="dark:text-white !cursor-pointer" />
+
+                    </div>
+                    </CustomTooltip>
+                  </Button>
               )}
 
               <DocumentNotes
@@ -1905,7 +1925,134 @@ const InvoiceDetails = () => {
             />
           </div>
         </div>
+        {/* Document Analytics Modal */}
 
+        <Modal open={showDocumentAnalytics} setOpen={setShowDocumentAnalytics} showXicon={true}
+          className={"min-w-[65rem] !rounded-xl"}>
+          {loadingDocumentAnalytics ? <div className="w-full h-72 items-center justify-center flex"><Loader /></div> : <ModalDescription>
+            <div className="w-full flex  flex-col justify-center h-full items-center  ">
+              <p className="font-poppins text-base font-semibold text-black mb-8">Agent Analytics</p>
+            </div>
+            <div className="w-full flex items-center justify-between">
+
+              <p className="w-1/3 flex items-center gap-x-4 !font-poppins text-sm text-black font-medium"><span>Metadata Validated</span> <span className={cn("h-4 w-4 rounded-full ", documentAnalytics?.metadata_validated ? "bg-primary" : "bg-red-500")}>{ }</span></p>
+              <p className="w-1/3 flex items-center gap-x-4 !font-poppins text-sm text-black font-medium"><span>Summary Validated</span>
+
+
+                <span className={cn("h-4 w-4 rounded-full ", documentAnalytics?.summary_validated ? "bg-primary" : "bg-red-500")}>{ }</span>
+
+              </p>
+              <p className="w-1/3 flex items-center gap-x-4 !font-poppins text-sm text-black font-medium"><span>Table Data Validated</span>
+                <span className={cn("h-4 w-4 rounded-full ", documentAnalytics?.table_data_validated ? "bg-primary" : "bg-red-500")}>{ }</span>
+              </p>
+
+            </div>
+
+            <hr className="h-0.5 my-4 bg-gray-400" />
+            <div className="w-full flex items-center justify-between">
+
+              <p className="w-1/3 flex items-center gap-x-4 !font-poppins text-sm text-black font-medium "><span>Metadata Efficiency : </span>
+                {
+                  documentAnalytics?.metadata_efficiency
+                }%
+              </p>
+              <p className="w-1/3 flex items-center gap-x-4 !font-poppins text-sm text-black font-medium"><span>Summary Efficiency : </span>
+                {
+                  documentAnalytics?.summary_efficiency
+                }%
+
+
+              </p>
+              <p className="w-1/3 flex items-center gap-x-4 !font-poppins text-sm text-black font-medium"><span>Table Data Efficiency : </span>
+                {
+                  documentAnalytics?.table_data_efficiency
+                }%
+              </p>
+
+            </div>
+            <hr className="h-0.5 my-4 bg-gray-400" />
+
+            {/* Metadata Efficiency Breakdown */}
+
+            <div className="mt-8">
+              <p className="font-poppins font-semibold text-sm mb-2 text-black  border-b border-t border-t-gray-400 border-b-gray-400 py-2">Metadata Efficiency Breakdown</p>
+              <div className="grid grid-cols-3 gap-y-2">
+                <div className="flex items-center py-1 gap-x-2 w-full  font-poppins font-medium text-black">
+                  <p>Vendor Modified  :</p>
+                  {documentAnalytics?.metadata_efficiency_breakdown?.vendor_id_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500">{ }</span> : <span className="h-4 w-4 rounded-full bg-primary">{ }</span>}
+                </div>
+                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
+                  <p>Branch Modified  :</p>
+                  {documentAnalytics?.metadata_efficiency_breakdown?.branch_id_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500"></span> : <span className="h-4 w-4 rounded-full bg-primary"></span>}
+                </div>
+                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
+                  <p>Invoice Number Modified :</p>
+                  {documentAnalytics?.metadata_efficiency_breakdown?.invoice_number_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500"></span> : <span className="h-4 w-4 rounded-full bg-primary"></span>}
+                </div>
+                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black"> <p>Credit Card Name Modified  :</p>
+                  {documentAnalytics?.metadata_efficiency_breakdown?.credit_card_name_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500"></span> : <span className="h-4 w-4 rounded-full bg-primary"></span>}
+                </div>
+                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black"> <p>Credit Card Number Modified  :</p> {documentAnalytics?.metadata_efficiency_breakdown?.credit_card_number_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500"></span> : <span className="h-4 w-4 rounded-full bg-primary"></span>}</div>
+                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black"> <p>Invoice Date Modified  :</p> {documentAnalytics?.metadata_efficiency_breakdown?.invoice_date_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500"></span> : <span className="h-4 w-4 rounded-full bg-primary"></span>}</div>
+                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black"> <p>Invoice Due Date Modified  :</p> {documentAnalytics?.metadata_efficiency_breakdown?.invoice_due_date_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500"></span> : <span className="h-4 w-4 rounded-full bg-primary"></span>}</div>
+              </div>
+            </div>
+            {/* Summary Efficiency Breakdown */}
+            <div className="mt-8">
+              <p className="font-poppins font-semibold text-sm mb-2 text-black  border-b border-t border-t-gray-400 border-b-gray-400 py-2">Summary Efficiency Breakdown</p>
+              <div className="grid grid-cols-3 gap-y-2">
+                <div className="flex items-center py-1 gap-x-2 w-full  font-poppins font-medium text-black">
+                  <p>Invoice Extracted Total Modified  :</p>
+                  {documentAnalytics?.summary_efficiency_breakdown?.invoice_extracted_total_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500"></span> : <span className="h-4 w-4 rounded-full bg-primary"></span>}
+                </div>
+                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
+                  <p>Added Taxes Modified  :</p>
+                  {documentAnalytics?.summary_efficiency_breakdown?.added_taxes_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500"></span> : <span className="h-4 w-4 rounded-full bg-primary"></span>}
+                </div>
+                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
+                  <p>Added Fees Modified  :</p>
+                  {documentAnalytics?.summary_efficiency_breakdown?.added_fees_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500"></span> : <span className="h-4 w-4 rounded-full bg-primary"></span>}
+                </div>
+                <div className="flex items-center py-1 gap-x-2 font-poppins r font-medium text-black"> <p>Added Discounts Modified  :</p>
+                  {documentAnalytics?.summary_efficiency_breakdown?.added_discounts_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500"></span> : <span className="h-4 w-4 rounded-full bg-primary"></span>}
+                </div>
+
+              </div>
+            </div>
+
+            {/* Table Data Efficieny Breakdown */}
+            <div className="mt-8">
+              <p className="font-poppins font-semibold text-sm mb-2 text-black  border-b border-t border-t-gray-400 border-b-gray-400 py-2">Table Data Efficiency Breakdown</p>
+              <div className="grid grid-cols-3 gap-y-2 ">
+                <div className="flex items-center py-1 gap-x-2 w-full  font-poppins font-medium text-black">
+                  <p>Category Modification Rate :</p>
+                  <p>{documentAnalytics?.table_data_efficiency_breakdown?.category_modification_rate}%</p>
+                </div>
+                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
+                  <p>Item Description Modification Rate :</p>
+                  <p>{documentAnalytics?.table_data_efficiency_breakdown?.item_description_modification_rate}%</p>
+                </div>
+                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
+                  <p>Item Code Modification Rate :</p>
+                  <p>{documentAnalytics?.table_data_efficiency_breakdown?.item_code_modification_rate}%</p>
+                </div>
+                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
+                  <p>Unit Price Modification Rate :</p>
+                  <p>{documentAnalytics?.table_data_efficiency_breakdown?.unit_price_modification_rate}%</p>
+                </div>
+                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
+                  <p>Quantity Modification Rate :</p>
+                  <p>{documentAnalytics?.table_data_efficiency_breakdown?.quantity_modification_rate}%</p>
+                </div>
+                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
+                  <p>Extended Price Modification Rate :</p>
+                  <p>{documentAnalytics?.table_data_efficiency_breakdown?.extended_price_modification_rate}%</p>
+                </div>
+
+              </div>
+            </div>
+          </ModalDescription>}
+        </Modal>
         {/* Reset Invoice Status Modal */}
         <Modal
           open={showResetStatusModal}
