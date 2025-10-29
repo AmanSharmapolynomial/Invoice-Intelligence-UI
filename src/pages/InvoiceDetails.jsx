@@ -1645,17 +1645,19 @@ const InvoiceDetails = () => {
               )}
               {(role == "admin" || role == "developer") && (
                 <Button
-                  onClick={() => {
-                    setShowDocumentAnalytics(!showDocumentAnalytics);
-                  }}
-                  // disabled={markingForReview}
-                  className="bg-transparent h-[2.4rem] fixed bottom-5 left-20 border-primary !cursor-pointer w-[3rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm z-50"
-                >
-                  <div className="w-full h-full relative">
-                    <UserRoundCog className="dark:text-white !cursor-pointer" />
+                    onClick={() => {
+                      setShowDocumentAnalytics(!showDocumentAnalytics);
+                    }}
+                    // disabled={markingForReview}
+                    className="bg-transparent h-[2.4rem] !p-0 fixed bottom-5 left-20 border-primary !cursor-pointer c hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal bg-white text-sm z-50"
+                  >
+                      <CustomTooltip content="Agent Analytics" className={"!z-50"}>
+                    <div className=" h-[2.4rem] w-[3rem] flex items-center justify-center relative">
+                      <UserRoundCog className="dark:text-white !cursor-pointer" />
 
-                  </div>
-                </Button>
+                    </div>
+                    </CustomTooltip>
+                  </Button>
               )}
 
               <DocumentNotes
@@ -1927,9 +1929,9 @@ const InvoiceDetails = () => {
 
         <Modal open={showDocumentAnalytics} setOpen={setShowDocumentAnalytics} showXicon={true}
           className={"min-w-[65rem] !rounded-xl"}>
-          {loadingDocumentAnalytics?<div className="w-full h-72 items-center justify-center flex"><Loader/></div> :<ModalDescription>
+          {loadingDocumentAnalytics ? <div className="w-full h-72 items-center justify-center flex"><Loader /></div> : <ModalDescription>
             <div className="w-full flex  flex-col justify-center h-full items-center  ">
-              <p className="font-poppins text-base font-semibold text-black mb-8">Document Analytics</p>
+              <p className="font-poppins text-base font-semibold text-black mb-8">Agent Analytics</p>
             </div>
             <div className="w-full flex items-center justify-between">
 
@@ -1972,55 +1974,55 @@ const InvoiceDetails = () => {
 
             {/* Metadata Efficiency Breakdown */}
 
-            <div>
-              <p className="font-poppins font-semibold text-sm mb-2 text-black border-b border-b-gray-400 pb-2">Metadata Efficiency Breakdown</p>
+            <div className="mt-8">
+              <p className="font-poppins font-semibold text-sm mb-2 text-black  border-b border-t border-t-gray-400 border-b-gray-400 py-2">Metadata Efficiency Breakdown</p>
               <div className="grid grid-cols-3 gap-y-2">
                 <div className="flex items-center py-1 gap-x-2 w-full  font-poppins font-medium text-black">
-                  <p>Vendor Modification Count :</p>
-                  <p>{documentAnalytics?.metadata_efficiency_breakdown?.vendor_id_modification_count}</p>
+                  <p>Vendor Modified  :</p>
+                  {documentAnalytics?.metadata_efficiency_breakdown?.vendor_id_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500">{ }</span> : <span className="h-4 w-4 rounded-full bg-primary">{ }</span>}
                 </div>
                 <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
-                  <p>Branch Modification Count :</p>
-                  <p>{documentAnalytics?.metadata_efficiency_breakdown?.branch_id_modification_count}</p>
+                  <p>Branch Modified  :</p>
+                  {documentAnalytics?.metadata_efficiency_breakdown?.branch_id_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500"></span> : <span className="h-4 w-4 rounded-full bg-primary"></span>}
                 </div>
                 <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
-                  <p>Invoice Number Modification Count :</p>
-                  <p>{documentAnalytics?.metadata_efficiency_breakdown?.invoice_number_modification_count}</p>
+                  <p>Invoice Number Modified :</p>
+                  {documentAnalytics?.metadata_efficiency_breakdown?.invoice_number_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500"></span> : <span className="h-4 w-4 rounded-full bg-primary"></span>}
                 </div>
-                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black"> <p>Credit Card Name Modification Count :</p>
-                  <p>{documentAnalytics?.metadata_efficiency_breakdown?.credit_card_name_modification_count}</p>
+                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black"> <p>Credit Card Name Modified  :</p>
+                  {documentAnalytics?.metadata_efficiency_breakdown?.credit_card_name_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500"></span> : <span className="h-4 w-4 rounded-full bg-primary"></span>}
                 </div>
-                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black"> <p>Credit Card Number Modification Count :</p> <p>{documentAnalytics?.metadata_efficiency_breakdown?.credit_card_number_modification_count}</p></div>
-                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black"> <p>Invoice Date Modification Count :</p> <p>{documentAnalytics?.metadata_efficiency_breakdown?.invoice_date_modification_count}</p></div>
-          <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black"> <p>Invoice Due Date Modification Count :</p> <p>{documentAnalytics?.metadata_efficiency_breakdown?.invoice_due_date_modification_count}</p></div>
+                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black"> <p>Credit Card Number Modified  :</p> {documentAnalytics?.metadata_efficiency_breakdown?.credit_card_number_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500"></span> : <span className="h-4 w-4 rounded-full bg-primary"></span>}</div>
+                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black"> <p>Invoice Date Modified  :</p> {documentAnalytics?.metadata_efficiency_breakdown?.invoice_date_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500"></span> : <span className="h-4 w-4 rounded-full bg-primary"></span>}</div>
+                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black"> <p>Invoice Due Date Modified  :</p> {documentAnalytics?.metadata_efficiency_breakdown?.invoice_due_date_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500"></span> : <span className="h-4 w-4 rounded-full bg-primary"></span>}</div>
               </div>
             </div>
             {/* Summary Efficiency Breakdown */}
-            <div className="mt-6">
-              <p className="font-poppins font-semibold text-sm mb-2 text-black border-b border-b-gray-400 pb-2">Summary Efficiency Breakdown</p>
+            <div className="mt-8">
+              <p className="font-poppins font-semibold text-sm mb-2 text-black  border-b border-t border-t-gray-400 border-b-gray-400 py-2">Summary Efficiency Breakdown</p>
               <div className="grid grid-cols-3 gap-y-2">
                 <div className="flex items-center py-1 gap-x-2 w-full  font-poppins font-medium text-black">
-                  <p>Invoice Extracted Total Modification Count :</p>
-                  <p>{documentAnalytics?.summary_efficiency_breakdown?.invoice_extracted_total_modification_count}</p>
+                  <p>Invoice Extracted Total Modified  :</p>
+                  {documentAnalytics?.summary_efficiency_breakdown?.invoice_extracted_total_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500"></span> : <span className="h-4 w-4 rounded-full bg-primary"></span>}
                 </div>
                 <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
-                  <p>Added Taxes Modification Count :</p>
-                  <p>{documentAnalytics?.summary_efficiency_breakdown?.added_taxes_modification_count}</p>
+                  <p>Added Taxes Modified  :</p>
+                  {documentAnalytics?.summary_efficiency_breakdown?.added_taxes_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500"></span> : <span className="h-4 w-4 rounded-full bg-primary"></span>}
                 </div>
                 <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
-                  <p>Added Fees Modification Count :</p>
-                  <p>{documentAnalytics?.summary_efficiency_breakdown?.added_fees_modification_count}</p>
+                  <p>Added Fees Modified  :</p>
+                  {documentAnalytics?.summary_efficiency_breakdown?.added_fees_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500"></span> : <span className="h-4 w-4 rounded-full bg-primary"></span>}
                 </div>
-                <div className="flex items-center py-1 gap-x-2 font-poppins r font-medium text-black"> <p>Added Discounts Modification Count :</p>
-                  <p>{documentAnalytics?.summary_efficiency_breakdown?.added_discounts_modification_count}</p>
+                <div className="flex items-center py-1 gap-x-2 font-poppins r font-medium text-black"> <p>Added Discounts Modified  :</p>
+                  {documentAnalytics?.summary_efficiency_breakdown?.added_discounts_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500"></span> : <span className="h-4 w-4 rounded-full bg-primary"></span>}
                 </div>
-               
+
               </div>
             </div>
 
             {/* Table Data Efficieny Breakdown */}
-                <div className="mt-6">
-              <p className="font-poppins font-semibold text-sm mb-2 text-black  border-b border-b-gray-400 pb-2">Table Data Efficiency Breakdown</p>
+            <div className="mt-8">
+              <p className="font-poppins font-semibold text-sm mb-2 text-black  border-b border-t border-t-gray-400 border-b-gray-400 py-2">Table Data Efficiency Breakdown</p>
               <div className="grid grid-cols-3 gap-y-2 ">
                 <div className="flex items-center py-1 gap-x-2 w-full  font-poppins font-medium text-black">
                   <p>Category Modification Rate :</p>
@@ -2034,19 +2036,19 @@ const InvoiceDetails = () => {
                   <p>Item Code Modification Rate :</p>
                   <p>{documentAnalytics?.table_data_efficiency_breakdown?.item_code_modification_rate}%</p>
                 </div>
-                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black"> 
+                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
                   <p>Unit Price Modification Rate :</p>
                   <p>{documentAnalytics?.table_data_efficiency_breakdown?.unit_price_modification_rate}%</p>
                 </div>
-                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black"> 
+                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
                   <p>Quantity Modification Rate :</p>
                   <p>{documentAnalytics?.table_data_efficiency_breakdown?.quantity_modification_rate}%</p>
                 </div>
-                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black"> 
+                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
                   <p>Extended Price Modification Rate :</p>
                   <p>{documentAnalytics?.table_data_efficiency_breakdown?.extended_price_modification_rate}%</p>
                 </div>
-               
+
               </div>
             </div>
           </ModalDescription>}
