@@ -83,7 +83,7 @@ const Tables = ({ setData, setIsLoading = () => { }, currentTab, setCurrentTab =
     vendor_id,
     document_uuid,
     assigned_to,
-    review_later: filters?.review_later || "false",
+    review_later: from_view=="review_later"?true:filters?.review_later ,
     from_view: from_view?.includes("not-supported")
       ? "not-supported-documents"
       : "",
@@ -99,6 +99,12 @@ const Tables = ({ setData, setIsLoading = () => { }, currentTab, setCurrentTab =
     payload = {
       ...payload,
       re_review_requested:filters?.re_review_requested|| re_review_requested
+    }
+  }
+  if(from_view=="review-later" ){
+    payload = {
+      ...payload,
+      review_later:true
     }
   }
   if(from_view=="re-review-assigned"){
