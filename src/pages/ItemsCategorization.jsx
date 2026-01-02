@@ -198,8 +198,6 @@ const ItemsCategorization = () => {
     category_name,
     searchParams
   ]);
-  console.log(selectedCategory)
-
   return (
     <div className="py-4 ">
       <Toaster />

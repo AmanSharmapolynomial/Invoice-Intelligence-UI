@@ -690,7 +690,7 @@ const MultiInvoiceDocumentsDetails = () => {
     setVendorNames
   } = useInvoiceStore();
   let { pathname } = useLocation();
-  console.log()
+
   let payload = {
     auto_accepted: auto_accepted,
     end_date: end_date,
@@ -819,7 +819,7 @@ const MultiInvoiceDocumentsDetails = () => {
 
   const [currentPageIndex, setCurrentPageIndex] = useState(null);
   const [allIndices, setAllIndices] = useState([]);
-  console.log(data)
+
   useEffect(() => {
     if (data && allIndices?.length === 0) { // only set once
       const indices = [
@@ -934,7 +934,6 @@ const MultiInvoiceDocumentsDetails = () => {
       ...(data?.data?.[0]?.open_groups || []),
       ...(data?.data?.[0]?.incomplete_groups || [])
     ];
-    console.log(all_groups)
 
     return all_groups?.every(group => {
       if (group?.group_type === "open_groups") {

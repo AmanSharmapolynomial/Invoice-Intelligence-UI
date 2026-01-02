@@ -519,6 +519,7 @@ const InvoiceDetails = () => {
   };
 
   const handleAccept = () => {
+    let toCheckColumns=['Category','Item Code',"Size",'Unit Of Measure','Item Description','Quantity','Pack','Unit Price',"Weight","Extended Price","Yield Percentage","Sold By"]
     const selectedColumnIds = tableData?.data?.processed_table?.rows
       ?.filter((f) => f?.selected_column)
       ?.map(
@@ -526,6 +527,24 @@ const InvoiceDetails = () => {
           rest?.column_uuid
       );
 
+    let columnsNames = tableData?.data?.processed_table?.columns?.map(
+      ({ column_name, selected_column }) => ({
+        name: column_name,
+        selected: selected_column,
+      })
+    );
+    let toReturn=false
+
+    columnsNames?.forEach((c)=>{
+      if(toCheckColumns?.includes(c?.name)){
+        if(!c?.selected){
+          toReturn=true
+          toast.error(`${c?.name} column must be checked.`)
+          return
+        }
+      }
+    })
+    if(toReturn) return
     const hasUnknown = tableData?.data?.processed_table?.rows?.some((r) =>
       r.cells?.some(
         (cell) =>

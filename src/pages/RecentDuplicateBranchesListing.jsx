@@ -338,7 +338,6 @@ const RecentDuplicateBranchesListing = () => {
                                     <Combine
                                       className="text-gray-500 h-4 w-4 "
                                       onClick={() => {
-                                        console.log("clicker");
                                         setShowMergeConfirmationModal(true);
                                         setCurrentSelectedRow({
                                           index: index,
