@@ -121,7 +121,7 @@ import {
   UserRoundCog,
   X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import {
   Link,
@@ -214,7 +214,7 @@ const markDownComponents = {
       </div>
     </td>
   ),
-}
+};
 const InvoiceDetails = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -348,56 +348,7 @@ const InvoiceDetails = () => {
   useEffect(() => {
     appendFiltersToUrl();
   }, []);
-  const getDuplicateItemCodeRows = (tableData) => {
-    if (!tableData) return { hasConflict: false, duplicateRows: [] };
-    const rows = tableData?.data?.processed_table?.rows || [];
-    let item_code_column_uuid = tableData?.data?.processed_table?.columns?.find(
-      (c) => c?.column_name == "Item Code"
-    )?.column_uuid;
-    let item_description_column_uuid =
-      tableData?.data?.processed_table?.columns?.find(
-        (c) => c?.column_name == "Item Description"
-      )?.column_uuid;
-    // Map to group rows by item code
-    const itemMap = {};
 
-    rows.forEach((row) => {
-      let itemCode = "";
-      let itemDesc = "";
-
-      row?.cells?.forEach((cell) => {
-        if (cell?.column_uuid == item_code_column_uuid) {
-          itemCode = cell?.text || "null";
-        }
-        if (cell?.column_uuid == item_description_column_uuid) {
-          itemDesc = cell?.text || "null";
-        }
-      });
-
-      if (itemCode) {
-        if (!itemMap[itemCode]) {
-          itemMap[itemCode] = { descSet: new Set(), rows: [] };
-        }
-        if (itemDesc) {
-          itemMap[itemCode].descSet.add(itemDesc);
-        }
-        itemMap[itemCode].rows.push(row);
-      }
-    });
-
-    // Find all item codes with multiple descriptions
-    const duplicateRows = [];
-    Object.values(itemMap).forEach(({ descSet, rows }) => {
-      if (descSet.size > 1) {
-        duplicateRows.push(...rows);
-      }
-    });
-
-    return {
-      hasConflict: duplicateRows.length > 0,
-      duplicateRows,
-    };
-  };
   const hasDepositColumnWithValue = (tableData) => {
     if (!tableData) return { hasDeposit: false, rowsWithDeposit: [] };
 
@@ -966,7 +917,9 @@ const InvoiceDetails = () => {
       // setFirstTime(false)
     }
   }, [tableData]);
-  console.log(documentAnalytics, "document analytis");
+  const noteTypeRefs = useRef([]);
+  const noteRefs = useRef([]);
+
   return (
     <div className="hide-scrollbar relative">
       {/* <div> */}{" "}
@@ -1036,37 +989,53 @@ const InvoiceDetails = () => {
         </span>
         <div className="flex flex-col gap-y-4 max-h-96 overflow-auto my-4">
           {metaData?.ai_notes?.length > 0 &&
-            metaData?.ai_notes?.map(({ note_type, note, created_at }) => {
+            metaData?.ai_notes?.map(({ note_type, note, created_at },index) => {
               return (
                 <div key={note} className="bg-accent rounded-md z-10 px-2">
                   <div className="w-96">
-                    <p className="font-poppins font-semibold  items-center justify-between capitalize text-sm border-b py-2">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]} components={markDownComponents}>
-                        {note_type}
-                      </ReactMarkdown>
-                      {/* <img
+                    <p className="font-poppins font-semibold flex  items-center justify-between capitalize text-sm border-b py-2">
+                      <div ref={(el) => (noteTypeRefs.current[index] = el)}>
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          components={markDownComponents}
+                        >
+                          {note_type}
+                        </ReactMarkdown>
+                      </div>
+                      <img
                         src={copy}
                         alt="copy icon"
                         onClick={() => {
-                          navigator.clipboard.writeText(note_type);
+                          navigator.clipboard.writeText(
+                            noteTypeRefs.current?.[index]?.innerText
+                          );
                           toast.success("Note Type copied to clipboard");
                         }}
                         className=" cursor-pointer h-4  z-50"
-                      /> */}
+                      />
                     </p>
-                    <p className="max-w-96 font-poppins  items-start justify-between font-medium text-xs mt-1 leading-5">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]} components={markDownComponents}>
-                        {note}
-                      </ReactMarkdown>
-                      {/* <img
+                    <p className="max-w-96 font-poppins flex  items-start justify-between font-medium text-xs mt-1 leading-5">
+                      <div 
+          ref={(el) => (noteRefs.current[index] = el)}
+                      >
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          components={markDownComponents}
+                        >
+                          {note}
+                        </ReactMarkdown>
+                      </div>
+                      <img
                         src={copy}
                         alt="copy icon"
                         onClick={() => {
-                          navigator.clipboard.writeText(note);
+                          navigator.clipboard.writeText(
+                            not_ref.current?.[index]?.innerText
+                          );
                           toast.success("Note copied to clipboard");
                         }}
                         className=" cursor-pointer h-4  z-50"
-                      /> */}
+                      />
                     </p>
                     <p className="max-w-96 font-poppins font-medium text-xs my-1.5 text-end leading-5">
                       {formatDateToReadable(created_at)}{" "}
