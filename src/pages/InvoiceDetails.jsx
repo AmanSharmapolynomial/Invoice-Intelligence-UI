@@ -22,7 +22,7 @@ import {
   useReprocessDocument,
   useRevertChanges,
   useUpdateDocumentMetadata,
-  useUpdateDocumentTable
+  useUpdateDocumentTable,
 } from "@/components/invoice/api";
 import CategoryWiseSum from "@/components/invoice/CategoryWiseSum";
 import InvoicePagination from "@/components/invoice/InvoicePagination";
@@ -41,7 +41,7 @@ import {
   formatDateTimeToReadable,
   formatDateToReadable,
   formatRestaurantsList,
-  vendorNamesFormatter
+  vendorNamesFormatter,
 } from "@/lib/helpers";
 import { cn, queryClient } from "@/lib/utils";
 import useFilterStore from "@/store/filtersStore";
@@ -70,7 +70,7 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetTrigger
+  SheetTrigger,
 } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -79,19 +79,19 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
+  TableRow,
 } from "@/components/ui/table";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger
+  TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
   useGetVendorBranchPdfs,
   useGetVendorNames,
   useGetVendorNotes,
-  useGetVendorsPdfs
+  useGetVendorsPdfs,
 } from "@/components/vendor/api";
 import DocumentNotes from "@/components/vendor/notes/DocumentNotes";
 import VendorNotes from "@/components/vendor/notes/VendorNotes";
@@ -118,7 +118,7 @@ import {
   ScanEye,
   Share2,
   UserRoundCog,
-  X
+  X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -126,7 +126,7 @@ import {
   Link,
   useLocation,
   useNavigate,
-  useSearchParams
+  useSearchParams,
 } from "react-router-dom";
 // import book_user_white from "@/assets/image/book_user_white.svg";
 // import book_user_black from "@/assets/image/book_user_black.svg";
@@ -137,7 +137,12 @@ import useSidebarStore from "@/store/sidebarStore";
 import book_down_white from "@/assets/image/book_down_white.svg";
 import book_down_black from "@/assets/image/book_down_black.svg";
 import Loader from "@/components/ui/Loader";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 const rejectionReasons = [
   "Duplicate invoice",
   "Multiple invoices in one PDF",
@@ -145,7 +150,7 @@ const rejectionReasons = [
   "Invoice details unclear",
   "Total amount unclear",
   "Vendor not identifiable",
-  "Missing invoice page"
+  "Missing invoice page",
 ];
 
 const InvoiceDetails = () => {
@@ -164,7 +169,7 @@ const InvoiceDetails = () => {
   const [clickedOnAcceptButton, setClickedOnAcceptButton] = useState(false);
   const [
     showSimilarVendorsAndBranchesWarningModal,
-    setShowSimilarVendorsAndBranchesWarningModal
+    setShowSimilarVendorsAndBranchesWarningModal,
   ] = useState(false);
   const [showDuplicateInvoicesModal, setShowDuplicateInvoicesModal] =
     useState(false);
@@ -172,8 +177,10 @@ const InvoiceDetails = () => {
     useState(false);
   const [showReReviewRequestedWarning, setShowReReviewRequestedWarning] =
     useState(false);
-  const [showDuplicateItemCodeWarning, setShowDuplicateItemCodeWarning] = useState(false);
-  const [showDepositColumnWarning, setShowDepositColumnWarning] = useState(false);
+  const [showDuplicateItemCodeWarning, setShowDuplicateItemCodeWarning] =
+    useState(false);
+  const [showDepositColumnWarning, setShowDepositColumnWarning] =
+    useState(false);
   let document_uuid =
     searchParams.get("document_uuid") || searchParams.get("document");
   const {
@@ -197,7 +204,15 @@ const InvoiceDetails = () => {
     tableData,
     loadingMetadata,
     setShowUniqueItemCodeRuleModal,
-    showUniqueItemCodeRuleModal, duplicateItemCodeRows, depositColumnRows, setShowDepositRuleModal, showDepositRuleModal, setDepositColumnRows, setDuplicateItemCodeRows, metadataTableCopy, metadataTableCopy2
+    showUniqueItemCodeRuleModal,
+    duplicateItemCodeRows,
+    depositColumnRows,
+    setShowDepositRuleModal,
+    showDepositRuleModal,
+    setDepositColumnRows,
+    setDuplicateItemCodeRows,
+    metadataTableCopy,
+    metadataTableCopy2,
   } = invoiceDetailStore();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -210,13 +225,13 @@ const InvoiceDetails = () => {
     reverting: false,
     reprocessing: false,
     mutliInvoceMarking: false,
-    applyingRule: false
+    applyingRule: false,
   });
 
   const { data: similarVendors, isLoading: loadingSimilarVendors } =
     useGetSimilarVendors({
       toFetch: is_unverified_vendor,
-      document_uuid: current_document_uuid
+      document_uuid: current_document_uuid,
     });
 
   const { data: similarBranches, isLoading: loadingSimilarBranches } =
@@ -238,12 +253,16 @@ const InvoiceDetails = () => {
   const { mutate: markAsNotSupported } = useMarkAsNotSupported();
   const { mutate: markAsMutlipleInvoice } = useMarkAsMultiInvoice();
   const { mutate: applyBusinessRule } = useApplyBusinessRule();
-  const { mutate: getBusinessRules } = useGetApplicableBusinessRules()
+  const { mutate: getBusinessRules } = useGetApplicableBusinessRules();
   const { selectedInvoiceVendorName, selectedInvoiceRestaurantName } =
     globalStore();
   const [showAgentValidation, setShowAgentValidation] = useState(false);
   const [showDocumentAnalytics, setShowDocumentAnalytics] = useState(false);
-  const { data: documentAnalytics, isLoading: loadingDocumentAnalytics } = useGetDocumentAnalytics(metaData?.document_uuid, (role == "admin" || role == "developer") ? showDocumentAnalytics : false);
+  const { data: documentAnalytics, isLoading: loadingDocumentAnalytics } =
+    useGetDocumentAnalytics(
+      metaData?.document_uuid,
+      role == "admin" || role == "developer" ? showDocumentAnalytics : false
+    );
   useEffect(() => {
     if (metaData?.metadata_validation_status !== "unassigned") {
       setShowAgentValidation(true);
@@ -270,8 +289,13 @@ const InvoiceDetails = () => {
   const getDuplicateItemCodeRows = (tableData) => {
     if (!tableData) return { hasConflict: false, duplicateRows: [] };
     const rows = tableData?.data?.processed_table?.rows || [];
-    let item_code_column_uuid = tableData?.data?.processed_table?.columns?.find((c) => c?.column_name == "Item Code")?.column_uuid;
-    let item_description_column_uuid = tableData?.data?.processed_table?.columns?.find((c) => c?.column_name == "Item Description")?.column_uuid;
+    let item_code_column_uuid = tableData?.data?.processed_table?.columns?.find(
+      (c) => c?.column_name == "Item Code"
+    )?.column_uuid;
+    let item_description_column_uuid =
+      tableData?.data?.processed_table?.columns?.find(
+        (c) => c?.column_name == "Item Description"
+      )?.column_uuid;
     // Map to group rows by item code
     const itemMap = {};
 
@@ -281,11 +305,10 @@ const InvoiceDetails = () => {
 
       row?.cells?.forEach((cell) => {
         if (cell?.column_uuid == item_code_column_uuid) {
-
-          itemCode = (cell?.text || "null");
+          itemCode = cell?.text || "null";
         }
         if (cell?.column_uuid == item_description_column_uuid) {
-          itemDesc = (cell?.text || "null");
+          itemDesc = cell?.text || "null";
         }
       });
 
@@ -307,7 +330,6 @@ const InvoiceDetails = () => {
         duplicateRows.push(...rows);
       }
     });
-
 
     return {
       hasConflict: duplicateRows.length > 0,
@@ -348,7 +370,7 @@ const InvoiceDetails = () => {
   const handleSave = () => {
     if (Object?.keys(updatedFields)?.length == 0 && operations?.length == 0) {
       return toast("No Fields Updated..", {
-        icon: "⚠️"
+        icon: "⚠️",
       });
     }
     if (currentTab == "metadata" && updatedFields) {
@@ -357,7 +379,7 @@ const InvoiceDetails = () => {
         {
           document_uuid:
             data?.data?.[0]?.document_uuid || data?.data?.document_uuid,
-          data: updatedFields
+          data: updatedFields,
         },
         {
           onSuccess: () => {
@@ -370,7 +392,7 @@ const InvoiceDetails = () => {
           },
           onError: () => {
             setLoadingState({ ...loadingState, saving: false });
-          }
+          },
         }
       );
     } else if (currentTab == "human-verification") {
@@ -380,16 +402,16 @@ const InvoiceDetails = () => {
           {
             document_uuid:
               data?.data?.[0]?.document_uuid || data?.data?.document_uuid,
-            data: updatedFields
+            data: updatedFields,
           },
           {
             onSuccess: () => {
               setLoadingState({ ...loadingState, saving: false });
               queryClient.invalidateQueries({
-                queryKey: ["document-metadata"]
+                queryKey: ["document-metadata"],
               });
               queryClient.invalidateQueries({
-                queryKey: ["duplicate-invoices"]
+                queryKey: ["duplicate-invoices"],
               });
               clearUpdatedFields();
               setBranchChanged(false);
@@ -397,7 +419,7 @@ const InvoiceDetails = () => {
             },
             onError: () => {
               setLoadingState({ ...loadingState, saving: false });
-            }
+            },
           }
         );
       }
@@ -411,24 +433,25 @@ const InvoiceDetails = () => {
 
               setHistory([]);
               queryClient.invalidateQueries({
-                queryKey: ["duplicate-invoices"]
+                queryKey: ["duplicate-invoices"],
               });
               queryClient.invalidateQueries({ queryKey: ["combined-table"] });
               queryClient.invalidateQueries({ queryKey: ["additional-data"] });
-
 
               getBusinessRules(metaData?.document_uuid, {
                 onSuccess: (data) => {
                   if (hasDepositColumnWithValue(tableData)?.hasDeposit) {
                     // setShowDepositRuleModal(true);
-                    setDepositColumnRows(hasDepositColumnWithValue(tableData)?.rowsWithDeposit)
+                    setDepositColumnRows(
+                      hasDepositColumnWithValue(tableData)?.rowsWithDeposit
+                    );
                     // setFirstTime(false)
                   }
-                }
-              })
+                },
+              });
             },
 
-            onError: () => setLoadingState({ ...loadingState, saving: false })
+            onError: () => setLoadingState({ ...loadingState, saving: false }),
           }
         );
       }
@@ -444,7 +467,7 @@ const InvoiceDetails = () => {
     updateTable(
       {
         document_uuid: metaData?.document_uuid,
-        data: { ...payload, ...updatedFields }
+        data: { ...payload, ...updatedFields },
       },
       {
         onSuccess: () => {
@@ -454,7 +477,7 @@ const InvoiceDetails = () => {
           setShowRejectionModal(false);
           queryClient.invalidateQueries({ queryKey: ["document-metadata"] });
         },
-        onError: () => setLoadingState({ ...loadingState, rejecting: false })
+        onError: () => setLoadingState({ ...loadingState, rejecting: false }),
       }
     );
     if (operations?.length !== 0) {
@@ -476,13 +499,14 @@ const InvoiceDetails = () => {
             // setCombinedTableCopy({});
           },
 
-          onError: () => setLoadingState({ ...loadingState, saving: false })
+          onError: () => setLoadingState({ ...loadingState, saving: false }),
         }
       );
     }
   };
 
   const handleAccept = () => {
+    let toCheckColumns=['Category','Item Code',"Size",'Unit Of Measure','Item Description','Quantity','Pack','Unit Price',"Weight","Extended Price","Yield Percentage","Sold By"]
     const selectedColumnIds = tableData?.data?.processed_table?.rows
       ?.filter((f) => f?.selected_column)
       ?.map(
@@ -490,6 +514,24 @@ const InvoiceDetails = () => {
           rest?.column_uuid
       );
 
+    let columnsNames = tableData?.data?.processed_table?.columns?.map(
+      ({ column_name, selected_column }) => ({
+        name: column_name,
+        selected: selected_column,
+      })
+    );
+    let toReturn=false
+
+    columnsNames?.forEach((c)=>{
+      if(toCheckColumns?.includes(c?.name)){
+        if(!c?.selected){
+          toReturn=true
+          toast.error(`${c?.name} column must be checked.`)
+          return
+        }
+      }
+    })
+    if(toReturn) return
     const hasUnknown = tableData?.data?.processed_table?.rows?.some((r) =>
       r.cells?.some(
         (cell) =>
@@ -515,7 +557,7 @@ const InvoiceDetails = () => {
     updateTable(
       {
         document_uuid: metaData?.document_uuid,
-        data: { human_verified: true, ...updatedFields }
+        data: { human_verified: true, ...updatedFields },
       },
       {
         onSuccess: () => {
@@ -529,7 +571,7 @@ const InvoiceDetails = () => {
         onError: () => {
           setLoadingState({ ...loadingState, saving: false });
           queryClient.invalidateQueries({ queryKey: ["combined-table"] });
-        }
+        },
       }
     );
     if (operations?.length !== 0) {
@@ -549,7 +591,7 @@ const InvoiceDetails = () => {
             // setCombinedTableCopy({});
           },
 
-          onError: () => setLoadingState({ ...loadingState, saving: false })
+          onError: () => setLoadingState({ ...loadingState, saving: false }),
         }
       );
     }
@@ -618,7 +660,7 @@ const InvoiceDetails = () => {
     restaurantsList,
     vendorNamesList,
     vendorNamesLoading,
-    restaurantsListLoading
+    restaurantsListLoading,
   ]);
   const [open, setOpen] = useState(false);
   const { setVendorNames: setVendorsList } = persistStore();
@@ -676,7 +718,7 @@ const InvoiceDetails = () => {
     from_view: from_view?.includes("not-supported")
       ? "not-supported-documents"
       : "",
-    extraction_source
+    extraction_source,
   };
 
   useEffect(() => {
@@ -696,7 +738,7 @@ const InvoiceDetails = () => {
     setShowDepositRuleModal(false);
     setDepositColumnRows([]);
     setDuplicateItemCodeRows([]);
-    setFirstTime(false)
+    setFirstTime(false);
   }, [page_number]);
 
   const { mutate: revertChanges } = useRevertChanges();
@@ -740,14 +782,14 @@ const InvoiceDetails = () => {
       text: "All Invoices",
       image: theme === "light" ? all_invoices_black : all_invoices_white,
       hoverImage: all_invoices_white,
-      count: sideBarCounts?.all_invoices
+      count: sideBarCounts?.all_invoices,
     },
     {
       path: "/re-review-requested",
       text: "All Re-review Requested Documents",
       image: theme === "light" ? book_down_black : book_down_black,
       hoverImage: book_down_white,
-      count: sideBarCounts?.all_re_review_requested_documents || 0
+      count: sideBarCounts?.all_re_review_requested_documents || 0,
     },
 
     {
@@ -755,63 +797,66 @@ const InvoiceDetails = () => {
       text: "All Multiple Invoice Documents",
       image: theme === "light" ? multi_invoice_black : multi_invoice_white,
       hoverImage: multi_invoice_white,
-      count: sideBarCounts?.all_multiple_invoice_documents
+      count: sideBarCounts?.all_multiple_invoice_documents,
     },
     {
       path: "/flagged-invoices",
       text: "All Flagged Documents",
       image: theme === "light" ? flagged_black : flagged_white,
       hoverImage: flagged_white,
-      count: sideBarCounts?.all_flagged_documents
+      count: sideBarCounts?.all_flagged_documents,
     },
     {
       path: "/my-tasks",
       text: "My Tasks",
       image: theme === "light" ? my_tasks_black : my_tasks_white,
       hoverImage: my_tasks_white,
-      count: sideBarCounts?.my_tasks?.invoices + sideBarCounts?.my_tasks?.flagged_documents + sideBarCounts?.my_tasks?.multiple_invoice_documents + sideBarCounts?.my_tasks?.re_review_requested_documents || 0,
+      count:
+        sideBarCounts?.my_tasks?.invoices +
+          sideBarCounts?.my_tasks?.flagged_documents +
+          sideBarCounts?.my_tasks?.multiple_invoice_documents +
+          sideBarCounts?.my_tasks?.re_review_requested_documents || 0,
       children: [
         {
           path: "/my-tasks",
           text: "Invoices",
-          count: sideBarCounts?.my_tasks?.invoices
+          count: sideBarCounts?.my_tasks?.invoices,
         },
         {
           path: "/re-review-requested-assigned",
           text: "Re-review Requested Documents",
           image: theme === "light" ? book_down_black : book_down_black,
           hoverImage: book_down_white,
-          count: sideBarCounts?.my_tasks?.re_review_requested_documents || 0
+          count: sideBarCounts?.my_tasks?.re_review_requested_documents || 0,
         },
         {
           path: `/multi-invoice-documents`,
           text: "Multiple Invoice Documents",
           image: theme === "light" ? multi_invoice_black : multi_invoice_white,
           hoverImage: multi_invoice_white,
-          count: sideBarCounts?.my_tasks?.multiple_invoice_documents
+          count: sideBarCounts?.my_tasks?.multiple_invoice_documents,
         },
         {
           path: `/unsupported-documents`,
           text: "Flagged Documents",
-          count: sideBarCounts?.my_tasks?.flagged_documents
+          count: sideBarCounts?.my_tasks?.flagged_documents,
         },
-
-      ]
+      ],
     },
     {
       path: "/review-later-tasks",
       text: "Review Later Invoices",
       image: theme === "light" ? review_later_black : review_later_white,
       hoverImage: review_later_white,
-      count: sideBarCounts?.review_later
+      count: sideBarCounts?.review_later,
     },
     {
       path: "/not-supported-documents",
       text: "Not Supported Documents",
       image: theme === "light" ? not_supported_black : not_supported_white,
       hoverImage: not_supported_white,
-      count: sideBarCounts?.not_supported
-    }
+      count: sideBarCounts?.not_supported,
+    },
   ];
 
   useEffect(() => {
@@ -835,14 +880,15 @@ const InvoiceDetails = () => {
   const [selectedSimilarVendor, setSelectedSimilarVendor] = useState(null);
   const [selectedSimilarBranch, setSelectedSimilarBranch] = useState(null);
   const { data: vendorPdfs, isLoading: loadingVendorPdfs } = useGetVendorsPdfs({
-    vendor_one: selectedSimilarVendor?.vendor_id
+    vendor_one: selectedSimilarVendor?.vendor_id,
   });
   const { data: branchPdfs, isLoading: loadingBranchPdfs } =
     useGetVendorBranchPdfs(selectedSimilarBranch?.branch_id);
 
   const [showDocumentNotes, setShowDocumentNotes] = useState(false);
 
-  const [showMultipleInvoiceModal, setShowMultipleInvoiceModal] = useState(false);
+  const [showMultipleInvoiceModal, setShowMultipleInvoiceModal] =
+    useState(false);
   const [showResetStatusModal, setShowResetStatusModal] = useState(false);
   const selectedColumnIds = tableData?.data?.processed_table?.columns
     ?.filter((f) => f?.selected_column)
@@ -856,28 +902,27 @@ const InvoiceDetails = () => {
   useEffect(() => {
     if (metadataTableCopy2?.document_uuid) {
       if (!firstTime) {
-
         getBusinessRules(metadataTableCopy2?.document_uuid, {
           onSuccess: (data) => {
             setFirstTime(false);
 
             if (data?.liquor_deposit_separation) {
-              setShowDepositRuleModal(true)
-
+              setShowDepositRuleModal(true);
             }
-          }
-        })
+          },
+        });
       }
     }
   }, [metadataTableCopy2, firstTime]);
   useEffect(() => {
     if (hasDepositColumnWithValue(tableData)?.hasDeposit) {
       // setShowDepositRuleModal(true);
-      setDepositColumnRows(hasDepositColumnWithValue(tableData)?.rowsWithDeposit)
+      setDepositColumnRows(
+        hasDepositColumnWithValue(tableData)?.rowsWithDeposit
+      );
       // setFirstTime(false)
     }
-  }, [tableData])
-  console.log(documentAnalytics, "document analytis")
+  }, [tableData]);
   return (
     <div className="hide-scrollbar relative">
       {/* <div> */}{" "}
@@ -902,8 +947,8 @@ const InvoiceDetails = () => {
             loadingVendorPdfs
               ? []
               : vendorPdfs?.data
-                ? Object?.values(vendorPdfs?.data)?.[0]
-                : []
+              ? Object?.values(vendorPdfs?.data)?.[0]
+              : []
           }
           multiple={true}
           className={"!w-[40vw] !max-h-[50rem]"}
@@ -1000,11 +1045,12 @@ const InvoiceDetails = () => {
           </div>
         </SheetTrigger>
         <SheetContent side="left" className="px-0 !max-w-[350px] pt-8 ">
-
-          <Menu onClick={() => {
-            setExpanded()
-          }} className="h-5 w-5 cursor-pointer absolute right-4 top-2  text-end text-[#000000] " />
-
+          <Menu
+            onClick={() => {
+              setExpanded();
+            }}
+            className="h-5 w-5 cursor-pointer absolute right-4 top-2  text-end text-[#000000] "
+          />
 
           <div className=" space-y-2 flex flex-col">
             {options?.map((option, index) => {
@@ -1037,18 +1083,20 @@ const InvoiceDetails = () => {
               return (
                 <div
                   key={index}
-                  className={`${role !== "admin" &&
+                  className={`${
+                    role !== "admin" &&
                     option?.text === "Not Supported Documents" &&
                     "hidden"
-                    }`}
+                  }`}
                 >
                   <Wrapper
                     to={option.path || "#"}
                     onClick={handleClick}
-                    className={`group cursor-pointer flex  items-center px-4 gap-2 py-3 text-sm font-normal transition-all duration-300 ${isActive
-                      ? "bg-primary text-white"
-                      : "text-black hover:bg-primary hover:text-white"
-                      }`}
+                    className={`group cursor-pointer flex  items-center px-4 gap-2 py-3 text-sm font-normal transition-all duration-300 ${
+                      isActive
+                        ? "bg-primary text-white"
+                        : "text-black hover:bg-primary hover:text-white"
+                    }`}
                   >
                     <div className="relative flex-shrink-0 w-5 h-5">
                       <img
@@ -1059,8 +1107,9 @@ const InvoiceDetails = () => {
                       <img
                         src={option?.hoverImage}
                         alt={option?.text}
-                        className={`absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity ${isActive ? "opacity-100" : ""
-                          }`}
+                        className={`absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity ${
+                          isActive ? "opacity-100" : ""
+                        }`}
                       />
                     </div>
 
@@ -1095,10 +1144,11 @@ const InvoiceDetails = () => {
                           to={child?.path}
                           onClick={() => setDefault()}
                           key={idx}
-                          className={`block text-sm py-3 mt-1 px-2 hover:bg-primary hover:text-white ${pathname === child?.path
-                            ? "bg-primary text-white"
-                            : "text-gray-700"
-                            }`}
+                          className={`block text-sm py-3 mt-1 px-2 hover:bg-primary hover:text-white ${
+                            pathname === child?.path
+                              ? "bg-primary text-white"
+                              : "text-gray-700"
+                          }`}
                         >
                           <div className="flex justify-between items-center">
                             <span className="truncate">{child?.text}</span>
@@ -1123,454 +1173,455 @@ const InvoiceDetails = () => {
         </SheetContent>
       </Sheet>
       {/* </div> */}
-      {showLoader ? <div className="w-full flex items-center justify-center h-[80vh]">
-
-
-        <Loader className={"!h-12 !w-12"} />
-      </div> : <Layout
-        className={
-          "mx-6 rounded-md  hide-scrollbar  !relative !shadow-none flex flex-1 flex-col justify-between gap-y-4   "
-        }
-      >
-        <BreadCrumb
-          showCustom={true}
-          hideTitle={true}
-          crumbs={[
-            {
-              path: null,
-              label: `Invoice Details`
-            }
-          ]}
+      {showLoader ? (
+        <div className="w-full flex items-center justify-center h-[80vh]">
+          <Loader className={"!h-12 !w-12"} />
+        </div>
+      ) : (
+        <Layout
+          className={
+            "mx-6 rounded-md  hide-scrollbar  !relative !shadow-none flex flex-1 flex-col justify-between gap-y-4   "
+          }
         >
-          {isLoading ? (
-            <div className="flex items-center gap-x-2">
-              <Skeleton className={"w-44 h-10  mb-1"} />
-              <Skeleton className={"w-44 h-10  mb-1"} />
-            </div>
-          ) : (
-            <>
-              <div className="flex gap-x-4 items-end">
-                {(data?.data?.restaurant || data?.data?.[0]?.restaurant) && (
-                  <>
-                    <div className="flex flex-col gap-y-0">
-                      <p className="text-[#6D6D6D] font-poppins font-medium text-xs leading-4">
-                        Restaurant
-                      </p>
-                      <p className="capitalize text-[#121212] flex items-center gap-x-2 font-semibold font-poppins text-xl">
-                        <span>
-                          {data?.data?.restaurant?.restaurant_name ||
-                            data?.data?.[0]?.restaurant?.restaurant_name ||
-                            data?.data?.restaurant?.restaurant_id ||
-                            data?.data?.[0]?.restaurant?.restaurant_id}
-                        </span>
-                        <img
-                          className="h-4 w-4"
-                          src={
-                            rest_tier == 1
-                              ? tier_1
-                              : rest_tier == 2
+          <BreadCrumb
+            showCustom={true}
+            hideTitle={true}
+            crumbs={[
+              {
+                path: null,
+                label: `Invoice Details`,
+              },
+            ]}
+          >
+            {isLoading ? (
+              <div className="flex items-center gap-x-2">
+                <Skeleton className={"w-44 h-10  mb-1"} />
+                <Skeleton className={"w-44 h-10  mb-1"} />
+              </div>
+            ) : (
+              <>
+                <div className="flex gap-x-4 items-end">
+                  {(data?.data?.restaurant || data?.data?.[0]?.restaurant) && (
+                    <>
+                      <div className="flex flex-col gap-y-0">
+                        <p className="text-[#6D6D6D] font-poppins font-medium text-xs leading-4">
+                          Restaurant
+                        </p>
+                        <p className="capitalize text-[#121212] flex items-center gap-x-2 font-semibold font-poppins text-xl">
+                          <span>
+                            {data?.data?.restaurant?.restaurant_name ||
+                              data?.data?.[0]?.restaurant?.restaurant_name ||
+                              data?.data?.restaurant?.restaurant_id ||
+                              data?.data?.[0]?.restaurant?.restaurant_id}
+                          </span>
+                          <img
+                            className="h-4 w-4"
+                            src={
+                              rest_tier == 1
+                                ? tier_1
+                                : rest_tier == 2
                                 ? tier_2
                                 : tier_3
-                          }
-                          alt=""
-                        />
-                      </p>
-                    </div>
-                  </>
-                )}
+                            }
+                            alt=""
+                          />
+                        </p>
+                      </div>
+                    </>
+                  )}
 
-                {(data?.data?.vendor || data?.data?.[0]?.vendor) && (
-                  <>
-                    <p className="text-2xl">|</p>
-                    <div className="flex flex-col gap-y-0">
-                      <p className="text-[#6D6D6D] font-poppins font-medium text-xs leading-4">
-                        Vendor
-                      </p>
-                      <p className="capitalize text-[#121212] font-semibold font-poppins text-xl flex gap-x-2 items-center">
-                        {data?.data?.vendor?.vendor_name ||
-                          data?.data?.[0]?.vendor?.vendor_name}
+                  {(data?.data?.vendor || data?.data?.[0]?.vendor) && (
+                    <>
+                      <p className="text-2xl">|</p>
+                      <div className="flex flex-col gap-y-0">
+                        <p className="text-[#6D6D6D] font-poppins font-medium text-xs leading-4">
+                          Vendor
+                        </p>
+                        <p className="capitalize text-[#121212] font-semibold font-poppins text-xl flex gap-x-2 items-center">
+                          {data?.data?.vendor?.vendor_name ||
+                            data?.data?.[0]?.vendor?.vendor_name}
 
-                        {data?.data?.vendor?.human_verified ||
-                          (data?.data?.[0]?.vendor?.human_verified && (
-                            <img src={approved} />
-                          ))}
-                      </p>
-                    </div>
-                  </>
-                )}
-                <div>
-                  <div className=" -mt-[1.78rem] flex  gap-x-2 !capitalize -ml-3">
-                    {myData?.human_verified === true &&
-                      myData?.rejected === false && (
+                          {data?.data?.vendor?.human_verified ||
+                            (data?.data?.[0]?.vendor?.human_verified && (
+                              <img src={approved} />
+                            ))}
+                        </p>
+                      </div>
+                    </>
+                  )}
+                  <div>
+                    <div className=" -mt-[1.78rem] flex  gap-x-2 !capitalize -ml-3">
+                      {myData?.human_verified === true &&
+                        myData?.rejected === false && (
+                          <CustomTooltip
+                            className={"mb-1 !min-w-fit"}
+                            content={`Accepted By :- ${myData?.accepted_by?.username}`}
+                          >
+                            <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#348355] text-[#ffffff] p-1 rounded-xl px-3">
+                              Accepted{" "}
+                            </span>
+                          </CustomTooltip>
+                        )}
+                      {myData?.rejected === true && (
                         <CustomTooltip
                           className={"mb-1 !min-w-fit"}
-                          content={`Accepted By :- ${myData?.accepted_by?.username}`}
+                          content={`Rejected By :- ${myData?.rejected_by?.username}`}
                         >
-                          <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#348355] text-[#ffffff] p-1 rounded-xl px-3">
-                            Accepted{" "}
+                          <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#F15156] text-[#ffffff] p-1 rounded-xl   px-3">
+                            Rejected{" "}
                           </span>
                         </CustomTooltip>
                       )}
-                    {myData?.rejected === true && (
+                      {myData?.human_verified === false &&
+                        myData?.rejected === false &&
+                        !myData?.re_review_requested && (
+                          <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#B28F10] text-[#ffffff] py-1.5  px-3 rounded-xl ">
+                            Pending{" "}
+                          </span>
+                        )}
                       <CustomTooltip
-                        className={"mb-1 !min-w-fit"}
-                        content={`Rejected By :- ${myData?.rejected_by?.username}`}
+                        content={
+                          myData?.re_review_requested &&
+                          `Re-review requested at ${formatDateTimeToReadable(
+                            myData?.re_review_requested_date
+                          )} `
+                        }
+                        className={"!min-w-fit !normal-case"}
                       >
-                        <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#F15156] text-[#ffffff] p-1 rounded-xl   px-3">
-                          Rejected{" "}
-                        </span>
+                        {myData?.re_review_requested === true && (
+                          <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-orange-700 text-[#ffffff] py-1  px-3 rounded-xl ">
+                            Re-review Requested
+                          </span>
+                        )}
                       </CustomTooltip>
-                    )}
-                    {myData?.human_verified === false &&
-                      myData?.rejected === false &&
-                      !myData?.re_review_requested && (
-                        <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-[#B28F10] text-[#ffffff] py-1.5  px-3 rounded-xl ">
-                          Pending{" "}
-                        </span>
-                      )}
-                    <CustomTooltip
-                      content={
-                        myData?.re_review_requested &&
-                        `Re-review requested at ${formatDateTimeToReadable(
-                          myData?.re_review_requested_date
-                        )} `
-                      }
-                      className={"!min-w-fit !normal-case"}
-                    >
-                      {myData?.re_review_requested === true && (
-                        <span className="mx-2  font-poppins font-normal text-xs leading-3 bg-orange-700 text-[#ffffff] py-1  px-3 rounded-xl ">
-                          Re-review Requested
-                        </span>
-                      )}
-                    </CustomTooltip>
-                    {myData?.human_verified === false &&
-                      myData?.rejected === false && (
-                        <span
-                          className={`${calculateTimeDifference(
-                            new Date(
-                              metaData?.assignment_details?.verification_due_at
-                            )
-                          )?.includes("ago")
-                            ? "!text-[#F15156]"
-                            : "!text-black"
+                      {myData?.human_verified === false &&
+                        myData?.rejected === false && (
+                          <span
+                            className={`${
+                              calculateTimeDifference(
+                                new Date(
+                                  metaData?.assignment_details?.verification_due_at
+                                )
+                              )?.includes("ago")
+                                ? "!text-[#F15156]"
+                                : "!text-black"
                             } mx-2 bg-gray-200  font-poppins font-normal text-xs leading-3  text-[#ffffff] h-6 flex items-center   px-3 rounded-xl `}
-                        >
-                          <div className="flex items-center gap-x-2">
-                            <CustomTooltip content={"Due Time"}>
-                              <Clock className="w-4 h-4" />
-                            </CustomTooltip>
-                            <div>
-                              <CustomTooltip
-                                className={"mb-2 !min-w-fit"}
-                                content={
-                                  metaData?.assignment_details?.assigned_to
-                                    ?.username &&
-                                  `Assigned To :- ${metaData?.assignment_details?.assigned_to?.username}`
-                                }
-                              >
-                                {calculateTimeDifference(
-                                  new Date(
-                                    metaData?.assignment_details?.verification_due_at
-                                  )
-                                )}
+                          >
+                            <div className="flex items-center gap-x-2">
+                              <CustomTooltip content={"Due Time"}>
+                                <Clock className="w-4 h-4" />
                               </CustomTooltip>
+                              <div>
+                                <CustomTooltip
+                                  className={"mb-2 !min-w-fit"}
+                                  content={
+                                    metaData?.assignment_details?.assigned_to
+                                      ?.username &&
+                                    `Assigned To :- ${metaData?.assignment_details?.assigned_to?.username}`
+                                  }
+                                >
+                                  {calculateTimeDifference(
+                                    new Date(
+                                      metaData?.assignment_details?.verification_due_at
+                                    )
+                                  )}
+                                </CustomTooltip>
+                              </div>
                             </div>
-                          </div>
-                          {/* </CustomTooltip> */}
-                        </span>
-                      )}
+                            {/* </CustomTooltip> */}
+                          </span>
+                        )}
+                    </div>
                   </div>
                 </div>
+              </>
+            )}
+          </BreadCrumb>
+          {showUniqueItemCodeRuleModal && (
+            <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
+              <div className="flex items-center gap-x-2">
+                <Info className="h-5 w-5 text-[#FF9800]" />
+                <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
+                  Detected multiple line items with the same item code but
+                  different descriptions.
+                  <span
+                    className="underline underline-offset-2 px-0.5 text-primary cursor-pointer"
+                    onClick={() => {
+                      setShowDuplicateItemCodeWarning(true);
+                    }}
+                  >
+                    Click here
+                  </span>{" "}
+                  to check.
+                </p>
               </div>
-            </>
+
+              <X
+                className="h-6 w-6 text-[#546E7A] absolute top-2 right-2 cursor-pointer"
+                onClick={() => {
+                  setShowUniqueItemCodeRuleModal(false);
+                }}
+              />
+            </div>
           )}
-        </BreadCrumb>
-        {showUniqueItemCodeRuleModal && (
-          <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
-            <div className="flex items-center gap-x-2">
-              <Info className="h-5 w-5 text-[#FF9800]" />
-              <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
-                Detected multiple line items with the same item code but different descriptions.
+          {showDepositRuleModal && (
+            <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
+              <div className="flex items-center gap-x-2">
+                <Info className="h-5 w-5 text-[#FF9800]" />
+                <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
+                  Detected deposit values in the table.
+                  <span
+                    className="underline underline-offset-2 px-0.5 text-primary cursor-pointer"
+                    onClick={() => {
+                      setShowDepositColumnWarning(true);
+                    }}
+                  >
+                    Click here
+                  </span>{" "}
+                  to check.
+                </p>
+              </div>
 
-                <span
-                  className="underline underline-offset-2 px-0.5 text-primary cursor-pointer"
+              <X
+                className="h-6 w-6 text-[#546E7A] absolute top-2 right-2 cursor-pointer"
+                onClick={() => {
+                  setShowDepositRuleModal(false);
+                }}
+              />
+            </div>
+          )}
+          {showReReviewRequestedWarning && (
+            <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
+              <div className="flex items-center gap-x-2">
+                <Info className="h-5 w-5 text-[#FF9800]" />
+                <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
+                  This Document has been requested for a Re-review.{" "}
+                  <span
+                    className="underline underline-offset-2 px-0.5 text-primary cursor-pointer"
+                    onClick={() => {
+                      setShowDocumentNotes(true);
+                    }}
+                  >
+                    Click here
+                  </span>{" "}
+                  to check the reason.
+                </p>
+              </div>
+
+              <X
+                className="h-6 w-6 text-[#546E7A] absolute top-2 right-2 cursor-pointer"
+                onClick={() => {
+                  setShowReReviewRequestedWarning(false);
+                }}
+              />
+            </div>
+          )}
+          {(branchChanged || vendorChanged) &&
+            showWarningForBranchAndVendor && (
+              <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
+                <div className="flex items-center gap-x-2">
+                  <Info className="h-5 w-5 text-[#FF9800]" />
+                  <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
+                    {vendorChanged && branchChanged
+                      ? "Please Save the Vendor Name and Branch Address before proceeding."
+                      : vendorChanged
+                      ? " Please Save the Vendor Name before proceeding."
+                      : "Please Save the Branch Address before proceeding."}
+                  </p>
+                </div>
+
+                <X
+                  className="h-6 w-6 text-[#546E7A] absolute top-2 right-2 cursor-pointer"
                   onClick={() => {
-                    setShowDuplicateItemCodeWarning(true);
+                    setShowWarningForBranchAndVendor(false);
                   }}
-                >
-                  Click here
-                </span>{" "}
-                to check.
-              </p>
-            </div>
+                />
+              </div>
+            )}
 
-            <X
-              className="h-6 w-6 text-[#546E7A] absolute top-2 right-2 cursor-pointer"
-              onClick={() => {
-                setShowUniqueItemCodeRuleModal(false);
-              }}
-            />
-          </div>
-        )}
-        {showDepositRuleModal && (
-          <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
-            <div className="flex items-center gap-x-2">
-              <Info className="h-5 w-5 text-[#FF9800]" />
-              <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
-                Detected deposit values in the table.
-
-                <span
-                  className="underline underline-offset-2 px-0.5 text-primary cursor-pointer"
-                  onClick={() => {
-                    setShowDepositColumnWarning(true);
-                  }}
-                >
-                  Click here
-                </span>{" "}
-                to check.
-              </p>
-            </div>
-
-            <X
-              className="h-6 w-6 text-[#546E7A] absolute top-2 right-2 cursor-pointer"
-              onClick={() => {
-                setShowDepositRuleModal(false);
-              }}
-            />
-          </div>
-        )}
-        {showReReviewRequestedWarning && (
-          <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
-            <div className="flex items-center gap-x-2">
-              <Info className="h-5 w-5 text-[#FF9800]" />
-              <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
-                This Document has been requested for a Re-review.{" "}
-                <span
-                  className="underline underline-offset-2 px-0.5 text-primary cursor-pointer"
-                  onClick={() => {
-                    setShowDocumentNotes(true);
-                  }}
-                >
-                  Click here
-                </span>{" "}
-                to check the reason.
-              </p>
-            </div>
-
-            <X
-              className="h-6 w-6 text-[#546E7A] absolute top-2 right-2 cursor-pointer"
-              onClick={() => {
-                setShowReReviewRequestedWarning(false);
-              }}
-            />
-          </div>
-        )}
-        {(branchChanged || vendorChanged) && showWarningForBranchAndVendor && (
-          <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
-            <div className="flex items-center gap-x-2">
-              <Info className="h-5 w-5 text-[#FF9800]" />
-              <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
-                {vendorChanged && branchChanged
-                  ? "Please Save the Vendor Name and Branch Address before proceeding."
-                  : vendorChanged
-                    ? " Please Save the Vendor Name before proceeding."
-                    : "Please Save the Branch Address before proceeding."}
-              </p>
-            </div>
-
-            <X
-              className="h-6 w-6 text-[#546E7A] absolute top-2 right-2 cursor-pointer"
-              onClick={() => {
-                setShowWarningForBranchAndVendor(false);
-              }}
-            />
-          </div>
-        )}
-
-        {showSimilarVendorsAndBranchesWarningModal && (
-          <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
-            <div className="flex items-center gap-x-2">
-              <Info className="h-5 w-5 text-[#FF9800]" />
-              <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
-                {similarBranches?.data?.length > 0 &&
+          {showSimilarVendorsAndBranchesWarningModal && (
+            <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
+              <div className="flex items-center gap-x-2">
+                <Info className="h-5 w-5 text-[#FF9800]" />
+                <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
+                  {similarBranches?.data?.length > 0 &&
                   similarVendors?.data?.length > 0
-                  ? `Found ${similarVendors?.data?.length} Vendors and ${similarBranches?.data?.length} Branches.`
-                  : similarVendors?.data?.length > 0
-                    ? `Found ${similarVendors?.data?.length} Similar ${similarVendors?.data?.length > 1 ? "Vendors." : "Vendor."
-                    }`
-                    : `Found ${similarBranches?.data?.length} Similar ${similarBranches?.data?.length > 1
-                      ? "Branches."
-                      : "Branch."
-                    }`}
-              </p>
+                    ? `Found ${similarVendors?.data?.length} Vendors and ${similarBranches?.data?.length} Branches.`
+                    : similarVendors?.data?.length > 0
+                    ? `Found ${similarVendors?.data?.length} Similar ${
+                        similarVendors?.data?.length > 1
+                          ? "Vendors."
+                          : "Vendor."
+                      }`
+                    : `Found ${similarBranches?.data?.length} Similar ${
+                        similarBranches?.data?.length > 1
+                          ? "Branches."
+                          : "Branch."
+                      }`}
+                </p>
+                <p
+                  onClick={() => setShowAcceptModal(true)}
+                  className="text-[#1E7944] font-poppins cursor-pointer font-medium  text-sm  leading-5 border-b border-b-[#1E7944]"
+                >
+                  Check Now
+                </p>
+              </div>
+
+              <X
+                className="h-6 w-6 text-[#546E7A] absolute top-2 right-2 cursor-pointer"
+                onClick={() => {
+                  setShowSimilarVendorsAndBranchesWarningModal(false);
+                }}
+              />
+            </div>
+          )}
+          {showAlreadySyncedModal && (
+            <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
+              <div className="flex items-center gap-x-2">
+                <Info className="h-5 w-5 text-[#FF9800]" />
+                <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
+                  {(data?.data?.rejected || data?.data?.[0]?.rejected) &&
+                    "Rejection Reason :- "}{" "}
+                  {data?.data?.rejected || data?.data?.[0]?.rejected
+                    ? data?.data?.rejection_reason ||
+                      data?.data?.[0]?.rejection_reason
+                    : action_controls?.accept?.disabled
+                    ? action_controls?.accept?.reason
+                    : action_controls?.reject?.disabled
+                    ? action_controls?.reject?.reason
+                    : null}
+                </p>
+              </div>
+
+              <X
+                className="h-6 w-6 text-[#546E7A] absolute top-2 right-2 cursor-pointer"
+                onClick={() => {
+                  setShowAlreadySyncedModal(false);
+                }}
+              />
+            </div>
+          )}
+          {showDuplicateInvoicesWarning && (
+            <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
+              <div className="flex items-center gap-x-2">
+                <Info className="h-5 w-5 text-[#FF9800]" />
+                <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
+                  {duplicateInvoices?.duplicate_documents?.length} Duplicate
+                  Invoices Found
+                </p>
+              </div>
+
               <p
-                onClick={() => setShowAcceptModal(true)}
+                onClick={() => setShowDuplicateInvoicesModal(true)}
                 className="text-[#1E7944] font-poppins cursor-pointer font-medium  text-sm  leading-5 border-b border-b-[#1E7944]"
               >
                 Check Now
               </p>
+              <X
+                className="h-6 w-6 text-[#546E7A] absolute top-2 right-2 cursor-pointer"
+                onClick={() => setShowDuplicateInvoicesWarning(false)}
+              />
             </div>
+          )}
 
-            <X
-              className="h-6 w-6 text-[#546E7A] absolute top-2 right-2 cursor-pointer"
-              onClick={() => {
-                setShowSimilarVendorsAndBranchesWarningModal(false);
-              }}
-            />
-          </div>
-        )}
-        {showAlreadySyncedModal && (
-          <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
-            <div className="flex items-center gap-x-2">
-              <Info className="h-5 w-5 text-[#FF9800]" />
-              <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
-                {(data?.data?.rejected || data?.data?.[0]?.rejected) &&
-                  "Rejection Reason :- "}{" "}
-                {data?.data?.rejected || data?.data?.[0]?.rejected
-                  ? data?.data?.rejection_reason ||
-                  data?.data?.[0]?.rejection_reason
-                  : action_controls?.accept?.disabled
-                    ? action_controls?.accept?.reason
-                    : action_controls?.reject?.disabled
-                      ? action_controls?.reject?.reason
-                      : null}
-              </p>
-            </div>
-
-            <X
-              className="h-6 w-6 text-[#546E7A] absolute top-2 right-2 cursor-pointer"
-              onClick={() => {
-                setShowAlreadySyncedModal(false);
-              }}
-            />
-          </div>
-        )}
-        {showDuplicateInvoicesWarning && (
-          <div className="flex flex-col relative  justify-center items-center w-full rounded-md bg-red-500/10 p-4 border border-[#FF9800] bg-[#FFF3E0]">
-            <div className="flex items-center gap-x-2">
-              <Info className="h-5 w-5 text-[#FF9800]" />
-              <p className="text-[#263238] font-poppins font-semibold text-sm leading-5 pt-[0.5px] ">
-                {duplicateInvoices?.duplicate_documents?.length} Duplicate
-                Invoices Found
-              </p>
-            </div>
-
-            <p
-              onClick={() => setShowDuplicateInvoicesModal(true)}
-              className="text-[#1E7944] font-poppins cursor-pointer font-medium  text-sm  leading-5 border-b border-b-[#1E7944]"
-            >
-              Check Now
-            </p>
-            <X
-              className="h-6 w-6 text-[#546E7A] absolute top-2 right-2 cursor-pointer"
-              onClick={() => setShowDuplicateInvoicesWarning(false)}
-            />
-          </div>
-        )}
-
-        <div
-          className={`${metaData?.extraction_source ? "justify-between" : "justify-end"
+          <div
+            className={`${
+              metaData?.extraction_source ? "justify-between" : "justify-end"
             } flex  gap-x-2 items-center`}
-        >
-          {/* <div className="flex items-center justify-start"> */}
-
-          {metaData?.pre_extracted_invoice ? <> <p
-
-            className="font-poppins font-medium text-sm leading-5 capitalize px-4 border border-yellow-600 rounded-md py-0.5 "
           >
-            Pre Extracted Invoice
-          </p></> : (metaData?.extraction_source && (
-            <CustomTooltip content={"Extraction Source"}>
-              {/* {metadata?.extraction_source && ( */}
-              <p
-                onDoubleClick={() => {
-                  setShowReprocessingModal(true);
-                }}
-                className="font-poppins font-medium text-sm leading-5 capitalize px-4 border border-primary rounded-md py-0.5 cursor-pointer"
-              >
-                {metaData?.extraction_source}
-              </p>
-              {/* )} */}
-            </CustomTooltip>
-          ))}
-          {/* </div> */}
-          <div className="flex items-center gap-x-2">
-            <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
-              <CustomDropDown
-                triggerClassName={"bg-gray-100"}
-                contentClassName={"bg-gray-100"}
-                Value={searchParams.get("restaurant") || restaurantFilterValue}
-                placeholder="All Restaurants"
-                multiSelect={true}
-                className={"!max-w-fit"}
-                data={formatRestaurantsList(
-                  restaurantsList && restaurantsList?.data
-                )}
-                searchPlaceholder="Search Restaurant"
-                onChange={(val) => {
-                  if (typeof val == "object") {
-                    let restaurant = val?.map((item) => item)?.join(",");
-                    setFilters({ ...filters, restaurant: restaurant });
-                    updateParams({ restaurant: restaurant });
-                  } else {
-                    if (val == "none") {
-                      updateParams({ restaurant: undefined });
-                      setFilters({ ...filters, restaurant: undefined });
-                    } else {
-                      updateParams({ restaurant: val });
-                      setFilters({ ...filters, restaurant: val });
-                    }
-                  }
-                }}
-              />{" "}
-              <CustomDropDown
-                Value={searchParams.get("vendor") || vendorFilterValue}
-                className={"!max-w-56"}
-                triggerClassName={"bg-gray-100"}
-                contentClassName={"bg-gray-100"}
-                data={vendorNamesFormatter(
-                  vendorNamesList?.data && vendorNamesList?.data?.vendor_names
-                )}
-                multiSelect={true}
-                onChange={(val) => {
-                  if (typeof val == "object") {
-                    let vendor = val?.map((item) => item)?.join(",");
-                    updateParams({ vendor: vendor });
-                    setFilters({ ...filters, vendor: vendor });
-                  } else {
-                    if (val == "none") {
-                      updateParams({ vendor: undefined });
-                      setFilters({ ...filters, vendor: undefined });
-                    } else {
-                      setFilters({ ...filters, vendor: val });
-                    }
-                  }
-                }}
-                placeholder="All Vendors"
-                searchPlaceholder="Search Vendor Name"
-              />{" "}
-              <Sheet
-                className="!overflow-auto "
-                open={open}
-                onOpenChange={() => setOpen(!open)}
-              >
-                <SheetTrigger>
-                  {" "}
-                  <Button
-                    className={`bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000] ${open ||
-                      filters?.human_verified !== "all" ||
-                      filters?.human_verification !== "all" ||
-                      filters?.invoice_type !== "" ||
-                      filters?.start_date !== "" ||
-                      filters?.end_date !== "" ||
-                      filters?.clickbacon_status !== "" ||
-                      filters?.auto_accepted !== ""
-                      ? "!bg-primary !text-white"
-                      : "!bg-white"
-                      }   `}
+            {/* <div className="flex items-center justify-start"> */}
+
+            {metaData?.pre_extracted_invoice ? (
+              <>
+                {" "}
+                <p className="font-poppins font-medium text-sm leading-5 capitalize px-4 border border-yellow-600 rounded-md py-0.5 ">
+                  Pre Extracted Invoice
+                </p>
+              </>
+            ) : (
+              metaData?.extraction_source && (
+                <CustomTooltip content={"Extraction Source"}>
+                  {/* {metadata?.extraction_source && ( */}
+                  <p
+                    onDoubleClick={() => {
+                      setShowReprocessingModal(true);
+                    }}
+                    className="font-poppins font-medium text-sm leading-5 capitalize px-4 border border-primary rounded-md py-0.5 cursor-pointer"
                   >
-                    <Filter
-                      className={`${open ||
+                    {metaData?.extraction_source}
+                  </p>
+                  {/* )} */}
+                </CustomTooltip>
+              )
+            )}
+            {/* </div> */}
+            <div className="flex items-center gap-x-2">
+              <div className="flex items-center gap-x-2 dark:bg-[#051C14]">
+                <CustomDropDown
+                  triggerClassName={"bg-gray-100"}
+                  contentClassName={"bg-gray-100"}
+                  Value={
+                    searchParams.get("restaurant") || restaurantFilterValue
+                  }
+                  placeholder="All Restaurants"
+                  multiSelect={true}
+                  className={"!max-w-fit"}
+                  data={formatRestaurantsList(
+                    restaurantsList && restaurantsList?.data
+                  )}
+                  searchPlaceholder="Search Restaurant"
+                  onChange={(val) => {
+                    if (typeof val == "object") {
+                      let restaurant = val?.map((item) => item)?.join(",");
+                      setFilters({ ...filters, restaurant: restaurant });
+                      updateParams({ restaurant: restaurant });
+                    } else {
+                      if (val == "none") {
+                        updateParams({ restaurant: undefined });
+                        setFilters({ ...filters, restaurant: undefined });
+                      } else {
+                        updateParams({ restaurant: val });
+                        setFilters({ ...filters, restaurant: val });
+                      }
+                    }
+                  }}
+                />{" "}
+                <CustomDropDown
+                  Value={searchParams.get("vendor") || vendorFilterValue}
+                  className={"!max-w-56"}
+                  triggerClassName={"bg-gray-100"}
+                  contentClassName={"bg-gray-100"}
+                  data={vendorNamesFormatter(
+                    vendorNamesList?.data && vendorNamesList?.data?.vendor_names
+                  )}
+                  multiSelect={true}
+                  onChange={(val) => {
+                    if (typeof val == "object") {
+                      let vendor = val?.map((item) => item)?.join(",");
+                      updateParams({ vendor: vendor });
+                      setFilters({ ...filters, vendor: vendor });
+                    } else {
+                      if (val == "none") {
+                        updateParams({ vendor: undefined });
+                        setFilters({ ...filters, vendor: undefined });
+                      } else {
+                        setFilters({ ...filters, vendor: val });
+                      }
+                    }
+                  }}
+                  placeholder="All Vendors"
+                  searchPlaceholder="Search Vendor Name"
+                />{" "}
+                <Sheet
+                  className="!overflow-auto "
+                  open={open}
+                  onOpenChange={() => setOpen(!open)}
+                >
+                  <SheetTrigger>
+                    {" "}
+                    <Button
+                      className={`bg-transparent hover:bg-transparent p-0 w-[2.5rem] shadow-none border flex items-center justify-center h-[2.5rem] border-[#D9D9D9] rounded-sm dark:bg-[#000000] dark:border-[#000000] ${
+                        open ||
                         filters?.human_verified !== "all" ||
                         filters?.human_verification !== "all" ||
                         filters?.invoice_type !== "" ||
@@ -1578,113 +1629,133 @@ const InvoiceDetails = () => {
                         filters?.end_date !== "" ||
                         filters?.clickbacon_status !== "" ||
                         filters?.auto_accepted !== ""
-                        ? "!text-white"
-                        : ""
+                          ? "!bg-primary !text-white"
+                          : "!bg-white"
+                      }   `}
+                    >
+                      <Filter
+                        className={`${
+                          open ||
+                          filters?.human_verified !== "all" ||
+                          filters?.human_verification !== "all" ||
+                          filters?.invoice_type !== "" ||
+                          filters?.start_date !== "" ||
+                          filters?.end_date !== "" ||
+                          filters?.clickbacon_status !== "" ||
+                          filters?.auto_accepted !== ""
+                            ? "!text-white"
+                            : ""
                         } h-5  text-black/40 dark:text-white/50`}
-                    />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent className="min-w-fit !max-w-[20rem] !overflow-auto">
-                  <SheetHeader>
-                    <SheetTitle>
-                      <div
-                        id="invoice-filters"
-                        className="flex justify-between items-center"
-                      >
-                        <p>Filters</p>
+                      />
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent className="min-w-fit !max-w-[20rem] !overflow-auto">
+                    <SheetHeader>
+                      <SheetTitle>
                         <div
-                          className="flex items-center gap-x-2 cursor-pointer"
-                          onClick={() => setOpen(!open)}
+                          id="invoice-filters"
+                          className="flex justify-between items-center"
                         >
-                          <p className="text-sm font-poppins font-normal text-[#000000]">
-                            Collapse
-                          </p>
-                          <ArrowRight className="h-4 w-4 text-[#000000]" />
+                          <p>Filters</p>
+                          <div
+                            className="flex items-center gap-x-2 cursor-pointer"
+                            onClick={() => setOpen(!open)}
+                          >
+                            <p className="text-sm font-poppins font-normal text-[#000000]">
+                              Collapse
+                            </p>
+                            <ArrowRight className="h-4 w-4 text-[#000000]" />
+                          </div>
                         </div>
-                      </div>
-                    </SheetTitle>
-                  </SheetHeader>
-                  <InvoiceFilters />
-                </SheetContent>
-              </Sheet>
-            </div>
-            <div className="flex items-center gap-x-3">
-              <CustomTooltip content={"Click To Copy The Link."}>
-                <Button
-                  onClick={() => {
-                    navigator.clipboard.writeText(
-                      `${window.location.origin
-                      }/invoice-details?document_uuid=${document_uuid ||
-                      data?.data?.[0]?.document_uuid ||
-                      data?.data?.document_uuid
-                      }`
-                    );
-                    toast.success("Link copied to clipboard");
-                  }}
-                  disabled={markingForReview}
-                  className="bg-transparent h-[2.4rem] border-primary w-[3rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
-                >
-                  <Share2 className="dark:text-white" />
-                </Button>
-              </CustomTooltip>
-              {metaData?.ai_notes?.length > 0 && (
-                <Button
-                  onClick={() => {
-                    setShowAiNotesModal(!showAiNotesModal);
-                  }}
-                  disabled={markingForReview}
-                  className="bg-transparent h-[2.4rem] fixed bottom-5 left-4 border-primary w-[3rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
-                >
-                  <div className="w-full h-full relative">
-                    <NotebookTabs className="dark:text-white" />
-                    <p className="absolute px-2 rounded-full border bg-primary  -top-5 -right-6 text-white">
-                      {metaData?.ai_notes?.length}
-                    </p>
-                  </div>
-                </Button>
-              )}
-              {(role == "admin" || role == "developer") && (
-                <Button
+                      </SheetTitle>
+                    </SheetHeader>
+                    <InvoiceFilters />
+                  </SheetContent>
+                </Sheet>
+              </div>
+              <div className="flex items-center gap-x-3">
+                <CustomTooltip content={"Click To Copy The Link."}>
+                  <Button
+                    onClick={() => {
+                      navigator.clipboard.writeText(
+                        `${
+                          window.location.origin
+                        }/invoice-details?document_uuid=${
+                          document_uuid ||
+                          data?.data?.[0]?.document_uuid ||
+                          data?.data?.document_uuid
+                        }`
+                      );
+                      toast.success("Link copied to clipboard");
+                    }}
+                    disabled={markingForReview}
+                    className="bg-transparent h-[2.4rem] border-primary w-[3rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                  >
+                    <Share2 className="dark:text-white" />
+                  </Button>
+                </CustomTooltip>
+                {metaData?.ai_notes?.length > 0 && (
+                  <Button
+                    onClick={() => {
+                      setShowAiNotesModal(!showAiNotesModal);
+                    }}
+                    disabled={markingForReview}
+                    className="bg-transparent h-[2.4rem] fixed bottom-5 left-4 border-primary w-[3rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                  >
+                    <div className="w-full h-full relative">
+                      <NotebookTabs className="dark:text-white" />
+                      <p className="absolute px-2 rounded-full border bg-primary  -top-5 -right-6 text-white">
+                        {metaData?.ai_notes?.length}
+                      </p>
+                    </div>
+                  </Button>
+                )}
+                {(role == "admin" || role == "developer") && (
+                  <Button
                     onClick={() => {
                       setShowDocumentAnalytics(!showDocumentAnalytics);
                     }}
                     // disabled={markingForReview}
                     className="bg-transparent h-[2.4rem] !p-0 fixed bottom-5 left-20 border-primary !cursor-pointer c hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal bg-white text-sm z-50"
                   >
-                      <CustomTooltip content="Agent Analytics" className={"!z-50"}>
-                    <div className=" h-[2.4rem] w-[3rem] flex items-center justify-center relative">
-                      <UserRoundCog className="dark:text-white !cursor-pointer" />
-
-                    </div>
+                    <CustomTooltip
+                      content="Agent Analytics"
+                      className={"!z-50"}
+                    >
+                      <div className=" h-[2.4rem] w-[3rem] flex items-center justify-center relative">
+                        <UserRoundCog className="dark:text-white !cursor-pointer" />
+                      </div>
                     </CustomTooltip>
                   </Button>
-              )}
+                )}
 
-              <DocumentNotes
-                data={documentNotes?.data}
-                open={showDocumentNotes}
-                setOpen={setShowDocumentNotes}
-                document_uuid={
-                  data?.data?.document_uuid || data?.data?.[0]?.document_uuid
-                }
-                isLoading={loadingDocumentNotes}
-              />
+                <DocumentNotes
+                  data={documentNotes?.data}
+                  open={showDocumentNotes}
+                  setOpen={setShowDocumentNotes}
+                  document_uuid={
+                    data?.data?.document_uuid || data?.data?.[0]?.document_uuid
+                  }
+                  isLoading={loadingDocumentNotes}
+                />
 
-              <VendorNotes
-                data={vendorNotes?.data}
-                isLoading={loadingVendorNotes}
-                vendor_id={
-                  data?.data?.vendor?.vendor_id ||
-                  data?.data?.[0]?.vendor?.vendor_id
-                }
-              />
-              {(role?.toLowerCase() == "admin" ||
-                role?.toLowerCase() == "manager") && (
-                  <CustomTooltip content={"Click To Reset the Invoice Status ."} className={"!min-w-fit"}>
+                <VendorNotes
+                  data={vendorNotes?.data}
+                  isLoading={loadingVendorNotes}
+                  vendor_id={
+                    data?.data?.vendor?.vendor_id ||
+                    data?.data?.[0]?.vendor?.vendor_id
+                  }
+                />
+                {(role?.toLowerCase() == "admin" ||
+                  role?.toLowerCase() == "manager") && (
+                  <CustomTooltip
+                    content={"Click To Reset the Invoice Status ."}
+                    className={"!min-w-fit"}
+                  >
                     <Button
                       onClick={() => {
-                        setShowResetStatusModal(true)
-
+                        setShowResetStatusModal(true);
                       }}
                       disabled={
                         loadingState?.reverting ||
@@ -1697,685 +1768,842 @@ const InvoiceDetails = () => {
                       }
                       className="bg-transparent h-[2.4rem] dark:text-white border-primary  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                     >
-                      {loadingState?.reverting ? "Resetting.." : <RefreshCcwDot className="!w-[1.1rem] !h-[1.2rem]" />}
+                      {loadingState?.reverting ? (
+                        "Resetting.."
+                      ) : (
+                        <RefreshCcwDot className="!w-[1.1rem] !h-[1.2rem]" />
+                      )}
                     </Button>
                   </CustomTooltip>
                 )}
-              <CustomTooltip
-                className={"!min-w-fit "}
-                content={
-                  action_controls?.review_later?.disabled
-                    ? action_controls?.review_later?.reason
-                    : "Click To Mark this document  for a Review."
-                }
-              >
-                <Button
-                  onClick={() => {
-                    setMarkForReviewModal(true);
-                    return;
-                  }}
-                  disabled={
-                    action_controls?.review_later?.disabled ||
-                    markingForReview ||
-                    loadingState?.rejecting ||
-                    loadingState?.markingAsNotSupported ||
-                    loadingState?.markingForReview ||
-                    loadingState?.reverting ||
-                    loadingState?.accepting ||
-                    loadingState?.saving
+                <CustomTooltip
+                  className={"!min-w-fit "}
+                  content={
+                    action_controls?.review_later?.disabled
+                      ? action_controls?.review_later?.reason
+                      : "Click To Mark this document  for a Review."
                   }
-                  className="bg-transparent h-[2.4rem] dark:text-white border-primary  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                 >
-                  <ScanEye className="!w-[1.1rem] !h-[1.2rem] text-black " />
-                </Button>
-              </CustomTooltip>
-              <CustomTooltip
-                className={"!min-w-fit"}
-                content={
-                  "Click To Mark this Document as Multiple Invoice Document."
-                }
-              >
-                <Button
-                  onClick={() => {
-                    setShowMultipleInvoiceModal(true);
-                    return;
-                  }}
-                  disabled={
-                    action_controls?.review_later?.disabled ||
-                    markingForReview ||
-                    loadingState?.rejecting ||
-                    loadingState?.markingAsNotSupported ||
-                    loadingState?.markingForReview ||
-                    loadingState?.reverting ||
-                    loadingState?.accepting ||
-                    loadingState?.saving || loadingState?.mutliInvoceMarking
+                  <Button
+                    onClick={() => {
+                      setMarkForReviewModal(true);
+                      return;
+                    }}
+                    disabled={
+                      action_controls?.review_later?.disabled ||
+                      markingForReview ||
+                      loadingState?.rejecting ||
+                      loadingState?.markingAsNotSupported ||
+                      loadingState?.markingForReview ||
+                      loadingState?.reverting ||
+                      loadingState?.accepting ||
+                      loadingState?.saving
+                    }
+                    className="bg-transparent h-[2.4rem] dark:text-white border-primary  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                  >
+                    <ScanEye className="!w-[1.1rem] !h-[1.2rem] text-black " />
+                  </Button>
+                </CustomTooltip>
+                <CustomTooltip
+                  className={"!min-w-fit"}
+                  content={
+                    "Click To Mark this Document as Multiple Invoice Document."
                   }
-                  className="bg-transparent h-[2.4rem] dark:text-white border-primary  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                 >
-                  <Files className="!w-[1.1rem] !h-[1.2rem] text-black " />
-                </Button>
-              </CustomTooltip>
-              <CustomTooltip
-                content={
-                  action_controls?.mark_as_not_supported?.disabled
-                    ? action_controls?.mark_as_not_supported?.reason
-                    : "Click To Mark This Document As Not Supported."
-                }
-                className={"!min-w-fit"}
-              >
-                <Button
-                  disabled={
-                    action_controls?.mark_as_not_supported?.disabled ||
-                    loadingState?.rejecting ||
-                    loadingState?.markingAsNotSupported ||
-                    loadingState?.markingForReview ||
-                    loadingState?.reverting ||
-                    loadingState?.accepting ||
-                    loadingState?.saving
+                  <Button
+                    onClick={() => {
+                      setShowMultipleInvoiceModal(true);
+                      return;
+                    }}
+                    disabled={
+                      action_controls?.review_later?.disabled ||
+                      markingForReview ||
+                      loadingState?.rejecting ||
+                      loadingState?.markingAsNotSupported ||
+                      loadingState?.markingForReview ||
+                      loadingState?.reverting ||
+                      loadingState?.accepting ||
+                      loadingState?.saving ||
+                      loadingState?.mutliInvoceMarking
+                    }
+                    className="bg-transparent h-[2.4rem] dark:text-white border-primary  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                  >
+                    <Files className="!w-[1.1rem] !h-[1.2rem] text-black " />
+                  </Button>
+                </CustomTooltip>
+                <CustomTooltip
+                  content={
+                    action_controls?.mark_as_not_supported?.disabled
+                      ? action_controls?.mark_as_not_supported?.reason
+                      : "Click To Mark This Document As Not Supported."
                   }
-                  onClick={() => setMarkAsNotSupportedModal(true)}
-                  className="bg-transparent h-[2.4rem] dark:text-white border-primary   hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                  className={"!min-w-fit"}
                 >
-                  <Flag className="!w-[1.1rem] !h-[1.2rem] text-black " />
-                </Button>
-              </CustomTooltip>
+                  <Button
+                    disabled={
+                      action_controls?.mark_as_not_supported?.disabled ||
+                      loadingState?.rejecting ||
+                      loadingState?.markingAsNotSupported ||
+                      loadingState?.markingForReview ||
+                      loadingState?.reverting ||
+                      loadingState?.accepting ||
+                      loadingState?.saving
+                    }
+                    onClick={() => setMarkAsNotSupportedModal(true)}
+                    className="bg-transparent h-[2.4rem] dark:text-white border-primary   hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                  >
+                    <Flag className="!w-[1.1rem] !h-[1.2rem] text-black " />
+                  </Button>
+                </CustomTooltip>
 
-              <CustomTooltip
-                content={
-                  action_controls?.reject?.disabled
-                    ? action_controls?.reject?.reason
-                    : "Click To Reject This Document."
-                }
-              >
-                <Button
-                  onClick={() => {
-                    setShowRejectionModal(true);
-                  }}
-                  disabled={
-                    action_controls?.reject?.disabled ||
-                    loadingState?.rejecting ||
-                    loadingState?.markingAsNotSupported ||
-                    loadingState?.markingForReview ||
-                    loadingState?.reverting ||
-                    loadingState?.accepting ||
-                    loadingState?.saving
+                <CustomTooltip
+                  content={
+                    action_controls?.reject?.disabled
+                      ? action_controls?.reject?.reason
+                      : "Click To Reject This Document."
                   }
-                  className="bg-transparent w-[6.5rem] dark:text-white h-[2.4rem] border-[#F15156]  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
                 >
-                  Reject
-                </Button>
-              </CustomTooltip>
-              <CustomTooltip
-                className={"!max-w-72"}
-                content={
-                  !warning_checkbox_checked
-                    ? "Please check vendor name checkbox."
-                    : action_controls?.accept?.disabled
+                  <Button
+                    onClick={() => {
+                      setShowRejectionModal(true);
+                    }}
+                    disabled={
+                      action_controls?.reject?.disabled ||
+                      loadingState?.rejecting ||
+                      loadingState?.markingAsNotSupported ||
+                      loadingState?.markingForReview ||
+                      loadingState?.reverting ||
+                      loadingState?.accepting ||
+                      loadingState?.saving
+                    }
+                    className="bg-transparent w-[6.5rem] dark:text-white h-[2.4rem] border-[#F15156]  hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                  >
+                    Reject
+                  </Button>
+                </CustomTooltip>
+                <CustomTooltip
+                  className={"!max-w-72"}
+                  content={
+                    !warning_checkbox_checked
+                      ? "Please check vendor name checkbox."
+                      : action_controls?.accept?.disabled
                       ? action_controls?.accept?.reason
                       : "Click To Accept This Document."
-                }
-              >
-                <Button
-                  onClick={() => {
-                    if (
-                      (is_unverified_vendor &&
-                        similarVendors?.data?.length > 0) ||
-                      (is_unverified_branch &&
-                        similarBranches?.data?.length > 0)
-                    ) {
-                      setShowAcceptModal(true);
-                      setClickedOnAcceptButton(true);
-                      setShowSimilarVendorsAndBranchesWarningModal(false);
-                    } else {
+                  }
+                >
+                  <Button
+                    onClick={() => {
+                      if (
+                        (is_unverified_vendor &&
+                          similarVendors?.data?.length > 0) ||
+                        (is_unverified_branch &&
+                          similarBranches?.data?.length > 0)
+                      ) {
+                        setShowAcceptModal(true);
+                        setClickedOnAcceptButton(true);
+                        setShowSimilarVendorsAndBranchesWarningModal(false);
+                      } else {
                       handleAccept();
+                      }
+                    }}
+                    disabled={
+                      !warning_checkbox_checked ||
+                      action_controls?.accept?.disabled ||
+                      loadingState?.accepting ||
+                      loadingState?.rejecting ||
+                      loadingState?.markingAsNotSupported ||
+                      loadingState?.markingForReview ||
+                      loadingState?.reverting ||
+                      loadingState?.saving
                     }
-                  }}
-                  disabled={
-                    !warning_checkbox_checked ||
-                    action_controls?.accept?.disabled ||
-                    loadingState?.accepting ||
-                    loadingState?.rejecting ||
-                    loadingState?.markingAsNotSupported ||
-                    loadingState?.markingForReview ||
-                    loadingState?.reverting ||
-                    loadingState?.saving
-                  }
-                  className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
-                >
-                  {loadingState?.accepting ? "Accepting..." : "Accept"}
-                </Button>
-              </CustomTooltip>
+                    className="bg-transparent h-[2.4rem] dark:text-white border-primary w-[6.5rem] hover:bg-transparent border-2 shadow-none text-[#000000] font-poppins font-normal text-sm"
+                  >
+                    {loadingState?.accepting ? "Accepting..." : "Accept"}
+                  </Button>
+                </CustomTooltip>
 
-
-              <CustomTooltip
-                content={
-                  action_controls?.save?.disabled
-                    ? action_controls?.save?.reason
-                    : "Click To Save This Document."
-                }
-              >
-                <Button
-                  disabled={
-                    action_controls?.save?.disabled ||
-                    loadingState?.saving ||
-                    loadingState?.rejecting ||
-                    loadingState?.accepting ||
-                    loadingState?.rejecting ||
-                    loadingState?.markingAsNotSupported ||
-                    loadingState?.markingForReview ||
-                    loadingState?.reverting ||
-                    loadingState?.saving
+                <CustomTooltip
+                  content={
+                    action_controls?.save?.disabled
+                      ? action_controls?.save?.reason
+                      : "Click To Save This Document."
                   }
-                  onClick={() => handleSave()}
-                  className="font-poppins h-[2.4rem] dark:text-white font-normal  rounded-md text-sm leading-5 border-2 border-primary text-[#ffffff]"
                 >
-                  {loadingState?.saving ? "Saving..." : <Save className="!w-[1.1rem] !h-[1.2rem]" />}
-                </Button>
-              </CustomTooltip>
+                  <Button
+                    disabled={
+                      action_controls?.save?.disabled ||
+                      loadingState?.saving ||
+                      loadingState?.rejecting ||
+                      loadingState?.accepting ||
+                      loadingState?.rejecting ||
+                      loadingState?.markingAsNotSupported ||
+                      loadingState?.markingForReview ||
+                      loadingState?.reverting ||
+                      loadingState?.saving
+                    }
+                    onClick={() => handleSave()}
+                    className="font-poppins h-[2.4rem] dark:text-white font-normal  rounded-md text-sm leading-5 border-2 border-primary text-[#ffffff]"
+                  >
+                    {loadingState?.saving ? (
+                      "Saving..."
+                    ) : (
+                      <Save className="!w-[1.1rem] !h-[1.2rem]" />
+                    )}
+                  </Button>
+                </CustomTooltip>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="w-full flex  -mt-4">
-          <div className="w-1/2 flex flex-col gap-y-4 2xl:px-16 md:px-8">
-            <PdfViewer
-              payload={payload}
-              loadinMetadata={isLoading}
-              image_rotations={
-                data?.data?.document_metadata?.image_rotations ||
-                data?.data?.[0]?.document_metadata?.image_rotations
-              }
-              pdfUrls={[
-                {
-                  document_link: `${data?.data?.document_link || data?.data?.[0]?.document_link
+          <div className="w-full flex  -mt-4">
+            <div className="w-1/2 flex flex-col gap-y-4 2xl:px-16 md:px-8">
+              <PdfViewer
+                payload={payload}
+                loadinMetadata={isLoading}
+                image_rotations={
+                  data?.data?.document_metadata?.image_rotations ||
+                  data?.data?.[0]?.document_metadata?.image_rotations
+                }
+                pdfUrls={[
+                  {
+                    document_link: `${
+                      data?.data?.document_link ||
+                      data?.data?.[0]?.document_link
                     }
                     `,
-                  document_source: `${data?.data?.document_source ||
-                    data?.data?.[0]?.document_source
-                    }`
+                    document_source: `${
+                      data?.data?.document_source ||
+                      data?.data?.[0]?.document_source
+                    }`,
+                  },
+                ]}
+              />
+              {!document_uuid && (
+                <InvoicePagination
+                  totalPages={data?.total_pages}
+                  currentTab={currentTab}
+                  setCurrentTab={setCurrentTab}
+                />
+              )}
+              {myData?.invoice_type !== "Summary Invoice" && (
+                <CategoryWiseSum isLoading={isLoading} />
+              )}
+              <LastUpdateInfo
+                document_id={
+                  data?.data?.[0]?.document_uuid || data?.data?.document_uuid
                 }
-              ]}
-            />
-            {!document_uuid && (
-              <InvoicePagination
-                totalPages={data?.total_pages}
+                info={
+                  data?.data?.latest_update_info ||
+                  data?.data?.[0]?.latest_update_info
+                }
+              />
+            </div>
+            <div className="w-1/2">
+              <Tables
+                setData={setData}
+                setIsLoading={setIsLoading}
                 currentTab={currentTab}
                 setCurrentTab={setCurrentTab}
               />
-            )}
-            {myData?.invoice_type !== "Summary Invoice" && (
-              <CategoryWiseSum isLoading={isLoading} />
-            )}
-            <LastUpdateInfo
-              document_id={
-                data?.data?.[0]?.document_uuid || data?.data?.document_uuid
-              }
-              info={
-                data?.data?.latest_update_info ||
-                data?.data?.[0]?.latest_update_info
-              }
-            />
+            </div>
           </div>
-          <div className="w-1/2">
-            <Tables
-              setData={setData}
-              setIsLoading={setIsLoading}
-              currentTab={currentTab}
-              setCurrentTab={setCurrentTab}
-            />
-          </div>
-        </div>
-        {/* Document Analytics Modal */}
+          {/* Document Analytics Modal */}
 
-        <Modal open={showDocumentAnalytics} setOpen={setShowDocumentAnalytics} showXicon={true}
-          className={"min-w-[65rem] !rounded-xl"}>
-          {loadingDocumentAnalytics ? <div className="w-full h-72 items-center justify-center flex"><Loader /></div> : <ModalDescription>
-            <div className="w-full flex  flex-col justify-center h-full items-center  ">
-              <p className="font-poppins text-base font-semibold text-black mb-8">Agent Analytics</p>
-            </div>
-            <div className="w-full flex items-center justify-between">
-
-              <p className="w-1/3 flex items-center gap-x-4 !font-poppins text-sm text-black font-medium"><span>Metadata Validated</span> <span className={cn("h-4 w-4 rounded-full ", documentAnalytics?.metadata_validated ? "bg-primary" : "bg-red-500")}>{ }</span></p>
-              <p className="w-1/3 flex items-center gap-x-4 !font-poppins text-sm text-black font-medium"><span>Summary Validated</span>
-
-
-                <span className={cn("h-4 w-4 rounded-full ", documentAnalytics?.summary_validated ? "bg-primary" : "bg-red-500")}>{ }</span>
-
-              </p>
-              <p className="w-1/3 flex items-center gap-x-4 !font-poppins text-sm text-black font-medium"><span>Table Data Validated</span>
-                <span className={cn("h-4 w-4 rounded-full ", documentAnalytics?.table_data_validated ? "bg-primary" : "bg-red-500")}>{ }</span>
-              </p>
-
-            </div>
-
-            <hr className="h-0.5 my-4 bg-gray-400" />
-            <div className="w-full flex items-center justify-between">
-
-              <p className="w-1/3 flex items-center gap-x-4 !font-poppins text-sm text-black font-medium "><span>Metadata Efficiency : </span>
-                {
-                  documentAnalytics?.metadata_efficiency
-                }%
-              </p>
-              <p className="w-1/3 flex items-center gap-x-4 !font-poppins text-sm text-black font-medium"><span>Summary Efficiency : </span>
-                {
-                  documentAnalytics?.summary_efficiency
-                }%
-
-
-              </p>
-              <p className="w-1/3 flex items-center gap-x-4 !font-poppins text-sm text-black font-medium"><span>Table Data Efficiency : </span>
-                {
-                  documentAnalytics?.table_data_efficiency
-                }%
-              </p>
-
-            </div>
-            <hr className="h-0.5 my-4 bg-gray-400" />
-
-            {/* Metadata Efficiency Breakdown */}
-
-            <div className="mt-8">
-              <p className="font-poppins font-semibold text-sm mb-2 text-black  border-b border-t border-t-gray-400 border-b-gray-400 py-2">Metadata Efficiency Breakdown</p>
-              <div className="grid grid-cols-3 gap-y-2">
-                <div className="flex items-center py-1 gap-x-2 w-full  font-poppins font-medium text-black">
-                  <p>Vendor Modified  :</p>
-                  {documentAnalytics?.metadata_efficiency_breakdown?.vendor_id_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500">{ }</span> : <span className="h-4 w-4 rounded-full bg-primary">{ }</span>}
-                </div>
-                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
-                  <p>Branch Modified  :</p>
-                  {documentAnalytics?.metadata_efficiency_breakdown?.branch_id_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500"></span> : <span className="h-4 w-4 rounded-full bg-primary"></span>}
-                </div>
-                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
-                  <p>Invoice Number Modified :</p>
-                  {documentAnalytics?.metadata_efficiency_breakdown?.invoice_number_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500"></span> : <span className="h-4 w-4 rounded-full bg-primary"></span>}
-                </div>
-                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black"> <p>Credit Card Name Modified  :</p>
-                  {documentAnalytics?.metadata_efficiency_breakdown?.credit_card_name_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500"></span> : <span className="h-4 w-4 rounded-full bg-primary"></span>}
-                </div>
-                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black"> <p>Credit Card Number Modified  :</p> {documentAnalytics?.metadata_efficiency_breakdown?.credit_card_number_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500"></span> : <span className="h-4 w-4 rounded-full bg-primary"></span>}</div>
-                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black"> <p>Invoice Date Modified  :</p> {documentAnalytics?.metadata_efficiency_breakdown?.invoice_date_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500"></span> : <span className="h-4 w-4 rounded-full bg-primary"></span>}</div>
-                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black"> <p>Invoice Due Date Modified  :</p> {documentAnalytics?.metadata_efficiency_breakdown?.invoice_due_date_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500"></span> : <span className="h-4 w-4 rounded-full bg-primary"></span>}</div>
+          <Modal
+            open={showDocumentAnalytics}
+            setOpen={setShowDocumentAnalytics}
+            showXicon={true}
+            className={"min-w-[65rem] !rounded-xl"}
+          >
+            {loadingDocumentAnalytics ? (
+              <div className="w-full h-72 items-center justify-center flex">
+                <Loader />
               </div>
-            </div>
-            {/* Summary Efficiency Breakdown */}
-            <div className="mt-8">
-              <p className="font-poppins font-semibold text-sm mb-2 text-black  border-b border-t border-t-gray-400 border-b-gray-400 py-2">Summary Efficiency Breakdown</p>
-              <div className="grid grid-cols-3 gap-y-2">
-                <div className="flex items-center py-1 gap-x-2 w-full  font-poppins font-medium text-black">
-                  <p>Invoice Extracted Total Modified  :</p>
-                  {documentAnalytics?.summary_efficiency_breakdown?.invoice_extracted_total_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500"></span> : <span className="h-4 w-4 rounded-full bg-primary"></span>}
+            ) : (
+              <ModalDescription>
+                <div className="w-full flex  flex-col justify-center h-full items-center  ">
+                  <p className="font-poppins text-base font-semibold text-black mb-8">
+                    Agent Analytics
+                  </p>
                 </div>
-                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
-                  <p>Added Taxes Modified  :</p>
-                  {documentAnalytics?.summary_efficiency_breakdown?.added_taxes_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500"></span> : <span className="h-4 w-4 rounded-full bg-primary"></span>}
-                </div>
-                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
-                  <p>Added Fees Modified  :</p>
-                  {documentAnalytics?.summary_efficiency_breakdown?.added_fees_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500"></span> : <span className="h-4 w-4 rounded-full bg-primary"></span>}
-                </div>
-                <div className="flex items-center py-1 gap-x-2 font-poppins r font-medium text-black"> <p>Added Discounts Modified  :</p>
-                  {documentAnalytics?.summary_efficiency_breakdown?.added_discounts_modification_count == 0 ? <span className="h-4 w-4 rounded-full bg-red-500"></span> : <span className="h-4 w-4 rounded-full bg-primary"></span>}
+                <div className="w-full flex items-center justify-between">
+                  <p className="w-1/3 flex items-center gap-x-4 !font-poppins text-sm text-black font-medium">
+                    <span>Metadata Validated</span>{" "}
+                    <span
+                      className={cn(
+                        "h-4 w-4 rounded-full ",
+                        documentAnalytics?.metadata_validated
+                          ? "bg-primary"
+                          : "bg-red-500"
+                      )}
+                    >
+                      {}
+                    </span>
+                  </p>
+                  <p className="w-1/3 flex items-center gap-x-4 !font-poppins text-sm text-black font-medium">
+                    <span>Summary Validated</span>
+
+                    <span
+                      className={cn(
+                        "h-4 w-4 rounded-full ",
+                        documentAnalytics?.summary_validated
+                          ? "bg-primary"
+                          : "bg-red-500"
+                      )}
+                    >
+                      {}
+                    </span>
+                  </p>
+                  <p className="w-1/3 flex items-center gap-x-4 !font-poppins text-sm text-black font-medium">
+                    <span>Table Data Validated</span>
+                    <span
+                      className={cn(
+                        "h-4 w-4 rounded-full ",
+                        documentAnalytics?.table_data_validated
+                          ? "bg-primary"
+                          : "bg-red-500"
+                      )}
+                    >
+                      {}
+                    </span>
+                  </p>
                 </div>
 
-              </div>
-            </div>
+                <hr className="h-0.5 my-4 bg-gray-400" />
+                <div className="w-full flex items-center justify-between">
+                  <p className="w-1/3 flex items-center gap-x-4 !font-poppins text-sm text-black font-medium ">
+                    <span>Metadata Efficiency : </span>
+                    {documentAnalytics?.metadata_efficiency}%
+                  </p>
+                  <p className="w-1/3 flex items-center gap-x-4 !font-poppins text-sm text-black font-medium">
+                    <span>Summary Efficiency : </span>
+                    {documentAnalytics?.summary_efficiency}%
+                  </p>
+                  <p className="w-1/3 flex items-center gap-x-4 !font-poppins text-sm text-black font-medium">
+                    <span>Table Data Efficiency : </span>
+                    {documentAnalytics?.table_data_efficiency}%
+                  </p>
+                </div>
+                <hr className="h-0.5 my-4 bg-gray-400" />
 
-            {/* Table Data Efficieny Breakdown */}
-            <div className="mt-8">
-              <p className="font-poppins font-semibold text-sm mb-2 text-black  border-b border-t border-t-gray-400 border-b-gray-400 py-2">Table Data Efficiency Breakdown</p>
-              <div className="grid grid-cols-3 gap-y-2 ">
-                <div className="flex items-center py-1 gap-x-2 w-full  font-poppins font-medium text-black">
-                  <p>Category Modification Rate :</p>
-                  <p>{documentAnalytics?.table_data_efficiency_breakdown?.category_modification_rate}%</p>
-                </div>
-                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
-                  <p>Item Description Modification Rate :</p>
-                  <p>{documentAnalytics?.table_data_efficiency_breakdown?.item_description_modification_rate}%</p>
-                </div>
-                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
-                  <p>Item Code Modification Rate :</p>
-                  <p>{documentAnalytics?.table_data_efficiency_breakdown?.item_code_modification_rate}%</p>
-                </div>
-                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
-                  <p>Unit Price Modification Rate :</p>
-                  <p>{documentAnalytics?.table_data_efficiency_breakdown?.unit_price_modification_rate}%</p>
-                </div>
-                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
-                  <p>Quantity Modification Rate :</p>
-                  <p>{documentAnalytics?.table_data_efficiency_breakdown?.quantity_modification_rate}%</p>
-                </div>
-                <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
-                  <p>Extended Price Modification Rate :</p>
-                  <p>{documentAnalytics?.table_data_efficiency_breakdown?.extended_price_modification_rate}%</p>
-                </div>
+                {/* Metadata Efficiency Breakdown */}
 
-              </div>
-            </div>
-          </ModalDescription>}
-        </Modal>
-        {/* Reset Invoice Status Modal */}
-        <Modal
-          open={showResetStatusModal}
-          setOpen={setShowResetStatusModal}
-          showXicon={true}
-          className={"max-w-[25rem] !rounded-xl"}
-        >
-          <ModalDescription>
-            <div className="w-full flex  flex-col justify-center h-full items-center  ">
-              <img src={warning} alt="" className="h-16 w-16 mb-2 mt-4" />
-              <p className="font-poppins font-semibold text-base leading-6  text-[#000000]">
-                Warning
-              </p>
-              <p className="px-8 !text-center mt-2 text-[#666667] font-poppins font-normal  text-sm leading-4">
-                Are you sure to Reset the Invoice Status?
-              </p>
-              <div className="flex items-center gap-x-4 mb-4 mt-8">
-                <Button
-                  onClick={() => setShowMultipleInvoiceModal(false)}
-                  className="rounded-sm !w-[4.5rem] !font-poppins bg-transparent border border-primary shadow-none text-[#000000] font-normal text-xs hover:bg-transparent"
-                >
-                  No
-                </Button>
-                <Button
-                  onClick={() => {
-                    setLoadingState((prev) => ({ ...prev, reverting: true }));
-                    revertChanges(
-                      data?.data?.document_uuid ||
-                      data?.data?.[0]?.document_uuid,
-                      {
-                        onSuccess: () => {
-                          setLoadingState((prev) => ({
-                            ...prev,
-                            reverting: false
-                          }));
-                        },
-                        onError: () => {
-                          setLoadingState((prev) => ({
-                            ...prev,
-                            reverting: false
-                          }));
-                        }
-                      }
-                    );
-                  }}
-                  disabled={loadingState?.reverting}
-                  className="rounded-sm !w-[4.5rem] !font-poppins text-xs font-normal"
-                >
-                  {loadingState?.reverting ? "Marking..." : "Yes"}
-                </Button>
-              </div>
-            </div>
-          </ModalDescription>
-        </Modal>
-        {/* Mark For Review Modal */}
-        <Modal
-          open={markForReviewModal}
-          setOpen={setMarkForReviewModal}
-          title={"Reason"}
-          className={"!rounded-2xl"}
-          titleClassName={
-            "flex justify-center  text-[#000000] font-poppins dark:text-white  font-medium  text-base  leading-4 pt-0.5 "
-          }
-        >
-          <ModalDescription>
-            <div className="p-2">
-              <p className="mb-1.5  font-poppins text-[0.9rem] dark:text-white font-normal text-[#000000] ">
-                Why are you marking this document for review later?
-              </p>
-              <Textarea
-                placeholder="Reason"
-                rows={6}
-                value={reviewLaterComments}
-                onChange={(e) => {
-                  setReviewLaterComments(e?.target?.value);
-                }}
-                className="p-2.5 dark:text-white  focus:!outline-none focus:!ring-0 "
-              />
-            </div>
-            <div className="flex justify-center">
-              <Button
-                disabled={
-                  loadingState?.markingForReview ||
-                  reviewLaterComments?.length == 0
-                }
-                onClick={() => {
-                  setLoadingState({ ...loadingState, markingForReview: true });
-                  markForReview(
-                    {
-                      document_uuid:
-                        data?.data?.document_uuid ||
-                        data?.data?.[0]?.document_uuid,
-                      comments: reviewLaterComments
-                    },
-                    {
-                      onSuccess: () => {
-                        setLoadingState({
-                          ...loadingState,
-                          markingForReview: false
-                        });
-                        setReviewLaterComments("");
-                        setMarkForReviewModal(false);
-
-                        if (page_number == 1 && data?.totalPages == 1) {
-                          if (from_view == "my-tasks") {
-                            navigate("/my-tasks");
-                          } else if (from_view == "reviw-later") {
-                            navigate("/review-later-tasks");
-                          } else {
-                            navigate("/home");
-                          }
-                          setDefault();
-                        }
-                        window.location.reload();
-                      },
-                      onError: () => {
-                        setLoadingState({
-                          ...loadingState,
-                          markingForReview: false
-                        });
-                      }
-                    }
-                  );
-                }}
-                className="mt-8 text-[#FFFFFF] dark:text-white font-poppins  !font-normal text-xs rounded-sm leading-4 "
-              >
-                {loadingState?.markingForReview
-                  ? "Marking...."
-                  : " Mark for Review"}
-              </Button>
-            </div>
-          </ModalDescription>
-        </Modal>
-        {/* Mark As Not Supported */}
-        <Modal
-          open={markAsNotSupportedModal}
-          showXicon={true}
-          className={"max-w-[25rem] !rounded-xl"}
-          setOpen={setMarkAsNotSupportedModal}
-        >
-          <ModalDescription>
-            <div className="w-full flex  flex-col justify-center h-full items-center  ">
-              <img src={warning} alt="" className="h-16 w-16 mb-2 mt-4" />
-              <p className="font-poppins font-semibold text-base leading-6  text-[#000000]">
-                Warning
-              </p>
-              <p className="px-8 !text-center mt-2 text-[#666667] font-poppins font-normal  text-sm leading-4">
-                Are you sure to mark this document as Not Supported ?
-              </p>
-              <div className="flex items-center gap-x-4 mb-4 mt-8">
-                <Button
-                  onClick={() => setMarkAsNotSupportedModal(false)}
-                  className="rounded-sm !w-[4.5rem] !font-poppins bg-transparent border border-primary shadow-none text-[#000000] font-normal text-xs hover:bg-transparent"
-                >
-                  No
-                </Button>
-                <Button
-                  onClick={() => {
-                    setLoadingState({
-                      ...loadingState,
-                      markingAsNotSupported: true
-                    });
-                    markAsNotSupported(
-                      data?.data?.document_uuid ||
-                      data?.data?.[0]?.document_uuid,
-                      {
-                        onSuccess: () => {
-                          setLoadingState({
-                            ...loadingState,
-                            markingAsNotSupported: false
-                          });
-                          window.location.reload();
-                        },
-                        onError: () => {
-                          setLoadingState({
-                            ...loadingState,
-                            markingAsNotSupported: false
-                          });
-                        }
-                      }
-                    );
-                  }}
-                  disabled={loadingState?.markingAsNotSupported}
-                  className="rounded-sm !w-[4.5rem] !font-poppins text-xs font-normal"
-                >
-                  {loadingState?.markingAsNotSupported ? "Marking..." : "Yes"}
-                </Button>
-              </div>
-            </div>
-          </ModalDescription>
-        </Modal>
-        {/* Multiple invoice Modal */}
-        <Modal
-          open={showMultipleInvoiceModal}
-          showXicon={true}
-          className={"max-w-[25rem] !rounded-xl"}
-          setOpen={setShowMultipleInvoiceModal}
-        >
-          <ModalDescription>
-            <div className="w-full flex  flex-col justify-center h-full items-center  ">
-              <img src={warning} alt="" className="h-16 w-16 mb-2 mt-4" />
-              <p className="font-poppins font-semibold text-base leading-6  text-[#000000]">
-                Warning
-              </p>
-              <p className="px-8 !text-center mt-2 text-[#666667] font-poppins font-normal  text-sm leading-4">
-                Are you sure to mark this document as Multiple Invoice Document ?
-              </p>
-              <div className="flex items-center gap-x-4 mb-4 mt-8">
-                <Button
-                  onClick={() => setShowMultipleInvoiceModal(false)}
-                  className="rounded-sm !w-[4.5rem] !font-poppins bg-transparent border border-primary shadow-none text-[#000000] font-normal text-xs hover:bg-transparent"
-                >
-                  No
-                </Button>
-                <Button
-                  onClick={() => {
-                    setLoadingState({
-                      ...loadingState,
-                      mutliInvoceMarking: true
-                    });
-                    markAsMutlipleInvoice(
-                      data?.data?.document_uuid ||
-                      data?.data?.[0]?.document_uuid,
-                      {
-                        onSuccess: () => {
-                          setLoadingState({
-                            ...loadingState,
-                            mutliInvoceMarking: false
-                          });
-                          window.location.reload();
-                        },
-                        onError: () => {
-                          setLoadingState({
-                            ...loadingState,
-                            mutliInvoceMarking: false
-                          });
-                        }
-                      }
-                    );
-                  }}
-                  disabled={loadingState?.mutliInvoceMarking}
-                  className="rounded-sm !w-[4.5rem] !font-poppins text-xs font-normal"
-                >
-                  {loadingState?.mutliInvoceMarking ? "Marking..." : "Yes"}
-                </Button>
-              </div>
-            </div>
-          </ModalDescription>
-        </Modal>
-
-        {/* Rejection Modal */}
-        <Modal
-          open={showRejectionModal}
-          setOpen={setShowRejectionModal}
-          title={"Reason"}
-          className={"!rounded-2xl"}
-          titleClassName={
-            "flex justify-center  text-[#000000] font-poppins  font-medium  text-base  leading-4 pt-0.5 "
-          }
-        >
-          <ModalDescription>
-            <div className="p-2">
-              <p className="mb-1.5  font-poppins text-[0.9rem] font-normal text-[#000000] ">
-                Why are you rejecting this document ?
-              </p>
-              <RadioGroup
-                defaultValue={null}
-                onValueChange={(v) => {
-                  setRejectionReason(v);
-                }}
-                className="grid grid-cols-2  gap-y-2 mt-4"
-              >
-                {rejectionReasons?.map((r, i) => {
-                  return (
-                    <div className="flex items-center space-x-2" key={i}>
-                      <RadioGroupItem value={r} id={r} />
-
-                      <Label
-                        htmlFor={r}
-                        className="text-[#6D6D6D] capitalize cursor-pointer font-normal font-poppins text-xs leading-5"
-                      >
-                        {r}
-                      </Label>
+                <div className="mt-8">
+                  <p className="font-poppins font-semibold text-sm mb-2 text-black  border-b border-t border-t-gray-400 border-b-gray-400 py-2">
+                    Metadata Efficiency Breakdown
+                  </p>
+                  <div className="grid grid-cols-3 gap-y-2">
+                    <div className="flex items-center py-1 gap-x-2 w-full  font-poppins font-medium text-black">
+                      <p>Vendor Modified :</p>
+                      {documentAnalytics?.metadata_efficiency_breakdown
+                        ?.vendor_id_modification_count == 0 ? (
+                        <span className="h-4 w-4 rounded-full bg-red-500">
+                          {}
+                        </span>
+                      ) : (
+                        <span className="h-4 w-4 rounded-full bg-primary">
+                          {}
+                        </span>
+                      )}
                     </div>
-                  );
-                })}
-              </RadioGroup>
+                    <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
+                      <p>Branch Modified :</p>
+                      {documentAnalytics?.metadata_efficiency_breakdown
+                        ?.branch_id_modification_count == 0 ? (
+                        <span className="h-4 w-4 rounded-full bg-red-500"></span>
+                      ) : (
+                        <span className="h-4 w-4 rounded-full bg-primary"></span>
+                      )}
+                    </div>
+                    <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
+                      <p>Invoice Number Modified :</p>
+                      {documentAnalytics?.metadata_efficiency_breakdown
+                        ?.invoice_number_modification_count == 0 ? (
+                        <span className="h-4 w-4 rounded-full bg-red-500"></span>
+                      ) : (
+                        <span className="h-4 w-4 rounded-full bg-primary"></span>
+                      )}
+                    </div>
+                    <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
+                      {" "}
+                      <p>Credit Card Name Modified :</p>
+                      {documentAnalytics?.metadata_efficiency_breakdown
+                        ?.credit_card_name_modification_count == 0 ? (
+                        <span className="h-4 w-4 rounded-full bg-red-500"></span>
+                      ) : (
+                        <span className="h-4 w-4 rounded-full bg-primary"></span>
+                      )}
+                    </div>
+                    <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
+                      {" "}
+                      <p>Credit Card Number Modified :</p>{" "}
+                      {documentAnalytics?.metadata_efficiency_breakdown
+                        ?.credit_card_number_modification_count == 0 ? (
+                        <span className="h-4 w-4 rounded-full bg-red-500"></span>
+                      ) : (
+                        <span className="h-4 w-4 rounded-full bg-primary"></span>
+                      )}
+                    </div>
+                    <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
+                      {" "}
+                      <p>Invoice Date Modified :</p>{" "}
+                      {documentAnalytics?.metadata_efficiency_breakdown
+                        ?.invoice_date_modification_count == 0 ? (
+                        <span className="h-4 w-4 rounded-full bg-red-500"></span>
+                      ) : (
+                        <span className="h-4 w-4 rounded-full bg-primary"></span>
+                      )}
+                    </div>
+                    <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
+                      {" "}
+                      <p>Invoice Due Date Modified :</p>{" "}
+                      {documentAnalytics?.metadata_efficiency_breakdown
+                        ?.invoice_due_date_modification_count == 0 ? (
+                        <span className="h-4 w-4 rounded-full bg-red-500"></span>
+                      ) : (
+                        <span className="h-4 w-4 rounded-full bg-primary"></span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                {/* Summary Efficiency Breakdown */}
+                <div className="mt-8">
+                  <p className="font-poppins font-semibold text-sm mb-2 text-black  border-b border-t border-t-gray-400 border-b-gray-400 py-2">
+                    Summary Efficiency Breakdown
+                  </p>
+                  <div className="grid grid-cols-3 gap-y-2">
+                    <div className="flex items-center py-1 gap-x-2 w-full  font-poppins font-medium text-black">
+                      <p>Invoice Extracted Total Modified :</p>
+                      {documentAnalytics?.summary_efficiency_breakdown
+                        ?.invoice_extracted_total_modification_count == 0 ? (
+                        <span className="h-4 w-4 rounded-full bg-red-500"></span>
+                      ) : (
+                        <span className="h-4 w-4 rounded-full bg-primary"></span>
+                      )}
+                    </div>
+                    <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
+                      <p>Added Taxes Modified :</p>
+                      {documentAnalytics?.summary_efficiency_breakdown
+                        ?.added_taxes_modification_count == 0 ? (
+                        <span className="h-4 w-4 rounded-full bg-red-500"></span>
+                      ) : (
+                        <span className="h-4 w-4 rounded-full bg-primary"></span>
+                      )}
+                    </div>
+                    <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
+                      <p>Added Fees Modified :</p>
+                      {documentAnalytics?.summary_efficiency_breakdown
+                        ?.added_fees_modification_count == 0 ? (
+                        <span className="h-4 w-4 rounded-full bg-red-500"></span>
+                      ) : (
+                        <span className="h-4 w-4 rounded-full bg-primary"></span>
+                      )}
+                    </div>
+                    <div className="flex items-center py-1 gap-x-2 font-poppins r font-medium text-black">
+                      {" "}
+                      <p>Added Discounts Modified :</p>
+                      {documentAnalytics?.summary_efficiency_breakdown
+                        ?.added_discounts_modification_count == 0 ? (
+                        <span className="h-4 w-4 rounded-full bg-red-500"></span>
+                      ) : (
+                        <span className="h-4 w-4 rounded-full bg-primary"></span>
+                      )}
+                    </div>
+                  </div>
+                </div>
 
-              <p className="mt-4 mb-2 font-poppins text-[0.9rem] font-normal text-[#000000] ">
-                Other Reason :
-              </p>
+                {/* Table Data Efficieny Breakdown */}
+                <div className="mt-8">
+                  <p className="font-poppins font-semibold text-sm mb-2 text-black  border-b border-t border-t-gray-400 border-b-gray-400 py-2">
+                    Table Data Efficiency Breakdown
+                  </p>
+                  <div className="grid grid-cols-3 gap-y-2 ">
+                    <div className="flex items-center py-1 gap-x-2 w-full  font-poppins font-medium text-black">
+                      <p>Category Modification Rate :</p>
+                      <p>
+                        {
+                          documentAnalytics?.table_data_efficiency_breakdown
+                            ?.category_modification_rate
+                        }
+                        %
+                      </p>
+                    </div>
+                    <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
+                      <p>Item Description Modification Rate :</p>
+                      <p>
+                        {
+                          documentAnalytics?.table_data_efficiency_breakdown
+                            ?.item_description_modification_rate
+                        }
+                        %
+                      </p>
+                    </div>
+                    <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
+                      <p>Item Code Modification Rate :</p>
+                      <p>
+                        {
+                          documentAnalytics?.table_data_efficiency_breakdown
+                            ?.item_code_modification_rate
+                        }
+                        %
+                      </p>
+                    </div>
+                    <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
+                      <p>Unit Price Modification Rate :</p>
+                      <p>
+                        {
+                          documentAnalytics?.table_data_efficiency_breakdown
+                            ?.unit_price_modification_rate
+                        }
+                        %
+                      </p>
+                    </div>
+                    <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
+                      <p>Quantity Modification Rate :</p>
+                      <p>
+                        {
+                          documentAnalytics?.table_data_efficiency_breakdown
+                            ?.quantity_modification_rate
+                        }
+                        %
+                      </p>
+                    </div>
+                    <div className="flex items-center py-1 gap-x-2 font-poppins  font-medium text-black">
+                      <p>Extended Price Modification Rate :</p>
+                      <p>
+                        {
+                          documentAnalytics?.table_data_efficiency_breakdown
+                            ?.extended_price_modification_rate
+                        }
+                        %
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </ModalDescription>
+            )}
+          </Modal>
+          {/* Reset Invoice Status Modal */}
+          <Modal
+            open={showResetStatusModal}
+            setOpen={setShowResetStatusModal}
+            showXicon={true}
+            className={"max-w-[25rem] !rounded-xl"}
+          >
+            <ModalDescription>
+              <div className="w-full flex  flex-col justify-center h-full items-center  ">
+                <img src={warning} alt="" className="h-16 w-16 mb-2 mt-4" />
+                <p className="font-poppins font-semibold text-base leading-6  text-[#000000]">
+                  Warning
+                </p>
+                <p className="px-8 !text-center mt-2 text-[#666667] font-poppins font-normal  text-sm leading-4">
+                  Are you sure to Reset the Invoice Status?
+                </p>
+                <div className="flex items-center gap-x-4 mb-4 mt-8">
+                  <Button
+                    onClick={() => setShowMultipleInvoiceModal(false)}
+                    className="rounded-sm !w-[4.5rem] !font-poppins bg-transparent border border-primary shadow-none text-[#000000] font-normal text-xs hover:bg-transparent"
+                  >
+                    No
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setLoadingState((prev) => ({ ...prev, reverting: true }));
+                      revertChanges(
+                        data?.data?.document_uuid ||
+                          data?.data?.[0]?.document_uuid,
+                        {
+                          onSuccess: () => {
+                            setLoadingState((prev) => ({
+                              ...prev,
+                              reverting: false,
+                            }));
+                          },
+                          onError: () => {
+                            setLoadingState((prev) => ({
+                              ...prev,
+                              reverting: false,
+                            }));
+                          },
+                        }
+                      );
+                    }}
+                    disabled={loadingState?.reverting}
+                    className="rounded-sm !w-[4.5rem] !font-poppins text-xs font-normal"
+                  >
+                    {loadingState?.reverting ? "Marking..." : "Yes"}
+                  </Button>
+                </div>
+              </div>
+            </ModalDescription>
+          </Modal>
+          {/* Mark For Review Modal */}
+          <Modal
+            open={markForReviewModal}
+            setOpen={setMarkForReviewModal}
+            title={"Reason"}
+            className={"!rounded-2xl"}
+            titleClassName={
+              "flex justify-center  text-[#000000] font-poppins dark:text-white  font-medium  text-base  leading-4 pt-0.5 "
+            }
+          >
+            <ModalDescription>
+              <div className="p-2">
+                <p className="mb-1.5  font-poppins text-[0.9rem] dark:text-white font-normal text-[#000000] ">
+                  Why are you marking this document for review later?
+                </p>
+                <Textarea
+                  placeholder="Reason"
+                  rows={6}
+                  value={reviewLaterComments}
+                  onChange={(e) => {
+                    setReviewLaterComments(e?.target?.value);
+                  }}
+                  className="p-2.5 dark:text-white  focus:!outline-none focus:!ring-0 "
+                />
+              </div>
+              <div className="flex justify-center">
+                <Button
+                  disabled={
+                    loadingState?.markingForReview ||
+                    reviewLaterComments?.length == 0
+                  }
+                  onClick={() => {
+                    setLoadingState({
+                      ...loadingState,
+                      markingForReview: true,
+                    });
+                    markForReview(
+                      {
+                        document_uuid:
+                          data?.data?.document_uuid ||
+                          data?.data?.[0]?.document_uuid,
+                        comments: reviewLaterComments,
+                      },
+                      {
+                        onSuccess: () => {
+                          setLoadingState({
+                            ...loadingState,
+                            markingForReview: false,
+                          });
+                          setReviewLaterComments("");
+                          setMarkForReviewModal(false);
 
-              <Textarea
-                placeholder="Description"
-                rows={4}
-                value={rejectionReason}
-                onChange={(e) => {
-                  setRejectionReason(e?.target?.value);
-                }}
-                className="p-2.5  focus:!outline-none focus:!ring-0 "
-              />
-            </div>
-            <div className="flex justify-center">
-              <Button
-                disabled={
-                  loadingState?.rejecting || rejectionReason?.length == 0
-                }
-                onClick={handleRejection}
-                className="mt-8 text-[#FFFFFF] font-poppins tracking-wide  !font-normal text-xs rounded-sm leading-4 "
-              >
-                {loadingState?.rejecting ? "Rejecting...." : "Reject"}
-              </Button>
-            </div>
-          </ModalDescription>
-        </Modal>
-      </Layout>
-      }
+                          if (page_number == 1 && data?.totalPages == 1) {
+                            if (from_view == "my-tasks") {
+                              navigate("/my-tasks");
+                            } else if (from_view == "reviw-later") {
+                              navigate("/review-later-tasks");
+                            } else {
+                              navigate("/home");
+                            }
+                            setDefault();
+                          }
+                          window.location.reload();
+                        },
+                        onError: () => {
+                          setLoadingState({
+                            ...loadingState,
+                            markingForReview: false,
+                          });
+                        },
+                      }
+                    );
+                  }}
+                  className="mt-8 text-[#FFFFFF] dark:text-white font-poppins  !font-normal text-xs rounded-sm leading-4 "
+                >
+                  {loadingState?.markingForReview
+                    ? "Marking...."
+                    : " Mark for Review"}
+                </Button>
+              </div>
+            </ModalDescription>
+          </Modal>
+          {/* Mark As Not Supported */}
+          <Modal
+            open={markAsNotSupportedModal}
+            showXicon={true}
+            className={"max-w-[25rem] !rounded-xl"}
+            setOpen={setMarkAsNotSupportedModal}
+          >
+            <ModalDescription>
+              <div className="w-full flex  flex-col justify-center h-full items-center  ">
+                <img src={warning} alt="" className="h-16 w-16 mb-2 mt-4" />
+                <p className="font-poppins font-semibold text-base leading-6  text-[#000000]">
+                  Warning
+                </p>
+                <p className="px-8 !text-center mt-2 text-[#666667] font-poppins font-normal  text-sm leading-4">
+                  Are you sure to mark this document as Not Supported ?
+                </p>
+                <div className="flex items-center gap-x-4 mb-4 mt-8">
+                  <Button
+                    onClick={() => setMarkAsNotSupportedModal(false)}
+                    className="rounded-sm !w-[4.5rem] !font-poppins bg-transparent border border-primary shadow-none text-[#000000] font-normal text-xs hover:bg-transparent"
+                  >
+                    No
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setLoadingState({
+                        ...loadingState,
+                        markingAsNotSupported: true,
+                      });
+                      markAsNotSupported(
+                        data?.data?.document_uuid ||
+                          data?.data?.[0]?.document_uuid,
+                        {
+                          onSuccess: () => {
+                            setLoadingState({
+                              ...loadingState,
+                              markingAsNotSupported: false,
+                            });
+                            window.location.reload();
+                          },
+                          onError: () => {
+                            setLoadingState({
+                              ...loadingState,
+                              markingAsNotSupported: false,
+                            });
+                          },
+                        }
+                      );
+                    }}
+                    disabled={loadingState?.markingAsNotSupported}
+                    className="rounded-sm !w-[4.5rem] !font-poppins text-xs font-normal"
+                  >
+                    {loadingState?.markingAsNotSupported ? "Marking..." : "Yes"}
+                  </Button>
+                </div>
+              </div>
+            </ModalDescription>
+          </Modal>
+          {/* Multiple invoice Modal */}
+          <Modal
+            open={showMultipleInvoiceModal}
+            showXicon={true}
+            className={"max-w-[25rem] !rounded-xl"}
+            setOpen={setShowMultipleInvoiceModal}
+          >
+            <ModalDescription>
+              <div className="w-full flex  flex-col justify-center h-full items-center  ">
+                <img src={warning} alt="" className="h-16 w-16 mb-2 mt-4" />
+                <p className="font-poppins font-semibold text-base leading-6  text-[#000000]">
+                  Warning
+                </p>
+                <p className="px-8 !text-center mt-2 text-[#666667] font-poppins font-normal  text-sm leading-4">
+                  Are you sure to mark this document as Multiple Invoice
+                  Document ?
+                </p>
+                <div className="flex items-center gap-x-4 mb-4 mt-8">
+                  <Button
+                    onClick={() => setShowMultipleInvoiceModal(false)}
+                    className="rounded-sm !w-[4.5rem] !font-poppins bg-transparent border border-primary shadow-none text-[#000000] font-normal text-xs hover:bg-transparent"
+                  >
+                    No
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setLoadingState({
+                        ...loadingState,
+                        mutliInvoceMarking: true,
+                      });
+                      markAsMutlipleInvoice(
+                        data?.data?.document_uuid ||
+                          data?.data?.[0]?.document_uuid,
+                        {
+                          onSuccess: () => {
+                            setLoadingState({
+                              ...loadingState,
+                              mutliInvoceMarking: false,
+                            });
+                            window.location.reload();
+                          },
+                          onError: () => {
+                            setLoadingState({
+                              ...loadingState,
+                              mutliInvoceMarking: false,
+                            });
+                          },
+                        }
+                      );
+                    }}
+                    disabled={loadingState?.mutliInvoceMarking}
+                    className="rounded-sm !w-[4.5rem] !font-poppins text-xs font-normal"
+                  >
+                    {loadingState?.mutliInvoceMarking ? "Marking..." : "Yes"}
+                  </Button>
+                </div>
+              </div>
+            </ModalDescription>
+          </Modal>
 
+          {/* Rejection Modal */}
+          <Modal
+            open={showRejectionModal}
+            setOpen={setShowRejectionModal}
+            title={"Reason"}
+            className={"!rounded-2xl"}
+            titleClassName={
+              "flex justify-center  text-[#000000] font-poppins  font-medium  text-base  leading-4 pt-0.5 "
+            }
+          >
+            <ModalDescription>
+              <div className="p-2">
+                <p className="mb-1.5  font-poppins text-[0.9rem] font-normal text-[#000000] ">
+                  Why are you rejecting this document ?
+                </p>
+                <RadioGroup
+                  defaultValue={null}
+                  onValueChange={(v) => {
+                    setRejectionReason(v);
+                  }}
+                  className="grid grid-cols-2  gap-y-2 mt-4"
+                >
+                  {rejectionReasons?.map((r, i) => {
+                    return (
+                      <div className="flex items-center space-x-2" key={i}>
+                        <RadioGroupItem value={r} id={r} />
 
+                        <Label
+                          htmlFor={r}
+                          className="text-[#6D6D6D] capitalize cursor-pointer font-normal font-poppins text-xs leading-5"
+                        >
+                          {r}
+                        </Label>
+                      </div>
+                    );
+                  })}
+                </RadioGroup>
 
+                <p className="mt-4 mb-2 font-poppins text-[0.9rem] font-normal text-[#000000] ">
+                  Other Reason :
+                </p>
 
-
-
+                <Textarea
+                  placeholder="Description"
+                  rows={4}
+                  value={rejectionReason}
+                  onChange={(e) => {
+                    setRejectionReason(e?.target?.value);
+                  }}
+                  className="p-2.5  focus:!outline-none focus:!ring-0 "
+                />
+              </div>
+              <div className="flex justify-center">
+                <Button
+                  disabled={
+                    loadingState?.rejecting || rejectionReason?.length == 0
+                  }
+                  onClick={handleRejection}
+                  className="mt-8 text-[#FFFFFF] font-poppins tracking-wide  !font-normal text-xs rounded-sm leading-4 "
+                >
+                  {loadingState?.rejecting ? "Rejecting...." : "Reject"}
+                </Button>
+              </div>
+            </ModalDescription>
+          </Modal>
+        </Layout>
+      )}
       <Modal
         iconCN={"top-[28px]"}
         open={showDuplicateInvoicesModal}
@@ -2484,7 +2712,7 @@ const InvoiceDetails = () => {
         className={"!rounded-2xl  !w-[55rem] "}
       >
         {similarVendors?.data?.length > 0 &&
-          similarBranches?.data?.length > 0 ? (
+        similarBranches?.data?.length > 0 ? (
           <div className="my-2">
             <p className="mb-3 pl-0.5  font-poppins text-[0.9rem] font-semibold text-[#000000] ">
               Matching Verified Vendors ({similarVendors?.data?.length}) and
@@ -2546,9 +2774,11 @@ const InvoiceDetails = () => {
                                     className="max-w-44 underline cursor-pointer text-primary"
                                     onClick={() => {
                                       window.open(
-                                        `${import.meta.env
-                                          .VITE_APP_OLD_UI_STAGING_UI
-                                        }/vendor-consolidation-v2/${row?.vendor?.vendor_id
+                                        `${
+                                          import.meta.env
+                                            .VITE_APP_OLD_UI_STAGING_UI
+                                        }/vendor-consolidation-v2/${
+                                          row?.vendor?.vendor_id
                                         }`
                                       );
                                     }}
@@ -2652,9 +2882,11 @@ const InvoiceDetails = () => {
                                     className="max-w-44 underline text-primary cursor-pointer"
                                     onClick={() => {
                                       window.open(
-                                        `${import.meta.env
-                                          .VITE_APP_OLD_UI_STAGING_UI
-                                        }/vendor-v2/${row?.vendor?.vendor_id
+                                        `${
+                                          import.meta.env
+                                            .VITE_APP_OLD_UI_STAGING_UI
+                                        }/vendor-v2/${
+                                          row?.vendor?.vendor_id
                                         }/branch/${row?.branch?.branch_id}`
                                       );
                                     }}
@@ -2818,8 +3050,8 @@ const InvoiceDetails = () => {
                       data?.data?.[0]?.document_uuid ||
                       data?.data?.document_uuid,
                     payload: {
-                      extraction_method: reExtractionMethod
-                    }
+                      extraction_method: reExtractionMethod,
+                    },
                   },
                   {
                     onSuccess: (data) => {
@@ -2832,7 +3064,7 @@ const InvoiceDetails = () => {
                     onError: () => {
                       setLoadingState({ ...loadingState, reprocessing: false });
                       setShowReprocessingModal(false);
-                    }
+                    },
                   }
                 );
               }}
@@ -3005,14 +3237,11 @@ const InvoiceDetails = () => {
         </ModalDescription>
       </Modal> */}
       {/* Deposit Column */}
-
       <Modal
         iconCN={"top-[28px]"}
         open={showDepositColumnWarning}
-
         setOpen={() => {
           setShowDepositColumnWarning(false);
-
         }}
         title={"Detected deposit values in the table."}
         className={"!px-0  !z-50 !min-w-[40rem] "}
@@ -3023,7 +3252,8 @@ const InvoiceDetails = () => {
         <ModalDescription className="px-4 !z-50">
           <div className="px-4 z-50">
             <p className="font-poppins font-medium text-start  text-black">
-              Do you want to apply the Liquor Deposit Split Rule to separate deposit amounts from the line items?
+              Do you want to apply the Liquor Deposit Split Rule to separate
+              deposit amounts from the line items?
             </p>
           </div>
           <div className="relative max-h-44 overflow-auto">
@@ -3041,8 +3271,8 @@ const InvoiceDetails = () => {
                             c?.column_name === "Item Description"
                               ? "200px"
                               : c?.column_name === "Item Code"
-                                ? "100px"
-                                : "120px",
+                              ? "100px"
+                              : "120px",
                         }}
                       >
                         {c?.column_name}
@@ -3058,7 +3288,9 @@ const InvoiceDetails = () => {
                     className="border-b border-[#F5F5F5] hover:bg-gray-50"
                   >
                     {row?.cells
-                      ?.filter((c) => selectedColumnIds?.includes(c?.column_uuid))
+                      ?.filter((c) =>
+                        selectedColumnIds?.includes(c?.column_uuid)
+                      )
                       ?.map((cell, i) => (
                         <td
                           key={i}
@@ -3073,14 +3305,11 @@ const InvoiceDetails = () => {
             </table>
           </div>
 
-
           <div className="flex items-center justify-center gap-x-2  pr-2 mt-6 mb-2">
             <Button
               onClick={() => {
                 setShowDepositColumnWarning(false);
                 // setDepositColumnRows([]);
-
-
               }}
               className="rounded-sm border border-red-500 bg-transparent focus:border-red-500 focus:!ring-0 ring-0 focus:outline-none !outline-none hover:bg-transparent font-poppins font-normal text-sm text-black"
             >
@@ -3091,30 +3320,31 @@ const InvoiceDetails = () => {
               disabled={loadingState?.applyingRule}
               onClick={() => {
                 setLoadingState({ ...loadingState, applyingRule: true });
-                applyBusinessRule({ rule: "liquor_deposit_separation", document_uuid: metaData?.document_uuid }, {
-                  onSuccess: () => {
-                    setLoadingState({ ...loadingState, applyingRule: false });
-                    setShowDepositColumnWarning(false);
-                    setShowDepositRuleModal(false);
-                    setShowLoader(true);
-                    clearTimeout(loaderTimer);
-                    loaderTimer = setTimeout(() => {
-                      setShowLoader(false);
-                    }, 2000);
-
+                applyBusinessRule(
+                  {
+                    rule: "liquor_deposit_separation",
+                    document_uuid: metaData?.document_uuid,
                   },
-                  onError: () => {
-                    setLoadingState({ ...loadingState, applyingRule: false });
+                  {
+                    onSuccess: () => {
+                      setLoadingState({ ...loadingState, applyingRule: false });
+                      setShowDepositColumnWarning(false);
+                      setShowDepositRuleModal(false);
+                      setShowLoader(true);
+                      clearTimeout(loaderTimer);
+                      loaderTimer = setTimeout(() => {
+                        setShowLoader(false);
+                      }, 2000);
+                    },
+                    onError: () => {
+                      setLoadingState({ ...loadingState, applyingRule: false });
+                    },
                   }
-                })
-
+                );
               }}
               className="flex items-center gap-x-2 bg-transparent hover:bg-transparent rounded-sm border-primary border font-poppins font-normal text-sm text-black"
             >
-              {
-                loadingState?.applyingRule ? "Applying" : "Apply"
-              }
-
+              {loadingState?.applyingRule ? "Applying" : "Apply"}
             </Button>
           </div>
         </ModalDescription>

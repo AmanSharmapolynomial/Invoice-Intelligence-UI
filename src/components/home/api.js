@@ -91,7 +91,6 @@ export const useApproveMultiInvoiceDocument = () => {
 export const useUpdateMultiInvoiceDocument = () => {
   return useMutation({
     mutationFn: async ({ document_uuid, data }) => {
-      console.log(data);
       let response = await axiosInstance.put(
         `/api/document/multiple-invoice-detections/${document_uuid}/details/`,
         { ...data }

@@ -192,7 +192,7 @@ const {userId}=userStore()
       calculateDivHeightInVh("pagination") +
       9.5);
   let timer;
-  console.log(data);
+
 
   useEffect(() => {
     if (assigned_to) {

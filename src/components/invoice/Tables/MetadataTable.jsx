@@ -332,7 +332,6 @@ const MetadataTable = ({
       setBoundingBoxes([]);
     }
   };
-  console.log(vendorsData);
   const [showPreference, setShowPreference] = useState(true);
   return (
     <div className="w-full -mt-3 border border-[#F0F0F0] shadow-sm p-2 rounded-md">
@@ -600,7 +599,6 @@ const MetadataTable = ({
                       let formattedVendors = vendorNamesFormatter(
                         vendorsData?.vendor_names
                       );
-                      console.log(vendorsData, "formatted vendors");
                       if (
                         !formattedVendors?.find(
                           (v) => v?.value == vendor?.vendor_id

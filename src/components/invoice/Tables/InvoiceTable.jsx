@@ -354,10 +354,7 @@ const InvoiceTable = ({
                     <TableRow
                       onContextMenu={(e) => {
                         e.preventDefault();
-                        console.log("Right clicked on", {
-                          document_uuid,
-                          index
-                        });
+
                         setContextMenu({
                           visible: true,
                           x: e.pageX,

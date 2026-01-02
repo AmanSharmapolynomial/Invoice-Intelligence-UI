@@ -131,7 +131,7 @@ const ItemsListingWithScrollingApproval = forwardRef(
         window.removeEventListener("keydown", handleKeyDown);
       };
     }, [items, checkedItems, unCheckedItems]);
-    console.log(unCheckedItems);
+
     useEffect(() => {
       if (checkedItems?.length == 0 && unCheckedItems?.length==0) {
         setFromTop(0);
