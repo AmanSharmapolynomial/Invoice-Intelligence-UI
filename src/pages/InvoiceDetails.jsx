@@ -1049,7 +1049,7 @@ const InvoiceDetails = () => {
                         alt="copy icon"
                         onClick={() => {
                           navigator.clipboard.writeText(
-                            not_ref.current?.[index]?.innerText
+                            noteRefs.current?.[index]?.innerText
                           );
                           toast.success("Note copied to clipboard");
                         }}
