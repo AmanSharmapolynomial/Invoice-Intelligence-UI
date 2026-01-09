@@ -32,10 +32,10 @@ const BreadCrumb = ({
   const { filters } = useFilterStore();
 
   const navigator = () => {
+
     if (pathname == "/home") {
-      navigate("/");
-    }
-    if (pathname?.includes("/multi-invoice-documents/")) {
+      navigate('/')
+    }else if (pathname?.includes("/multi-invoice-documents/")) {
       if (searchParams.get("assigned_to")) {
         navigate("/multi-invoice-documents?assigned_to=" + searchParams.get("assigned_to"));
       } else {

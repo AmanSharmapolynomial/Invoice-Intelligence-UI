@@ -538,3 +538,15 @@ export const useGetApplicableBusinessRules = () => {
     }
   })
 }
+
+
+export const useGetDocumentAnalytics=(document_uuid,enabled=true)=>{
+  return useQuery({
+    queryKey:['document-analytics',document_uuid],
+    queryFn: async()=>{
+      let response=await axiosInstance.get(`/api/document/${document_uuid}/analytics/`);
+      return response?.data;
+    },
+    enabled:enabled
+  })
+}
