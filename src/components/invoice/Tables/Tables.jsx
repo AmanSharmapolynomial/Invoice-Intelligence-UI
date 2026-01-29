@@ -1,37 +1,34 @@
 import { useEffect, useState } from "react";
 
-import warning from "@/assets/image/warning.svg";
-import { Modal, ModalDescription } from "@/components/ui/Modal";
+import userStore from "@/components/auth/store/userStore";
+import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useGetAdditionalData } from "@/components/vendor/api";
 import { invoiceDetailsTabs } from "@/constants";
 import useFilterStore from "@/store/filtersStore";
 import { invoiceDetailStore } from "@/store/invoiceDetailStore";
-import { useLocation, useSearchParams } from "react-router-dom";
 import {
-  useGetCombinedTable,
-  useGetDocumentMetadata,
-  useGetDocumentMetadataBoundingBoxes
-} from "../api";
-import CombinedTable from "./CombinedTable";
-import MetadataTable from "./MetadataTable";
-import HumanVerificationTable from "./HumanVerificationTable";
-import { Skeleton } from "@/components/ui/skeleton";
-import { LoaderIcon } from "react-hot-toast";
-import CustomTooltip from "@/components/ui/Custom/CustomTooltip";
-import {
+  Check,
   CheckCheck,
-  FileWarning,
-  FileWarningIcon,
+  CheckIcon,
   Loader,
   Rows4,
   SquareCheckBig,
-  Table2,
-  TextSelect,
   TriangleAlert,
-  X
+  UserCheck,
 } from "lucide-react";
-import userStore from "@/components/auth/store/userStore";
-const Tables = ({ setData, setIsLoading = () => { }, currentTab, setCurrentTab = () => { } }) => {
+import { LoaderIcon } from "react-hot-toast";
+import { useLocation, useSearchParams } from "react-router-dom";
+import { useGetCombinedTable, useGetDocumentMetadata } from "../api";
+import CombinedTable from "./CombinedTable";
+import HumanVerificationTable from "./HumanVerificationTable";
+import MetadataTable from "./MetadataTable";
+const Tables = ({
+  setData,
+  setIsLoading = () => {},
+  currentTab,
+  setCurrentTab = () => {},
+}) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [showWarningModal, setShowWarningModal] = useState(false);
   const {
@@ -47,7 +44,7 @@ const Tables = ({ setData, setIsLoading = () => { }, currentTab, setCurrentTab =
     setMetadataTableCopy2,
     setTableData,
     loadingMetadata,
-    setLoadingMetadata
+    setLoadingMetadata,
   } = invoiceDetailStore();
   const { data: additionalData, isLoading: loadingAdditionalData } =
     useGetAdditionalData();
@@ -83,36 +80,37 @@ const Tables = ({ setData, setIsLoading = () => { }, currentTab, setCurrentTab =
     vendor_id,
     document_uuid,
     assigned_to,
-    review_later: from_view=="review_later"?true:filters?.review_later ,
+    review_later: from_view == "review_later" ? true : filters?.review_later,
     from_view: from_view?.includes("not-supported")
       ? "not-supported-documents"
       : "",
     restaurant_tier,
     rejected,
     extraction_source,
-    agent_table_data_validation_status: filters?.agent_table_data_validation_status||"all",
+    agent_table_data_validation_status:
+      filters?.agent_table_data_validation_status || "all",
     agent_metadata_validation_status:
-      filters?.agent_metadata_validation_status||"all"
+      filters?.agent_metadata_validation_status || "all",
   };
-  const {userId}=userStore();
-  if(from_view=="re-review" ){
+  const { userId } = userStore();
+  if (from_view == "re-review") {
     payload = {
       ...payload,
-      re_review_requested:filters?.re_review_requested|| re_review_requested
-    }
+      re_review_requested: filters?.re_review_requested || re_review_requested,
+    };
   }
-  if(from_view=="review-later" ){
+  if (from_view == "review-later") {
     payload = {
       ...payload,
-      review_later:true
-    }
+      review_later: true,
+    };
   }
-  if(from_view=="re-review-assigned"){
+  if (from_view == "re-review-assigned") {
     payload = {
       ...payload,
-      assigned_to:userId,
-       re_review_requested:filters?.re_review_requested|| re_review_requested
-    }
+      assigned_to: userId,
+      re_review_requested: filters?.re_review_requested || re_review_requested,
+    };
   }
 
   const { data, isLoading, isPending, isFetched } =
@@ -120,7 +118,7 @@ const Tables = ({ setData, setIsLoading = () => { }, currentTab, setCurrentTab =
 
   const { data: combinedTableData, isLoading: loadingCombinedTable } =
     useGetCombinedTable(
-      data?.data?.[0]?.document_uuid || data?.data?.document_uuid
+      data?.data?.[0]?.document_uuid || data?.data?.document_uuid,
     );
 
   useEffect(() => {
@@ -138,11 +136,11 @@ const Tables = ({ setData, setIsLoading = () => { }, currentTab, setCurrentTab =
   useEffect(() => {
     const categoryColNum =
       combinedTableData?.data?.processed_table?.columns?.findIndex(
-        (col) => col.column_name == "Category"
+        (col) => col.column_name == "Category",
       );
     const extPriceColNum =
       combinedTableData?.data?.processed_table?.columns?.findIndex(
-        (col) => col.column_name == "Extended Price"
+        (col) => col.column_name == "Extended Price",
       );
 
     const categorySum = combinedTableData?.data?.processed_table?.rows?.reduce(
@@ -156,7 +154,7 @@ const Tables = ({ setData, setIsLoading = () => { }, currentTab, setCurrentTab =
         }
         return acc;
       },
-      {}
+      {},
     );
 
     if (!categorySum) {
@@ -164,7 +162,7 @@ const Tables = ({ setData, setIsLoading = () => { }, currentTab, setCurrentTab =
     }
 
     const categorySumArray = Object?.entries(categorySum)?.map(
-      ([category, sum]) => ({ category, sum })
+      ([category, sum]) => ({ category, sum }),
     );
 
     setCategoryWiseSum(categorySumArray);
@@ -175,7 +173,7 @@ const Tables = ({ setData, setIsLoading = () => { }, currentTab, setCurrentTab =
     operations,
     page,
     combinedTableData,
-    data
+    data,
   ]);
 
   let length = invoiceDetailsTabs?.filter(({ value }) => {
@@ -208,8 +206,9 @@ const Tables = ({ setData, setIsLoading = () => { }, currentTab, setCurrentTab =
             return true;
           })
           ?.map(({ label, value }) => {
-            let styling = `${value == currentTab && "bg-primary text-[#ffffff] rounded-t-xl"
-              }`;
+            let styling = `${
+              value == currentTab && "bg-primary text-[#ffffff] rounded-t-xl"
+            }`;
             return (
               <div
                 key={value}
@@ -228,25 +227,28 @@ const Tables = ({ setData, setIsLoading = () => { }, currentTab, setCurrentTab =
                 )}
                 {!isLoading && label === "Metadata" && (
                   <CustomTooltip
-                    content={`Agent Metadata Validation Status : ${(data?.data?.[0] || data?.data)?.agent_validation_status
+                    content={`Agent Metadata Validation Status : ${
+                      (data?.data?.[0] || data?.data)?.agent_validation_status
                         ?.metadata_validation_status
-                      } `}
+                    } `}
                     className={"!min-w-80 !mb-4"}
                   >
-                    {(data?.data?.[0] || data?.data)?.agent_validation_status && (data?.data?.[0] || data?.data)?.agent_validation_status
-                      ?.metadata_validation_status !== "unassigned" &&
+                    {(data?.data?.[0] || data?.data)?.agent_validation_status &&
+                      (data?.data?.[0] || data?.data)?.agent_validation_status
+                        ?.metadata_validation_status !== "unassigned" &&
                       !loadingMetadata && (
                         <span
-                          className={`${(data?.data?.[0] || data?.data)
+                          className={`${
+                            (data?.data?.[0] || data?.data)
                               ?.agent_validation_status
                               ?.metadata_validation_status == "rejected"
                               ? "bg-gray-200"
                               : (data?.data?.[0] || data?.data)
-                                ?.agent_validation_status
-                                ?.metadata_validation_status == "approved"
+                                    ?.agent_validation_status
+                                    ?.metadata_validation_status == "approved"
                                 ? "bg-primary border-white border"
                                 : "bg-yellow-500"
-                            } mx-2  flex items-center gap-x-1 font-poppins absolute right-0 top-3.5 font-normal text-xs capitalize leading-3  text-[#ffffff] py-1 rounded-md   px-1`}
+                          } mx-2  flex items-center gap-x-1 font-poppins absolute right-0 top-3.5 font-normal text-xs capitalize leading-3  text-[#ffffff] py-1 rounded-md   px-1`}
                         >
                           {/* <TextSelect className="h-3 w-3" /> */}
                           <span>
@@ -256,20 +258,20 @@ const Tables = ({ setData, setIsLoading = () => { }, currentTab, setCurrentTab =
                               ?.metadata_validation_status == "rejected" ? (
                               <TriangleAlert className="w-4 h-4 text-yellow-600 z-50" />
                             ) : (data?.data?.[0] || data?.data)
-                              ?.agent_validation_status
-                              ?.metadata_validation_status == "approved" ? (
+                                ?.agent_validation_status
+                                ?.metadata_validation_status == "approved" ? (
                               <CheckCheck className="w-4 h-4" />
                             ) : (data?.data?.[0] || data?.data)
-                              ?.agent_validation_status
-                              ?.metadata_validation_status == "queued" ? (
+                                ?.agent_validation_status
+                                ?.metadata_validation_status == "queued" ? (
                               <Rows4 className="w-4 h-4" />
                             ) : (data?.data?.[0] || data?.data)
-                              ?.agent_validation_status
-                              ?.metadata_validation_status == "processing" ? (
+                                ?.agent_validation_status
+                                ?.metadata_validation_status == "processing" ? (
                               <Loader className="w-4 h-4" />
                             ) : (data?.data?.[0] || data?.data)
-                              ?.agent_validation_status
-                              ?.metadata_validation_status == "assigned" ? (
+                                ?.agent_validation_status
+                                ?.metadata_validation_status == "assigned" ? (
                               <SquareCheckBig className="w-4 h-4" />
                             ) : (
                               <></>
@@ -282,24 +284,30 @@ const Tables = ({ setData, setIsLoading = () => { }, currentTab, setCurrentTab =
                 {!isLoading && label == "Human Verification" && (
                   <CustomTooltip
                     className={"!min-w-80 !mb-4"}
-                    content={`Agent Table Data Validation Status : ${(data?.data?.[0] || data?.data)?.agent_validation_status
+                    content={`Agent Table Data Validation Status : ${
+                      (data?.data?.[0] || data?.data)?.agent_validation_status
                         ?.table_data_validation_status
-                      } `}
+                    } `}
                   >
-                    {(data?.data?.[0] || data?.data)?.agent_validation_status && (data?.data?.[0] || data?.data)?.agent_validation_status
-                      ?.table_data_validation_status !== "unassigned" &&
+                    {(data?.data?.[0] || data?.data)?.agent_validation_status &&
+                      (data?.data?.[0] || data?.data)?.agent_validation_status
+                        ?.table_data_validation_status !== "unassigned" &&
                       !loadingMetadata && (
                         <div
-                          className={`${(data?.data?.[0] || data?.data)
+                          className={`${
+                            (data?.data?.[0] || data?.data)
                               ?.agent_validation_status
                               ?.table_data_validation_status == "rejected"
                               ? "bg-gray-200"
                               : (data?.data?.[0] || data?.data)
-                                ?.agent_validation_status
-                                ?.table_data_validation_status == "approved"
+                                    ?.agent_validation_status
+                                    ?.table_data_validation_status == "approved" ||(data?.data?.[0] || data?.data)
+                              ?.agent_validation_status
+                              ?.table_data_validation_status ==
+                            "balancer_approved"
                                 ? "bg-primary border border-white"
                                 : "bg-yellow-500"
-                            } mx-2  font-poppins font-normal text-xs leading-3  absolute right-0 top-3.5 flex items-center gap-x-1 !capitalize  text-[#ffffff] py-1  px-1 rounded-md `}
+                          } mx-2  font-poppins font-normal text-xs leading-3  absolute right-0 top-3.5 flex items-center gap-x-1 !capitalize  text-[#ffffff] py-1.5  px-1.5 rounded-md `}
                         >
                           {/* <Table2 className="w-3 h-3" />{" "} */}
                           {(data?.data?.[0] || data?.data)
@@ -307,21 +315,26 @@ const Tables = ({ setData, setIsLoading = () => { }, currentTab, setCurrentTab =
                             ?.table_data_validation_status == "rejected" ? (
                             <TriangleAlert className="w-4 h-4 text-yellow-600 z-50" />
                           ) : (data?.data?.[0] || data?.data)
-                            ?.agent_validation_status
-                            ?.table_data_validation_status == "approved" ? (
-                            <CheckCheck className="w-4 h-4" />
+                              ?.agent_validation_status
+                              ?.table_data_validation_status == "approved" ? (
+                            <Check className="w-4 h-4" />
                           ) : (data?.data?.[0] || data?.data)
-                            ?.agent_validation_status
-                            ?.table_data_validation_status == "queued" ? (
+                              ?.agent_validation_status
+                              ?.table_data_validation_status == "queued" ? (
                             <Rows4 className="w-4 h-4" />
                           ) : (data?.data?.[0] || data?.data)
-                            ?.agent_validation_status
-                            ?.table_data_validation_status == "processing" ? (
+                              ?.agent_validation_status
+                              ?.table_data_validation_status == "processing" ? (
                             <Loader className="w-4 h-4" />
                           ) : (data?.data?.[0] || data?.data)
-                            ?.agent_validation_status
-                            ?.table_data_validation_status == "assigned" ? (
+                              ?.agent_validation_status
+                              ?.table_data_validation_status == "assigned" ? (
                             <SquareCheckBig className="w-4 h-4" />
+                          ) : (data?.data?.[0] || data?.data)
+                              ?.agent_validation_status
+                              ?.table_data_validation_status ==
+                            "balancer_approved" ? (
+                            <CheckCheck className="w-4 h-4" />
                           ) : (
                             <></>
                           )}
@@ -373,7 +386,7 @@ const Tables = ({ setData, setIsLoading = () => { }, currentTab, setCurrentTab =
             ...filters,
             page,
             vendor_id,
-            document_uuid
+            document_uuid,
           }}
           additionalData={additionalData}
           loadingAdditionalData={loadingAdditionalData}
