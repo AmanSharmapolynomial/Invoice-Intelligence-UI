@@ -252,6 +252,7 @@ const InvoiceFilters = () => {
               { label: "Processing", value: "processing" },
               { label: "Approved", value: "approved" },
               { label: "Rejected", value: "rejected" },
+              { label: "Balancer Approved", value: "balancer_approved" },
               { label: "All", value: "all" },
             ]}
             onSelect={(val) => {
